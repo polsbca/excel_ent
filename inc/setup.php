@@ -33,8 +33,8 @@ function excel_ent_setup() {
 	add_theme_support(
 		'custom-logo',
 		array(
-			'height'      => 80,
-			'width'       => 240,
+			'height'      => 63,
+			'width'       => 100,
 			'flex-height' => true,
 			'flex-width'  => true,
 		)
@@ -53,8 +53,10 @@ function excel_ent_setup() {
 
 	register_nav_menus(
 		array(
-			'primary' => __( 'Primary Menu', 'excel-ent' ),
-			'footer'  => __( 'Footer Menu', 'excel-ent' ),
+			'primary'              => __( 'Primary Menu', 'excel-ent' ),
+			'footer-entertainment' => __( 'Footer — Entertainment', 'excel-ent' ),
+			'footer-services'      => __( 'Footer — Services', 'excel-ent' ),
+			'footer-company'       => __( 'Footer — Company', 'excel-ent' ),
 		)
 	);
 

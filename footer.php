@@ -8,42 +8,46 @@
 	</main><!-- #primary -->
 
 	<footer id="colophon" class="site-footer">
+		<div class="site-footer__glow" aria-hidden="true"></div>
+
 		<div class="site-footer__inner">
-			<div class="site-footer__brand">
-				<p class="site-footer__name"><?php bloginfo( 'name' ); ?></p>
-				<?php
-				$description = get_bloginfo( 'description', 'display' );
-				if ( $description || is_customize_preview() ) :
-					?>
-					<p class="site-footer__tagline"><?php echo esc_html( $description ); ?></p>
-				<?php endif; ?>
+			<div class="site-footer__top">
+				<div class="site-footer__brand">
+					<?php excel_ent_footer_logo(); ?>
+					<p class="site-footer__tagline">
+						<?php
+						echo esc_html(
+							get_theme_mod(
+								'excel_ent_footer_tagline',
+								__( "The UK's leading entertainment agency — connecting exceptional artists with unforgettable events since 1988", 'excel-ent' )
+							)
+						);
+						?>
+					</p>
+				</div>
+
+				<div class="site-footer__menus">
+					<?php excel_ent_footer_column( 'footer-entertainment', __( 'Entertainment', 'excel-ent' ), excel_ent_default_entertainment_links() ); ?>
+					<?php excel_ent_footer_column( 'footer-services', __( 'Services', 'excel-ent' ), excel_ent_default_services_links() ); ?>
+					<?php excel_ent_footer_column( 'footer-company', __( 'Company', 'excel-ent' ), excel_ent_default_company_links() ); ?>
+				</div>
 			</div>
 
-			<?php if ( has_nav_menu( 'footer' ) ) : ?>
-				<nav class="footer-navigation" aria-label="<?php esc_attr_e( 'Footer', 'excel-ent' ); ?>">
+			<div class="site-footer__bottom">
+				<p class="site-footer__copy">
+					&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?>
+					<?php esc_html_e( 'Excel Entertainment Limited | Warwickshire, UK', 'excel-ent' ); ?>
+				</p>
+				<p class="site-footer__credit">
 					<?php
-					wp_nav_menu(
-						array(
-							'theme_location' => 'footer',
-							'menu_id'        => 'footer-menu',
-							'container'      => false,
-							'depth'          => 1,
-						)
+					printf(
+						/* translators: %s: agency name */
+						esc_html__( 'Website by %s', 'excel-ent' ),
+						esc_html__( 'Rocky Stripe Marketing', 'excel-ent' )
 					);
 					?>
-				</nav>
-			<?php endif; ?>
-
-			<?php if ( is_active_sidebar( 'footer-1' ) ) : ?>
-				<div class="footer-widgets">
-					<?php dynamic_sidebar( 'footer-1' ); ?>
-				</div>
-			<?php endif; ?>
-
-			<p class="site-footer__copy">
-				&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?>
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a>
-			</p>
+				</p>
+			</div>
 		</div>
 	</footer>
 </div><!-- #page -->

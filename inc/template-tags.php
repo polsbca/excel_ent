@@ -71,33 +71,201 @@ function excel_ent_post_thumbnail( $size = 'excel-ent-card' ) {
 }
 
 /**
- * Render site brand (custom logo or site title).
+ * Header logo (custom logo or Figma asset fallback).
  */
-function excel_ent_site_brand() {
+function excel_ent_header_logo() {
 	if ( has_custom_logo() ) {
 		the_custom_logo();
 		return;
 	}
+	?>
+	<a class="custom-logo-link site-logo site-logo--header" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
+		<img
+			class="custom-logo"
+			src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/logo/logo-header.svg' ); ?>"
+			alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
+			width="100"
+			height="63"
+			decoding="async"
+		>
+	</a>
+	<?php
+}
 
-	printf(
-		'<p class="site-title"><a href="%1$s" rel="home">%2$s</a></p>',
-		esc_url( home_url( '/' ) ),
-		esc_html( get_bloginfo( 'name' ) )
-	);
+/**
+ * Footer logo (custom logo or Figma asset fallback).
+ */
+function excel_ent_footer_logo() {
+	?>
+	<a class="site-logo site-logo--footer" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
+		<img
+			src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/logo/logo-footer.png' ); ?>"
+			alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
+			width="347"
+			height="218"
+			decoding="async"
+		>
+	</a>
+	<?php
+}
+
+/**
+ * Phone number for header CTA.
+ *
+ * @return string
+ */
+function excel_ent_get_phone_number() {
+	return (string) get_theme_mod( 'excel_ent_phone', '+44 0000 000000' );
+}
+
+/**
+ * Quote page URL for header CTA.
+ *
+ * @return string
+ */
+function excel_ent_get_quote_url() {
+	$url = get_theme_mod( 'excel_ent_quote_url', '' );
+	if ( $url ) {
+		return $url;
+	}
+
+	$page = get_page_by_path( 'get-a-quote' );
+	if ( ! $page ) {
+		$page = get_page_by_path( 'contact' );
+	}
+
+	return $page ? get_permalink( $page ) : home_url( '/contact/' );
 }
 
 /**
  * Fallback menu when no primary menu is assigned.
  */
 function excel_ent_fallback_menu() {
-	echo '<ul id="primary-menu" class="menu">';
-	echo '<li><a href="' . esc_url( home_url( '/' ) ) . '">' . esc_html__( 'Home', 'excel-ent' ) . '</a></li>';
-	wp_list_pages(
+	$items = array(
 		array(
-			'title_li' => '',
-			'depth'    => 1,
-			'number'   => 5,
-		)
+			'url'   => home_url( '/' ),
+			'label' => __( 'Home', 'excel-ent' ),
+			'home'  => true,
+		),
+		array(
+			'url'   => home_url( '/about-us/' ),
+			'label' => __( 'About Us', 'excel-ent' ),
+			'home'  => false,
+		),
+		array(
+			'url'   => home_url( '/artists/' ),
+			'label' => __( 'Explore Artists', 'excel-ent' ),
+			'home'  => false,
+		),
+		array(
+			'url'   => home_url( '/packages/' ),
+			'label' => __( 'Event Packages', 'excel-ent' ),
+			'home'  => false,
+		),
+		array(
+			'url'   => home_url( '/contact/' ),
+			'label' => __( 'Contact Us', 'excel-ent' ),
+			'home'  => false,
+		),
 	);
+
+	echo '<ul id="primary-menu" class="menu">';
+	foreach ( $items as $item ) {
+		$current = $item['home'] ? is_front_page() : false;
+		printf(
+			'<li class="%1$s"><a href="%2$s">%3$s</a></li>',
+			$current ? 'current-menu-item' : '',
+			esc_url( $item['url'] ),
+			esc_html( $item['label'] )
+		);
+	}
 	echo '</ul>';
+}
+
+/**
+ * Default Entertainment footer links.
+ *
+ * @return array<string, string>
+ */
+function excel_ent_default_entertainment_links() {
+	return array(
+		__( 'Solo Artists', 'excel-ent' )   => home_url( '/solo-artists/' ),
+		__( 'Duos', 'excel-ent' )           => home_url( '/duos/' ),
+		__( 'Bands', 'excel-ent' )          => home_url( '/bands/' ),
+		__( 'Tribute Acts', 'excel-ent' )   => home_url( '/tribute-acts/' ),
+		__( 'DJ Nights', 'excel-ent' )      => home_url( '/dj-nights/' ),
+		__( 'Celebrity Acts', 'excel-ent' ) => home_url( '/celebrity-acts/' ),
+	);
+}
+
+/**
+ * Default Services footer links.
+ *
+ * @return array<string, string>
+ */
+function excel_ent_default_services_links() {
+	return array(
+		__( 'Wedding Packages', 'excel-ent' )    => home_url( '/wedding-packages/' ),
+		__( 'Corporate Events', 'excel-ent' )    => home_url( '/corporate-events/' ),
+		__( 'Pub Nights', 'excel-ent' )          => home_url( '/pub-nights/' ),
+		__( 'Themed Nights', 'excel-ent' )       => home_url( '/themed-nights/' ),
+		__( 'Artist Registration', 'excel-ent' ) => home_url( '/artist-registration/' ),
+		__( 'Venue Registration', 'excel-ent' )  => home_url( '/venue-registration/' ),
+	);
+}
+
+/**
+ * Default Company footer links.
+ *
+ * @return array<string, string>
+ */
+function excel_ent_default_company_links() {
+	return array(
+		__( 'About Us', 'excel-ent' )            => home_url( '/about-us/' ),
+		__( 'Contact Us', 'excel-ent' )          => home_url( '/contact/' ),
+		__( 'Ideas & Advice', 'excel-ent' )      => home_url( '/ideas-advice/' ),
+		__( 'Terms & Conditions', 'excel-ent' )  => home_url( '/terms-conditions/' ),
+		__( 'Privacy Policy', 'excel-ent' )      => home_url( '/privacy-policy/' ),
+		__( 'Celebrity Acts', 'excel-ent' )      => home_url( '/celebrity-acts/' ),
+	);
+}
+
+/**
+ * Render a footer menu column.
+ *
+ * @param string               $location Menu location.
+ * @param string               $title    Column title.
+ * @param array<string,string> $fallback Fallback label => URL pairs.
+ */
+function excel_ent_footer_column( $location, $title, $fallback = array() ) {
+	?>
+	<div class="footer-column">
+		<p class="footer-column__title"><?php echo esc_html( $title ); ?></p>
+		<?php
+		if ( has_nav_menu( $location ) ) {
+			wp_nav_menu(
+				array(
+					'theme_location' => $location,
+					'container'      => false,
+					'menu_class'     => 'footer-column__menu',
+					'depth'          => 1,
+				)
+			);
+		} else {
+			echo '<ul class="footer-column__menu">';
+			$index = 0;
+			foreach ( $fallback as $label => $url ) {
+				printf(
+					'<li class="%1$s"><a href="%2$s">%3$s</a></li>',
+					0 === $index ? 'is-active' : '',
+					esc_url( $url ),
+					esc_html( $label )
+				);
+				++$index;
+			}
+			echo '</ul>';
+		}
+		?>
+	</div>
+	<?php
 }

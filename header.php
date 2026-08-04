@@ -4,6 +4,9 @@
  *
  * @package Excel_Ent
  */
+
+$excel_ent_phone = excel_ent_get_phone_number();
+$excel_ent_quote = excel_ent_get_quote_url();
 ?><!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -19,9 +22,9 @@
 
 <div id="page" class="site">
 	<header id="masthead" class="site-header">
-		<div class="site-header__inner">
+		<div class="site-header__bar">
 			<div class="site-branding">
-				<?php excel_ent_site_brand(); ?>
+				<?php excel_ent_header_logo(); ?>
 			</div>
 
 			<button
@@ -47,7 +50,31 @@
 				);
 				?>
 			</nav>
+
+			<div class="site-header__actions">
+				<?php if ( $excel_ent_phone ) : ?>
+					<a
+						class="header-phone"
+						href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $excel_ent_phone ) ); ?>"
+						aria-label="<?php esc_attr_e( 'Call us', 'excel-ent' ); ?>"
+					>
+						<img
+							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/phone-fill.svg' ); ?>"
+							alt=""
+							width="30"
+							height="30"
+							decoding="async"
+						>
+					</a>
+				<?php endif; ?>
+
+				<a class="btn-quote" href="<?php echo esc_url( $excel_ent_quote ); ?>">
+					<?php esc_html_e( 'Get a Quote', 'excel-ent' ); ?>
+				</a>
+			</div>
 		</div>
+
+		<?php get_template_part( 'template-parts/header', 'search' ); ?>
 	</header>
 
 	<main id="primary" class="site-main">
