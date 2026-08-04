@@ -130,102 +130,7 @@ a:focus-visible {
 	max-width: 40rem;
 }
 
-/* Hero */
-.hero {
-	position: relative;
-	min-height: calc(100vh - var(--ee-header-h));
-	display: grid;
-	align-items: end;
-	overflow: hidden;
-	isolation: isolate;
-}
-
-.hero__media {
-	position: absolute;
-	inset: 0;
-	z-index: -1;
-	background:
-		radial-gradient(circle at 25% 40%, rgba(255, 255, 255, 0.14) 0%, transparent 18%),
-		radial-gradient(circle at 55% 55%, rgba(120, 180, 255, 0.12) 0%, transparent 22%),
-		radial-gradient(circle at 70% 35%, rgba(255, 255, 255, 0.08) 0%, transparent 14%),
-		linear-gradient(180deg, #050505 0%, #0c0c12 45%, #101018 100%);
-}
-
-.hero__glow {
-	position: absolute;
-	border-radius: 50%;
-	filter: blur(60px);
-	opacity: 0.7;
-	animation: ee-float 10s ease-in-out infinite alternate;
-}
-
-.hero__glow--one {
-	width: min(55vw, 520px);
-	height: min(55vw, 520px);
-	background: #1a5fff;
-	top: 8%;
-	left: 8%;
-}
-
-.hero__glow--two {
-	width: min(45vw, 420px);
-	height: min(45vw, 420px);
-	background: #ff5a1f;
-	right: 5%;
-	bottom: 18%;
-	animation-delay: -3s;
-}
-
-.hero__grain {
-	position: absolute;
-	inset: 0;
-	opacity: 0.18;
-	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-	mix-blend-mode: soft-light;
-	pointer-events: none;
-}
-
-.hero__content {
-	max-width: var(--ee-max);
-	width: 100%;
-	margin: 0 auto;
-	padding: clamp(3rem, 10vh, 6rem) var(--ee-space) clamp(3.5rem, 9vh, 5.5rem);
-	color: #f5f7fa;
-}
-
-.hero__brand {
-	margin: 0 0 1rem;
-	font-family: var(--ee-font-display);
-	font-size: clamp(2.75rem, 9vw, 6.5rem);
-	font-weight: 800;
-	letter-spacing: -0.05em;
-	line-height: 0.9;
-	color: #fff;
-}
-
-.hero__title {
-	margin: 0 0 1rem;
-	max-width: 16ch;
-	font-family: var(--ee-font-display);
-	font-size: clamp(1.65rem, 4vw, 2.75rem);
-	font-weight: 650;
-	letter-spacing: -0.03em;
-	line-height: 1.15;
-	color: #fff;
-}
-
-.hero__lede {
-	margin: 0 0 1.75rem;
-	max-width: 34rem;
-	font-size: 1.125rem;
-	color: rgba(245, 247, 250, 0.82);
-}
-
-.hero__actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.85rem;
-}
+/* Hero styles live in hero.css */
 
 .btn {
 	display: inline-flex;
@@ -240,23 +145,10 @@ a:focus-visible {
 	line-height: 1;
 	text-decoration: none;
 	cursor: pointer;
-	transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-
-.btn:hover,
-.btn:focus-visible {
-	transform: translateY(-1px);
-	text-decoration: none;
+	/* Hover motion lives in button-hovers.css */
 }
 
 .btn--primary {
-	background: var(--ee-accent);
-	color: #fff;
-}
-
-.btn--primary:hover,
-.btn--primary:focus-visible {
-	background: #0e1116;
 	color: #fff;
 }
 
@@ -264,13 +156,6 @@ a:focus-visible {
 	background: transparent;
 	color: #fff;
 	border-color: rgba(255, 255, 255, 0.45);
-}
-
-.btn--ghost:hover,
-.btn--ghost:focus-visible {
-	background: #fff;
-	color: var(--ee-ink);
-	border-color: #fff;
 }
 
 /* Sections */
@@ -557,17 +442,7 @@ a:focus-visible {
 
 /* Footer styles live in header-footer.css */
 
-/* Reveal motion */
-.reveal {
-	opacity: 0;
-	transform: translateY(18px);
-	transition: opacity 0.7s ease, transform 0.7s ease;
-}
-
-.reveal.is-visible {
-	opacity: 1;
-	transform: none;
-}
+/* Reveal motion — base lives in animations.css */
 
 @keyframes ee-float {
 	from {
@@ -583,14 +458,10 @@ a:focus-visible {
 		scroll-behavior: auto;
 	}
 
-	.reveal,
-	.hero__glow,
 	.post-card,
-	.post-card .post-thumbnail img,
-	.btn {
+	.post-card .post-thumbnail img {
 		animation: none !important;
 		transition: none !important;
-		opacity: 1 !important;
 		transform: none !important;
 	}
 }
@@ -611,9 +482,5 @@ a:focus-visible {
 @media (max-width: 720px) {
 	.posts-grid {
 		grid-template-columns: 1fr;
-	}
-
-	.hero {
-		min-height: calc(100svh - var(--ee-header-h));
 	}
 }

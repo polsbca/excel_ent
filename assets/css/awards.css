@@ -1,0 +1,136 @@
+/* Excel Ent — Awards marquee (Figma 898:8519) */
+
+.awards-marquee {
+	position: relative;
+	width: 100%;
+	height: 206px;
+	background: #000;
+	border-top: 1px solid #f89a42;
+	border-bottom: 1px solid #f89a42;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+}
+
+.awards-marquee__viewport {
+	width: 100%;
+	overflow: hidden;
+}
+
+.awards-marquee__track {
+	display: flex;
+	width: max-content;
+	align-items: center;
+	animation: ee-awards-marquee 28s linear infinite;
+	will-change: transform;
+}
+
+.awards-marquee__group {
+	display: flex;
+	align-items: center;
+	gap: 94px;
+	padding-right: 94px;
+	flex-shrink: 0;
+}
+
+.awards-marquee__text {
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-weight: 600;
+	font-size: 40px;
+	line-height: 1;
+	letter-spacing: 9px;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, 0.5);
+	white-space: nowrap;
+	text-align: center;
+	transition: color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+}
+
+.awards-marquee__text:hover {
+	color: rgba(255, 255, 255, 0.9);
+	transform: scale(1.04);
+}
+
+.awards-marquee__dot {
+	display: block;
+	width: 12px;
+	height: 12px;
+	flex-shrink: 0;
+	background: linear-gradient(180deg, #eb2055 0%, #f89a42 50%, #eb2055 100%);
+}
+
+@keyframes ee-awards-marquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+.awards-marquee:hover .awards-marquee__track {
+	animation-play-state: paused;
+}
+
+@media (max-width: 1199px) {
+	.awards-marquee {
+		height: 120px;
+	}
+
+	.awards-marquee__text {
+		font-size: 28px;
+		letter-spacing: 6px;
+	}
+
+	.awards-marquee__group {
+		gap: 56px;
+		padding-right: 56px;
+	}
+
+	.awards-marquee__dot {
+		width: 10px;
+		height: 10px;
+	}
+}
+
+@media (max-width: 700px) {
+	.awards-marquee {
+		height: 88px;
+	}
+
+	.awards-marquee__text {
+		font-size: 22px;
+		letter-spacing: 4px;
+	}
+
+	.awards-marquee__group {
+		gap: 36px;
+		padding-right: 36px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.awards-marquee__track {
+		animation: none;
+		transform: none;
+		justify-content: center;
+		width: 100%;
+		flex-wrap: wrap;
+	}
+
+	.awards-marquee__group:last-child {
+		display: none;
+	}
+
+	.awards-marquee__group {
+		justify-content: center;
+		flex-wrap: wrap;
+		padding-right: 0;
+		gap: 28px 40px;
+	}
+
+	.awards-marquee__text:hover {
+		transform: none;
+	}
+}

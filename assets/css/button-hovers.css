@@ -1,0 +1,341 @@
+/* Excel Ent — project-wide button / CTA hover effects
+   Matched to excel-entertainment.html */
+
+:root {
+	--ee-ease: cubic-bezier(0.22, 1, 0.36, 1);
+	--ee-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+	--ee-btn-glow: 0 14px 34px -8px rgba(240, 41, 107, 0.55);
+	--ee-btn-grad: linear-gradient(100deg, #ff7a3c, #f0296b);
+	--ee-btn-grad-figma: linear-gradient(
+		270deg,
+		#eb2055 0.48%,
+		#eb2454 17.67%,
+		#ec2654 26.26%,
+		#ec2854 34.86%,
+		#ed3951 48.8%,
+		#ee4250 55.77%,
+		#f1634c 80.29%,
+		#f8a742 100%
+	);
+}
+
+/* ---------- Shared interactive base ---------- */
+
+.btn,
+.btn-quote,
+.btn-hero,
+.header-search__submit,
+.header-phone,
+.header-search__field,
+.hero-carousel__btn,
+.post-card,
+.footer-column__menu a,
+.main-navigation .menu > li > a,
+.site-logo,
+.custom-logo-link,
+.magnetic,
+button:not(.nav-toggle),
+input[type="submit"],
+input[type="button"],
+.wp-block-button__link,
+.wp-element-button {
+	transition:
+		transform 0.35s var(--ee-ease-spring),
+		box-shadow 0.35s var(--ee-ease),
+		background 0.35s var(--ee-ease),
+		background-position 0.45s var(--ee-ease),
+		border-color 0.3s ease,
+		color 0.3s ease,
+		filter 0.3s ease,
+		gap 0.3s ease,
+		opacity 0.3s ease;
+	will-change: transform;
+}
+
+/* ---------- Primary / filled gradient CTAs ---------- */
+
+.btn--primary,
+.btn-quote,
+.btn-hero--primary,
+.header-search__submit,
+.service-featured__cta,
+.cta-neon__btn--primary,
+input[type="submit"],
+.wp-block-button__link,
+.wp-element-button {
+	background-image: var(--ee-btn-grad-figma);
+	background-size: 200% 100%;
+	background-position: 0% 50%;
+	background-color: transparent;
+	box-shadow: 0 4px 4px rgba(155, 77, 255, 0.45);
+}
+
+.btn--primary:hover,
+.btn--primary:focus-visible,
+.btn-quote:hover,
+.btn-quote:focus-visible,
+.btn-hero--primary:hover,
+.btn-hero--primary:focus-visible,
+.header-search__submit:hover,
+.header-search__submit:focus-visible,
+.service-featured__cta:hover,
+.service-featured__cta:focus-visible,
+.cta-neon__btn--primary:hover,
+.cta-neon__btn--primary:focus-visible,
+input[type="submit"]:hover,
+input[type="submit"]:focus-visible,
+.wp-block-button__link:hover,
+.wp-block-button__link:focus-visible,
+.wp-element-button:hover,
+.wp-element-button:focus-visible {
+	transform: translateY(-3px);
+	box-shadow: var(--ee-btn-glow);
+	background-position: 100% 50%;
+	filter: none;
+	color: #fff;
+	text-decoration: none;
+}
+
+.btn--primary:active,
+.btn-quote:active,
+.btn-hero--primary:active,
+.header-search__submit:active,
+.service-featured__cta:active,
+.cta-neon__btn--primary:active,
+input[type="submit"]:active,
+.wp-block-button__link:active,
+.wp-element-button:active {
+	transform: scale(0.96);
+	box-shadow: 0 6px 18px -8px rgba(240, 41, 107, 0.45);
+}
+
+/* ---------- Outline / ghost CTAs ---------- */
+
+.btn--ghost,
+.btn-hero--outline,
+.btn-outline {
+	background: transparent;
+	box-shadow: none;
+}
+
+.btn--ghost:hover,
+.btn--ghost:focus-visible,
+.btn-hero--outline:hover,
+.btn-hero--outline:focus-visible,
+.btn-outline:hover,
+.btn-outline:focus-visible {
+	transform: translateY(-3px);
+	background: rgba(244, 239, 228, 0.06);
+	border-color: #fff;
+	color: #fff;
+	text-decoration: none;
+	box-shadow: none;
+	filter: none;
+}
+
+.excel-way__cta:hover,
+.excel-way__cta:focus-visible {
+	transform: translateY(-3px);
+	color: #fff;
+	text-decoration: none;
+}
+
+.cta-neon__btn--outline:hover,
+.cta-neon__btn--outline:focus-visible {
+	transform: translateY(-3px);
+	color: #fff;
+	text-decoration: none;
+}
+
+.btn--ghost:active,
+.btn-hero--outline:active,
+.btn-outline:active,
+.excel-way__cta:active,
+.venue-panel__cta:active,
+.cta-neon__btn--outline:active {
+	transform: scale(0.96);
+}
+
+.venue-panel__cta:hover,
+.venue-panel__cta:focus-visible {
+	transform: translateY(-3px);
+	color: #fff;
+	text-decoration: none;
+}
+
+/* Generic .btn fallback (when no modifier) */
+.btn:hover,
+.btn:focus-visible {
+	transform: translateY(-3px);
+	text-decoration: none;
+}
+
+.btn:active {
+	transform: scale(0.96);
+}
+
+/* ---------- Header phone ---------- */
+
+.header-phone:hover,
+.header-phone:focus-visible {
+	border-color: #ff7a3c;
+	transform: rotate(-8deg);
+	background: rgba(255, 122, 60, 0.1);
+}
+
+.header-phone:active {
+	transform: rotate(-8deg) scale(0.96);
+}
+
+/* ---------- Search submit (extra spin like HTML .search-go) ---------- */
+
+.header-search__submit:hover,
+.header-search__submit:focus-visible {
+	transform: translateY(-3px) scale(1.08) rotate(6deg);
+}
+
+.header-search__submit:active {
+	transform: scale(0.96) rotate(0deg);
+}
+
+/* ---------- Search fields ---------- */
+
+.header-search__field:hover {
+	background: rgba(244, 239, 228, 0.05);
+	border-radius: 20px;
+}
+
+/* ---------- Nav links ---------- */
+
+.main-navigation .menu > li > a {
+	position: relative;
+}
+
+.main-navigation .menu > li > a::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	bottom: 0;
+	width: 0;
+	height: 2px;
+	background: linear-gradient(90deg, #eb2055, #f89a42);
+	transition: width 0.35s var(--ee-ease), left 0.35s var(--ee-ease);
+}
+
+.main-navigation .menu > li > a:hover::after,
+.main-navigation .menu > li > a:focus-visible::after {
+	width: 100%;
+	left: 0;
+}
+
+.main-navigation .menu > li.current-menu-item > a::after,
+.main-navigation .menu > li.current_page_item > a::after {
+	/* Active state already uses border-bottom in header styles — keep underline from there */
+	display: none;
+}
+
+/* ---------- Cards / posts ---------- */
+
+.post-card:hover,
+.post-card:focus-within {
+	transform: translateY(-6px);
+	border-color: rgba(244, 239, 228, 0.3);
+	box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.5);
+}
+
+.post-card:hover .post-thumbnail img {
+	transform: scale(1.08);
+}
+
+.post-card .post-thumbnail img {
+	transition: transform 0.8s var(--ee-ease);
+}
+
+.post-card .entry-title a {
+	transition: transform 0.5s var(--ee-ease), color 0.3s ease;
+	display: inline-block;
+}
+
+.post-card:hover .entry-title a {
+	transform: translateY(-4px);
+}
+
+/* ---------- Footer links ---------- */
+
+.footer-column__menu a:hover,
+.footer-column__menu a:focus-visible {
+	transform: translateX(4px);
+	color: #f89a42;
+}
+
+/* ---------- Pagination / misc links as buttons ---------- */
+
+.navigation.pagination .page-numbers:hover,
+.post-navigation a:hover,
+.search-submit:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--ee-btn-glow);
+}
+
+/* ---------- Carousel arrows ---------- */
+
+.hero-carousel__btn:hover,
+.hero-carousel__btn:focus-visible {
+	transform: scale(1.08);
+}
+
+.hero-carousel__btn:active {
+	transform: scale(0.96);
+}
+
+/* ---------- Comment / form submit already covered; polish ---------- */
+
+.comment-form .form-submit .submit {
+	background-image: var(--ee-btn-grad-figma) !important;
+	background-size: 200% 100%;
+	background-position: 0% 50%;
+	border: 0;
+	color: #fff;
+	transition:
+		transform 0.35s var(--ee-ease-spring),
+		box-shadow 0.35s var(--ee-ease),
+		background-position 0.45s var(--ee-ease);
+}
+
+.comment-form .form-submit .submit:hover,
+.comment-form .form-submit .submit:focus-visible {
+	transform: translateY(-3px);
+	box-shadow: var(--ee-btn-glow);
+	background-position: 100% 50%;
+}
+
+.comment-form .form-submit .submit:active {
+	transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.btn,
+	.btn-quote,
+	.btn-hero,
+	.header-search__submit,
+	.header-phone,
+	.post-card,
+	.footer-column__menu a,
+	.main-navigation .menu > li > a,
+	.magnetic,
+	button,
+	input[type="submit"],
+	.wp-block-button__link {
+		transition: none !important;
+	}
+
+	.btn:hover,
+	.btn-quote:hover,
+	.btn-hero:hover,
+	.header-search__submit:hover,
+	.header-phone:hover,
+	.post-card:hover,
+	.footer-column__menu a:hover {
+		transform: none !important;
+	}
+}

@@ -98,7 +98,7 @@ $excel_ent_event_date = isset( $_GET['event_date'] ) ? sanitize_text_field( wp_u
 		</label>
 	</div>
 
-	<button class="header-search__submit" type="submit" aria-label="<?php esc_attr_e( 'Search', 'excel-ent' ); ?>">
+	<button class="header-search__submit magnetic" type="submit" aria-label="<?php esc_attr_e( 'Search', 'excel-ent' ); ?>">
 		<img
 			src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-btn.svg' ); ?>"
 			alt=""

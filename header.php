@@ -20,6 +20,8 @@ $excel_ent_quote = excel_ent_get_quote_url();
 
 <a class="skip-link screen-reader-text" href="#primary"><?php esc_html_e( 'Skip to content', 'excel-ent' ); ?></a>
 
+<?php get_template_part( 'template-parts/site', 'effects' ); ?>
+
 <div id="page" class="site">
 	<header id="masthead" class="site-header">
 		<div class="site-header__bar">
@@ -28,7 +30,7 @@ $excel_ent_quote = excel_ent_get_quote_url();
 			</div>
 
 			<button
-				class="nav-toggle"
+				class="nav-toggle magnetic"
 				type="button"
 				aria-controls="primary-menu"
 				aria-expanded="false"
@@ -54,7 +56,7 @@ $excel_ent_quote = excel_ent_get_quote_url();
 			<div class="site-header__actions">
 				<?php if ( $excel_ent_phone ) : ?>
 					<a
-						class="header-phone"
+						class="header-phone magnetic"
 						href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $excel_ent_phone ) ); ?>"
 						aria-label="<?php esc_attr_e( 'Call us', 'excel-ent' ); ?>"
 					>
@@ -68,7 +70,7 @@ $excel_ent_quote = excel_ent_get_quote_url();
 					</a>
 				<?php endif; ?>
 
-				<a class="btn-quote" href="<?php echo esc_url( $excel_ent_quote ); ?>">
+				<a class="btn-quote magnetic" href="<?php echo esc_url( $excel_ent_quote ); ?>">
 					<?php esc_html_e( 'Get a Quote', 'excel-ent' ); ?>
 				</a>
 			</div>

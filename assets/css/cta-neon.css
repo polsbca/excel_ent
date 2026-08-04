@@ -1,0 +1,193 @@
+/* Excel Ent — Neon CTA (Figma 898:8769) */
+
+.cta-neon {
+	background: #000;
+	color: #fff;
+	padding: 120px;
+}
+
+.cta-neon__inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 80px;
+	width: 100%;
+	max-width: 1680px;
+	margin: 0 auto;
+}
+
+.cta-neon__copy {
+	display: flex;
+	flex: 1 1 0;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 74px;
+	min-width: 0;
+}
+
+.cta-neon__title {
+	margin: 0;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-weight: 700;
+	font-size: 120px;
+	line-height: 0.85;
+	letter-spacing: 0;
+	text-transform: uppercase;
+	color: #fff;
+	white-space: nowrap;
+}
+
+.cta-neon__title-plain {
+	color: #fff;
+}
+
+.cta-neon__title-accent {
+	margin: 0 0.18em;
+	background-image: linear-gradient(180deg, #f89a42 0%, #eb2055 100%);
+	background-clip: text;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
+}
+
+.cta-neon__lede {
+	margin: 0;
+	max-width: 720px;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-weight: 400;
+	font-size: 24px;
+	line-height: 1.5;
+	color: #fff;
+	opacity: 0.7;
+}
+
+.cta-neon__actions {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+	width: 320px;
+	flex-shrink: 0;
+}
+
+.cta-neon__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	padding: 30px 40px;
+	box-sizing: border-box;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-size: 24px;
+	line-height: 1;
+	letter-spacing: 1px;
+	color: #fff;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.cta-neon__btn--primary {
+	border: 0;
+	border-bottom: 2px solid #f89a42;
+	font-weight: 800;
+	background-image: var(
+		--ee-quote-gradient,
+		linear-gradient(270deg, #eb2055 0.48%, #f1634c 80%, #f8a742 100%)
+	);
+	box-shadow: 0 4px 4px rgba(155, 77, 255, 0.5);
+}
+
+.cta-neon__btn--outline {
+	border: 2px solid #fff;
+	font-weight: 700;
+	background: rgba(0, 0, 0, 0.2);
+	backdrop-filter: blur(40px);
+	-webkit-backdrop-filter: blur(40px);
+}
+
+.cta-neon__btn:hover,
+.cta-neon__btn:focus-visible {
+	color: #fff;
+	text-decoration: none;
+}
+
+.cta-neon__socials {
+	display: flex;
+	align-items: flex-start;
+	gap: 24px;
+	padding-top: 20px;
+}
+
+.cta-neon__social {
+	display: inline-flex;
+	width: 32px;
+	height: 32px;
+	line-height: 0;
+}
+
+.cta-neon__social img {
+	width: 32px;
+	height: 32px;
+	display: block;
+}
+
+@media (max-width: 1599px) {
+	.cta-neon {
+		padding: 96px 64px;
+	}
+
+	.cta-neon__title {
+		font-size: 88px;
+	}
+
+	.cta-neon__lede {
+		font-size: 20px;
+	}
+
+	.cta-neon__copy {
+		gap: 48px;
+	}
+}
+
+@media (max-width: 1199px) {
+	.cta-neon {
+		padding: 72px 20px;
+	}
+
+	.cta-neon__inner {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 40px;
+	}
+
+	.cta-neon__title {
+		font-size: clamp(42px, 10vw, 64px);
+		white-space: normal;
+	}
+
+	.cta-neon__title-accent {
+		margin: 0 0.12em;
+	}
+
+	.cta-neon__lede {
+		font-size: 18px;
+		max-width: none;
+	}
+
+	.cta-neon__copy {
+		gap: 28px;
+	}
+
+	.cta-neon__actions {
+		width: 100%;
+		max-width: 360px;
+	}
+
+	.cta-neon__btn {
+		padding: 22px 28px;
+		font-size: 20px;
+	}
+}
