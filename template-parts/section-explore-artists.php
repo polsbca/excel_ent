@@ -152,7 +152,7 @@ $excel_ent_artists = array(
 				<?php endforeach; ?>
 			</div>
 
-			<button class="explore-artists__sort magnetic" type="button" data-explore-sort>
+			<button class="explore-artists__sort" type="button" data-explore-sort>
 				<img
 					src="<?php echo esc_url( $excel_ent_ea_uri . '/equalizer-fill.svg' ); ?>"
 					alt=""
@@ -228,7 +228,7 @@ $excel_ent_artists = array(
 
 				<div class="explore-artist-card__top">
 					<button
-						class="explore-artist-card__fav magnetic"
+						class="explore-artist-card__fav"
 						type="button"
 						aria-pressed="<?php echo ! empty( $excel_ent_artist['favorited'] ) ? 'true' : 'false'; ?>"
 						aria-label="<?php esc_attr_e( 'Favorite artist', 'excel-ent' ); ?>"
@@ -252,7 +252,7 @@ $excel_ent_artists = array(
 						>
 					</button>
 					<button
-						class="explore-artist-card__volume magnetic"
+						class="explore-artist-card__volume"
 						type="button"
 						aria-label="<?php esc_attr_e( 'Preview audio', 'excel-ent' ); ?>"
 					>
@@ -314,10 +314,10 @@ $excel_ent_artists = array(
 					</ul>
 
 					<div class="explore-artist-card__actions">
-						<a class="explore-artist-card__btn explore-artist-card__btn--profile magnetic" href="<?php echo esc_url( $excel_ent_profile ); ?>">
+						<a class="explore-artist-card__btn explore-artist-card__btn--profile" href="<?php echo esc_url( $excel_ent_profile ); ?>">
 							<?php esc_html_e( 'View Profile', 'excel-ent' ); ?>
 						</a>
-						<a class="explore-artist-card__btn explore-artist-card__btn--quote magnetic" href="<?php echo esc_url( $excel_ent_quote ); ?>">
+						<a class="explore-artist-card__btn explore-artist-card__btn--quote" href="<?php echo esc_url( $excel_ent_quote ); ?>">
 							<?php esc_html_e( 'Get a Quote', 'excel-ent' ); ?>
 						</a>
 					</div>
