@@ -204,9 +204,16 @@
 			counters.forEach((el) => {
 				const target = parseInt(el.dataset.count, 10) || 0;
 				const suffix = el.dataset.suffix || "";
+				const useComma = el.dataset.format === "comma";
+
+				const formatValue = (value) => {
+					const rounded = Math.round(value);
+					const formatted = useComma ? rounded.toLocaleString("en-GB") : String(rounded);
+					return `${formatted}${suffix}`;
+				};
 
 				if (reduced) {
-					el.textContent = `${target}${suffix}`;
+					el.textContent = formatValue(target);
 					return;
 				}
 
@@ -216,11 +223,11 @@
 				const tick = (now) => {
 					const progress = Math.min((now - start) / duration, 1);
 					const eased = 1 - Math.pow(1 - progress, 3);
-					el.textContent = `${Math.round(eased * target)}${suffix}`;
+					el.textContent = formatValue(eased * target);
 					if (progress < 1) {
 						requestAnimationFrame(tick);
 					} else {
-						el.textContent = `${target}${suffix}`;
+						el.textContent = formatValue(target);
 					}
 				};
 
@@ -458,6 +465,66 @@
 		});
 	}
 
+	/* ---------- Blog carousel ---------- */
+	const blogSection = document.querySelector("[data-blog-section]");
+	if (blogSection) {
+		const track = blogSection.querySelector("[data-blog-track]");
+		const cards = Array.from(blogSection.querySelectorAll("[data-blog-card]"));
+		const progress = blogSection.querySelector("[data-blog-progress]");
+		const currentEl = blogSection.querySelector("[data-blog-current]");
+		const totalEl = blogSection.querySelector("[data-blog-total]");
+		const prevBtn = blogSection.querySelector("[data-blog-prev]");
+		const nextBtn = blogSection.querySelector("[data-blog-next]");
+		let index = cards.length > 2 ? 1 : 0;
+
+		const update = () => {
+			const total = cards.length;
+			const max = Math.max(total - 1, 0);
+			index = Math.min(Math.max(index, 0), max);
+
+			if (track && cards[0]) {
+				const gap = parseFloat(getComputedStyle(track).gap) || 40;
+				const cardWidth = cards[0].getBoundingClientRect().width || 584;
+				const visibleCount = window.innerWidth < 1200 ? 1 : 3;
+				const start = Math.max(
+					0,
+					Math.min(index - Math.floor(visibleCount / 2), cards.length - visibleCount)
+				);
+				track.style.transform = `translateX(-${Math.max(start, 0) * (cardWidth + gap)}px)`;
+			}
+
+			cards.forEach((card, i) => {
+				card.classList.toggle("is-active", i === index);
+			});
+
+			if (currentEl) {
+				currentEl.textContent = String(total ? index + 1 : 0);
+			}
+			if (totalEl) {
+				totalEl.textContent = String(total);
+			}
+			if (progress) {
+				const steps = Math.max(total, 1);
+				const width = 100 / steps;
+				progress.style.width = `${width}%`;
+				progress.style.left = `${index * width}%`;
+			}
+		};
+
+		const go = (delta) => {
+			if (!cards.length) {
+				return;
+			}
+			index = (index + delta + cards.length) % cards.length;
+			update();
+		};
+
+		prevBtn?.addEventListener("click", () => go(-1));
+		nextBtn?.addEventListener("click", () => go(1));
+		window.addEventListener("resize", update, { passive: true });
+		update();
+	}
+
 	/* ---------- Venues accordion ---------- */
 	const venuesSection = document.querySelector("[data-venues-section]");
 	if (venuesSection) {
@@ -486,5 +553,60 @@
 				}
 			});
 		});
+	}
+
+	/* ---------- Explore Artists filters ---------- */
+	const exploreSection = document.querySelector("[data-explore-artists]");
+	if (exploreSection) {
+		const cats = Array.from(exploreSection.querySelectorAll("[data-explore-cat]"));
+		const chipsBar = exploreSection.querySelector("[data-explore-chips-bar]");
+		const chipsWrap = exploreSection.querySelector("[data-explore-chips]");
+		const clearBtn = exploreSection.querySelector("[data-explore-clear]");
+		const countBadge = exploreSection.querySelector("[data-explore-filter-count]");
+
+		const syncChipBar = () => {
+			const remaining = chipsWrap
+				? chipsWrap.querySelectorAll("[data-explore-chip]").length
+				: 0;
+			chipsBar?.classList.toggle("is-empty", remaining === 0);
+			if (countBadge) {
+				countBadge.textContent = String(remaining);
+			}
+		};
+
+		cats.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				cats.forEach((item) => {
+					const on = item === btn;
+					item.classList.toggle("is-active", on);
+					item.setAttribute("aria-selected", on ? "true" : "false");
+				});
+			});
+		});
+
+		chipsWrap?.addEventListener("click", (e) => {
+			const chip = e.target.closest("[data-explore-chip]");
+			if (!chip || !chipsWrap.contains(chip)) {
+				return;
+			}
+			chip.remove();
+			syncChipBar();
+		});
+
+		clearBtn?.addEventListener("click", () => {
+			chipsWrap?.querySelectorAll("[data-explore-chip]").forEach((chip) => chip.remove());
+			syncChipBar();
+		});
+
+		exploreSection.querySelectorAll("[data-explore-fav]").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const card = btn.closest(".explore-artist-card");
+				const on = !(card?.classList.contains("is-favorited"));
+				card?.classList.toggle("is-favorited", on);
+				btn.setAttribute("aria-pressed", on ? "true" : "false");
+			});
+		});
+
+		syncChipBar();
 	}
 })();

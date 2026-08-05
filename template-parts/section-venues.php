@@ -1,18 +1,18 @@
 <?php
 /**
- * Venues accordion section (Figma 898:8673 — desktop).
+ * Venues accordion section (Figma 1084:1970 — desktop).
  *
  * @package Excel_Ent
  */
 
 $excel_ent_venues_uri = EXCEL_ENT_URI . '/assets/images/venues';
-$excel_ent_contact    = home_url( '/contact/' );
+$excel_ent_venues_url = home_url( '/venues/' );
 
 $excel_ent_venues = array(
 	array(
-		'id'          => 'pubs',
-		'title'       => __( 'Pubs', 'excel-ent' ),
-		'image'       => $excel_ent_venues_uri . '/pubs.jpg',
+		'id'          => 'pubs-clubs',
+		'title'       => __( 'Pubs & Clubs', 'excel-ent' ),
+		'image'       => $excel_ent_venues_uri . '/pubs-clubs.jpg',
 		'description' => __( 'Regular weekly acts to keep your venue packed and your regulars coming back every time.', 'excel-ent' ),
 		'tags'        => array(
 			__( 'Nightclubs', 'excel-ent' ),
@@ -23,28 +23,28 @@ $excel_ent_venues = array(
 		'active'      => true,
 	),
 	array(
-		'id'          => 'clubs',
-		'title'       => __( 'Clubs', 'excel-ent' ),
-		'image'       => $excel_ent_venues_uri . '/clubs.jpg',
-		'description' => __( 'High-energy nights with DJs and live performers that fill the floor and keep the energy peaking.', 'excel-ent' ),
+		'id'          => 'golf-social',
+		'title'       => __( 'Golf & Social Clubs', 'excel-ent' ),
+		'image'       => $excel_ent_venues_uri . '/golf-social.jpg',
+		'description' => __( 'Entertainment tailored for members\' nights, social calendars, and clubhouse celebrations of every size.', 'excel-ent' ),
 		'tags'        => array(
-			__( 'Nightclubs', 'excel-ent' ),
-			__( 'Late Nights', 'excel-ent' ),
-			__( 'Resident DJs', 'excel-ent' ),
-			__( 'Guest Acts', 'excel-ent' ),
+			__( 'Members Events', 'excel-ent' ),
+			__( 'Social Evenings', 'excel-ent' ),
+			__( 'Live Acts', 'excel-ent' ),
+			__( 'Themed Nights', 'excel-ent' ),
 		),
 		'active'      => false,
 	),
 	array(
-		'id'          => 'corporate',
-		'title'       => __( 'Corporate Events', 'excel-ent' ),
-		'image'       => $excel_ent_venues_uri . '/corporate.jpg',
-		'description' => __( 'Brand-safe entertainment for conferences, launches, and private corporate occasions — polished and reliable.', 'excel-ent' ),
+		'id'          => 'hotels',
+		'title'       => __( 'Hotels', 'excel-ent' ),
+		'image'       => $excel_ent_venues_uri . '/hotels.jpg',
+		'description' => __( 'Polished performers for weddings, conferences, and hotel events that reflect your brand at its best.', 'excel-ent' ),
 		'tags'        => array(
+			__( 'Weddings', 'excel-ent' ),
 			__( 'Conferences', 'excel-ent' ),
-			__( 'Awards Nights', 'excel-ent' ),
-			__( 'Product Launches', 'excel-ent' ),
-			__( 'Staff Parties', 'excel-ent' ),
+			__( 'Ballrooms', 'excel-ent' ),
+			__( 'Corporate Dinners', 'excel-ent' ),
 		),
 		'active'      => false,
 	),
@@ -69,9 +69,6 @@ $excel_ent_venues = array(
 			<h2 class="venues-section__title"><?php esc_html_e( 'WE WORK WITH EVERY VENUE', 'excel-ent' ); ?></h2>
 
 			<div class="venues-section__aside">
-				<p class="venues-section__lede">
-					<?php esc_html_e( 'From intimate local pubs to large golf clubs and luxury hotels — Excel supplies entertainment that fits the setting perfectly.', 'excel-ent' ); ?>
-				</p>
 				<div class="venues-section__eyebrow">
 					<img src="<?php echo esc_url( $excel_ent_venues_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
 					<span><?php esc_html_e( 'Venue Types', 'excel-ent' ); ?></span>
@@ -104,8 +101,8 @@ $excel_ent_venues = array(
 								class="venue-panel__image"
 								src="<?php echo esc_url( $excel_ent_venue['image'] ); ?>"
 								alt=""
-								width="1840"
-								height="775"
+								width="1762"
+								height="736"
 								loading="<?php echo 0 === $excel_ent_index ? 'eager' : 'lazy'; ?>"
 								decoding="async"
 							>
@@ -147,8 +144,8 @@ $excel_ent_venues = array(
 								<p class="venue-panel__text"><?php echo esc_html( $excel_ent_venue['description'] ); ?></p>
 							</div>
 
-							<a class="venue-panel__cta magnetic" href="<?php echo esc_url( $excel_ent_contact ); ?>">
-								<?php esc_html_e( 'Contact Us', 'excel-ent' ); ?>
+							<a class="venue-panel__cta magnetic" href="<?php echo esc_url( $excel_ent_venues_url ); ?>">
+								<?php esc_html_e( 'View All', 'excel-ent' ); ?>
 							</a>
 						</div>
 					</div>

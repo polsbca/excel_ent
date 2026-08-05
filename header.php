@@ -24,7 +24,8 @@ $excel_ent_quote = excel_ent_get_quote_url();
 
 <div id="page" class="site">
 	<header id="masthead" class="site-header">
-		<div class="site-header__bar">
+		<div class="site-header__inner">
+			<div class="site-header__bar">
 			<div class="site-branding">
 				<?php excel_ent_header_logo(); ?>
 			</div>
@@ -74,9 +75,10 @@ $excel_ent_quote = excel_ent_get_quote_url();
 					<?php esc_html_e( 'Get a Quote', 'excel-ent' ); ?>
 				</a>
 			</div>
-		</div>
+			</div>
 
-		<?php get_template_part( 'template-parts/header', 'search' ); ?>
+			<?php get_template_part( 'template-parts/header', 'search' ); ?>
+		</div>
 	</header>
 
 	<main id="primary" class="site-main">

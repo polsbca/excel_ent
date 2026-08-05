@@ -77,23 +77,44 @@ function excel_ent_enqueue_assets() {
 	);
 
 	wp_enqueue_style(
+		'excel-ent-newsletter',
+		EXCEL_ENT_URI . '/assets/css/newsletter.css',
+		array( 'excel-ent-venues' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
 		'excel-ent-services',
 		EXCEL_ENT_URI . '/assets/css/services.css',
-		array( 'excel-ent-venues' ),
+		array( 'excel-ent-newsletter' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
+		'excel-ent-blog',
+		EXCEL_ENT_URI . '/assets/css/blog.css',
+		array( 'excel-ent-services' ),
 		EXCEL_ENT_VERSION
 	);
 
 	wp_enqueue_style(
 		'excel-ent-cta-neon',
 		EXCEL_ENT_URI . '/assets/css/cta-neon.css',
-		array( 'excel-ent-services' ),
+		array( 'excel-ent-blog' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
+		'excel-ent-explore-artists',
+		EXCEL_ENT_URI . '/assets/css/explore-artists.css',
+		array( 'excel-ent-cta-neon' ),
 		EXCEL_ENT_VERSION
 	);
 
 	wp_enqueue_style(
 		'excel-ent-button-hovers',
 		EXCEL_ENT_URI . '/assets/css/button-hovers.css',
-		array( 'excel-ent-cta-neon', 'excel-ent-header-footer' ),
+		array( 'excel-ent-explore-artists', 'excel-ent-header-footer' ),
 		EXCEL_ENT_VERSION
 	);
 

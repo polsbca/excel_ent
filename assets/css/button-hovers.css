@@ -24,6 +24,7 @@
 .btn,
 .btn-quote,
 .btn-hero,
+.newsletter-cta__submit,
 .header-search__submit,
 .header-phone,
 .header-search__field,
@@ -58,7 +59,9 @@ input[type="button"],
 .btn-quote,
 .btn-hero--primary,
 .header-search__submit,
+.newsletter-cta__submit,
 .service-featured__cta,
+.blog-card.is-active .blog-card__cta,
 .cta-neon__btn--primary,
 input[type="submit"],
 .wp-block-button__link,
@@ -78,8 +81,12 @@ input[type="submit"],
 .btn-hero--primary:focus-visible,
 .header-search__submit:hover,
 .header-search__submit:focus-visible,
+.newsletter-cta__submit:hover,
+.newsletter-cta__submit:focus-visible,
 .service-featured__cta:hover,
 .service-featured__cta:focus-visible,
+.blog-card.is-active .blog-card__cta:hover,
+.blog-card.is-active .blog-card__cta:focus-visible,
 .cta-neon__btn--primary:hover,
 .cta-neon__btn--primary:focus-visible,
 input[type="submit"]:hover,
@@ -100,6 +107,7 @@ input[type="submit"]:focus-visible,
 .btn-quote:active,
 .btn-hero--primary:active,
 .header-search__submit:active,
+.newsletter-cta__submit:active,
 .service-featured__cta:active,
 .cta-neon__btn--primary:active,
 input[type="submit"]:active,
@@ -161,6 +169,7 @@ input[type="submit"]:active,
 	transform: translateY(-3px);
 	color: #fff;
 	text-decoration: none;
+	filter: brightness(1.05);
 }
 
 /* Generic .btn fallback (when no modifier) */
@@ -211,27 +220,15 @@ input[type="submit"]:active,
 	position: relative;
 }
 
-.main-navigation .menu > li > a::after {
-	content: "";
-	position: absolute;
-	left: 50%;
-	bottom: 0;
-	width: 0;
-	height: 2px;
-	background: linear-gradient(90deg, #eb2055, #f89a42);
-	transition: width 0.35s var(--ee-ease), left 0.35s var(--ee-ease);
+.main-navigation .menu > li > a:hover,
+.main-navigation .menu > li > a:focus-visible {
+	opacity: 0.85;
 }
 
-.main-navigation .menu > li > a:hover::after,
-.main-navigation .menu > li > a:focus-visible::after {
-	width: 100%;
-	left: 0;
-}
-
-.main-navigation .menu > li.current-menu-item > a::after,
-.main-navigation .menu > li.current_page_item > a::after {
-	/* Active state already uses border-bottom in header styles — keep underline from there */
-	display: none;
+.main-navigation .menu > li.current-menu-item > a,
+.main-navigation .menu > li.current_page_item > a,
+.main-navigation .menu > li.current-menu-ancestor > a {
+	opacity: 1;
 }
 
 /* ---------- Cards / posts ---------- */

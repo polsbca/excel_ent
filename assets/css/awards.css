@@ -1,15 +1,14 @@
-/* Excel Ent — Awards marquee (Figma 898:8519) */
+/* Excel Ent — Partner logo marquee (Figma 1023:21081) */
 
 .awards-marquee {
 	position: relative;
 	width: 100%;
-	height: 206px;
+	padding: 60px 0;
 	background: #000;
 	border-top: 1px solid #f89a42;
 	border-bottom: 1px solid #f89a42;
 	overflow: hidden;
-	display: flex;
-	align-items: center;
+	box-sizing: border-box;
 }
 
 .awards-marquee__viewport {
@@ -21,7 +20,7 @@
 	display: flex;
 	width: max-content;
 	align-items: center;
-	animation: ee-awards-marquee 28s linear infinite;
+	animation: ee-awards-marquee 40s linear infinite;
 	will-change: transform;
 }
 
@@ -33,31 +32,41 @@
 	flex-shrink: 0;
 }
 
-.awards-marquee__text {
-	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
-	font-variation-settings: "wdth" 75;
-	font-weight: 600;
-	font-size: 40px;
-	line-height: 1;
-	letter-spacing: 9px;
-	text-transform: uppercase;
-	color: rgba(255, 255, 255, 0.5);
-	white-space: nowrap;
-	text-align: center;
-	transition: color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
-}
-
-.awards-marquee__text:hover {
-	color: rgba(255, 255, 255, 0.9);
-	transform: scale(1.04);
-}
-
 .awards-marquee__dot {
 	display: block;
 	width: 12px;
 	height: 12px;
 	flex-shrink: 0;
 	background: linear-gradient(180deg, #eb2055 0%, #f89a42 50%, #eb2055 100%);
+}
+
+.awards-marquee__logo {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	height: 103px;
+	transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.awards-marquee__logo img,
+.awards-marquee__logo object {
+	display: block;
+	width: auto;
+	height: auto;
+	max-height: 103px;
+	max-width: 156px;
+	object-fit: contain;
+	pointer-events: none;
+}
+
+.awards-marquee__logo--panel {
+	background: #fff;
+}
+
+.awards-marquee__logo:hover {
+	opacity: 0.88;
+	transform: scale(1.03);
 }
 
 @keyframes ee-awards-marquee {
@@ -75,17 +84,22 @@
 
 @media (max-width: 1199px) {
 	.awards-marquee {
-		height: 120px;
-	}
-
-	.awards-marquee__text {
-		font-size: 28px;
-		letter-spacing: 6px;
+		padding: 40px 0;
 	}
 
 	.awards-marquee__group {
 		gap: 56px;
 		padding-right: 56px;
+	}
+
+	.awards-marquee__logo {
+		height: 72px;
+	}
+
+	.awards-marquee__logo img,
+	.awards-marquee__logo object {
+		max-height: 72px;
+		max-width: 120px;
 	}
 
 	.awards-marquee__dot {
@@ -96,17 +110,22 @@
 
 @media (max-width: 700px) {
 	.awards-marquee {
-		height: 88px;
-	}
-
-	.awards-marquee__text {
-		font-size: 22px;
-		letter-spacing: 4px;
+		padding: 28px 0;
 	}
 
 	.awards-marquee__group {
 		gap: 36px;
 		padding-right: 36px;
+	}
+
+	.awards-marquee__logo {
+		height: 56px;
+	}
+
+	.awards-marquee__logo img,
+	.awards-marquee__logo object {
+		max-height: 56px;
+		max-width: 96px;
 	}
 }
 
@@ -130,7 +149,7 @@
 		gap: 28px 40px;
 	}
 
-	.awards-marquee__text:hover {
+	.awards-marquee__logo:hover {
 		transform: none;
 	}
 }

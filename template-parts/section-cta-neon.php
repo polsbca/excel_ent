@@ -1,13 +1,22 @@
 <?php
 /**
- * Neon CTA strip (Figma 898:8769).
+ * Neon CTA strip (Figma 1084:2440).
  *
  * @package Excel_Ent
  */
 
 $excel_ent_cta_uri = EXCEL_ENT_URI . '/assets/images/cta';
-$excel_ent_quote   = excel_ent_get_quote_url();
 $excel_ent_contact = home_url( '/contact/' );
+
+$excel_ent_cta_args = wp_parse_args(
+	isset( $args ) && is_array( $args ) ? $args : array(),
+	array(
+		'primary_label'   => __( 'Contact Us', 'excel-ent' ),
+		'primary_url'     => $excel_ent_contact,
+		'secondary_label' => __( 'Book As an Artist', 'excel-ent' ),
+		'secondary_url'   => home_url( '/artist-registration/' ),
+	)
+);
 
 $excel_ent_cta_socials = array(
 	array(
@@ -33,7 +42,7 @@ $excel_ent_cta_socials = array(
 			<h2 class="cta-neon__title">
 				<span class="cta-neon__title-plain"><?php esc_html_e( 'BEEN', 'excel-ent' ); ?></span>
 				<span class="cta-neon__title-accent"><?php esc_html_e( 'LET DOWN', 'excel-ent' ); ?></span>
-				<span class="cta-neon__title-plain"><?php esc_html_e( 'DOWN?', 'excel-ent' ); ?></span>
+				<span class="cta-neon__title-plain"><?php esc_html_e( '?', 'excel-ent' ); ?></span>
 			</h2>
 			<p class="cta-neon__lede">
 				<?php esc_html_e( "Our last-minute booking service means no event ever goes without great live entertainment. Call us or submit a quote — we'll find you someone fast.", 'excel-ent' ); ?>
@@ -41,11 +50,11 @@ $excel_ent_cta_socials = array(
 		</div>
 
 		<div class="cta-neon__actions reveal" data-reveal>
-			<a class="cta-neon__btn cta-neon__btn--primary magnetic" href="<?php echo esc_url( $excel_ent_quote ); ?>">
-				<?php esc_html_e( 'Get A Quote', 'excel-ent' ); ?>
+			<a class="cta-neon__btn cta-neon__btn--primary magnetic" href="<?php echo esc_url( $excel_ent_cta_args['primary_url'] ); ?>">
+				<?php echo esc_html( $excel_ent_cta_args['primary_label'] ); ?>
 			</a>
-			<a class="cta-neon__btn cta-neon__btn--outline magnetic" href="<?php echo esc_url( $excel_ent_contact ); ?>">
-				<?php esc_html_e( 'Contact Us', 'excel-ent' ); ?>
+			<a class="cta-neon__btn cta-neon__btn--outline magnetic" href="<?php echo esc_url( $excel_ent_cta_args['secondary_url'] ); ?>">
+				<?php echo esc_html( $excel_ent_cta_args['secondary_label'] ); ?>
 			</a>
 
 			<div class="cta-neon__socials">

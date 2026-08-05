@@ -41,44 +41,48 @@ $excel_ent_hero_slides = array(
 	</div>
 
 	<div class="hero__layout">
-		<div class="hero__copy">
-			<h1 class="hero__title">
-				<span class="hero__title-line"><?php esc_html_e( 'THE STAGE', 'excel-ent' ); ?></span>
-				<span class="hero__title-line"><?php esc_html_e( 'IS SET', 'excel-ent' ); ?></span>
-			</h1>
+		<div class="hero__main">
+			<div class="hero__copy">
+				<div class="hero__intro">
+					<h1 class="hero__title">
+						<span class="hero__title-line"><?php esc_html_e( 'THE STAGE', 'excel-ent' ); ?></span>
+						<span class="hero__title-line"><?php esc_html_e( 'IS SET', 'excel-ent' ); ?></span>
+					</h1>
 
-			<p class="hero__lede">
-				<?php esc_html_e( 'Personally auditioned artists for weddings, pubs, clubs, and corporate events. Every act seen live — every booking guaranteed.', 'excel-ent' ); ?>
-			</p>
+					<p class="hero__lede">
+						<?php esc_html_e( 'Personally auditioned artists for weddings, pubs, clubs, and corporate events. Every act seen live — every booking guaranteed.', 'excel-ent' ); ?>
+					</p>
+				</div>
 
-			<div class="hero__actions">
-				<a class="btn-hero btn-hero--primary magnetic" href="<?php echo esc_url( $excel_ent_quote ); ?>">
-					<?php esc_html_e( 'Book an Artist', 'excel-ent' ); ?>
-				</a>
-				<a class="btn-hero btn-hero--outline magnetic" href="<?php echo esc_url( $excel_ent_join ); ?>">
-					<?php esc_html_e( 'Join as an Artist', 'excel-ent' ); ?>
-				</a>
+				<div class="hero__actions">
+					<a class="btn-hero btn-hero--primary magnetic" href="<?php echo esc_url( $excel_ent_quote ); ?>">
+						<?php esc_html_e( 'Book an Artist', 'excel-ent' ); ?>
+					</a>
+					<a class="btn-hero btn-hero--outline magnetic" href="<?php echo esc_url( $excel_ent_join ); ?>">
+						<?php esc_html_e( 'Join as an Artist', 'excel-ent' ); ?>
+					</a>
+				</div>
 			</div>
+
+			<aside class="hero__stats" aria-label="<?php esc_attr_e( 'Company statistics', 'excel-ent' ); ?>">
+				<div class="hero-stat">
+					<p class="hero-stat__num" data-count="14" data-suffix="+">0</p>
+					<p class="hero-stat__label"><?php esc_html_e( 'Years Established', 'excel-ent' ); ?></p>
+				</div>
+				<div class="hero-stat">
+					<p class="hero-stat__num" data-count="1800" data-suffix="+">0</p>
+					<p class="hero-stat__label"><?php esc_html_e( 'Acts on Roster', 'excel-ent' ); ?></p>
+				</div>
+				<div class="hero-stat">
+					<p class="hero-stat__num" data-count="15000" data-suffix="+" data-format="comma">0</p>
+					<p class="hero-stat__label"><?php esc_html_e( 'Events Booked', 'excel-ent' ); ?></p>
+				</div>
+				<div class="hero-stat">
+					<p class="hero-stat__num" data-count="100" data-suffix="%">0</p>
+					<p class="hero-stat__label"><?php esc_html_e( 'Auditioned Acts', 'excel-ent' ); ?></p>
+				</div>
+			</aside>
 		</div>
-
-		<aside class="hero__stats" aria-label="<?php esc_attr_e( 'Company statistics', 'excel-ent' ); ?>">
-			<div class="hero-stat">
-				<p class="hero-stat__num" data-count="25" data-suffix="+">0</p>
-				<p class="hero-stat__label"><?php esc_html_e( 'Years Established', 'excel-ent' ); ?></p>
-			</div>
-			<div class="hero-stat">
-				<p class="hero-stat__num" data-count="500" data-suffix="+">0</p>
-				<p class="hero-stat__label"><?php esc_html_e( 'Acts on Roster', 'excel-ent' ); ?></p>
-			</div>
-			<div class="hero-stat">
-				<p class="hero-stat__num" data-count="1200" data-suffix="+">0</p>
-				<p class="hero-stat__label"><?php esc_html_e( 'Events Booked', 'excel-ent' ); ?></p>
-			</div>
-			<div class="hero-stat">
-				<p class="hero-stat__num" data-count="100" data-suffix="%">0</p>
-				<p class="hero-stat__label"><?php esc_html_e( 'Auditioned Acts', 'excel-ent' ); ?></p>
-			</div>
-		</aside>
 
 		<div class="hero__carousel" data-hero-carousel>
 			<div class="hero-carousel__nav">
@@ -155,9 +159,24 @@ $excel_ent_hero_slides = array(
 
 <?php get_template_part( 'template-parts/section', 'venues' ); ?>
 
+<?php get_template_part( 'template-parts/section', 'newsletter' ); ?>
+
 <?php get_template_part( 'template-parts/section', 'services' ); ?>
 
-<?php get_template_part( 'template-parts/section', 'cta-neon' ); ?>
+<?php get_template_part( 'template-parts/section', 'blog' ); ?>
+
+<?php
+get_template_part(
+	'template-parts/section',
+	'cta-neon',
+	array(
+		'primary_label'   => __( 'Contact Us', 'excel-ent' ),
+		'primary_url'     => home_url( '/contact/' ),
+		'secondary_label' => __( 'Book As an Artist', 'excel-ent' ),
+		'secondary_url'   => home_url( '/artist-registration/' ),
+	)
+);
+?>
 
 <?php
 get_footer();

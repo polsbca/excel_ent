@@ -171,7 +171,13 @@ function excel_ent_fallback_menu() {
 
 	echo '<ul id="primary-menu" class="menu">';
 	foreach ( $items as $item ) {
-		$current = $item['home'] ? is_front_page() : false;
+		$current = false;
+		if ( ! empty( $item['home'] ) ) {
+			$current = is_front_page();
+		} elseif ( false !== strpos( $item['url'], '/artists/' ) ) {
+			$current = is_page_template( 'page-explore-artists.php' ) || is_page( 'artists' );
+		}
+
 		printf(
 			'<li class="%1$s"><a href="%2$s">%3$s</a></li>',
 			$current ? 'current-menu-item' : '',
