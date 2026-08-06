@@ -77,7 +77,13 @@ $excel_ent_quote = excel_ent_get_quote_url();
 			</div>
 			</div>
 
-			<?php get_template_part( 'template-parts/header', 'search' ); ?>
+			<?php
+			if ( excel_ent_is_explore_artists_page() ) {
+				get_template_part( 'template-parts/header', 'search-explore' );
+			} elseif ( ! excel_ent_is_artist_page() && ! excel_ent_is_about_page() && ! excel_ent_is_package_page() ) {
+				get_template_part( 'template-parts/header', 'search' );
+			}
+			?>
 		</div>
 	</header>
 

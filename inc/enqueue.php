@@ -112,9 +112,30 @@ function excel_ent_enqueue_assets() {
 	);
 
 	wp_enqueue_style(
+		'excel-ent-artist-page',
+		EXCEL_ENT_URI . '/assets/css/artist-page.css',
+		array( 'excel-ent-explore-artists' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
+		'excel-ent-about-page',
+		EXCEL_ENT_URI . '/assets/css/about-page.css',
+		array( 'excel-ent-artist-page' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
+		'excel-ent-package-page',
+		EXCEL_ENT_URI . '/assets/css/package-page.css',
+		array( 'excel-ent-about-page' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
 		'excel-ent-button-hovers',
 		EXCEL_ENT_URI . '/assets/css/button-hovers.css',
-		array( 'excel-ent-explore-artists', 'excel-ent-header-footer' ),
+		array( 'excel-ent-package-page', 'excel-ent-header-footer' ),
 		EXCEL_ENT_VERSION
 	);
 

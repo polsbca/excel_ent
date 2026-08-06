@@ -138,6 +138,66 @@ function excel_ent_get_quote_url() {
 }
 
 /**
+ * Whether the current request is the Explore Artists listing page.
+ */
+function excel_ent_is_explore_artists_page() {
+	return is_page_template( 'page-explore-artists.php' ) || is_page( 'explore-artists' );
+}
+
+/**
+ * Whether the current request is an Artist profile page.
+ */
+function excel_ent_is_artist_page() {
+	return is_page_template( 'page-artist.php' );
+}
+
+/**
+ * Whether the current request is the About page.
+ */
+function excel_ent_is_about_page() {
+	return is_page_template( 'page-about.php' ) || is_page( 'about-us' ) || is_page( 'about' );
+}
+
+/**
+ * Whether the current request is the Packages page.
+ */
+function excel_ent_is_package_page() {
+	return is_page_template( 'page-package.php' ) || is_page( 'packages' ) || is_page( 'event-packages' );
+}
+
+/**
+ * Artist profile page URL (Template: Artist).
+ *
+ * @return string
+ */
+function excel_ent_get_artist_page_url() {
+	$pages = get_posts(
+		array(
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'meta_key'       => '_wp_page_template',
+			'meta_value'     => 'page-artist.php',
+			'no_found_rows'  => true,
+		)
+	);
+
+	if ( ! empty( $pages[0] ) ) {
+		return get_permalink( $pages[0] );
+	}
+
+	foreach ( array( 'artist', 'artists/rose-sax', 'rose-sax' ) as $path ) {
+		$page = get_page_by_path( $path );
+		if ( $page ) {
+			return get_permalink( $page );
+		}
+	}
+
+	return home_url( '/artist/' );
+}
+
+/**
  * Fallback menu when no primary menu is assigned.
  */
 function excel_ent_fallback_menu() {
@@ -153,9 +213,10 @@ function excel_ent_fallback_menu() {
 			'home'  => false,
 		),
 		array(
-			'url'   => home_url( '/artists/' ),
+			'url'   => home_url( '/explore-artists/' ),
 			'label' => __( 'Explore Artists', 'excel-ent' ),
 			'home'  => false,
+			'explore_artists' => true,
 		),
 		array(
 			'url'   => home_url( '/packages/' ),
@@ -174,8 +235,8 @@ function excel_ent_fallback_menu() {
 		$current = false;
 		if ( ! empty( $item['home'] ) ) {
 			$current = is_front_page();
-		} elseif ( false !== strpos( $item['url'], '/artists/' ) ) {
-			$current = is_page_template( 'page-explore-artists.php' ) || is_page( 'artists' );
+		} elseif ( ! empty( $item['explore_artists'] ) ) {
+			$current = excel_ent_is_explore_artists_page();
 		}
 
 		printf(
@@ -187,6 +248,36 @@ function excel_ent_fallback_menu() {
 	}
 	echo '</ul>';
 }
+
+/**
+ * Point legacy Explore Artists menu links at /explore-artists/.
+ *
+ * @param array    $items Menu items.
+ * @param stdClass $args  wp_nav_menu() arguments.
+ * @return array
+ */
+function excel_ent_primary_menu_objects( $items, $args ) {
+	if ( empty( $args->theme_location ) || 'primary' !== $args->theme_location ) {
+		return $items;
+	}
+
+	$explore_url  = home_url( '/explore-artists/' );
+	$legacy_url   = home_url( '/artists/' );
+	$explore_slug = strtolower( __( 'Explore Artists', 'excel-ent' ) );
+
+	foreach ( $items as $item ) {
+		$item_url   = untrailingslashit( $item->url );
+		$legacy     = untrailingslashit( $legacy_url );
+		$item_title = strtolower( trim( wp_strip_all_tags( $item->title ) ) );
+
+		if ( $item_url === $legacy || $explore_slug === $item_title ) {
+			$item->url = $explore_url;
+		}
+	}
+
+	return $items;
+}
+add_filter( 'wp_nav_menu_objects', 'excel_ent_primary_menu_objects', 10, 2 );
 
 /**
  * Default Entertainment footer links.

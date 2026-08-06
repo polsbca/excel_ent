@@ -20,6 +20,9 @@
 		if (hero) {
 			hero.classList.add("is-loaded");
 		}
+		document.querySelector(".artist-hero")?.classList.add("is-loaded");
+		document.querySelector(".about-intro")?.classList.add("is-loaded");
+		document.querySelector(".package-intro")?.classList.add("is-loaded");
 		document.body.classList.add("ee-ready");
 	};
 
@@ -171,6 +174,42 @@
 			}
 			observer.observe(item);
 		});
+	}
+
+	/* ---------- Artist hero parallax ---------- */
+	const artistHero = document.querySelector(".artist-hero");
+	const artistHeroPhoto = artistHero?.querySelector(".artist-hero__media > img");
+	if (!reduced && desktop && artistHero && artistHeroPhoto) {
+		window.addEventListener(
+			"mousemove",
+			(e) => {
+				if (!artistHero.classList.contains("is-loaded")) {
+					return;
+				}
+				const px = (e.clientX / window.innerWidth - 0.5) * 8;
+				const py = (e.clientY / window.innerHeight - 0.5) * 5;
+				artistHeroPhoto.style.transform = `scale(1.04) translate(${px}px, ${py}px)`;
+			},
+			{ passive: true }
+		);
+	}
+
+	/* ---------- About intro parallax ---------- */
+	const aboutIntro = document.querySelector(".about-intro");
+	const aboutIntroPhoto = aboutIntro?.querySelector(".about-intro__collage-main img");
+	if (!reduced && desktop && aboutIntro && aboutIntroPhoto) {
+		window.addEventListener(
+			"mousemove",
+			(e) => {
+				if (!aboutIntro.classList.contains("is-loaded")) {
+					return;
+				}
+				const px = (e.clientX / window.innerWidth - 0.5) * 8;
+				const py = (e.clientY / window.innerHeight - 0.5) * 5;
+				aboutIntroPhoto.style.transform = `scale(1.04) translate(${px}px, ${py}px)`;
+			},
+			{ passive: true }
+		);
 	}
 
 	/* ---------- Hero parallax on mouse ---------- */
@@ -557,12 +596,13 @@
 
 	/* ---------- Explore Artists filters ---------- */
 	const exploreSection = document.querySelector("[data-explore-artists]");
-	if (exploreSection) {
-		const cats = Array.from(exploreSection.querySelectorAll("[data-explore-cat]"));
-		const chipsBar = exploreSection.querySelector("[data-explore-chips-bar]");
-		const chipsWrap = exploreSection.querySelector("[data-explore-chips]");
-		const clearBtn = exploreSection.querySelector("[data-explore-clear]");
-		const countBadge = exploreSection.querySelector("[data-explore-filter-count]");
+	const exploreSearch = document.querySelector("[data-explore-search]");
+	if (exploreSection || exploreSearch) {
+		const cats = Array.from(document.querySelectorAll("[data-explore-cat]"));
+		const chipsBar = exploreSection?.querySelector("[data-explore-chips-bar]");
+		const chipsWrap = exploreSection?.querySelector("[data-explore-chips]");
+		const clearBtn = exploreSection?.querySelector("[data-explore-clear]");
+		const countBadge = document.querySelector("[data-explore-filter-count]");
 
 		const syncChipBar = () => {
 			const remaining = chipsWrap
@@ -598,7 +638,7 @@
 			syncChipBar();
 		});
 
-		exploreSection.querySelectorAll("[data-explore-fav]").forEach((btn) => {
+		document.querySelectorAll("[data-explore-fav]").forEach((btn) => {
 			btn.addEventListener("click", () => {
 				const card = btn.closest(".explore-artist-card");
 				const on = !(card?.classList.contains("is-favorited"));
@@ -608,5 +648,384 @@
 		});
 
 		syncChipBar();
+	}
+
+	/* ---------- Artist profile page ---------- */
+	const artistVenue = document.querySelector("[data-artist-venue]");
+	if (artistVenue) {
+		const slidesNode = artistVenue.querySelector("[data-venue-slides]");
+		let slides = [];
+		try {
+			slides = JSON.parse(slidesNode?.textContent || "[]");
+		} catch (err) {
+			slides = [];
+		}
+
+		let index = 0;
+		const image = artistVenue.querySelector("[data-venue-image]");
+		const label = artistVenue.querySelector("[data-venue-label]");
+		const progress = artistVenue.querySelector("[data-venue-progress]");
+
+		const render = () => {
+			const slide = slides[index];
+			if (!slide) {
+				return;
+			}
+			if (image) {
+				image.src = slide.image;
+				image.alt = slide.label || "";
+			}
+			if (label) {
+				label.textContent = slide.label || "";
+			}
+			if (progress && slides.length) {
+				progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+			}
+		};
+
+		artistVenue.querySelector("[data-venue-prev]")?.addEventListener("click", () => {
+			if (!slides.length) {
+				return;
+			}
+			index = (index - 1 + slides.length) % slides.length;
+			render();
+		});
+
+		artistVenue.querySelector("[data-venue-next]")?.addEventListener("click", () => {
+			if (!slides.length) {
+				return;
+			}
+			index = (index + 1) % slides.length;
+			render();
+		});
+
+		render();
+	}
+
+	const artistSetlist = document.querySelector("[data-artist-setlist]");
+	if (artistSetlist) {
+		const tabs = Array.from(artistSetlist.querySelectorAll("[data-setlist-tab]"));
+		const rows = Array.from(artistSetlist.querySelectorAll("[data-setlist-row]"));
+		const search = artistSetlist.querySelector("[data-setlist-search]");
+		const nowTitle = artistSetlist.querySelector("[data-now-title]");
+		const nowArtist = artistSetlist.querySelector("[data-now-artist]");
+		const nowIndex = artistSetlist.querySelector("[data-now-index]");
+		let activeGenre = "all";
+
+		const syncRows = () => {
+			const query = (search?.value || "").trim().toLowerCase();
+			rows.forEach((row) => {
+				const genre = row.getAttribute("data-genre") || "";
+				const title = (row.getAttribute("data-title") || "").toLowerCase();
+				const artist = (row.getAttribute("data-artist") || "").toLowerCase();
+				const genreOk = activeGenre === "all" || genre === activeGenre;
+				const searchOk = !query || title.includes(query) || artist.includes(query);
+				row.hidden = !(genreOk && searchOk);
+			});
+		};
+
+		const activateRow = (row) => {
+			rows.forEach((item) => item.classList.toggle("is-active", item === row));
+			const title = row.getAttribute("data-title") || "";
+			const artist = row.getAttribute("data-artist") || "";
+			const visible = rows.filter((item) => !item.hidden);
+			const idx = visible.indexOf(row);
+			if (nowTitle) {
+				nowTitle.textContent = title;
+			}
+			if (nowArtist) {
+				nowArtist.textContent = artist;
+			}
+			if (nowIndex && idx >= 0) {
+				nowIndex.textContent = String(idx + 1).padStart(2, "0");
+			}
+		};
+
+		tabs.forEach((tab) => {
+			tab.addEventListener("click", () => {
+				activeGenre = tab.getAttribute("data-setlist-tab") || "all";
+				tabs.forEach((item) => {
+					const on = item === tab;
+					item.classList.toggle("is-active", on);
+					item.setAttribute("aria-selected", on ? "true" : "false");
+				});
+				syncRows();
+			});
+		});
+
+		search?.addEventListener("input", syncRows);
+
+		rows.forEach((row) => {
+			row.addEventListener("click", () => activateRow(row));
+		});
+
+		syncRows();
+	}
+
+	const artistMedia = document.querySelector("[data-artist-media]");
+	if (artistMedia) {
+		const tabs = Array.from(artistMedia.querySelectorAll("[data-media-tab]"));
+		const panels = Array.from(artistMedia.querySelectorAll("[data-media-panel]"));
+		const thumbs = Array.from(artistMedia.querySelectorAll("[data-media-thumb]"));
+		const main = artistMedia.querySelector("[data-media-main]");
+		const venue = artistMedia.querySelector("[data-media-venue]");
+		const location = artistMedia.querySelector("[data-media-location]");
+		const duration = artistMedia.querySelector("[data-media-duration]");
+		const guests = artistMedia.querySelector("[data-media-guests]");
+
+		const setTab = (name) => {
+			tabs.forEach((item) => {
+				const on = item.getAttribute("data-media-tab") === name;
+				item.classList.toggle("is-active", on);
+				item.setAttribute("aria-selected", on ? "true" : "false");
+			});
+			panels.forEach((panel) => {
+				const on = panel.getAttribute("data-media-panel") === name;
+				panel.classList.toggle("is-active", on);
+				panel.hidden = !on;
+			});
+		};
+
+		tabs.forEach((tab) => {
+			tab.addEventListener("click", () => {
+				setTab(tab.getAttribute("data-media-tab") || "photos");
+			});
+		});
+
+		thumbs.forEach((thumb) => {
+			thumb.addEventListener("click", () => {
+				thumbs.forEach((item) => item.classList.toggle("is-selected", item === thumb));
+				if (main) {
+					main.src = thumb.getAttribute("data-image") || main.src;
+				}
+				if (venue) {
+					venue.textContent = thumb.getAttribute("data-venue") || "";
+				}
+				if (location) {
+					location.textContent = thumb.getAttribute("data-location") || "";
+				}
+				if (duration) {
+					duration.textContent = thumb.getAttribute("data-duration") || "";
+				}
+				if (guests) {
+					guests.textContent = thumb.getAttribute("data-guests") || "";
+				}
+			});
+		});
+	}
+
+	const artistSimilar = document.querySelector("[data-artist-similar]");
+	if (artistSimilar) {
+		const track = artistSimilar.querySelector("[data-similar-track]");
+		const cards = Array.from(artistSimilar.querySelectorAll(".explore-artist-card"));
+		const progress = artistSimilar.querySelector("[data-similar-progress]");
+		const count = artistSimilar.querySelector("[data-similar-count]");
+		let index = 0;
+
+		const update = () => {
+			const max = Math.max(cards.length - 1, 0);
+			index = Math.min(Math.max(index, 0), max);
+			if (track && cards[0]) {
+				const gap = parseFloat(getComputedStyle(track).gap) || 50;
+				const cardWidth = cards[0].getBoundingClientRect().width || 560;
+				track.style.transform = `translateX(-${index * (cardWidth + gap)}px)`;
+			}
+			if (count) {
+				count.textContent = `${cards.length ? index + 1 : 0}/${cards.length}`;
+			}
+			if (progress && cards.length) {
+				const width = 100 / cards.length;
+				progress.style.width = `${width}%`;
+				progress.style.left = `${index * width}%`;
+			}
+		};
+
+		artistSimilar.querySelector("[data-similar-prev]")?.addEventListener("click", () => {
+			if (!cards.length) {
+				return;
+			}
+			index = (index - 1 + cards.length) % cards.length;
+			update();
+		});
+
+		artistSimilar.querySelector("[data-similar-next]")?.addEventListener("click", () => {
+			if (!cards.length) {
+				return;
+			}
+			index = (index + 1) % cards.length;
+			update();
+		});
+
+		artistSimilar.querySelectorAll("[data-explore-fav]").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const card = btn.closest(".explore-artist-card");
+				const on = !(card?.classList.contains("is-favorited"));
+				card?.classList.toggle("is-favorited", on);
+				btn.setAttribute("aria-pressed", on ? "true" : "false");
+			});
+		});
+
+		window.addEventListener("resize", update);
+		update();
+	}
+
+	document.querySelectorAll("[data-artist-fav]").forEach((btn) => {
+		btn.addEventListener("click", () => {
+			const on = !btn.classList.contains("is-favorited");
+			btn.classList.toggle("is-favorited", on);
+			btn.setAttribute("aria-pressed", on ? "true" : "false");
+		});
+	});
+
+	document.querySelectorAll("[data-artist-wishlist]").forEach((btn) => {
+		btn.addEventListener("click", () => {
+			const on = !btn.classList.contains("is-active");
+			btn.classList.toggle("is-active", on);
+			btn.textContent = on
+				? btn.getAttribute("data-label-added") || "IN WISHLIST"
+				: btn.getAttribute("data-label-add") || "ADD TO WISHLIST";
+		});
+	});
+
+	/* ---------- About approach slider ---------- */
+	const aboutApproach = document.querySelector("[data-about-approach]");
+	if (aboutApproach) {
+		const track = aboutApproach.querySelector("[data-about-approach-track]");
+		const slides = Array.from(aboutApproach.querySelectorAll("[data-about-approach-slide]"));
+		const dots = Array.from(aboutApproach.querySelectorAll("[data-about-approach-dot]"));
+		let index = 0;
+		let timer = 0;
+
+		const goTo = (next) => {
+			if (!slides.length || !track) {
+				return;
+			}
+			index = ((next % slides.length) + slides.length) % slides.length;
+			track.style.transform = `translateX(-${index * 100}%)`;
+			slides.forEach((slide, i) => slide.classList.toggle("is-active", i === index));
+			dots.forEach((dot, i) => {
+				const on = i === index;
+				dot.classList.toggle("is-active", on);
+				dot.setAttribute("aria-selected", on ? "true" : "false");
+			});
+		};
+
+		const start = () => {
+			if (reduced || slides.length < 2) {
+				return;
+			}
+			window.clearInterval(timer);
+			timer = window.setInterval(() => goTo(index + 1), 5000);
+		};
+
+		dots.forEach((dot, i) => {
+			dot.addEventListener("click", () => {
+				goTo(i);
+				start();
+			});
+		});
+
+		goTo(0);
+		start();
+	}
+
+	/* ---------- About reviews carousel ---------- */
+	const aboutReviews = document.querySelector("[data-about-reviews]");
+	if (aboutReviews) {
+		const track = aboutReviews.querySelector("[data-about-reviews-track]");
+		const cards = Array.from(aboutReviews.querySelectorAll(".about-reviews__card"));
+		const pages = Array.from(aboutReviews.querySelectorAll("[data-about-reviews-page]"));
+		const perPage = window.matchMedia("(max-width: 1199px)").matches ? 1 : 3;
+		const pageCount = Math.max(1, Math.ceil(cards.length / perPage));
+		let page = 0;
+
+		const goTo = (next) => {
+			if (!track || !cards.length) {
+				return;
+			}
+			page = ((next % pageCount) + pageCount) % pageCount;
+			track.style.transform = `translateX(-${page * 100}%)`;
+			pages.forEach((btn, i) => {
+				const on = i === page;
+				btn.classList.toggle("is-active", on);
+				btn.setAttribute("aria-selected", on ? "true" : "false");
+				btn.hidden = i >= pageCount;
+			});
+		};
+
+		pages.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const target = Number(btn.getAttribute("data-about-reviews-page") || "0");
+				goTo(target);
+			});
+		});
+
+		let dragging = false;
+		let startX = 0;
+		let currentX = 0;
+
+		const onPointerDown = (e) => {
+			dragging = true;
+			startX = e.clientX || (e.touches && e.touches[0]?.clientX) || 0;
+			currentX = startX;
+		};
+
+		const onPointerMove = (e) => {
+			if (!dragging) {
+				return;
+			}
+			currentX = e.clientX || (e.touches && e.touches[0]?.clientX) || currentX;
+		};
+
+		const onPointerUp = () => {
+			if (!dragging) {
+				return;
+			}
+			dragging = false;
+			const delta = currentX - startX;
+			if (Math.abs(delta) > 40) {
+				goTo(page + (delta < 0 ? 1 : -1));
+			}
+		};
+
+		track?.addEventListener("mousedown", onPointerDown);
+		track?.addEventListener("touchstart", onPointerDown, { passive: true });
+		window.addEventListener("mousemove", onPointerMove, { passive: true });
+		window.addEventListener("touchmove", onPointerMove, { passive: true });
+		window.addEventListener("mouseup", onPointerUp);
+		window.addEventListener("touchend", onPointerUp);
+
+		goTo(0);
+	}
+
+	/* ---------- Package tabs ---------- */
+	const packageTabs = document.querySelector("[data-package-tabs]");
+	if (packageTabs) {
+		const tabs = Array.from(packageTabs.querySelectorAll("[data-package-tab]"));
+		const panels = Array.from(packageTabs.querySelectorAll("[data-package-panel]"));
+
+		const activate = (id) => {
+			tabs.forEach((tab) => {
+				const on = tab.getAttribute("data-package-tab") === id;
+				tab.classList.toggle("is-active", on);
+				tab.setAttribute("aria-selected", on ? "true" : "false");
+			});
+			panels.forEach((panel) => {
+				const on = panel.getAttribute("data-package-panel") === id;
+				panel.classList.toggle("is-active", on);
+				panel.hidden = !on;
+				if (on) {
+					panel.querySelectorAll(".reveal, [data-reveal]").forEach((item) => {
+						item.classList.add("is-visible");
+					});
+				}
+			});
+		};
+
+		tabs.forEach((tab) => {
+			tab.addEventListener("click", () => {
+				activate(tab.getAttribute("data-package-tab") || "wedding");
+			});
+		});
 	}
 })();

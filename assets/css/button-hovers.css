@@ -63,6 +63,8 @@ input[type="button"],
 .service-featured__cta,
 .blog-card.is-active .blog-card__cta,
 .cta-neon__btn--primary,
+.artist-hero__btn--primary,
+.artist-media__tabs button.is-active,
 input[type="submit"],
 .wp-block-button__link,
 .wp-element-button {
@@ -89,6 +91,10 @@ input[type="submit"],
 .blog-card.is-active .blog-card__cta:focus-visible,
 .cta-neon__btn--primary:hover,
 .cta-neon__btn--primary:focus-visible,
+.artist-hero__btn--primary:hover,
+.artist-hero__btn--primary:focus-visible,
+.artist-media__tabs button.is-active:hover,
+.artist-media__tabs button.is-active:focus-visible,
 input[type="submit"]:hover,
 input[type="submit"]:focus-visible,
 .wp-block-button__link:hover,
@@ -110,6 +116,7 @@ input[type="submit"]:focus-visible,
 .newsletter-cta__submit:active,
 .service-featured__cta:active,
 .cta-neon__btn--primary:active,
+.artist-hero__btn--primary:active,
 input[type="submit"]:active,
 .wp-block-button__link:active,
 .wp-element-button:active {
@@ -149,7 +156,9 @@ input[type="submit"]:active,
 }
 
 .cta-neon__btn--outline:hover,
-.cta-neon__btn--outline:focus-visible {
+.cta-neon__btn--outline:focus-visible,
+.artist-hero__btn--outline:hover,
+.artist-hero__btn--outline:focus-visible {
 	transform: translateY(-3px);
 	color: #fff;
 	text-decoration: none;
@@ -160,7 +169,8 @@ input[type="submit"]:active,
 .btn-outline:active,
 .excel-way__cta:active,
 .venue-panel__cta:active,
-.cta-neon__btn--outline:active {
+.cta-neon__btn--outline:active,
+.artist-hero__btn--outline:active {
 	transform: scale(0.96);
 }
 

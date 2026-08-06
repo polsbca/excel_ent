@@ -1,7 +1,7 @@
 <?php
 /**
- * Template Name: Explore Artists
- * Explore Artists listing — Figma 1224:89355 / search 1299:7406
+ * Template Name: Artist
+ * Artist profile page — Figma 1113:872
  *
  * @package Excel_Ent
  */
@@ -9,8 +9,8 @@
 get_header();
 ?>
 
-<div class="explore-artists-page">
-	<?php get_template_part( 'template-parts/section', 'explore-artists' ); ?>
+<div class="artist-page">
+	<?php get_template_part( 'template-parts/section', 'artist' ); ?>
 
 	<?php
 	get_template_part(

@@ -7,46 +7,7 @@
 
 $excel_ent_ea_uri   = EXCEL_ENT_URI . '/assets/images/explore-artists';
 $excel_ent_quote    = excel_ent_get_quote_url();
-$excel_ent_profile  = home_url( '/artists/' );
-
-$excel_ent_categories = array(
-	array(
-		'id'     => 'all',
-		'label'  => __( 'All', 'excel-ent' ),
-		'count'  => '1800',
-		'active' => true,
-	),
-	array(
-		'id'     => 'artist-type',
-		'label'  => __( 'Artist Type', 'excel-ent' ),
-		'count'  => '1200',
-		'active' => false,
-	),
-	array(
-		'id'     => 'tribute',
-		'label'  => __( 'Tribute Acts', 'excel-ent' ),
-		'count'  => '1200',
-		'active' => false,
-	),
-	array(
-		'id'     => 'genre',
-		'label'  => __( 'Music Genre', 'excel-ent' ),
-		'count'  => '1200',
-		'active' => false,
-	),
-	array(
-		'id'     => 'era',
-		'label'  => __( 'Era / Decade', 'excel-ent' ),
-		'count'  => '1200',
-		'active' => false,
-	),
-	array(
-		'id'     => 'event',
-		'label'  => __( 'Event Type', 'excel-ent' ),
-		'count'  => '1200',
-		'active' => false,
-	),
-);
+$excel_ent_profile  = excel_ent_get_artist_page_url();
 
 $excel_ent_chips = array(
 	__( 'Solo male', 'excel-ent' ),
@@ -136,39 +97,10 @@ $excel_ent_artists = array(
 	data-explore-artists
 >
 	<div class="explore-artists__filters">
-		<div class="explore-artists__toolbar">
-			<div class="explore-artists__categories" role="tablist" aria-label="<?php esc_attr_e( 'Artist categories', 'excel-ent' ); ?>">
-				<?php foreach ( $excel_ent_categories as $excel_ent_cat ) : ?>
-					<button
-						class="explore-artists__cat<?php echo $excel_ent_cat['active'] ? ' is-active' : ''; ?>"
-						type="button"
-						role="tab"
-						aria-selected="<?php echo $excel_ent_cat['active'] ? 'true' : 'false'; ?>"
-						data-explore-cat="<?php echo esc_attr( $excel_ent_cat['id'] ); ?>"
-					>
-						<span class="explore-artists__cat-label"><?php echo esc_html( $excel_ent_cat['label'] ); ?></span>
-						<span class="explore-artists__cat-count"><?php echo esc_html( $excel_ent_cat['count'] ); ?></span>
-					</button>
-				<?php endforeach; ?>
-			</div>
-
-			<button class="explore-artists__sort" type="button" data-explore-sort>
-				<img
-					src="<?php echo esc_url( $excel_ent_ea_uri . '/equalizer-fill.svg' ); ?>"
-					alt=""
-					width="24"
-					height="24"
-					decoding="async"
-				>
-				<span><?php esc_html_e( 'Filters & Sort', 'excel-ent' ); ?></span>
-				<span class="explore-artists__sort-badge" data-explore-filter-count>5</span>
-			</button>
-		</div>
-
-		<div class="explore-artists__chips-bar" data-explore-chips-bar>
+		<div class="explore-artists__chips-bar reveal" data-reveal data-explore-chips-bar>
 			<div class="explore-artists__chips" data-explore-chips>
 				<?php foreach ( $excel_ent_chips as $excel_ent_chip ) : ?>
-					<button class="explore-artists__chip" type="button" data-explore-chip>
+					<button class="explore-artists__chip magnetic" type="button" data-explore-chip>
 						<span><?php echo esc_html( $excel_ent_chip ); ?></span>
 						<img
 							src="<?php echo esc_url( $excel_ent_ea_uri . '/close-line.svg' ); ?>"
@@ -180,12 +112,12 @@ $excel_ent_artists = array(
 					</button>
 				<?php endforeach; ?>
 			</div>
-			<button class="explore-artists__clear" type="button" data-explore-clear>
+			<button class="explore-artists__clear magnetic" type="button" data-explore-clear>
 				<?php esc_html_e( 'Clear All filters', 'excel-ent' ); ?>
 			</button>
 		</div>
 
-		<div class="explore-artists__results">
+		<div class="explore-artists__results reveal" data-reveal>
 			<div class="explore-artists__results-label">
 				<span><?php esc_html_e( 'All', 'excel-ent' ); ?></span>
 				<img
@@ -202,10 +134,10 @@ $excel_ent_artists = array(
 		</div>
 	</div>
 
-	<div class="explore-artists__grid">
-		<?php foreach ( $excel_ent_artists as $excel_ent_artist ) : ?>
+	<div class="explore-artists__grid stagger">
+		<?php foreach ( $excel_ent_artists as $excel_ent_index => $excel_ent_artist ) : ?>
 			<?php
-			$excel_ent_card_class = 'explore-artist-card';
+			$excel_ent_card_class = 'explore-artist-card reveal';
 			if ( ! empty( $excel_ent_artist['featured'] ) ) {
 				$excel_ent_card_class .= ' explore-artist-card--featured';
 			}
@@ -213,7 +145,11 @@ $excel_ent_artists = array(
 				$excel_ent_card_class .= ' is-favorited';
 			}
 			?>
-			<article class="<?php echo esc_attr( $excel_ent_card_class ); ?>">
+			<article
+				class="<?php echo esc_attr( $excel_ent_card_class ); ?>"
+				data-reveal
+				style="--i: <?php echo esc_attr( (string) $excel_ent_index ); ?>; transition-delay: <?php echo esc_attr( (string) ( $excel_ent_index * 80 ) ); ?>ms"
+			>
 				<div class="explore-artist-card__media" aria-hidden="true">
 					<img
 						src="<?php echo esc_url( $excel_ent_artist['image'] ); ?>"
@@ -228,7 +164,7 @@ $excel_ent_artists = array(
 
 				<div class="explore-artist-card__top">
 					<button
-						class="explore-artist-card__fav"
+						class="explore-artist-card__fav magnetic"
 						type="button"
 						aria-pressed="<?php echo ! empty( $excel_ent_artist['favorited'] ) ? 'true' : 'false'; ?>"
 						aria-label="<?php esc_attr_e( 'Favorite artist', 'excel-ent' ); ?>"
@@ -252,7 +188,7 @@ $excel_ent_artists = array(
 						>
 					</button>
 					<button
-						class="explore-artist-card__volume"
+						class="explore-artist-card__volume magnetic"
 						type="button"
 						aria-label="<?php esc_attr_e( 'Preview audio', 'excel-ent' ); ?>"
 					>
@@ -314,10 +250,10 @@ $excel_ent_artists = array(
 					</ul>
 
 					<div class="explore-artist-card__actions">
-						<a class="explore-artist-card__btn explore-artist-card__btn--profile" href="<?php echo esc_url( $excel_ent_profile ); ?>">
+						<a class="explore-artist-card__btn explore-artist-card__btn--profile magnetic" href="<?php echo esc_url( $excel_ent_profile ); ?>">
 							<?php esc_html_e( 'View Profile', 'excel-ent' ); ?>
 						</a>
-						<a class="explore-artist-card__btn explore-artist-card__btn--quote" href="<?php echo esc_url( $excel_ent_quote ); ?>">
+						<a class="explore-artist-card__btn explore-artist-card__btn--quote magnetic" href="<?php echo esc_url( $excel_ent_quote ); ?>">
 							<?php esc_html_e( 'Get a Quote', 'excel-ent' ); ?>
 						</a>
 					</div>

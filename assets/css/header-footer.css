@@ -55,6 +55,62 @@ body:not(.home):not(.front-page) .site-header {
 	background: #0a0a0a;
 }
 
+/* Artist profile — no search bar; tighter header stack (Figma 1113:872) */
+body.page-template-page-artist .site-header {
+	background: #000;
+}
+
+body.page-template-page-artist .site-header__inner {
+	padding-bottom: 0;
+}
+
+body.page-template-page-artist .site-header__bar {
+	padding-top: 40px;
+	padding-bottom: 60px;
+}
+
+/* About — bar only, no search strip (Figma 1126:1218) */
+body.page-template-page-about .site-header {
+	background: #000;
+}
+
+body.page-template-page-about .site-header__inner {
+	padding-bottom: 0;
+}
+
+body.page-template-page-about .site-header__bar {
+	padding-top: 40px;
+	padding-bottom: 40px;
+}
+
+/* Packages — bar only, no search strip (Figma 1126:2252) */
+body.page-template-page-package .site-header {
+	background: #000;
+}
+
+body.page-template-page-package .site-header__inner {
+	padding-bottom: 0;
+}
+
+body.page-template-page-package .site-header__bar {
+	padding-top: 40px;
+	padding-bottom: 40px;
+}
+
+/* Explore Artists — search + categories in black header (Figma 1299:7406) */
+body.page-template-page-explore-artists .site-header {
+	background: #000;
+}
+
+body.page-template-page-explore-artists .site-header__inner {
+	padding-bottom: 60px;
+}
+
+body.page-template-page-explore-artists .site-header__bar {
+	padding-top: 60px;
+	padding-bottom: 60px;
+}
+
 body.home .site-header::before,
 body.front-page .site-header::before {
 	content: "";
