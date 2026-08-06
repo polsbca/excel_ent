@@ -350,15 +350,19 @@ function excel_ent_footer_column( $location, $title, $fallback = array() ) {
 			);
 		} else {
 			echo '<ul class="footer-column__menu">';
-			$index = 0;
+			$current_path = '';
+			if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
+				$current_path = untrailingslashit( (string) wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH ) );
+			}
 			foreach ( $fallback as $label => $url ) {
+				$link_path  = untrailingslashit( (string) wp_parse_url( $url, PHP_URL_PATH ) );
+				$is_current = ( $link_path && $current_path && $link_path === $current_path );
 				printf(
-					'<li class="%1$s"><a href="%2$s">%3$s</a></li>',
-					0 === $index ? 'is-active' : '',
+					'<li%1$s><a href="%2$s">%3$s</a></li>',
+					$is_current ? ' class="is-active current-menu-item"' : '',
 					esc_url( $url ),
 					esc_html( $label )
 				);
-				++$index;
 			}
 			echo '</ul>';
 		}

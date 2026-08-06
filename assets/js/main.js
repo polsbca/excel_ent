@@ -1028,4 +1028,74 @@
 			});
 		});
 	}
+
+	/* ---------- Package enquiry modal ---------- */
+	const enquiryModal = document.querySelector("[data-package-enquiry-modal]");
+	if (enquiryModal) {
+		const dialog = enquiryModal.querySelector("[data-package-enquiry-dialog]");
+		const form = enquiryModal.querySelector("[data-package-enquiry-form]");
+		const selected = enquiryModal.querySelector("[data-package-enquiry-selected]");
+		const packageInput = enquiryModal.querySelector("[data-package-enquiry-package]");
+		const nameInput = enquiryModal.querySelector("[data-package-enquiry-name]");
+		const triggers = Array.from(document.querySelectorAll("[data-package-enquiry]"));
+		let lastFocus = null;
+
+		const open = (label, name) => {
+			lastFocus = document.activeElement;
+			if (selected) {
+				selected.textContent = label || name || "";
+			}
+			if (packageInput) {
+				packageInput.value = name || label || "";
+			}
+			enquiryModal.hidden = false;
+			document.body.classList.add("package-enquiry-open");
+			window.setTimeout(() => nameInput?.focus(), 40);
+		};
+
+		const close = () => {
+			enquiryModal.hidden = true;
+			document.body.classList.remove("package-enquiry-open");
+			if (lastFocus && typeof lastFocus.focus === "function") {
+				lastFocus.focus();
+			}
+		};
+
+		triggers.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				open(
+					btn.getAttribute("data-package-label") || "",
+					btn.getAttribute("data-package-name") || ""
+				);
+			});
+		});
+
+		enquiryModal.querySelectorAll("[data-package-enquiry-close]").forEach((el) => {
+			el.addEventListener("click", close);
+		});
+
+		window.addEventListener("keydown", (e) => {
+			if (e.key === "Escape" && !enquiryModal.hidden) {
+				close();
+			}
+		});
+
+		form?.addEventListener("submit", (e) => {
+			e.preventDefault();
+			const name = nameInput?.value?.trim();
+			const email = enquiryModal.querySelector("[data-package-enquiry-email]")?.value?.trim();
+			if (!name) {
+				nameInput?.focus();
+				return;
+			}
+			if (!email) {
+				enquiryModal.querySelector("[data-package-enquiry-email]")?.focus();
+				return;
+			}
+			form.reset();
+			close();
+		});
+
+		dialog?.addEventListener("click", (e) => e.stopPropagation());
+	}
 })();

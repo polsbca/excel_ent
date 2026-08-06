@@ -140,12 +140,22 @@ $excel_ent_bulk = array(
  *
  * @param array  $package Package data.
  * @param string $note    Shared pricing note.
- * @param string $quote   Enquiry URL.
+ * @param string $quote   Enquiry URL (unused — enquiry opens modal).
  * @param int    $index   Card index for stagger.
  */
 $excel_ent_render_card = static function ( $package, $note, $quote, $index ) {
 	$featured = ! empty( $package['featured'] );
 	$mod      = isset( $package['mod'] ) ? $package['mod'] : '';
+	$price_label = $package['price']['main'];
+	if ( ! empty( $package['price']['suffix'] ) ) {
+		$price_label .= ' ' . $package['price']['suffix'];
+	}
+	$selected_label = sprintf(
+		/* translators: 1: package name, 2: price */
+		__( '%1$s from %2$s', 'excel-ent' ),
+		$package['name'],
+		$price_label
+	);
 	?>
 	<article
 		class="package-card<?php echo $featured ? ' package-card--featured' : ''; ?> package-card--<?php echo esc_attr( $mod ); ?> reveal"
@@ -178,12 +188,15 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index ) {
 					<li><?php echo esc_html( $feature ); ?></li>
 				<?php endforeach; ?>
 			</ul>
-			<a
+			<button
+				type="button"
 				class="package-card__btn<?php echo $featured ? ' package-card__btn--gradient' : ''; ?> magnetic"
-				href="<?php echo esc_url( $quote ); ?>"
+				data-package-enquiry
+				data-package-name="<?php echo esc_attr( $package['name'] ); ?>"
+				data-package-label="<?php echo esc_attr( $selected_label ); ?>"
 			>
 				<?php esc_html_e( 'Start Your Enquiry', 'excel-ent' ); ?>
-			</a>
+			</button>
 		</div>
 	</article>
 	<?php
@@ -254,3 +267,88 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index ) {
 		</div>
 	</div>
 </section>
+
+<!-- Enquiry modal (Figma 1101:3152) -->
+<div class="package-enquiry" data-package-enquiry-modal hidden>
+	<div class="package-enquiry__backdrop" data-package-enquiry-close tabindex="-1"></div>
+	<div
+		class="package-enquiry__dialog"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="package-enquiry-title"
+		data-package-enquiry-dialog
+	>
+		<button
+			type="button"
+			class="package-enquiry__close magnetic"
+			aria-label="<?php esc_attr_e( 'Close enquiry form', 'excel-ent' ); ?>"
+			data-package-enquiry-close
+		>
+			<span aria-hidden="true">&times;</span>
+		</button>
+
+		<form class="package-enquiry__form" method="post" action="<?php echo esc_url( home_url( '/' ) ); ?>" data-package-enquiry-form novalidate>
+			<header class="package-enquiry__header">
+				<h2 id="package-enquiry-title" class="package-enquiry__title">
+					<?php esc_html_e( 'Start your enquiry.', 'excel-ent' ); ?>
+				</h2>
+				<p class="package-enquiry__lede">
+					<?php esc_html_e( 'Share a few details and our team will be in touch with availability and a tailored quote, no commitment needed.', 'excel-ent' ); ?>
+				</p>
+			</header>
+
+			<div class="package-enquiry__fields">
+				<div class="package-enquiry__row">
+					<label class="package-enquiry__field">
+						<span class="package-enquiry__label"><?php esc_html_e( 'Full name', 'excel-ent' ); ?></span>
+						<input
+							class="package-enquiry__input"
+							type="text"
+							name="excel_ent_enquiry_name"
+							placeholder="<?php esc_attr_e( 'Name', 'excel-ent' ); ?>"
+							autocomplete="name"
+							required
+							data-package-enquiry-name
+						>
+					</label>
+					<label class="package-enquiry__field">
+						<span class="package-enquiry__label"><?php esc_html_e( 'Email address', 'excel-ent' ); ?></span>
+						<input
+							class="package-enquiry__input"
+							type="email"
+							name="excel_ent_enquiry_email"
+							placeholder="<?php esc_attr_e( 'you@email.com', 'excel-ent' ); ?>"
+							autocomplete="email"
+							required
+							data-package-enquiry-email
+						>
+					</label>
+				</div>
+
+				<div class="package-enquiry__package">
+					<p class="package-enquiry__package-label"><?php esc_html_e( 'Package selected', 'excel-ent' ); ?></p>
+					<div class="package-enquiry__package-value">
+						<span class="package-enquiry__radio" aria-hidden="true"></span>
+						<span data-package-enquiry-selected><?php esc_html_e( 'Gold from £750', 'excel-ent' ); ?></span>
+					</div>
+					<input type="hidden" name="excel_ent_enquiry_package" value="" data-package-enquiry-package>
+				</div>
+
+				<label class="package-enquiry__field package-enquiry__field--notes">
+					<span class="package-enquiry__label"><?php esc_html_e( 'Any additional information', 'excel-ent' ); ?></span>
+					<textarea
+						class="package-enquiry__input package-enquiry__textarea"
+						name="excel_ent_enquiry_notes"
+						rows="3"
+						placeholder="<?php esc_attr_e( 'this is optional', 'excel-ent' ); ?>"
+						data-package-enquiry-notes
+					></textarea>
+				</label>
+			</div>
+
+			<button class="package-enquiry__submit magnetic" type="submit">
+				<?php esc_html_e( 'Send enquiry', 'excel-ent' ); ?>
+			</button>
+		</form>
+	</div>
+</div>

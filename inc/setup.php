@@ -90,3 +90,27 @@ function excel_ent_content_width() {
 	$GLOBALS['content_width'] = apply_filters( 'excel_ent_content_width', 720 );
 }
 add_action( 'after_setup_theme', 'excel_ent_content_width', 0 );
+
+/**
+ * Keep footer "About Us" pointing at /about-us/ when a WP menu is assigned.
+ *
+ * @param array    $items Menu items.
+ * @param stdClass $args  Menu args.
+ * @return array
+ */
+function excel_ent_fix_footer_about_us_link( $items, $args ) {
+	if ( empty( $args->theme_location ) || 'footer-company' !== $args->theme_location ) {
+		return $items;
+	}
+
+	$about_url = home_url( '/about-us/' );
+	foreach ( $items as $item ) {
+		$title = isset( $item->title ) ? trim( wp_strip_all_tags( $item->title ) ) : '';
+		if ( 0 === strcasecmp( $title, 'About Us' ) ) {
+			$item->url = $about_url;
+		}
+	}
+
+	return $items;
+}
+add_filter( 'wp_nav_menu_objects', 'excel_ent_fix_footer_about_us_link', 10, 2 );

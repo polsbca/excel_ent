@@ -546,20 +546,23 @@ body.front-page .site-header::before {
 	font-size: 18px;
 	line-height: 1;
 	letter-spacing: 1px;
-	color: #fff;
+	color: rgba(255, 255, 255, 0.72);
 	text-decoration: none;
-	transition: color 0.2s ease;
+	text-underline-offset: 0.28em;
+	text-decoration-thickness: 1.5px;
+	transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
 
 .footer-column__menu a:hover,
 .footer-column__menu a:focus-visible,
 .footer-column__menu .current-menu-item > a,
 .footer-column__menu .is-active > a {
-	color: var(--ee-neon-orange);
-	font-weight: 600;
+	color: var(--ee-neon-orange, #f89a42);
+	font-weight: 400;
 	text-decoration: underline;
-	text-decoration-thickness: 12.5%;
-	text-underline-offset: 0.2em;
+	text-decoration-color: var(--ee-neon-orange, #f89a42);
+	text-decoration-thickness: 1.5px;
+	text-underline-offset: 0.28em;
 }
 
 .site-footer__bottom {

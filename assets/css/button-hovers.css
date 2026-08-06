@@ -271,8 +271,12 @@ input[type="submit"]:active,
 
 .footer-column__menu a:hover,
 .footer-column__menu a:focus-visible {
-	transform: translateX(4px);
+	transform: none;
 	color: #f89a42;
+	text-decoration: underline;
+	text-decoration-color: #f89a42;
+	text-decoration-thickness: 1.5px;
+	text-underline-offset: 0.28em;
 }
 
 /* ---------- Pagination / misc links as buttons ---------- */
