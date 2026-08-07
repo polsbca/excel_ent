@@ -166,6 +166,13 @@ function excel_ent_is_package_page() {
 }
 
 /**
+ * Whether the current request is the Contact Us page.
+ */
+function excel_ent_is_contact_page() {
+	return is_page_template( 'page-contactus.php' ) || is_page( 'contact' ) || is_page( 'contact-us' );
+}
+
+/**
  * Artist profile page URL (Template: Artist).
  *
  * @return string
@@ -333,40 +340,84 @@ function excel_ent_default_company_links() {
  * @param string               $location Menu location.
  * @param string               $title    Column title.
  * @param array<string,string> $fallback Fallback label => URL pairs.
+ * @param array<string,mixed>  $args     Optional. `open` => bool for mobile accordion default.
  */
-function excel_ent_footer_column( $location, $title, $fallback = array() ) {
+function excel_ent_footer_column( $location, $title, $fallback = array(), $args = array() ) {
+	$args = wp_parse_args(
+		$args,
+		array(
+			'open' => false,
+		)
+	);
+
+	$panel_id = 'footer-panel-' . sanitize_html_class( $location );
+	$is_open  = (bool) $args['open'];
+	$icon_uri = EXCEL_ENT_URI . '/assets/images/footer';
 	?>
-	<div class="footer-column">
-		<p class="footer-column__title"><?php echo esc_html( $title ); ?></p>
-		<?php
-		if ( has_nav_menu( $location ) ) {
-			wp_nav_menu(
-				array(
-					'theme_location' => $location,
-					'container'      => false,
-					'menu_class'     => 'footer-column__menu',
-					'depth'          => 1,
-				)
-			);
-		} else {
-			echo '<ul class="footer-column__menu">';
-			$current_path = '';
-			if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
-				$current_path = untrailingslashit( (string) wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH ) );
-			}
-			foreach ( $fallback as $label => $url ) {
-				$link_path  = untrailingslashit( (string) wp_parse_url( $url, PHP_URL_PATH ) );
-				$is_current = ( $link_path && $current_path && $link_path === $current_path );
-				printf(
-					'<li%1$s><a href="%2$s">%3$s</a></li>',
-					$is_current ? ' class="is-active current-menu-item"' : '',
-					esc_url( $url ),
-					esc_html( $label )
+	<div class="footer-column<?php echo $is_open ? ' is-open' : ''; ?>" data-footer-acc>
+		<button
+			type="button"
+			class="footer-column__toggle"
+			data-footer-trigger
+			aria-expanded="<?php echo $is_open ? 'true' : 'false'; ?>"
+			aria-controls="<?php echo esc_attr( $panel_id ); ?>"
+		>
+			<span class="footer-column__title"><?php echo esc_html( $title ); ?></span>
+			<span class="footer-column__icon" aria-hidden="true">
+				<img
+					class="footer-column__icon-add"
+					src="<?php echo esc_url( $icon_uri . '/icon-add.svg' ); ?>"
+					alt=""
+					width="24"
+					height="24"
+					decoding="async"
+				>
+				<img
+					class="footer-column__icon-close"
+					src="<?php echo esc_url( $icon_uri . '/icon-close.svg' ); ?>"
+					alt=""
+					width="24"
+					height="24"
+					decoding="async"
+				>
+			</span>
+		</button>
+		<div
+			class="footer-column__panel"
+			id="<?php echo esc_attr( $panel_id ); ?>"
+			data-footer-panel
+			<?php echo $is_open ? '' : ' hidden'; ?>
+		>
+			<?php
+			if ( has_nav_menu( $location ) ) {
+				wp_nav_menu(
+					array(
+						'theme_location' => $location,
+						'container'      => false,
+						'menu_class'     => 'footer-column__menu',
+						'depth'          => 1,
+					)
 				);
+			} else {
+				echo '<ul class="footer-column__menu">';
+				$current_path = '';
+				if ( ! empty( $_SERVER['REQUEST_URI'] ) ) {
+					$current_path = untrailingslashit( (string) wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH ) );
+				}
+				foreach ( $fallback as $label => $url ) {
+					$link_path  = untrailingslashit( (string) wp_parse_url( $url, PHP_URL_PATH ) );
+					$is_current = ( $link_path && $current_path && $link_path === $current_path );
+					printf(
+						'<li%1$s><a href="%2$s">%3$s</a></li>',
+						$is_current ? ' class="is-active current-menu-item"' : '',
+						esc_url( $url ),
+						esc_html( $label )
+					);
+				}
+				echo '</ul>';
 			}
-			echo '</ul>';
-		}
-		?>
+			?>
+		</div>
 	</div>
 	<?php
 }

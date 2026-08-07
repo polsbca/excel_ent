@@ -22,7 +22,7 @@ $excel_ent_tags = array(
 );
 
 $excel_ent_perks = array(
-	__( 'Personally verified by Excel Entertainment', 'excel-ent' ),
+	__( 'Personally auditioned by Excel', 'excel-ent' ),
 	__( 'PLI & PAT certified as standard', 'excel-ent' ),
 	__( 'No hidden fees — transparent pricing', 'excel-ent' ),
 );
@@ -93,7 +93,7 @@ $excel_ent_similar = array(
 		'location'   => __( 'Manchester', 'excel-ent' ),
 		'status'     => __( 'Available After 30 days', 'excel-ent' ),
 		'status_mod' => 'later',
-		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 	array(
 		'name'       => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -103,7 +103,7 @@ $excel_ent_similar = array(
 		'location'   => __( 'Manchester', 'excel-ent' ),
 		'status'     => __( 'Available this weekend', 'excel-ent' ),
 		'status_mod' => 'weekend',
-		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 	array(
 		'name'       => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -113,7 +113,7 @@ $excel_ent_similar = array(
 		'location'   => __( 'Manchester', 'excel-ent' ),
 		'status'     => __( 'Available this weekend', 'excel-ent' ),
 		'status_mod' => 'weekend',
-		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 	array(
 		'name'       => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -123,7 +123,7 @@ $excel_ent_similar = array(
 		'location'   => __( 'Manchester', 'excel-ent' ),
 		'status'     => __( 'Available this weekend', 'excel-ent' ),
 		'status_mod' => 'weekend',
-		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 );
 ?>
@@ -144,7 +144,7 @@ $excel_ent_similar = array(
 				<img class="artist-hero__fav-on" src="<?php echo esc_url( $excel_ent_uri . '/heart-active.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 				<img class="artist-hero__fav-off" src="<?php echo esc_url( $excel_ent_uri . '/heart.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 			</button>
-			<span class="artist-hero__approved">
+			<span class="artist-hero__approved artist-hero__approved--media">
 				<img src="<?php echo esc_url( $excel_ent_uri . '/checkbox-circle.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 				<?php esc_html_e( 'Excel Approved Artist', 'excel-ent' ); ?>
 			</span>
@@ -159,9 +159,9 @@ $excel_ent_similar = array(
 
 		<div class="artist-hero__details">
 			<div class="artist-hero__pricing">
-				<p class="artist-hero__price"><?php esc_html_e( 'from £600', 'excel-ent' ); ?></p>
+				<p class="artist-hero__price"><?php esc_html_e( '£600', 'excel-ent' ); ?></p>
 				<p class="artist-hero__price-note">
-					<?php esc_html_e( 'Based on two hour set. Price varies by event type, duration & location. Request a tailored quote for your event.', 'excel-ent' ); ?>
+					<?php esc_html_e( 'Price varies by event type, duration & location. Request a tailored quote for your event.', 'excel-ent' ); ?>
 				</p>
 			</div>
 
@@ -172,6 +172,10 @@ $excel_ent_similar = array(
 			</ul>
 
 			<div class="artist-hero__rating">
+				<span class="artist-hero__approved artist-hero__approved--inline">
+					<img src="<?php echo esc_url( $excel_ent_uri . '/checkbox-circle.svg' ); ?>" alt="" width="10" height="10" decoding="async">
+					<?php esc_html_e( 'Excel Approved Artist', 'excel-ent' ); ?>
+				</span>
 				<div class="artist-hero__stars" aria-hidden="true">
 					<?php for ( $i = 0; $i < 5; $i++ ) : ?>
 						<img src="<?php echo esc_url( $excel_ent_uri . '/star-fill.svg' ); ?>" alt="" width="24" height="24" decoding="async">
@@ -211,8 +215,8 @@ $excel_ent_similar = array(
 	<div class="artist-performance__copy reveal" data-reveal>
 		<h2 class="artist-performance__title"><?php esc_html_e( 'Performance & Energy', 'excel-ent' ); ?></h2>
 		<div class="artist-performance__cols">
-			<p><?php esc_html_e( 'Performed at The Roundhouse Theatre, The O2, Cork Opera House in Ireland, and Udaipur City Palace, Rose Sax is a versatile saxophonist who brings sophistication and energy to every event. Her repertoire spans smooth jazz standards to club classics and freestyle improvisation with live musicians.', 'excel-ent' ); ?></p>
 			<p><?php esc_html_e( "Available as a 'plug and play' sax option, Rose can seamlessly connect to your venue's PA system or a DJ provided by the client, creating an effortless live sax experience. For a complete entertainment package, she can also provide a full DJ service alongside her performance.", 'excel-ent' ); ?></p>
+			<p><?php esc_html_e( 'Performed at The Roundhouse Theatre, The O2, Cork Opera House in Ireland, and Udaipur City Palace, Rose Sax is a versatile saxophonist who brings sophistication and energy to every event. Her repertoire spans smooth jazz standards to club classics and freestyle improvisation with live musicians.', 'excel-ent' ); ?></p>
 		</div>
 	</div>
 
@@ -285,7 +289,10 @@ $excel_ent_similar = array(
 
 	<div class="artist-setlist__panel reveal" data-reveal>
 		<header class="artist-setlist__header">
-			<h2 class="artist-setlist__title"><?php esc_html_e( 'Example set lists', 'excel-ent' ); ?></h2>
+			<h2 class="artist-setlist__title">
+				<span class="artist-setlist__title-desktop"><?php esc_html_e( 'Example set lists', 'excel-ent' ); ?></span>
+				<span class="artist-setlist__title-mobile"><?php esc_html_e( 'Music List & Repertoire', 'excel-ent' ); ?></span>
+			</h2>
 			<div class="artist-setlist__tools">
 				<div class="artist-setlist__tabs" role="tablist" aria-label="<?php esc_attr_e( 'Song genres', 'excel-ent' ); ?>">
 					<button class="is-active" type="button" role="tab" aria-selected="true" data-setlist-tab="all"><?php esc_html_e( 'All Songs', 'excel-ent' ); ?></button>
@@ -298,6 +305,10 @@ $excel_ent_similar = array(
 					<input type="search" placeholder="<?php esc_attr_e( 'Search', 'excel-ent' ); ?>" data-setlist-search>
 					<img src="<?php echo esc_url( $excel_ent_uri . '/search.svg' ); ?>" alt="" width="20" height="20" decoding="async">
 				</label>
+				<button class="artist-setlist__category magnetic" type="button" data-setlist-category aria-haspopup="listbox" aria-expanded="false">
+					<span><?php esc_html_e( 'Select category', 'excel-ent' ); ?></span>
+					<img src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/explore-artists/caret-down.svg' ); ?>" alt="" width="24" height="24" decoding="async">
+				</button>
 			</div>
 		</header>
 
@@ -453,8 +464,8 @@ $excel_ent_similar = array(
 	<header class="artist-similar__header reveal" data-reveal>
 		<h2 class="artist-similar__title"><?php esc_html_e( 'View Similar Artists', 'excel-ent' ); ?></h2>
 		<div class="artist-similar__eyebrow">
-			<img src="<?php echo esc_url( $excel_ent_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
 			<span><?php esc_html_e( '(Recommended)', 'excel-ent' ); ?></span>
+			<img src="<?php echo esc_url( $excel_ent_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
 		</div>
 	</header>
 
@@ -510,6 +521,15 @@ $excel_ent_similar = array(
 							<?php foreach ( $excel_ent_artist['tags'] as $excel_ent_tag ) : ?>
 								<li><?php echo esc_html( $excel_ent_tag ); ?></li>
 							<?php endforeach; ?>
+							<li class="explore-artist-card__tag-more" aria-hidden="true">
+								<img
+									src="<?php echo esc_url( $excel_ent_ea . '/add-fill.svg' ); ?>"
+									alt=""
+									width="13"
+									height="13"
+									decoding="async"
+								>
+							</li>
 						</ul>
 						<div class="explore-artist-card__actions">
 							<a class="explore-artist-card__btn explore-artist-card__btn--profile magnetic" href="<?php echo esc_url( $excel_ent_profile ); ?>">

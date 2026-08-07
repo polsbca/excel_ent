@@ -34,8 +34,8 @@ $excel_ent_way_tabs = array(
 $excel_ent_way_steps = array(
 	array(
 		'num'   => '1',
-		'title' => __( 'Tell us about your event', 'excel-ent' ),
-		'text'  => __( 'Share your event type, date, venue, and budget — through our online form is all it takes.', 'excel-ent' ),
+		'title' => __( 'Tell Us Your Vision', 'excel-ent' ),
+		'text'  => __( 'Share your event type, date, venue, and budget — a quick call or online form is all it takes.', 'excel-ent' ),
 	),
 	array(
 		'num'   => '2',

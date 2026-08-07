@@ -130,6 +130,7 @@
 	letter-spacing: 1px;
 	text-decoration: none;
 	text-align: center;
+	text-transform: uppercase;
 	white-space: nowrap;
 	/* Hover motion lives in button-hovers.css */
 }
@@ -377,55 +378,137 @@
 /* Below desktop — simplified stacking */
 @media (max-width: 1199px) {
 	.hero__layout {
-		padding: 140px 20px 48px;
+		padding: 200px 24px 48px;
 		min-height: auto;
 		gap: 40px;
 	}
 
 	.hero__main {
 		flex-direction: column;
-		gap: 40px;
+		gap: 60px;
+	}
+
+	.hero__copy {
+		display: contents;
 	}
 
 	.hero__intro {
-		gap: 28px;
+		order: 1;
+		gap: 40px;
+		max-width: none;
 	}
 
 	.hero__title {
-		font-size: clamp(42px, 10vw, 64px);
-		line-height: 1.05;
+		font-size: 40px;
+		line-height: 1;
 		letter-spacing: 1px;
+		font-weight: 700;
+	}
+
+	.hero__title-line {
+		display: inline;
+	}
+
+	.hero__title-line + .hero__title-line::before {
+		content: "\00a0";
 	}
 
 	.hero__lede {
-		font-size: 15px;
-		line-height: 1.6;
+		max-width: none;
+		font-size: 14px;
+		line-height: 20px;
+		letter-spacing: 1px;
+	}
+
+	.hero__stats {
+		order: 2;
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 8px;
+		width: 100%;
+	}
+
+	.hero-stat {
+		flex: 1 1 0;
+		min-width: 0;
+		gap: 16px;
+	}
+
+	.hero-stat__num {
+		font-size: 20px;
+		font-weight: 700;
+		letter-spacing: 1px;
+	}
+
+	.hero-stat__label {
+		font-size: 10px;
+		line-height: 1.2;
+		letter-spacing: 0;
 	}
 
 	.hero__actions {
+		order: 3;
 		flex-direction: column;
 		align-items: stretch;
-		width: min(290px, 100%);
-		gap: 16px;
+		width: 222px;
+		max-width: 100%;
+		gap: 24px;
 	}
 
 	.btn-hero {
 		min-width: 0;
 		width: 100%;
-		min-height: 58px;
-		padding: 18px 24px;
-		font-size: 18px;
+		min-height: 0;
+		padding: 20px;
+		font-size: 16px;
 	}
 
-	.hero__stats {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 24px 32px;
-		width: 100%;
+	.btn-hero--primary {
+		box-shadow: 0 4px 4px rgba(155, 77, 255, 0.5);
+	}
+
+	.btn-hero--outline {
+		min-height: 51px;
+		box-sizing: border-box;
 	}
 
 	.hero__carousel {
-		margin-top: 8px;
+		order: 4;
+		align-self: center;
+		width: auto;
+		gap: 0;
+		margin-top: 40px;
+	}
+
+	.hero-carousel__nav,
+	.hero-carousel__label {
+		display: none;
+	}
+
+	.hero-carousel__progress {
+		width: 51px;
+		height: 4px;
+	}
+
+	.hero-carousel__fill {
+		width: 45%;
+	}
+}
+
+@media (max-width: 767px) {
+	.hero {
+		min-height: 0;
+	}
+
+	.hero__layout {
+		padding: 188px 24px 40px;
+		gap: 80px;
+	}
+
+	.hero__main {
+		gap: 80px;
 	}
 }
 

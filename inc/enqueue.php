@@ -133,9 +133,23 @@ function excel_ent_enqueue_assets() {
 	);
 
 	wp_enqueue_style(
+		'excel-ent-contact-page',
+		EXCEL_ENT_URI . '/assets/css/contact-page.css',
+		array( 'excel-ent-package-page' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
+		'excel-ent-search-page',
+		EXCEL_ENT_URI . '/assets/css/search-page.css',
+		array( 'excel-ent-contact-page' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
 		'excel-ent-button-hovers',
 		EXCEL_ENT_URI . '/assets/css/button-hovers.css',
-		array( 'excel-ent-package-page', 'excel-ent-header-footer' ),
+		array( 'excel-ent-search-page', 'excel-ent-header-footer' ),
 		EXCEL_ENT_VERSION
 	);
 

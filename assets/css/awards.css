@@ -110,22 +110,30 @@
 
 @media (max-width: 700px) {
 	.awards-marquee {
-		padding: 28px 0;
+		padding: 40px 0;
+		border-top-width: 0.5px;
+		border-bottom-width: 0.5px;
+		border-color: #ed3153;
 	}
 
 	.awards-marquee__group {
-		gap: 36px;
-		padding-right: 36px;
+		gap: 40px;
+		padding-right: 40px;
 	}
 
 	.awards-marquee__logo {
-		height: 56px;
+		height: 60px;
 	}
 
 	.awards-marquee__logo img,
 	.awards-marquee__logo object {
-		max-height: 56px;
-		max-width: 96px;
+		max-height: 60px;
+		max-width: 86px;
+	}
+
+	.awards-marquee__dot {
+		width: 12px;
+		height: 12px;
 	}
 }
 

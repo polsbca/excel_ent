@@ -23,19 +23,6 @@ $excel_ent_venues = array(
 		'active'      => true,
 	),
 	array(
-		'id'          => 'golf-social',
-		'title'       => __( 'Golf & Social Clubs', 'excel-ent' ),
-		'image'       => $excel_ent_venues_uri . '/golf-social.jpg',
-		'description' => __( 'Entertainment tailored for members\' nights, social calendars, and clubhouse celebrations of every size.', 'excel-ent' ),
-		'tags'        => array(
-			__( 'Members Events', 'excel-ent' ),
-			__( 'Social Evenings', 'excel-ent' ),
-			__( 'Live Acts', 'excel-ent' ),
-			__( 'Themed Nights', 'excel-ent' ),
-		),
-		'active'      => false,
-	),
-	array(
 		'id'          => 'hotels',
 		'title'       => __( 'Hotels', 'excel-ent' ),
 		'image'       => $excel_ent_venues_uri . '/hotels.jpg',
@@ -45,6 +32,19 @@ $excel_ent_venues = array(
 			__( 'Conferences', 'excel-ent' ),
 			__( 'Ballrooms', 'excel-ent' ),
 			__( 'Corporate Dinners', 'excel-ent' ),
+		),
+		'active'      => false,
+	),
+	array(
+		'id'          => 'golf-social',
+		'title'       => __( 'Golf & Social Clubs', 'excel-ent' ),
+		'image'       => $excel_ent_venues_uri . '/golf-social.jpg',
+		'description' => __( 'Entertainment tailored for members\' nights, social calendars, and clubhouse celebrations of every size.', 'excel-ent' ),
+		'tags'        => array(
+			__( 'Members Events', 'excel-ent' ),
+			__( 'Social Evenings', 'excel-ent' ),
+			__( 'Live Acts', 'excel-ent' ),
+			__( 'Themed Nights', 'excel-ent' ),
 		),
 		'active'      => false,
 	),
@@ -66,7 +66,12 @@ $excel_ent_venues = array(
 <section class="venues-section" id="venues" data-venues-section aria-label="<?php esc_attr_e( 'Venues', 'excel-ent' ); ?>">
 	<div class="venues-section__inner">
 		<header class="venues-section__header reveal" data-reveal>
-			<h2 class="venues-section__title"><?php esc_html_e( 'WE WORK WITH EVERY VENUE', 'excel-ent' ); ?></h2>
+			<div class="venues-section__heading">
+				<h2 class="venues-section__title"><?php esc_html_e( 'WE WORK WITH EVERY VENUE', 'excel-ent' ); ?></h2>
+				<p class="venues-section__lede">
+					<?php esc_html_e( 'From intimate local pubs to large golf clubs and luxury hotels — Excel supplies entertainment that fits the setting perfectly.', 'excel-ent' ); ?>
+				</p>
+			</div>
 
 			<div class="venues-section__aside">
 				<div class="venues-section__eyebrow">

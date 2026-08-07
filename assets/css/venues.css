@@ -24,6 +24,14 @@
 	width: 100%;
 }
 
+.venues-section__heading {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
 .venues-section__title {
 	margin: 0;
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
@@ -35,6 +43,18 @@
 	text-transform: uppercase;
 	color: #000;
 	white-space: nowrap;
+}
+
+.venues-section__lede {
+	display: none;
+	margin: 0;
+	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 100;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 20px;
+	letter-spacing: 1px;
+	color: #000;
 }
 
 .venues-section__aside {
@@ -472,6 +492,179 @@
 
 	.venue-panel__cta {
 		width: 100%;
+	}
+}
+
+/* Phone — Figma 1023:3105 */
+@media (max-width: 767px) {
+	.venues-section {
+		padding: 40px 24px;
+	}
+
+	.venues-section__inner {
+		gap: 0;
+	}
+
+	.venues-section__header {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 40px;
+		margin-bottom: 16px;
+	}
+
+	.venues-section__heading {
+		gap: 20px;
+		width: 100%;
+	}
+
+	.venues-section__title {
+		font-size: 32px;
+		line-height: 36px;
+		white-space: normal;
+	}
+
+	.venues-section__lede {
+		display: block;
+	}
+
+	.venues-section__aside {
+		align-items: stretch;
+		width: 100%;
+		align-self: auto;
+	}
+
+	.venues-section__eyebrow {
+		gap: 7px;
+		width: 100%;
+		padding-right: 140px;
+		box-sizing: border-box;
+	}
+
+	.venues-section__eyebrow span {
+		order: -1;
+		font-size: 12px;
+	}
+
+	.venues-section__eyebrow img {
+		flex: 1 1 auto;
+		width: auto;
+		min-width: 0;
+		max-width: none;
+		height: 1px;
+		object-fit: fill;
+	}
+
+	.venue-panel {
+		border-top-width: 1px;
+	}
+
+	.venue-panel:not(.is-active) {
+		height: 104px;
+		flex-basis: 104px;
+	}
+
+	.venue-panel:not(.is-active)[data-venue-id="hotels"] {
+		height: 104px;
+		flex-basis: 104px;
+	}
+
+	.venue-panel.is-active {
+		height: 359px;
+		min-height: 359px;
+		flex-basis: 359px;
+	}
+
+	.venue-panel.is-active .venue-panel__image {
+		height: 100%;
+		top: 0;
+		transform: none;
+	}
+
+	.venue-panel.is-active .venue-panel__overlay {
+		background: rgba(0, 0, 0, 0.3);
+	}
+
+	.venue-panel__collapsed-title {
+		left: 16px;
+		right: 16px;
+		font-size: 24px;
+		font-weight: 600;
+		line-height: normal;
+		max-width: none;
+		white-space: nowrap;
+	}
+
+	.venue-panel.is-active .venue-panel__body {
+		justify-content: space-between;
+		align-items: stretch;
+		gap: 16px;
+		padding: 16px;
+	}
+
+	.venue-panel__orb {
+		display: none;
+	}
+
+	.venue-panel__content {
+		flex: 1 1 auto;
+		flex-direction: column;
+		align-items: stretch;
+		justify-content: space-between;
+		gap: 16px;
+		min-height: 0;
+	}
+
+	.venue-panel__copy {
+		gap: 16px;
+		width: 100%;
+	}
+
+	.venue-panel__title {
+		font-size: 24px;
+		font-weight: 600;
+		line-height: normal;
+	}
+
+	.venue-panel__tags {
+		gap: 8px;
+	}
+
+	.venue-tag {
+		padding: 8px;
+		font-size: 10px;
+		text-transform: uppercase;
+	}
+
+	.venue-tag--more {
+		width: 18px;
+		min-width: 18px;
+		height: 18px;
+		padding: 3px;
+	}
+
+	.venue-tag--more img {
+		width: 12px;
+		height: 12px;
+	}
+
+	.venue-panel__text {
+		font-size: 14px;
+		line-height: normal;
+		letter-spacing: 1px;
+	}
+
+	.venue-panel__cta {
+		width: 100%;
+		height: 51px;
+		min-height: 51px;
+		padding: 0 20px;
+		box-sizing: border-box;
+		border: 1px solid #fff;
+		background: #000;
+		backdrop-filter: blur(40px);
+		-webkit-backdrop-filter: blur(40px);
+		font-size: 16px;
+		font-weight: 700;
 	}
 }
 

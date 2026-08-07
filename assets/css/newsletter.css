@@ -206,3 +206,29 @@
 		font-size: 18px;
 	}
 }
+
+@media (max-width: 767px) {
+	.newsletter-cta {
+		padding: 48px 24px;
+	}
+
+	.newsletter-cta__title {
+		font-size: 32px;
+	}
+
+	.newsletter-cta__lede {
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.newsletter-cta__input {
+		height: 56px;
+		padding: 16px 20px;
+		font-size: 14px;
+	}
+
+	.newsletter-cta__submit {
+		padding: 16px 20px;
+		font-size: 14px;
+	}
+}

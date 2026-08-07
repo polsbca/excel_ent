@@ -74,14 +74,46 @@ $excel_ent_quote = excel_ent_get_quote_url();
 				<a class="btn-quote magnetic" href="<?php echo esc_url( $excel_ent_quote ); ?>">
 					<?php esc_html_e( 'Get a Quote', 'excel-ent' ); ?>
 				</a>
+
+				<?php if ( excel_ent_is_explore_artists_page() ) : ?>
+					<button
+						class="header-search-icon magnetic"
+						type="button"
+						data-explore-header-search
+						aria-label="<?php esc_attr_e( 'Focus search', 'excel-ent' ); ?>"
+					>
+						<img
+							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line.svg' ); ?>"
+							alt=""
+							width="18"
+							height="18"
+							decoding="async"
+						>
+					</button>
+				<?php elseif ( excel_ent_is_artist_page() ) : ?>
+					<a
+						class="header-search-icon magnetic"
+						href="<?php echo esc_url( home_url( '/explore-artists/' ) ); ?>"
+						aria-label="<?php esc_attr_e( 'Search artists', 'excel-ent' ); ?>"
+					>
+						<img
+							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line.svg' ); ?>"
+							alt=""
+							width="18"
+							height="18"
+							decoding="async"
+						>
+					</a>
+				<?php endif; ?>
 			</div>
 			</div>
 
 			<?php
 			if ( excel_ent_is_explore_artists_page() ) {
 				get_template_part( 'template-parts/header', 'search-explore' );
-			} elseif ( ! excel_ent_is_artist_page() && ! excel_ent_is_about_page() && ! excel_ent_is_package_page() ) {
+			} elseif ( ! excel_ent_is_artist_page() && ! excel_ent_is_about_page() && ! excel_ent_is_package_page() && ! excel_ent_is_contact_page() ) {
 				get_template_part( 'template-parts/header', 'search' );
+				get_template_part( 'template-parts/header', 'search-mobile' );
 			}
 			?>
 		</div>

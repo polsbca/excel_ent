@@ -1,6 +1,6 @@
 <?php
 /**
- * Neon CTA strip (Figma 1084:2440).
+ * Neon CTA strip (Figma 1084:2440 / mobile 1041:2036).
  *
  * @package Excel_Ent
  */
@@ -49,13 +49,15 @@ $excel_ent_cta_socials = array(
 			</p>
 		</div>
 
-		<div class="cta-neon__actions reveal" data-reveal>
-			<a class="cta-neon__btn cta-neon__btn--primary magnetic" href="<?php echo esc_url( $excel_ent_cta_args['primary_url'] ); ?>">
-				<?php echo esc_html( $excel_ent_cta_args['primary_label'] ); ?>
-			</a>
-			<a class="cta-neon__btn cta-neon__btn--outline magnetic" href="<?php echo esc_url( $excel_ent_cta_args['secondary_url'] ); ?>">
-				<?php echo esc_html( $excel_ent_cta_args['secondary_label'] ); ?>
-			</a>
+		<div class="cta-neon__rail reveal" data-reveal>
+			<div class="cta-neon__actions">
+				<a class="cta-neon__btn cta-neon__btn--primary magnetic" href="<?php echo esc_url( $excel_ent_cta_args['primary_url'] ); ?>">
+					<?php echo esc_html( $excel_ent_cta_args['primary_label'] ); ?>
+				</a>
+				<a class="cta-neon__btn cta-neon__btn--outline magnetic" href="<?php echo esc_url( $excel_ent_cta_args['secondary_url'] ); ?>">
+					<?php echo esc_html( $excel_ent_cta_args['secondary_label'] ); ?>
+				</a>
+			</div>
 
 			<div class="cta-neon__socials">
 				<?php foreach ( $excel_ent_cta_socials as $excel_ent_social ) : ?>

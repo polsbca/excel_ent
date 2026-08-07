@@ -26,7 +26,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => true,
 		'favorited' => true,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -38,7 +38,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'later',
 		'featured'  => false,
 		'favorited' => false,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -50,7 +50,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => false,
 		'favorited' => true,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -62,7 +62,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => false,
 		'favorited' => false,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -74,7 +74,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => false,
 		'favorited' => true,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -86,7 +86,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => false,
 		'favorited' => false,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs', '+' ),
+		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 );
 ?>
@@ -97,6 +97,13 @@ $excel_ent_artists = array(
 	data-explore-artists
 >
 	<div class="explore-artists__filters">
+		<header class="explore-artists__intro reveal" data-reveal>
+			<h1 class="explore-artists__title"><?php esc_html_e( 'EVERY ARTIST. EVERY VIBE.', 'excel-ent' ); ?></h1>
+			<p class="explore-artists__intro-count">
+				<?php esc_html_e( '1200 Artist', 'excel-ent' ); ?>
+			</p>
+		</header>
+
 		<div class="explore-artists__chips-bar reveal" data-reveal data-explore-chips-bar>
 			<div class="explore-artists__chips" data-explore-chips>
 				<?php foreach ( $excel_ent_chips as $excel_ent_chip ) : ?>
@@ -247,6 +254,15 @@ $excel_ent_artists = array(
 						<?php foreach ( $excel_ent_artist['tags'] as $excel_ent_tag ) : ?>
 							<li><?php echo esc_html( $excel_ent_tag ); ?></li>
 						<?php endforeach; ?>
+						<li class="explore-artist-card__tag-more" aria-hidden="true">
+							<img
+								src="<?php echo esc_url( $excel_ent_ea_uri . '/add-fill.svg' ); ?>"
+								alt=""
+								width="13"
+								height="13"
+								decoding="async"
+							>
+						</li>
 					</ul>
 
 					<div class="explore-artist-card__actions">

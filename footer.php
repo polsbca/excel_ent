@@ -27,9 +27,24 @@
 				</div>
 
 				<div class="site-footer__menus">
-					<?php excel_ent_footer_column( 'footer-entertainment', __( 'Entertainment', 'excel-ent' ), excel_ent_default_entertainment_links() ); ?>
-					<?php excel_ent_footer_column( 'footer-services', __( 'Services', 'excel-ent' ), excel_ent_default_services_links() ); ?>
-					<?php excel_ent_footer_column( 'footer-company', __( 'Company', 'excel-ent' ), excel_ent_default_company_links() ); ?>
+					<?php
+					excel_ent_footer_column(
+						'footer-entertainment',
+						__( 'Entertainment', 'excel-ent' ),
+						excel_ent_default_entertainment_links(),
+						array( 'open' => true )
+					);
+					excel_ent_footer_column(
+						'footer-services',
+						__( 'Services', 'excel-ent' ),
+						excel_ent_default_services_links()
+					);
+					excel_ent_footer_column(
+						'footer-company',
+						__( 'Company', 'excel-ent' ),
+						excel_ent_default_company_links()
+					);
+					?>
 				</div>
 			</div>
 

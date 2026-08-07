@@ -1,0 +1,225 @@
+/* Excel Ent — Search no-results (Figma 1299:11348 / 1299:11417) */
+
+.search-page {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	width: 100%;
+	background: #fff;
+}
+
+.search-page__chips-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+	width: 100%;
+	padding: 30px 80px;
+	background: rgba(235, 32, 85, 0.04);
+	box-sizing: border-box;
+}
+
+.search-page__chips {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 30px;
+	min-width: 0;
+}
+
+.search-page__chip {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	height: 66px;
+	padding: 20px 25px;
+	border: 2px solid rgba(0, 0, 0, 0.8);
+	border-radius: 30px;
+	background: linear-gradient(
+		90deg,
+		rgba(248, 154, 66, 0.05) 0%,
+		rgba(235, 32, 85, 0.05) 100%
+	);
+	color: rgba(0, 0, 0, 0.8);
+	text-decoration: none;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-weight: 400;
+	font-size: 24px;
+	letter-spacing: 1px;
+	line-height: 1;
+	white-space: nowrap;
+	box-sizing: border-box;
+}
+
+.search-page__chip img {
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	display: block;
+}
+
+.search-page__chip:hover,
+.search-page__chip:focus-visible {
+	border-color: #eb2055;
+	color: #eb2055;
+}
+
+.search-page__clear {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	flex-shrink: 0;
+	height: 64px;
+	min-width: 275px;
+	padding: 20px 25px;
+	border: 1px solid rgba(0, 0, 0, 0.8);
+	border-radius: 30px;
+	background: #fff;
+	color: #000;
+	text-decoration: none;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-weight: 700;
+	font-size: 24px;
+	letter-spacing: 1px;
+	line-height: 1;
+	white-space: nowrap;
+	box-sizing: border-box;
+}
+
+.search-page__clear img {
+	width: 24px;
+	height: 24px;
+	flex-shrink: 0;
+	display: block;
+}
+
+.search-page__clear:hover,
+.search-page__clear:focus-visible {
+	border-color: #eb2055;
+	color: #eb2055;
+}
+
+/* Figma 1299:11417 — empty state */
+.search-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 120px;
+	width: 100%;
+	padding: 160px 80px;
+	background: #fff;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+.search-empty__visual {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	max-width: 410px;
+}
+
+.search-empty__illustration {
+	display: block;
+	width: 100%;
+	max-width: 410px;
+	height: auto;
+	aspect-ratio: 1 / 1;
+	object-fit: contain;
+}
+
+.search-empty__copy {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 60px;
+	width: 100%;
+	max-width: 1400px;
+	letter-spacing: 1px;
+	text-align: center;
+}
+
+.search-empty__title {
+	margin: 0;
+	width: 100%;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-weight: 700;
+	font-size: clamp(40px, 5.2vw, 80px);
+	line-height: normal;
+	letter-spacing: 1px;
+	color: #000;
+}
+
+.search-empty__lede {
+	margin: 0;
+	width: 100%;
+	max-width: 1100px;
+	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 100;
+	font-weight: 400;
+	font-size: clamp(18px, 1.6vw, 24px);
+	line-height: normal;
+	letter-spacing: 1px;
+	color: #000;
+}
+
+@media (max-width: 1199px) {
+	.search-page__chips-bar {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 24px 40px;
+	}
+
+	.search-page__chips {
+		gap: 16px;
+	}
+
+	.search-page__chip {
+		height: auto;
+		min-height: 52px;
+		padding: 14px 18px;
+		font-size: 18px;
+	}
+
+	.search-page__clear {
+		width: 100%;
+		min-width: 0;
+		height: auto;
+		min-height: 52px;
+		font-size: 18px;
+	}
+
+	.search-empty {
+		gap: 64px;
+		padding: 80px 40px;
+	}
+
+	.search-empty__copy {
+		gap: 32px;
+	}
+}
+
+@media (max-width: 767px) {
+	.search-page__chips-bar {
+		padding: 20px;
+	}
+
+	.search-empty {
+		gap: 48px;
+		padding: 56px 20px;
+	}
+
+	.search-empty__title {
+		font-size: 32px;
+	}
+
+	.search-empty__lede {
+		font-size: 16px;
+	}
+}

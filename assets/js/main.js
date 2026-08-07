@@ -23,6 +23,7 @@
 		document.querySelector(".artist-hero")?.classList.add("is-loaded");
 		document.querySelector(".about-intro")?.classList.add("is-loaded");
 		document.querySelector(".package-intro")?.classList.add("is-loaded");
+		document.querySelector(".contact-intro")?.classList.add("is-loaded");
 		document.body.classList.add("ee-ready");
 	};
 
@@ -91,7 +92,7 @@
 			".btn-quote",
 			".header-phone",
 			".header-search__submit",
-			".header-search__field",
+			".header-search__field:not(.header-search__field--budget):not(.header-search__field--date):not(.header-search__field--location):not(.header-search__field--categories):not(.header-search__field--artist)",
 			".post-card",
 			".nav-toggle",
 			".hero-carousel__btn",
@@ -126,12 +127,24 @@
 	/* ---------- Mobile nav ---------- */
 	const navToggle = document.querySelector(".nav-toggle");
 	const navigation = document.querySelector(".main-navigation");
+	const siteHeader = document.querySelector(".site-header");
 
 	if (navToggle && navigation) {
 		navToggle.addEventListener("click", () => {
 			const expanded = navToggle.getAttribute("aria-expanded") === "true";
-			navToggle.setAttribute("aria-expanded", String(!expanded));
-			navigation.classList.toggle("is-open", !expanded);
+			const next = !expanded;
+			navToggle.setAttribute("aria-expanded", String(next));
+			navigation.classList.toggle("is-open", next);
+			siteHeader?.classList.toggle("is-nav-open", next);
+			document.body.classList.toggle("nav-open", next);
+		});
+
+		document.addEventListener("keydown", (e) => {
+			if (e.key !== "Escape" || !navigation.classList.contains("is-open")) return;
+			navToggle.setAttribute("aria-expanded", "false");
+			navigation.classList.remove("is-open");
+			siteHeader?.classList.remove("is-nav-open");
+			document.body.classList.remove("nav-open");
 		});
 	}
 
@@ -473,6 +486,120 @@
 			});
 		});
 
+		/* Touch / pointer swipe — Figma mobile 1037:904 */
+		const bindArtistsSwipe = (panel) => {
+			if (!panel || panel.dataset.eeSwipeBound === "1") {
+				return;
+			}
+			panel.dataset.eeSwipeBound = "1";
+
+			let pointerId = null;
+			let startX = 0;
+			let startY = 0;
+			let deltaX = 0;
+			let axis = null;
+			let swiping = false;
+			let baseOffset = 0;
+
+			const getOffset = () => {
+				const track = getTrack();
+				const visible = visibleCards();
+				if (!track || !visible[0]) {
+					return 0;
+				}
+				const gap = parseFloat(getComputedStyle(track).gap) || 50;
+				const cardWidth = visible[0].getBoundingClientRect().width || 518;
+				return index * (cardWidth + gap);
+			};
+
+			const onDown = (e) => {
+				if (e.pointerType === "mouse" && e.button !== 0) {
+					return;
+				}
+				pointerId = e.pointerId;
+				startX = e.clientX;
+				startY = e.clientY;
+				deltaX = 0;
+				axis = null;
+				swiping = false;
+				baseOffset = getOffset();
+				try {
+					panel.setPointerCapture(e.pointerId);
+				} catch (err) {
+					/* ignore */
+				}
+			};
+
+			const onMove = (e) => {
+				if (pointerId !== e.pointerId) {
+					return;
+				}
+				const dx = e.clientX - startX;
+				const dy = e.clientY - startY;
+
+				if (!axis) {
+					if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+						return;
+					}
+					axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+				}
+
+				if (axis !== "x") {
+					return;
+				}
+
+				swiping = true;
+				deltaX = dx;
+				const track = getTrack();
+				if (track) {
+					track.style.transition = "none";
+					track.style.transform = `translateX(${-(baseOffset - deltaX)}px)`;
+				}
+				e.preventDefault();
+			};
+
+			const onUp = (e) => {
+				if (pointerId !== e.pointerId) {
+					return;
+				}
+				pointerId = null;
+
+				const track = getTrack();
+				if (track) {
+					track.style.transition = "";
+				}
+
+				if (swiping && Math.abs(deltaX) > 48) {
+					go(deltaX < 0 ? 1 : -1);
+				} else {
+					update();
+				}
+
+				if (swiping) {
+					const suppressClick = (ev) => {
+						ev.preventDefault();
+						ev.stopPropagation();
+						panel.removeEventListener("click", suppressClick, true);
+					};
+					panel.addEventListener("click", suppressClick, true);
+					window.setTimeout(() => {
+						panel.removeEventListener("click", suppressClick, true);
+					}, 400);
+				}
+
+				swiping = false;
+				deltaX = 0;
+				axis = null;
+			};
+
+			panel.addEventListener("pointerdown", onDown);
+			panel.addEventListener("pointermove", onMove, { passive: false });
+			panel.addEventListener("pointerup", onUp);
+			panel.addEventListener("pointercancel", onUp);
+		};
+
+		artistsSection.querySelectorAll("[data-artists-carousel]").forEach(bindArtistsSwipe);
+
 		window.addEventListener("resize", () => update(), { passive: true });
 		setMode(activeMode);
 	}
@@ -507,6 +634,7 @@
 	/* ---------- Blog carousel ---------- */
 	const blogSection = document.querySelector("[data-blog-section]");
 	if (blogSection) {
+		const viewport = blogSection.querySelector(".blog-section__viewport");
 		const track = blogSection.querySelector("[data-blog-track]");
 		const cards = Array.from(blogSection.querySelectorAll("[data-blog-card]"));
 		const progress = blogSection.querySelector("[data-blog-progress]");
@@ -516,6 +644,8 @@
 		const nextBtn = blogSection.querySelector("[data-blog-next]");
 		let index = cards.length > 2 ? 1 : 0;
 
+		const isBlogMobile = () => window.innerWidth <= 767;
+
 		const update = () => {
 			const total = cards.length;
 			const max = Math.max(total - 1, 0);
@@ -524,12 +654,19 @@
 			if (track && cards[0]) {
 				const gap = parseFloat(getComputedStyle(track).gap) || 40;
 				const cardWidth = cards[0].getBoundingClientRect().width || 584;
-				const visibleCount = window.innerWidth < 1200 ? 1 : 3;
-				const start = Math.max(
-					0,
-					Math.min(index - Math.floor(visibleCount / 2), cards.length - visibleCount)
-				);
-				track.style.transform = `translateX(-${Math.max(start, 0) * (cardWidth + gap)}px)`;
+
+				if (isBlogMobile() && viewport) {
+					const viewportWidth = viewport.getBoundingClientRect().width;
+					const offset = index * (cardWidth + gap) - (viewportWidth - cardWidth) / 2;
+					track.style.transform = `translateX(${-offset}px)`;
+				} else {
+					const visibleCount = window.innerWidth < 1200 ? 1 : 3;
+					const start = Math.max(
+						0,
+						Math.min(index - Math.floor(visibleCount / 2), cards.length - visibleCount)
+					);
+					track.style.transform = `translateX(-${Math.max(start, 0) * (cardWidth + gap)}px)`;
+				}
 			}
 
 			cards.forEach((card, i) => {
@@ -560,6 +697,112 @@
 
 		prevBtn?.addEventListener("click", () => go(-1));
 		nextBtn?.addEventListener("click", () => go(1));
+
+		/* Touch / pointer swipe — Figma mobile 1023:3201 */
+		if (viewport && track) {
+			let pointerId = null;
+			let startX = 0;
+			let startY = 0;
+			let deltaX = 0;
+			let axis = null;
+			let swiping = false;
+			let baseOffset = 0;
+
+			const getBaseOffset = () => {
+				if (!cards[0]) {
+					return 0;
+				}
+				const gap = parseFloat(getComputedStyle(track).gap) || 40;
+				const cardWidth = cards[0].getBoundingClientRect().width || 584;
+				if (isBlogMobile()) {
+					const viewportWidth = viewport.getBoundingClientRect().width;
+					return index * (cardWidth + gap) - (viewportWidth - cardWidth) / 2;
+				}
+				return index * (cardWidth + gap);
+			};
+
+			const onDown = (e) => {
+				if (!isBlogMobile()) {
+					return;
+				}
+				if (e.pointerType === "mouse" && e.button !== 0) {
+					return;
+				}
+				pointerId = e.pointerId;
+				startX = e.clientX;
+				startY = e.clientY;
+				deltaX = 0;
+				axis = null;
+				swiping = false;
+				baseOffset = getBaseOffset();
+				try {
+					viewport.setPointerCapture(e.pointerId);
+				} catch (err) {
+					/* ignore */
+				}
+			};
+
+			const onMove = (e) => {
+				if (pointerId !== e.pointerId || !isBlogMobile()) {
+					return;
+				}
+				const dx = e.clientX - startX;
+				const dy = e.clientY - startY;
+
+				if (!axis) {
+					if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+						return;
+					}
+					axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+				}
+
+				if (axis !== "x") {
+					return;
+				}
+
+				swiping = true;
+				deltaX = dx;
+				track.style.transition = "none";
+				track.style.transform = `translateX(${-(baseOffset - deltaX)}px)`;
+				e.preventDefault();
+			};
+
+			const onUp = (e) => {
+				if (pointerId !== e.pointerId) {
+					return;
+				}
+				pointerId = null;
+				track.style.transition = "";
+
+				if (swiping && Math.abs(deltaX) > 48) {
+					go(deltaX < 0 ? 1 : -1);
+				} else {
+					update();
+				}
+
+				if (swiping) {
+					const suppressClick = (ev) => {
+						ev.preventDefault();
+						ev.stopPropagation();
+						viewport.removeEventListener("click", suppressClick, true);
+					};
+					viewport.addEventListener("click", suppressClick, true);
+					window.setTimeout(() => {
+						viewport.removeEventListener("click", suppressClick, true);
+					}, 400);
+				}
+
+				swiping = false;
+				deltaX = 0;
+				axis = null;
+			};
+
+			viewport.addEventListener("pointerdown", onDown);
+			viewport.addEventListener("pointermove", onMove, { passive: false });
+			viewport.addEventListener("pointerup", onUp);
+			viewport.addEventListener("pointercancel", onUp);
+		}
+
 		window.addEventListener("resize", update, { passive: true });
 		update();
 	}
@@ -644,6 +887,15 @@
 				const on = !(card?.classList.contains("is-favorited"));
 				card?.classList.toggle("is-favorited", on);
 				btn.setAttribute("aria-pressed", on ? "true" : "false");
+			});
+		});
+
+		document.querySelectorAll("[data-explore-header-search]").forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				const input = document.getElementById("explore-artists-search-query");
+				input?.scrollIntoView({ behavior: "smooth", block: "center" });
+				window.setTimeout(() => input?.focus(), 200);
 			});
 		});
 
@@ -754,6 +1006,19 @@
 		});
 
 		search?.addEventListener("input", syncRows);
+
+		const categoryBtn = artistSetlist.querySelector("[data-setlist-category]");
+		if (categoryBtn && tabs.length) {
+			categoryBtn.addEventListener("click", () => {
+				const current = tabs.findIndex((tab) => tab.classList.contains("is-active"));
+				const next = tabs[(current + 1) % tabs.length];
+				next?.click();
+				const label = categoryBtn.querySelector("span");
+				if (label && next) {
+					label.textContent = next.textContent?.trim() || "Select category";
+				}
+			});
+		}
 
 		rows.forEach((row) => {
 			row.addEventListener("click", () => activateRow(row));
@@ -1098,4 +1363,1142 @@
 
 		dialog?.addEventListener("click", (e) => e.stopPropagation());
 	}
+
+	/* ---------- Contact tabs + accordion ---------- */
+	const contactTabsRoot = document.querySelector("[data-contact-tabs]");
+	if (contactTabsRoot) {
+		const tabs = Array.from(contactTabsRoot.querySelectorAll("[data-contact-tab]"));
+		const panels = Array.from(contactTabsRoot.querySelectorAll("[data-contact-panel]"));
+
+		const activateTab = (id) => {
+			tabs.forEach((tab) => {
+				const on = tab.getAttribute("data-contact-tab") === id;
+				tab.classList.toggle("is-active", on);
+				tab.setAttribute("aria-selected", on ? "true" : "false");
+			});
+			panels.forEach((panel) => {
+				const on = panel.getAttribute("data-contact-panel") === id;
+				panel.classList.toggle("is-active", on);
+				panel.hidden = !on;
+			});
+		};
+
+		tabs.forEach((tab) => {
+			tab.addEventListener("click", () => {
+				activateTab(tab.getAttribute("data-contact-tab") || "booking");
+			});
+		});
+
+		contactTabsRoot.querySelectorAll("[data-contact-accordion]").forEach((accordion) => {
+			const multi = accordion.hasAttribute("data-contact-accordion-multi");
+			accordion.querySelectorAll("[data-contact-acc]").forEach((section) => {
+				const toggle = section.querySelector("[data-contact-acc-toggle]");
+				const body = section.querySelector("[data-contact-acc-body]");
+				toggle?.addEventListener("click", () => {
+					const open = !section.classList.contains("is-open");
+					if (multi) {
+						section.classList.toggle("is-open", open);
+						if (body) {
+							body.hidden = !open;
+						}
+						toggle.setAttribute("aria-expanded", open ? "true" : "false");
+						return;
+					}
+					accordion.querySelectorAll("[data-contact-acc]").forEach((other) => {
+						const otherBody = other.querySelector("[data-contact-acc-body]");
+						const otherToggle = other.querySelector("[data-contact-acc-toggle]");
+						const isThis = other === section && open;
+						other.classList.toggle("is-open", isThis);
+						if (otherBody) {
+							otherBody.hidden = !isThis;
+						}
+						otherToggle?.setAttribute("aria-expanded", isThis ? "true" : "false");
+					});
+				});
+			});
+		});
+
+		/* Ranked artist preferences (max 5) */
+		contactTabsRoot.querySelectorAll("[data-artist-prefs]").forEach((root) => {
+			const list = root.querySelector("[data-artist-prefs-list]");
+			const addBtn = root.querySelector("[data-artist-prefs-add]");
+			const countEl = root.querySelector("[data-artist-prefs-count]");
+			const template = root.querySelector("[data-artist-prefs-template]");
+			const ranksNode = root.querySelector("[data-artist-prefs-ranks]");
+			const max = 5;
+			let ranks = ["1st choice", "2nd choice", "3rd choice", "4th choice", "5th choice"];
+			try {
+				const parsed = JSON.parse(ranksNode?.textContent || "[]");
+				if (Array.isArray(parsed) && parsed.length) {
+					ranks = parsed;
+				}
+			} catch (e) {
+				/* keep defaults */
+			}
+
+			const updateCount = () => {
+				const rows = Array.from(list.querySelectorAll("[data-artist-prefs-row]"));
+				const selected = rows.filter((row) => {
+					const select = row.querySelector("[data-artist-prefs-select]");
+					return Boolean(select?.value);
+				}).length;
+				if (countEl) {
+					countEl.textContent = `${selected} of ${max} selected`;
+				}
+				if (addBtn) {
+					addBtn.hidden = rows.length >= max;
+				}
+				rows.forEach((row, i) => {
+					row.dataset.rank = String(i + 1);
+					const rankEl = row.querySelector("[data-artist-prefs-rank]");
+					if (rankEl) {
+						rankEl.textContent = ranks[i] || `${i + 1}`;
+					}
+					const remove = row.querySelector("[data-artist-prefs-remove]");
+					if (remove) {
+						remove.hidden = rows.length <= 1;
+					}
+				});
+			};
+
+			list?.addEventListener("change", (e) => {
+				if (e.target.closest("[data-artist-prefs-select]")) {
+					updateCount();
+				}
+			});
+
+			list?.addEventListener("click", (e) => {
+				const remove = e.target.closest("[data-artist-prefs-remove]");
+				if (!remove) return;
+				const row = remove.closest("[data-artist-prefs-row]");
+				const rows = list.querySelectorAll("[data-artist-prefs-row]");
+				if (rows.length <= 1) return;
+				row?.remove();
+				updateCount();
+			});
+
+			addBtn?.addEventListener("click", () => {
+				const rows = list.querySelectorAll("[data-artist-prefs-row]");
+				if (rows.length >= max || !template?.content) return;
+				const clone = template.content.cloneNode(true);
+				list.appendChild(clone);
+				const newRow = list.querySelector("[data-artist-prefs-row]:last-child");
+				newRow?.querySelectorAll("[data-contact-dd]").forEach((dd) => initContactDd(dd));
+				updateCount();
+			});
+
+			updateCount();
+		});
+
+		contactTabsRoot.querySelectorAll(".contact-field__select--muted, .contact-field__input--muted").forEach((el) => {
+			const sync = () => el.classList.toggle("has-value", Boolean(el.value));
+			el.addEventListener("change", sync);
+			el.addEventListener("input", sync);
+			sync();
+		});
+
+		/* Custom dropdown panels (Figma 1159:3575 / 1159:3615) */
+		const closeAllDds = (except) => {
+			contactTabsRoot.querySelectorAll("[data-contact-dd]").forEach((dd) => {
+				if (except && dd === except) return;
+				const field = dd.closest(".contact-field--dd");
+				const trigger = dd.querySelector("[data-contact-dd-trigger]");
+				const panel = dd.querySelector("[data-contact-dd-panel]");
+				field?.classList.remove("is-open");
+				trigger?.setAttribute("aria-expanded", "false");
+				if (panel) panel.hidden = true;
+			});
+		};
+
+		const initContactDd = (dd) => {
+			if (!dd || dd.dataset.contactDdReady === "1") return;
+			dd.dataset.contactDdReady = "1";
+
+			const field = dd.closest(".contact-field--dd");
+			const trigger = dd.querySelector("[data-contact-dd-trigger]");
+			const panel = dd.querySelector("[data-contact-dd-panel]");
+			const input = dd.querySelector("[data-contact-dd-input]");
+			const labelEl = dd.querySelector("[data-contact-dd-label]");
+			const customInput = dd.querySelector("[data-contact-dd-custom]");
+			const placeholder = labelEl?.textContent || "";
+
+			const clearOptions = () => {
+				dd.querySelectorAll("[data-contact-dd-option]").forEach((other) => {
+					other.classList.remove("is-selected");
+					other.setAttribute("aria-selected", "false");
+				});
+			};
+
+			const applyValue = (value, label, { close = true, clearCustom = false } = {}) => {
+				if (input) {
+					input.value = value;
+					input.dispatchEvent(new Event("change", { bubbles: true }));
+				}
+				if (labelEl) labelEl.textContent = label || placeholder;
+				trigger?.classList.toggle("contact-dd__trigger--muted", !value);
+				if (clearCustom && customInput) {
+					customInput.value = "";
+				}
+				if (close) setOpen(false);
+			};
+
+			const setOpen = (open) => {
+				field?.classList.toggle("is-open", open);
+				trigger?.setAttribute("aria-expanded", open ? "true" : "false");
+				if (panel) panel.hidden = !open;
+				if (open) {
+					const focusEl = customInput || dd.querySelector("[data-contact-dd-search]");
+					if (focusEl) {
+						window.setTimeout(() => focusEl.focus(), 0);
+					}
+				}
+			};
+
+			trigger?.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const open = !field?.classList.contains("is-open");
+				closeAllDds(dd);
+				setOpen(open);
+			});
+
+			dd.querySelectorAll("[data-contact-dd-option]").forEach((opt) => {
+				opt.addEventListener("click", (e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					const value = opt.getAttribute("data-value") || "";
+					const label = opt.getAttribute("data-label") || value;
+					clearOptions();
+					opt.classList.add("is-selected");
+					opt.setAttribute("aria-selected", "true");
+					applyValue(value, label, { clearCustom: true });
+				});
+			});
+
+			dd.querySelectorAll("[data-contact-dd-tab]").forEach((tab) => {
+				tab.addEventListener("click", (e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					const id = tab.getAttribute("data-contact-dd-tab");
+					dd.querySelectorAll("[data-contact-dd-tab]").forEach((t) => {
+						const on = t === tab;
+						t.classList.toggle("is-active", on);
+						t.setAttribute("aria-selected", on ? "true" : "false");
+					});
+					dd.querySelectorAll("[data-contact-dd-group]").forEach((groupList) => {
+						groupList.hidden = groupList.getAttribute("data-contact-dd-group") !== id;
+					});
+				});
+			});
+
+			const searchInput = dd.querySelector("[data-contact-dd-search]");
+			if (searchInput) {
+				searchInput.addEventListener("click", (e) => e.stopPropagation());
+				searchInput.addEventListener("keydown", (e) => e.stopPropagation());
+				searchInput.addEventListener("input", () => {
+					const q = searchInput.value.trim().toLowerCase();
+					dd.querySelectorAll("[data-contact-dd-item]").forEach((item) => {
+						const itemLabel = item.getAttribute("data-label") || "";
+						item.hidden = Boolean(q) && !itemLabel.includes(q);
+					});
+				});
+			}
+
+			if (customInput) {
+				const commitCustom = () => {
+					const value = customInput.value.trim();
+					if (!value) return;
+					clearOptions();
+					applyValue(value, value, { close: true });
+				};
+
+				customInput.addEventListener("click", (e) => e.stopPropagation());
+				customInput.addEventListener("keydown", (e) => {
+					e.stopPropagation();
+					if (e.key === "Enter") {
+						e.preventDefault();
+						commitCustom();
+					}
+				});
+				customInput.addEventListener("input", () => {
+					const value = customInput.value.trim();
+					clearOptions();
+					if (!value) {
+						applyValue("", placeholder, { close: false });
+						return;
+					}
+					applyValue(value, value, { close: false });
+				});
+			}
+		};
+
+		contactTabsRoot.querySelectorAll("[data-contact-dd]").forEach((dd) => initContactDd(dd));
+
+		document.addEventListener("click", (e) => {
+			if (!e.target.closest("[data-contact-dd]")) {
+				closeAllDds();
+			}
+		});
+
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") closeAllDds();
+		});
+
+		/* File upload labels */
+		contactTabsRoot.querySelectorAll("[data-contact-file]").forEach((wrap) => {
+			const input = wrap.querySelector("[data-contact-file-input]");
+			const label = wrap.querySelector("[data-contact-file-label]");
+			const fallback = label?.textContent || "";
+			input?.addEventListener("change", () => {
+				const files = Array.from(input.files || []);
+				wrap.classList.toggle("has-files", files.length > 0);
+				if (!label) return;
+				if (!files.length) {
+					label.textContent = fallback;
+					return;
+				}
+				if (files.length === 1) {
+					label.textContent = files[0].name;
+					return;
+				}
+				label.textContent = `${files.length} files selected`;
+			});
+		});
+	}
+
+	/* Header search dropdowns — close helpers */
+	const closeHeaderPanels = (except) => {
+		document
+			.querySelectorAll(
+				"[data-header-budget], [data-header-date], [data-header-location], [data-header-categories], [data-header-artist]"
+			)
+			.forEach((wrap) => {
+				if (except && wrap === except) return;
+				const panel =
+					wrap.querySelector("[data-header-budget-panel]") ||
+					wrap.querySelector("[data-header-date-panel]") ||
+					wrap.querySelector("[data-header-location-panel]") ||
+					wrap.querySelector("[data-header-categories-panel]") ||
+					wrap.querySelector("[data-header-artist-panel]");
+				const trigger =
+					wrap.querySelector("[data-header-budget-trigger]") ||
+					wrap.querySelector("[data-header-date-trigger]") ||
+					wrap.querySelector("[data-header-location-trigger]") ||
+					wrap.querySelector("[data-header-categories-trigger]") ||
+					wrap.querySelector("[data-header-artist-trigger]");
+				if (panel) panel.hidden = true;
+				wrap.classList.remove("is-open");
+				trigger?.setAttribute("aria-expanded", "false");
+			});
+	};
+
+	/* Header search — Budget dropdown (Figma 1084:5398) */
+	document.querySelectorAll("[data-header-budget]").forEach((wrap) => {
+		const trigger = wrap.querySelector("[data-header-budget-trigger]");
+		const panel = wrap.querySelector("[data-header-budget-panel]");
+		const input = wrap.querySelector("[data-header-budget-input]");
+		const label = wrap.querySelector("[data-header-budget-label]");
+		const options = wrap.querySelectorAll("[data-header-budget-option]");
+		if (!trigger || !panel || !input) return;
+
+		const close = () => {
+			panel.hidden = true;
+			wrap.classList.remove("is-open");
+			trigger.setAttribute("aria-expanded", "false");
+		};
+
+		const open = () => {
+			closeHeaderPanels(wrap);
+			panel.hidden = false;
+			wrap.classList.add("is-open");
+			trigger.setAttribute("aria-expanded", "true");
+		};
+
+		const toggle = () => {
+			if (panel.hidden) open();
+			else close();
+		};
+
+		trigger.addEventListener("click", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			toggle();
+		});
+
+		options.forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const value = btn.getAttribute("data-value") || "";
+				const text = btn.getAttribute("data-label") || value;
+				input.value = value;
+				if (label) label.textContent = text;
+				options.forEach((opt) => {
+					const on = opt === btn;
+					opt.classList.toggle("is-selected", on);
+					opt.setAttribute("aria-selected", on ? "true" : "false");
+				});
+				close();
+			});
+		});
+
+		document.addEventListener("click", (e) => {
+			if (!wrap.contains(e.target)) close();
+		});
+
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") close();
+		});
+	});
+
+	/* Header search — Event Date calendar (Figma 1084:5259) */
+	document.querySelectorAll("[data-header-date]").forEach((wrap) => {
+		const trigger = wrap.querySelector("[data-header-date-trigger]");
+		const panel = wrap.querySelector("[data-header-date-panel]");
+		const input = wrap.querySelector("[data-header-date-input]");
+		const label = wrap.querySelector("[data-header-date-label]");
+		const monthEl = wrap.querySelector("[data-header-date-month]");
+		const grid = wrap.querySelector("[data-header-date-grid]");
+		const prevBtn = wrap.querySelector("[data-header-date-prev]");
+		const nextBtn = wrap.querySelector("[data-header-date-next]");
+		const confirmBtn = wrap.querySelector("[data-header-date-confirm]");
+		if (!trigger || !panel || !input || !grid || !monthEl) return;
+
+		const monthNames = [
+			"January",
+			"February",
+			"March",
+			"April",
+			"May",
+			"June",
+			"July",
+			"August",
+			"September",
+			"October",
+			"November",
+			"December",
+		];
+
+		const pad = (n) => String(n).padStart(2, "0");
+		const toISO = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+		const parseISO = (value) => {
+			if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+			const [y, m, day] = value.split("-").map(Number);
+			const d = new Date(y, m - 1, day);
+			if (d.getFullYear() !== y || d.getMonth() !== m - 1 || d.getDate() !== day) return null;
+			return d;
+		};
+		const formatLabel = (d) => {
+			const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+			return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+		};
+
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const todayISO = toISO(today);
+
+		let selectedISO = input.value && parseISO(input.value) ? input.value : "";
+		let pendingISO = selectedISO;
+		let view = (() => {
+			const base = parseISO(selectedISO) || today;
+			return { year: base.getFullYear(), month: base.getMonth() };
+		})();
+
+		const close = () => {
+			panel.hidden = true;
+			wrap.classList.remove("is-open");
+			trigger.setAttribute("aria-expanded", "false");
+		};
+
+		const open = () => {
+			closeHeaderPanels(wrap);
+			const base = parseISO(selectedISO) || today;
+			view = { year: base.getFullYear(), month: base.getMonth() };
+			pendingISO = selectedISO;
+			render();
+			panel.hidden = false;
+			wrap.classList.add("is-open");
+			trigger.setAttribute("aria-expanded", "true");
+		};
+
+		const render = () => {
+			monthEl.textContent = `${monthNames[view.month]} ${view.year}`;
+			grid.innerHTML = "";
+
+			const first = new Date(view.year, view.month, 1);
+			const start = new Date(first);
+			start.setDate(first.getDate() - first.getDay());
+
+			for (let week = 0; week < 6; week += 1) {
+				const row = document.createElement("div");
+				row.className = "header-date__row";
+				row.setAttribute("role", "row");
+
+				for (let i = 0; i < 7; i += 1) {
+					const cellDate = new Date(start);
+					cellDate.setDate(start.getDate() + week * 7 + i);
+					const iso = toISO(cellDate);
+					const outside = cellDate.getMonth() !== view.month;
+					const isToday = iso === todayISO;
+					const isSelected = iso === pendingISO;
+
+					const cell = document.createElement("div");
+					cell.className = "header-date__cell";
+					cell.setAttribute("role", "gridcell");
+
+					const btn = document.createElement("button");
+					btn.type = "button";
+					btn.className = "header-date__day";
+					if (outside) btn.classList.add("is-outside");
+					if (isToday) btn.classList.add("is-today");
+					if (isSelected) btn.classList.add("is-selected");
+					btn.textContent = String(cellDate.getDate());
+					btn.setAttribute("data-date", iso);
+					btn.setAttribute(
+						"aria-label",
+						cellDate.toLocaleDateString(undefined, {
+							weekday: "long",
+							year: "numeric",
+							month: "long",
+							day: "numeric",
+						})
+					);
+					btn.setAttribute("aria-pressed", isSelected ? "true" : "false");
+
+					btn.addEventListener("click", (e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						pendingISO = iso;
+						if (outside) {
+							view = { year: cellDate.getFullYear(), month: cellDate.getMonth() };
+						}
+						render();
+					});
+
+					cell.appendChild(btn);
+					row.appendChild(cell);
+				}
+
+				grid.appendChild(row);
+			}
+
+			if (confirmBtn) confirmBtn.disabled = !pendingISO;
+		};
+
+		trigger.addEventListener("click", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (panel.hidden) open();
+			else close();
+		});
+
+		prevBtn?.addEventListener("click", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			view.month -= 1;
+			if (view.month < 0) {
+				view.month = 11;
+				view.year -= 1;
+			}
+			render();
+		});
+
+		nextBtn?.addEventListener("click", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			view.month += 1;
+			if (view.month > 11) {
+				view.month = 0;
+				view.year += 1;
+			}
+			render();
+		});
+
+		confirmBtn?.addEventListener("click", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (!pendingISO) return;
+			const d = parseISO(pendingISO);
+			if (!d) return;
+			selectedISO = pendingISO;
+			input.value = selectedISO;
+			if (label) label.textContent = formatLabel(d);
+			close();
+		});
+
+		panel.addEventListener("click", (e) => e.stopPropagation());
+
+		document.addEventListener("click", (e) => {
+			if (!wrap.contains(e.target)) close();
+		});
+
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") close();
+		});
+	});
+
+	/* Header search — Location dropdown (Figma 1084:5006) */
+	document.querySelectorAll("[data-header-location]").forEach((wrap) => {
+		const trigger = wrap.querySelector("[data-header-location-trigger]");
+		const panel = wrap.querySelector("[data-header-location-panel]");
+		const input = wrap.querySelector("[data-header-location-input]");
+		const label = wrap.querySelector("[data-header-location-label]");
+		const search = wrap.querySelector("[data-header-location-search]");
+		const confirmBtn = wrap.querySelector("[data-header-location-confirm]");
+		const options = Array.from(wrap.querySelectorAll("[data-header-location-option]"));
+		if (!trigger || !panel || !input) return;
+
+		let selectedValue = input.value || "";
+		let pendingValue = selectedValue;
+		let pendingLabel =
+			options.find((opt) => opt.getAttribute("data-value") === pendingValue)?.getAttribute("data-label") || "";
+
+		const syncSelection = () => {
+			options.forEach((opt) => {
+				const on = opt.getAttribute("data-value") === pendingValue;
+				opt.classList.toggle("is-selected", on);
+				opt.setAttribute("aria-selected", on ? "true" : "false");
+			});
+			if (confirmBtn) confirmBtn.disabled = !pendingValue;
+		};
+
+		const filterOptions = () => {
+			const q = (search?.value || "").trim().toLowerCase();
+			options.forEach((opt) => {
+				const hay = opt.getAttribute("data-search") || "";
+				const show = !q || hay.includes(q);
+				const item = opt.closest(".header-location__item");
+				if (item) item.hidden = !show;
+				else opt.hidden = !show;
+			});
+		};
+
+		const close = () => {
+			panel.hidden = true;
+			wrap.classList.remove("is-open");
+			trigger.setAttribute("aria-expanded", "false");
+		};
+
+		const open = () => {
+			closeHeaderPanels(wrap);
+			pendingValue = selectedValue;
+			pendingLabel =
+				options.find((opt) => opt.getAttribute("data-value") === pendingValue)?.getAttribute("data-label") ||
+				"";
+			if (search) search.value = "";
+			filterOptions();
+			syncSelection();
+			panel.hidden = false;
+			wrap.classList.add("is-open");
+			trigger.setAttribute("aria-expanded", "true");
+			window.setTimeout(() => search?.focus(), 0);
+		};
+
+		trigger.addEventListener("click", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (panel.hidden) open();
+			else close();
+		});
+
+		options.forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				pendingValue = btn.getAttribute("data-value") || "";
+				pendingLabel = btn.getAttribute("data-label") || pendingValue;
+				syncSelection();
+			});
+		});
+
+		search?.addEventListener("input", filterOptions);
+		search?.addEventListener("click", (e) => e.stopPropagation());
+		search?.addEventListener("keydown", (e) => e.stopPropagation());
+
+		confirmBtn?.addEventListener("click", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (!pendingValue) return;
+			selectedValue = pendingValue;
+			input.value = selectedValue;
+			if (label) label.textContent = pendingLabel || selectedValue;
+			close();
+		});
+
+		panel.addEventListener("click", (e) => e.stopPropagation());
+
+		document.addEventListener("click", (e) => {
+			if (!wrap.contains(e.target)) close();
+		});
+
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") close();
+		});
+	});
+
+	/* Header search — Browse Categories (Figma 1179:77179) */
+	document.querySelectorAll("[data-header-categories]").forEach((wrap) => {
+		const trigger = wrap.querySelector("[data-header-categories-trigger]");
+		const panel = wrap.querySelector("[data-header-categories-panel]");
+		const input = wrap.querySelector("[data-header-categories-input]");
+		const label = wrap.querySelector("[data-header-categories-label]");
+		const groupBtns = Array.from(wrap.querySelectorAll("[data-header-categories-group]"));
+		const groupPanels = Array.from(wrap.querySelectorAll("[data-header-categories-panel-group]"));
+		const tags = Array.from(wrap.querySelectorAll("[data-header-categories-tag]"));
+		if (!trigger || !panel || !input) return;
+
+		const setGroup = (groupId) => {
+			groupBtns.forEach((btn) => {
+				const on = btn.getAttribute("data-group") === groupId;
+				btn.classList.toggle("is-active", on);
+				btn.setAttribute("aria-selected", on ? "true" : "false");
+			});
+			groupPanels.forEach((pane) => {
+				const on = pane.getAttribute("data-header-categories-panel-group") === groupId;
+				pane.classList.toggle("is-active", on);
+				pane.hidden = !on;
+			});
+		};
+
+		const close = () => {
+			panel.hidden = true;
+			wrap.classList.remove("is-open");
+			trigger.setAttribute("aria-expanded", "false");
+		};
+
+		const open = () => {
+			closeHeaderPanels(wrap);
+			panel.hidden = false;
+			wrap.classList.add("is-open");
+			trigger.setAttribute("aria-expanded", "true");
+		};
+
+		trigger.addEventListener("click", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (panel.hidden) open();
+			else close();
+		});
+
+		groupBtns.forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				setGroup(btn.getAttribute("data-group") || "");
+			});
+		});
+
+		tags.forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const value = btn.getAttribute("data-value") || "";
+				const text = btn.getAttribute("data-label") || value;
+				input.value = value;
+				if (label) label.textContent = text;
+				tags.forEach((tag) => {
+					const on = tag === btn;
+					tag.classList.toggle("is-selected", on);
+					tag.setAttribute("aria-selected", on ? "true" : "false");
+				});
+				close();
+			});
+		});
+
+		panel.addEventListener("click", (e) => e.stopPropagation());
+
+		document.addEventListener("click", (e) => {
+			if (!wrap.contains(e.target)) close();
+		});
+
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") close();
+		});
+	});
+
+	/* Header search — Search Artist (Figma 1084:5103) */
+	document.querySelectorAll("[data-header-artist]").forEach((wrap) => {
+		const trigger = wrap.querySelector("[data-header-artist-trigger]");
+		const panel = wrap.querySelector("[data-header-artist-panel]");
+		const input = wrap.querySelector("[data-header-artist-input]");
+		const label = wrap.querySelector("[data-header-artist-label]");
+		const search = wrap.querySelector("[data-header-artist-search]");
+		const empty = wrap.querySelector("[data-header-artist-empty]");
+		const items = Array.from(wrap.querySelectorAll("[data-header-artist-item]"));
+		const options = Array.from(wrap.querySelectorAll("[data-header-artist-option]"));
+		if (!trigger || !panel || !input) return;
+
+		const defaultLabel = "Search Artist";
+
+		const filterResults = () => {
+			const q = (search?.value || "").trim().toLowerCase();
+			let visible = 0;
+			items.forEach((item) => {
+				const opt = item.querySelector("[data-header-artist-option]");
+				const hay = opt?.getAttribute("data-search") || "";
+				const show = !q || hay.includes(q);
+				item.hidden = !show;
+				if (show) visible += 1;
+			});
+			if (empty) empty.hidden = visible > 0;
+		};
+
+		const close = () => {
+			panel.hidden = true;
+			wrap.classList.remove("is-open");
+			trigger.setAttribute("aria-expanded", "false");
+		};
+
+		const open = () => {
+			closeHeaderPanels(wrap);
+			if (search) search.value = input.value || "";
+			filterResults();
+			panel.hidden = false;
+			wrap.classList.add("is-open");
+			trigger.setAttribute("aria-expanded", "true");
+			window.setTimeout(() => {
+				search?.focus();
+				search?.select?.();
+			}, 0);
+		};
+
+		trigger.addEventListener("click", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (panel.hidden) open();
+			else close();
+		});
+
+		search?.addEventListener("input", () => {
+			filterResults();
+			const q = (search.value || "").trim();
+			input.value = q;
+			if (label) label.textContent = q || defaultLabel;
+		});
+
+		search?.addEventListener("click", (e) => e.stopPropagation());
+		search?.addEventListener("keydown", (e) => {
+			e.stopPropagation();
+			if (e.key === "Enter") {
+				e.preventDefault();
+				const first = options.find((opt) => !opt.closest("[data-header-artist-item]")?.hidden);
+				if (first) first.click();
+			}
+		});
+
+		options.forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const value = btn.getAttribute("data-value") || "";
+				input.value = value;
+				if (search) search.value = value;
+				if (label) label.textContent = value || defaultLabel;
+				close();
+			});
+		});
+
+		panel.addEventListener("click", (e) => e.stopPropagation());
+
+		document.addEventListener("click", (e) => {
+			if (!wrap.contains(e.target)) close();
+		});
+
+		document.addEventListener("keydown", (e) => {
+			if (e.key === "Escape") close();
+		});
+	});
+
+	/* ---------- Footer accordion (phone) ---------- */
+	const footerAccordions = document.querySelectorAll("[data-footer-acc]");
+	if (footerAccordions.length) {
+		const isPhone = () => window.matchMedia("(max-width: 767px)").matches;
+
+		footerAccordions.forEach((column) => {
+			const trigger = column.querySelector("[data-footer-trigger]");
+			const panel = column.querySelector("[data-footer-panel]");
+			if (!trigger || !panel) {
+				return;
+			}
+
+			trigger.addEventListener("click", () => {
+				if (!isPhone()) {
+					return;
+				}
+
+				const open = !column.classList.contains("is-open");
+				column.classList.toggle("is-open", open);
+				trigger.setAttribute("aria-expanded", open ? "true" : "false");
+				panel.hidden = !open;
+			});
+		});
+	}
+
+	/* ---------- Mobile search overlay (Figma 1059:5334 / 1161:5532) ---------- */
+	document.querySelectorAll("[data-mobile-search]").forEach((root) => {
+		const openBtn = root.querySelector("[data-mobile-search-open]");
+		const panel = root.querySelector("[data-mobile-search-panel]");
+		const sheet = root.querySelector("[data-msm-sheet]");
+		const homeView = root.querySelector('[data-msm-view="home"]');
+		const detailView = root.querySelector('[data-msm-view="detail"]');
+		const closeBtns = root.querySelectorAll("[data-mobile-search-close]");
+		const clearBtn = root.querySelector("[data-mobile-search-clear]");
+		const artistSearch = root.querySelector("[data-msm-artist-search]");
+		const detailSearch = root.querySelector("[data-msm-detail-search]");
+		const artistEmpty = root.querySelector("[data-msm-artist-empty]");
+		const artistItems = Array.from(root.querySelectorAll("[data-msm-artist-item]"));
+		const artistOptions = Array.from(root.querySelectorAll("[data-msm-artist-option]"));
+		const tabs = Array.from(root.querySelectorAll("[data-msm-tab]"));
+		const tabPanels = Array.from(root.querySelectorAll("[data-msm-tab-panel]"));
+		const occasionInput = root.querySelector("[data-msm-occasion-input]");
+		const occasionChecks = Array.from(root.querySelectorAll("[data-msm-occasion-check]"));
+		const homeOccasionLabel = root.querySelector('[data-msm-home-label="occasion"]');
+		const homeLocationLabel = root.querySelector('[data-msm-home-label="location"]');
+		const homeDateLabel = root.querySelector('[data-msm-home-label="date"]');
+		const homeBudgetLabel = root.querySelector('[data-msm-home-label="budget"]');
+		if (!openBtn || !panel || !homeView || !detailView) return;
+
+		const filterArtists = () => {
+			const q = (artistSearch?.value || "").trim().toLowerCase();
+			let visible = 0;
+			artistItems.forEach((item) => {
+				const opt = item.querySelector("[data-msm-artist-option]");
+				const hay = opt?.getAttribute("data-search") || "";
+				const show = !q || hay.includes(q);
+				item.hidden = !show;
+				if (show) visible += 1;
+			});
+			if (artistEmpty) artistEmpty.hidden = visible > 0;
+		};
+
+		const syncSearchInputs = (source) => {
+			const value = source?.value || "";
+			if (artistSearch && artistSearch !== source) artistSearch.value = value;
+			if (detailSearch && detailSearch !== source) detailSearch.value = value;
+			filterArtists();
+		};
+
+		const setTab = (key) => {
+			tabs.forEach((tab) => {
+				const on = tab.getAttribute("data-msm-tab") === key;
+				tab.classList.toggle("is-active", on);
+				tab.setAttribute("aria-selected", on ? "true" : "false");
+			});
+			tabPanels.forEach((tabPanel) => {
+				const on = tabPanel.getAttribute("data-msm-tab-panel") === key;
+				tabPanel.hidden = !on;
+			});
+		};
+
+		const showHome = () => {
+			homeView.hidden = false;
+			detailView.hidden = true;
+			sheet?.classList.remove("is-detail");
+		};
+
+		const showDetail = (key) => {
+			homeView.hidden = true;
+			detailView.hidden = false;
+			sheet?.classList.add("is-detail");
+			setTab(key || "occasion");
+			if (detailSearch && artistSearch) detailSearch.value = artistSearch.value || "";
+		};
+
+		const syncOccasionLabel = () => {
+			const selected = occasionChecks.filter((btn) => btn.classList.contains("is-checked"));
+			const defaultLabel = occasionInput?.getAttribute("data-default-label") || "Occasion";
+			if (!homeOccasionLabel) return;
+			if (selected.length === 1) {
+				homeOccasionLabel.textContent = selected[0].getAttribute("data-label") || defaultLabel;
+			} else if (selected.length > 1) {
+				homeOccasionLabel.textContent = `${selected.length} selected`;
+			} else {
+				homeOccasionLabel.textContent = defaultLabel;
+			}
+		};
+
+		const syncOccasionInput = () => {
+			const values = occasionChecks
+				.filter((btn) => btn.classList.contains("is-checked"))
+				.map((btn) => btn.getAttribute("data-value") || "")
+				.filter(Boolean);
+			if (occasionInput) occasionInput.value = values.join(",");
+			syncOccasionLabel();
+		};
+
+		const open = () => {
+			panel.hidden = false;
+			openBtn.setAttribute("aria-expanded", "true");
+			document.body.classList.add("mobile-search-open");
+			showHome();
+			filterArtists();
+			window.setTimeout(() => {
+				artistSearch?.focus();
+				artistSearch?.select?.();
+			}, 0);
+		};
+
+		const close = () => {
+			panel.hidden = true;
+			openBtn.setAttribute("aria-expanded", "false");
+			document.body.classList.remove("mobile-search-open");
+			showHome();
+		};
+
+		openBtn.addEventListener("click", (e) => {
+			e.preventDefault();
+			open();
+		});
+
+		closeBtns.forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				close();
+			});
+		});
+
+		panel.addEventListener("click", (e) => {
+			if (e.target === panel) close();
+		});
+
+		document.addEventListener("keydown", (e) => {
+			if (e.key !== "Escape" || panel.hidden) return;
+			if (!detailView.hidden) {
+				showHome();
+				return;
+			}
+			close();
+		});
+
+		artistSearch?.addEventListener("input", () => syncSearchInputs(artistSearch));
+		detailSearch?.addEventListener("input", () => syncSearchInputs(detailSearch));
+
+		artistOptions.forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				const value = btn.getAttribute("data-value") || "";
+				if (artistSearch) artistSearch.value = value;
+				syncSearchInputs(artistSearch);
+			});
+		});
+
+		root.querySelectorAll("[data-msm-open-detail]").forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				showDetail(btn.getAttribute("data-msm-open-detail") || "occasion");
+			});
+		});
+
+		tabs.forEach((tab) => {
+			tab.addEventListener("click", (e) => {
+				e.preventDefault();
+				setTab(tab.getAttribute("data-msm-tab") || "occasion");
+			});
+		});
+
+		root.querySelectorAll("[data-msm-acc]").forEach((section) => {
+			const trigger = section.querySelector("[data-msm-acc-trigger]");
+			const accPanel = section.querySelector("[data-msm-acc-panel]");
+			trigger?.addEventListener("click", (e) => {
+				e.preventDefault();
+				const openNow = Boolean(accPanel?.hidden);
+				root.querySelectorAll("[data-msm-acc]").forEach((other) => {
+					const otherTrigger = other.querySelector("[data-msm-acc-trigger]");
+					const otherPanel = other.querySelector("[data-msm-acc-panel]");
+					const on = openNow && other === section;
+					other.classList.toggle("is-open", on);
+					otherTrigger?.setAttribute("aria-expanded", on ? "true" : "false");
+					if (otherPanel) otherPanel.hidden = !on;
+				});
+			});
+		});
+
+		occasionChecks.forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				e.preventDefault();
+				const on = !btn.classList.contains("is-checked");
+				btn.classList.toggle("is-checked", on);
+				btn.setAttribute("aria-pressed", on ? "true" : "false");
+				syncOccasionInput();
+			});
+		});
+
+		root.querySelectorAll("[data-msm-tab-panel]").forEach((tabPanel) => {
+			const input = tabPanel.querySelector("[data-msm-filter-input]");
+			const key = input?.getAttribute("data-msm-key") || "";
+			const defaultLabel = input?.getAttribute("data-default-label") || "";
+			const labelEl =
+				key === "location"
+					? homeLocationLabel
+					: key === "date"
+						? homeDateLabel
+						: key === "budget"
+							? homeBudgetLabel
+							: null;
+
+			tabPanel.querySelectorAll("[data-msm-simple-option]").forEach((opt) => {
+				opt.addEventListener("click", (e) => {
+					e.preventDefault();
+					const value = opt.getAttribute("data-value") || "";
+					const text = opt.getAttribute("data-label") || value;
+					if (input) input.value = value;
+					if (labelEl) labelEl.textContent = text || defaultLabel;
+					tabPanel.querySelectorAll("[data-msm-simple-option]").forEach((other) => {
+						other.classList.toggle("is-selected", other === opt);
+					});
+				});
+			});
+
+			const dateInput = tabPanel.querySelector("[data-msm-date-input]");
+			dateInput?.addEventListener("change", () => {
+				const value = dateInput.value || "";
+				if (input) input.value = value;
+				if (!labelEl) return;
+				if (!value) {
+					labelEl.textContent = defaultLabel;
+					return;
+				}
+				const parts = value.split("-");
+				if (parts.length === 3) {
+					const dt = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+					labelEl.textContent = dt.toLocaleDateString(undefined, {
+						day: "numeric",
+						month: "short",
+						year: "numeric",
+					});
+				} else {
+					labelEl.textContent = value;
+				}
+			});
+		});
+
+		clearBtn?.addEventListener("click", (e) => {
+			e.preventDefault();
+			if (artistSearch) artistSearch.value = "";
+			if (detailSearch) detailSearch.value = "";
+			filterArtists();
+
+			occasionChecks.forEach((btn) => {
+				btn.classList.remove("is-checked");
+				btn.setAttribute("aria-pressed", "false");
+			});
+			syncOccasionInput();
+
+			root.querySelectorAll("[data-msm-filter-input]").forEach((input) => {
+				const key = input.getAttribute("data-msm-key") || "";
+				const defaultLabel = input.getAttribute("data-default-label") || "";
+				input.value = "";
+				if (key === "location" && homeLocationLabel) homeLocationLabel.textContent = defaultLabel;
+				if (key === "date" && homeDateLabel) homeDateLabel.textContent = defaultLabel;
+				if (key === "budget" && homeBudgetLabel) homeBudgetLabel.textContent = defaultLabel;
+			});
+
+			root.querySelectorAll("[data-msm-simple-option]").forEach((opt) => {
+				opt.classList.remove("is-selected");
+			});
+
+			const dateInput = root.querySelector("[data-msm-date-input]");
+			if (dateInput) dateInput.value = "";
+		});
+	});
 })();

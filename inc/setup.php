@@ -92,6 +92,23 @@ function excel_ent_content_width() {
 add_action( 'after_setup_theme', 'excel_ent_content_width', 0 );
 
 /**
+ * Header artist search is not a WP post search — force empty results
+ * so the Figma no-results state (1299:11417) can render.
+ *
+ * @param WP_Query $query Main query.
+ */
+function excel_ent_artist_search_empty_query( $query ) {
+	if ( is_admin() || ! $query->is_main_query() || ! $query->is_search() ) {
+		return;
+	}
+
+	// Until artists are a queryable post type, never treat pages/posts as matches.
+	$query->set( 'post__in', array( 0 ) );
+	$query->set( 'posts_per_page', 0 );
+}
+add_action( 'pre_get_posts', 'excel_ent_artist_search_empty_query' );
+
+/**
  * Keep footer "About Us" pointing at /about-us/ when a WP menu is assigned.
  *
  * @param array    $items Menu items.

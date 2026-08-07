@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Explore Artists
- * Explore Artists listing — Figma 1224:89355 / search 1299:7406
+ * Explore Artists listing — Figma 1224:89355 / mobile 1023:6857
  *
  * @package Excel_Ent
  */

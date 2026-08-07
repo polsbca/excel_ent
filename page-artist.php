@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Artist
- * Artist profile page — Figma 1113:872
+ * Artist profile page — Figma 1113:872 / mobile 1023:10057
  *
  * @package Excel_Ent
  */
