@@ -21,9 +21,16 @@ function excel_ent_enqueue_assets() {
 	);
 
 	wp_enqueue_style(
+		'excel-ent-lenis',
+		'https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.css',
+		array(),
+		'1.3.26'
+	);
+
+	wp_enqueue_style(
 		'excel-ent-main',
 		EXCEL_ENT_URI . '/assets/css/main.css',
-		array( 'excel-ent-fonts' ),
+		array( 'excel-ent-fonts', 'excel-ent-lenis' ),
 		EXCEL_ENT_VERSION
 	);
 
@@ -154,9 +161,17 @@ function excel_ent_enqueue_assets() {
 	);
 
 	wp_enqueue_script(
+		'excel-ent-lenis',
+		'https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js',
+		array(),
+		'1.3.26',
+		true
+	);
+
+	wp_enqueue_script(
 		'excel-ent-main',
 		EXCEL_ENT_URI . '/assets/js/main.js',
-		array(),
+		array( 'excel-ent-lenis' ),
 		EXCEL_ENT_VERSION,
 		true
 	);

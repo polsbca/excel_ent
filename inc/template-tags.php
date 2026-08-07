@@ -212,39 +212,33 @@ function excel_ent_fallback_menu() {
 		array(
 			'url'   => home_url( '/' ),
 			'label' => __( 'Home', 'excel-ent' ),
-			'home'  => true,
+			'key'   => 'home',
 		),
 		array(
 			'url'   => home_url( '/about-us/' ),
 			'label' => __( 'About Us', 'excel-ent' ),
-			'home'  => false,
+			'key'   => 'about',
 		),
 		array(
 			'url'   => home_url( '/explore-artists/' ),
 			'label' => __( 'Explore Artists', 'excel-ent' ),
-			'home'  => false,
-			'explore_artists' => true,
+			'key'   => 'explore_artists',
 		),
 		array(
 			'url'   => home_url( '/packages/' ),
 			'label' => __( 'Event Packages', 'excel-ent' ),
-			'home'  => false,
+			'key'   => 'packages',
 		),
 		array(
 			'url'   => home_url( '/contact/' ),
 			'label' => __( 'Contact Us', 'excel-ent' ),
-			'home'  => false,
+			'key'   => 'contact',
 		),
 	);
 
 	echo '<ul id="primary-menu" class="menu">';
 	foreach ( $items as $item ) {
-		$current = false;
-		if ( ! empty( $item['home'] ) ) {
-			$current = is_front_page();
-		} elseif ( ! empty( $item['explore_artists'] ) ) {
-			$current = excel_ent_is_explore_artists_page();
-		}
+		$current = excel_ent_is_primary_nav_current( $item['key'], $item['url'] );
 
 		printf(
 			'<li class="%1$s"><a href="%2$s">%3$s</a></li>',
@@ -255,6 +249,108 @@ function excel_ent_fallback_menu() {
 	}
 	echo '</ul>';
 }
+
+/**
+ * Whether a primary nav item should be marked current for this request.
+ *
+ * @param string $key Optional semantic key (home|about|explore_artists|packages|contact).
+ * @param string $url Menu item URL.
+ * @return bool
+ */
+function excel_ent_is_primary_nav_current( $key = '', $url = '' ) {
+	$key = (string) $key;
+	$url = untrailingslashit( (string) $url );
+
+	switch ( $key ) {
+		case 'home':
+			return is_front_page();
+		case 'about':
+			return excel_ent_is_about_page();
+		case 'explore_artists':
+			return excel_ent_is_explore_artists_page();
+		case 'packages':
+			return excel_ent_is_package_page();
+		case 'contact':
+			return excel_ent_is_contact_page();
+	}
+
+	if ( '' === $url ) {
+		return false;
+	}
+
+	$home = untrailingslashit( home_url( '/' ) );
+	if ( $url === $home || $url === untrailingslashit( home_url() ) ) {
+		return is_front_page();
+	}
+
+	$path = wp_parse_url( $url, PHP_URL_PATH );
+	$path = is_string( $path ) ? strtolower( trim( $path, '/' ) ) : '';
+
+	if ( '' === $path ) {
+		return is_front_page();
+	}
+
+	if ( in_array( $path, array( 'about-us', 'about' ), true ) ) {
+		return excel_ent_is_about_page();
+	}
+	if ( in_array( $path, array( 'explore-artists', 'artists' ), true ) ) {
+		return excel_ent_is_explore_artists_page();
+	}
+	if ( in_array( $path, array( 'packages', 'event-packages', 'package' ), true ) ) {
+		return excel_ent_is_package_page();
+	}
+	if ( in_array( $path, array( 'contact', 'contact-us', 'contactus' ), true ) ) {
+		return excel_ent_is_contact_page();
+	}
+	if ( 'artist' === $path ) {
+		return excel_ent_is_artist_page();
+	}
+
+	/* Generic match for custom links pointing at the current request URL. */
+	if ( is_singular() ) {
+		$permalink = untrailingslashit( (string) get_permalink() );
+		return $url && $permalink && $url === $permalink;
+	}
+
+	return false;
+}
+
+/**
+ * Ensure primary menu current classes work for custom links / page templates.
+ *
+ * @param string[] $classes Menu item classes.
+ * @param WP_Post  $item    Menu item.
+ * @param stdClass $args    wp_nav_menu() args.
+ * @param int      $depth   Depth.
+ * @return string[]
+ */
+function excel_ent_primary_nav_css_class( $classes, $item, $args, $depth ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	if ( empty( $args->theme_location ) || 'primary' !== $args->theme_location ) {
+		return $classes;
+	}
+
+	$title = strtolower( trim( wp_strip_all_tags( $item->title ) ) );
+	$key   = '';
+	if ( in_array( $title, array( 'home', 'homepage' ), true ) ) {
+		$key = 'home';
+	} elseif ( in_array( $title, array( 'about us', 'about' ), true ) ) {
+		$key = 'about';
+	} elseif ( in_array( $title, array( 'explore artists', 'artists' ), true ) ) {
+		$key = 'explore_artists';
+	} elseif ( in_array( $title, array( 'event packages', 'packages', 'package' ), true ) ) {
+		$key = 'packages';
+	} elseif ( in_array( $title, array( 'contact us', 'contact' ), true ) ) {
+		$key = 'contact';
+	}
+
+	if ( excel_ent_is_primary_nav_current( $key, $item->url ) ) {
+		$classes[] = 'current-menu-item';
+		$classes[] = 'current_page_item';
+	}
+
+	return array_values( array_unique( $classes ) );
+}
+add_filter( 'nav_menu_css_class', 'excel_ent_primary_nav_css_class', 20, 4 );
 
 /**
  * Point legacy Explore Artists menu links at /explore-artists/.

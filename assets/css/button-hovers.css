@@ -50,6 +50,39 @@ input[type="button"],
 		filter 0.3s ease,
 		gap 0.3s ease,
 		opacity 0.3s ease;
+}
+
+/* Avoid permanent will-change on the search bar — it jitters with Lenis + backdrop-filter */
+.btn-quote,
+.btn-hero,
+.newsletter-cta__submit,
+.header-search__submit,
+.header-phone,
+.hero-carousel__btn,
+.post-card,
+.footer-column__menu a,
+.main-navigation .menu > li > a,
+.site-logo,
+.custom-logo-link,
+.magnetic,
+button:not(.nav-toggle),
+input[type="submit"],
+input[type="button"],
+.wp-block-button__link,
+.wp-element-button {
+	will-change: transform;
+}
+
+.header-search .magnetic,
+.header-search__field,
+.header-search__submit {
+	will-change: auto;
+}
+
+.header-search__field:hover,
+.header-search__field:focus-within,
+.header-search__submit:hover,
+.header-search__submit:focus-visible {
 	will-change: transform;
 }
 

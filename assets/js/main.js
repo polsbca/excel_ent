@@ -2,6 +2,36 @@
 	const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 	const desktop = window.matchMedia("(min-width: 901px)").matches;
 
+	/* ---------- Smooth scroll (Lenis) ---------- */
+	let lenis = null;
+	if (!reduced && typeof window.Lenis === "function") {
+		lenis = new window.Lenis({
+			autoRaf: true,
+			anchors: true,
+			allowNestedScroll: true,
+			smoothWheel: true,
+		});
+		window.excelEntLenis = lenis;
+
+		const syncLenisLock = () => {
+			const locked =
+				document.body.classList.contains("nav-open") ||
+				document.body.classList.contains("mobile-search-open");
+			if (locked) {
+				lenis.stop();
+			} else {
+				lenis.start();
+			}
+		};
+
+		const bodyObserver = new MutationObserver(syncLenisLock);
+		bodyObserver.observe(document.body, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
+		syncLenisLock();
+	}
+
 	const loader = document.getElementById("ee-loader");
 	const spotlight = document.getElementById("ee-spotlight");
 	const hero = document.querySelector(".hero");
@@ -150,11 +180,30 @@
 
 	/* ---------- Header on scroll ---------- */
 	if (header) {
-		const onScroll = () => {
-			header.classList.toggle("is-scrolled", window.scrollY > 60);
-		};
-		onScroll();
-		window.addEventListener("scroll", onScroll, { passive: true });
+		const isHomeHeroHeader =
+			document.body.classList.contains("home") ||
+			document.body.classList.contains("front-page");
+
+		/* Home header sits absolutely over the hero — keep it transparent; no scroll restyle. */
+		if (!isHomeHeroHeader) {
+			let scrolled = false;
+			const onScroll = (scrollY) => {
+				const y = typeof scrollY === "number" ? scrollY : window.scrollY;
+				/* Hysteresis so Lenis doesn't thrash the class near the threshold */
+				const next = scrolled ? y > 40 : y > 80;
+				if (next === scrolled) {
+					return;
+				}
+				scrolled = next;
+				header.classList.toggle("is-scrolled", scrolled);
+			};
+			onScroll(window.scrollY);
+			if (lenis) {
+				lenis.on("scroll", ({ scroll }) => onScroll(scroll));
+			} else {
+				window.addEventListener("scroll", () => onScroll(window.scrollY), { passive: true });
+			}
+		}
 	}
 
 	/* ---------- Scroll reveal ---------- */
@@ -894,8 +943,18 @@
 			btn.addEventListener("click", (e) => {
 				e.preventDefault();
 				const input = document.getElementById("explore-artists-search-query");
-				input?.scrollIntoView({ behavior: "smooth", block: "center" });
-				window.setTimeout(() => input?.focus(), 200);
+				if (!input) {
+					return;
+				}
+				if (window.excelEntLenis) {
+					window.excelEntLenis.scrollTo(input, {
+						offset: -100,
+						duration: 1.1,
+					});
+				} else {
+					input.scrollIntoView({ behavior: "smooth", block: "center" });
+				}
+				window.setTimeout(() => input.focus(), 200);
 			});
 		});
 

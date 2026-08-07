@@ -58,7 +58,7 @@
 					printf(
 						/* translators: %s: agency name */
 						esc_html__( 'Website by %s', 'excel-ent' ),
-						esc_html__( 'Rocky Stripe Marketing', 'excel-ent' )
+						esc_html__( 'Funkyvibes Marketing', 'excel-ent' )
 					);
 					?>
 				</p>

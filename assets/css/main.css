@@ -23,6 +23,7 @@
 }
 
 html {
+	/* Native fallback; Lenis takes over when enabled (see .lenis.lenis-smooth). */
 	scroll-behavior: smooth;
 }
 
