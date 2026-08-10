@@ -268,8 +268,7 @@
 }
 
 .artist-card:hover .artist-card__detail,
-.artist-card:focus-within .artist-card__detail,
-.artist-card.is-active .artist-card__detail {
+.artist-card:focus-within .artist-card__detail {
 	opacity: 1;
 	transform: none;
 	pointer-events: auto;

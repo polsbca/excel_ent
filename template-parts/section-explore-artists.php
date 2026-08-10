@@ -1,6 +1,6 @@
 <?php
 /**
- * Explore Artists listing — filters + grid (Figma 1224:89401 / 1224:89450).
+ * Explore Artists listing — Figma 1224:89355 / mobile 1023:6857
  *
  * @package Excel_Ent
  */
@@ -26,7 +26,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => true,
 		'favorited' => true,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
+		'tags'      => array( 'Nightclubs', 'Nightclubs', 'Nightclubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -38,7 +38,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'later',
 		'featured'  => false,
 		'favorited' => false,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
+		'tags'      => array( 'Nightclubs', 'Nightclubs', 'Nightclubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -50,7 +50,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => false,
 		'favorited' => true,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
+		'tags'      => array( 'Nightclubs', 'Nightclubs', 'Nightclubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -62,7 +62,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => false,
 		'favorited' => false,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
+		'tags'      => array( 'Nightclubs', 'Nightclubs', 'Nightclubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -74,7 +74,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => false,
 		'favorited' => true,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
+		'tags'      => array( 'Nightclubs', 'Nightclubs', 'Nightclubs', 'Nightclubs' ),
 	),
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -86,7 +86,7 @@ $excel_ent_artists = array(
 		'status_mod'=> 'weekend',
 		'featured'  => false,
 		'favorited' => false,
-		'tags'      => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
+		'tags'      => array( 'Nightclubs', 'Nightclubs', 'Nightclubs', 'Nightclubs' ),
 	),
 );
 ?>
@@ -210,60 +210,62 @@ $excel_ent_artists = array(
 				</div>
 
 				<div class="explore-artist-card__body">
-					<div class="explore-artist-card__meta">
-						<span class="explore-artist-card__status explore-artist-card__status--<?php echo esc_attr( $excel_ent_artist['status_mod'] ); ?>">
-							<?php echo esc_html( $excel_ent_artist['status'] ); ?>
-						</span>
-						<span class="explore-artist-card__rating">
-							<img
-								src="<?php echo esc_url( $excel_ent_ea_uri . '/star.svg' ); ?>"
-								alt=""
-								width="18"
-								height="18"
-								decoding="async"
-							>
-							<?php
-							printf(
-								/* translators: %s: rating value */
-								esc_html__( '%s Rating', 'excel-ent' ),
-								esc_html( $excel_ent_artist['rating'] )
-							);
-							?>
-						</span>
-						<span class="explore-artist-card__location">
-							<img
-								src="<?php echo esc_url( $excel_ent_ea_uri . '/map-pin.svg' ); ?>"
-								alt=""
-								width="18"
-								height="18"
-								decoding="async"
-							>
-							<?php echo esc_html( $excel_ent_artist['location'] ); ?>
-						</span>
-					</div>
+					<div class="explore-artist-card__content">
+						<div class="explore-artist-card__meta">
+							<span class="explore-artist-card__status explore-artist-card__status--<?php echo esc_attr( $excel_ent_artist['status_mod'] ); ?>">
+								<?php echo esc_html( $excel_ent_artist['status'] ); ?>
+							</span>
+							<span class="explore-artist-card__rating">
+								<img
+									src="<?php echo esc_url( $excel_ent_ea_uri . '/star.svg' ); ?>"
+									alt=""
+									width="18"
+									height="18"
+									decoding="async"
+								>
+								<?php
+								printf(
+									/* translators: %s: rating value */
+									esc_html__( '%s Rating', 'excel-ent' ),
+									esc_html( $excel_ent_artist['rating'] )
+								);
+								?>
+							</span>
+							<span class="explore-artist-card__location">
+								<img
+									src="<?php echo esc_url( $excel_ent_ea_uri . '/map-pin.svg' ); ?>"
+									alt=""
+									width="18"
+									height="18"
+									decoding="async"
+								>
+								<?php echo esc_html( $excel_ent_artist['location'] ); ?>
+							</span>
+						</div>
 
-					<div class="explore-artist-card__identity">
-						<h2 class="explore-artist-card__name"><?php echo esc_html( $excel_ent_artist['name'] ); ?></h2>
-						<p class="explore-artist-card__price">
-							<strong><?php echo esc_html( $excel_ent_artist['price'] ); ?></strong>
-							<span><?php esc_html_e( 'Starting From', 'excel-ent' ); ?></span>
-						</p>
-					</div>
+						<div class="explore-artist-card__identity">
+							<h2 class="explore-artist-card__name"><?php echo esc_html( $excel_ent_artist['name'] ); ?></h2>
+							<p class="explore-artist-card__price">
+								<strong><?php echo esc_html( $excel_ent_artist['price'] ); ?></strong>
+								<span><?php esc_html_e( 'Starting From', 'excel-ent' ); ?></span>
+							</p>
+						</div>
 
-					<ul class="explore-artist-card__tags">
-						<?php foreach ( $excel_ent_artist['tags'] as $excel_ent_tag ) : ?>
-							<li><?php echo esc_html( $excel_ent_tag ); ?></li>
-						<?php endforeach; ?>
-						<li class="explore-artist-card__tag-more" aria-hidden="true">
-							<img
-								src="<?php echo esc_url( $excel_ent_ea_uri . '/add-fill.svg' ); ?>"
-								alt=""
-								width="13"
-								height="13"
-								decoding="async"
-							>
-						</li>
-					</ul>
+						<ul class="explore-artist-card__tags">
+							<?php foreach ( $excel_ent_artist['tags'] as $excel_ent_tag ) : ?>
+								<li><?php echo esc_html( $excel_ent_tag ); ?></li>
+							<?php endforeach; ?>
+							<li class="explore-artist-card__tag-more" aria-hidden="true">
+								<img
+									src="<?php echo esc_url( $excel_ent_ea_uri . '/add-fill.svg' ); ?>"
+									alt=""
+									width="13"
+									height="13"
+									decoding="async"
+								>
+							</li>
+						</ul>
+					</div>
 
 					<div class="explore-artist-card__actions">
 						<a class="explore-artist-card__btn explore-artist-card__btn--profile magnetic" href="<?php echo esc_url( $excel_ent_profile ); ?>">

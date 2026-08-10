@@ -234,6 +234,14 @@
 	flex-shrink: 0;
 }
 
+.artist-hero__price-info {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 40px;
+	width: 100%;
+}
+
 .artist-hero__pricing {
 	display: flex;
 	flex-direction: column;
@@ -1502,12 +1510,14 @@
 	}
 }
 
-@media (max-width: 700px) {
+@media (max-width: 767px) {
 	/* Artist detail mobile — Figma 1023:10057 */
 	.artist-page {
 		display: flex;
 		flex-direction: column;
 		gap: 100px;
+		overflow-x: hidden;
+		max-width: 100%;
 	}
 
 	.artist-hero,
@@ -1517,6 +1527,9 @@
 	.artist-similar {
 		padding-left: 24px;
 		padding-right: 24px;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 
 	/* ----- Hero ----- */
@@ -1560,6 +1573,10 @@
 
 	.artist-hero__details {
 		gap: 28px;
+	}
+
+	.artist-hero__price-info {
+		gap: 20px;
 	}
 
 	.artist-hero__pricing {
@@ -1686,8 +1703,14 @@
 		width: 100%;
 		min-height: 0;
 		height: 540px;
-		padding: 12px 24px;
+		padding: 0;
 		box-sizing: border-box;
+	}
+
+	.artist-performance__image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.artist-performance__pin {
@@ -1695,6 +1718,10 @@
 	}
 
 	.artist-performance__nav {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
 		justify-content: stretch;
 		gap: 0;
 		padding: 0;
@@ -1773,11 +1800,15 @@
 	}
 
 	.artist-setlist__search input {
+		min-height: 0;
+		height: 100%;
+		padding: 0 28px 0 0;
 		font-size: 14px;
 		letter-spacing: 0.42px;
 	}
 
 	.artist-setlist__search img {
+		right: 16px;
 		width: 14px;
 		height: 14px;
 	}
@@ -1865,6 +1896,7 @@
 		overflow-y: auto;
 		width: 100%;
 		box-sizing: border-box;
+		scrollbar-width: thin;
 	}
 
 	.artist-setlist__row {
@@ -1909,17 +1941,31 @@
 
 	.artist-setlist__player {
 		order: 4;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 		width: 100%;
-		padding: 10px 24px;
+		padding: 10px 24px 12px;
 		border: 0;
 		border-top: 3px solid #f89a42;
 		background-image: linear-gradient(180deg, #eb2055 0%, #f89a42 100%);
 		box-sizing: border-box;
 	}
 
-	.artist-setlist__player-top {
+	.artist-setlist__player-controls {
+		order: 1;
 		justify-content: center;
-		margin-bottom: 13px;
+		flex-wrap: wrap;
+		gap: 16px;
+		width: 100%;
+		margin-bottom: 0;
+	}
+
+	.artist-setlist__player-top {
+		order: 2;
+		justify-content: center;
+		width: 100%;
+		margin: 13px 0 0;
 	}
 
 	.artist-setlist__player-top span:first-child {
@@ -1928,14 +1974,9 @@
 
 	.artist-setlist__player-top span:last-child {
 		font-size: 10px;
-		letter-spacing: 2px;
-		text-transform: uppercase;
-	}
-
-	.artist-setlist__player-controls {
-		justify-content: center;
-		flex-wrap: wrap;
-		gap: 13px 16px;
+		letter-spacing: 1px;
+		text-transform: none;
+		font-weight: 600;
 	}
 
 	.artist-setlist__player-controls > button {
@@ -1953,7 +1994,9 @@
 	.artist-setlist__progress {
 		flex: 1 1 100%;
 		order: 10;
+		width: 100%;
 		height: 3px;
+		margin-top: 13px;
 		background: #d9d9d9;
 	}
 
@@ -2036,7 +2079,8 @@
 	/* ----- Similar artists ----- */
 	.artist-similar {
 		gap: 40px;
-		padding: 0 0 0;
+		padding: 0;
+		overflow: hidden;
 	}
 
 	.artist-similar__header {
@@ -2066,24 +2110,37 @@
 	.artist-similar__eyebrow img {
 		flex: 1 1 auto;
 		width: auto;
-		max-width: none;
+		max-width: 113px;
 		height: 1px;
 		min-width: 0;
+		object-fit: fill;
 	}
 
 	.artist-similar__viewport {
 		padding-left: 24px;
+		padding-right: 24px;
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+	}
+
+	.artist-similar__viewport::-webkit-scrollbar {
+		display: none;
 	}
 
 	.artist-similar__track {
 		gap: 10px;
+		transform: none !important;
+		transition: none;
 	}
 
 	.artist-similar__track .explore-artist-card {
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		width: 358px;
+		width: min(358px, calc(100vw - 48px));
 		height: 300px;
 		min-height: 300px;
 		max-height: 300px;
@@ -2092,6 +2149,7 @@
 		border: 2px solid #f89a42;
 		box-shadow: 4px 4px 4px rgba(115, 115, 115, 0.88);
 		aspect-ratio: auto;
+		scroll-snap-align: start;
 	}
 
 	.artist-similar__track .explore-artist-card__top {
@@ -2102,6 +2160,10 @@
 		gap: 20px;
 		padding: 0;
 		margin-top: 0;
+	}
+
+	.artist-similar__track .explore-artist-card__content {
+		gap: 20px;
 	}
 
 	.artist-similar__track .explore-artist-card__fav,
@@ -2198,24 +2260,32 @@
 	}
 
 	.artist-similar__footer {
-		flex-direction: column;
-		align-items: stretch;
-		gap: 16px;
-		padding: 0 24px 40px;
+		flex-direction: row;
+		align-items: center;
+		gap: 10px;
+		padding: 0 24px;
 	}
 
 	.artist-similar__bar {
 		height: 4px;
-		order: 2;
+		order: 1;
+		flex: 1 1 auto;
 	}
 
 	.artist-similar__pager {
-		justify-content: space-between;
-		width: 100%;
-		order: 1;
+		justify-content: flex-end;
+		width: auto;
+		order: 2;
+		gap: 0;
+	}
+
+	.artist-similar__pager button {
+		display: none;
 	}
 
 	.artist-similar__pager p {
 		font-size: 14px;
+		min-width: 0;
+		letter-spacing: 1px;
 	}
 }

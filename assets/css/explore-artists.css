@@ -177,6 +177,20 @@
 	transform: rotate(90deg);
 }
 
+.explore-artists-search__shine,
+.explore-artists-search__arrow {
+	display: none;
+	flex-shrink: 0;
+}
+
+.explore-artists-search__cat-label-mobile {
+	display: none;
+}
+
+.explore-artists-search__cat--mobile-only {
+	display: none;
+}
+
 .explore-artists-search__cat-label {
 	font-weight: 400;
 	font-size: 24px;
@@ -584,6 +598,15 @@
 	box-sizing: border-box;
 }
 
+.explore-artist-card__content {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 30px;
+	width: 100%;
+	min-width: 0;
+}
+
 .explore-artist-card__meta {
 	display: flex;
 	flex-wrap: wrap;
@@ -961,11 +984,20 @@
 	}
 }
 
-@media (max-width: 700px) {
-	/* Listing block — Figma 1023:6858 / 1041:2543 (40px page gap under black header) */
+/* Mobile — Figma 1023:6857 */
+@media (max-width: 767px) {
+	.explore-artists-page {
+		overflow-x: hidden;
+		max-width: 100%;
+	}
+
+	/* Listing block — 40px under black header */
 	.explore-artists__filters {
 		gap: 20px;
 		padding: 40px 24px 0;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 
 	.explore-artists__intro {
@@ -1004,7 +1036,6 @@
 		justify-content: flex-start;
 		gap: 7px;
 		width: 100%;
-		max-width: 354px;
 		height: 9px;
 		padding-right: 0;
 	}
@@ -1034,6 +1065,7 @@
 		content: "";
 		flex: 1 1 auto;
 		min-width: 0;
+		max-width: 191px;
 		height: 1px;
 		background: linear-gradient(90deg, #eb2055 0%, #f89a42 100%);
 	}
@@ -1042,6 +1074,9 @@
 		grid-template-columns: 1fr;
 		gap: 20px;
 		padding: 40px 24px 100px;
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
 	}
 
 	.explore-artist-card {
@@ -1049,8 +1084,8 @@
 		flex-direction: column;
 		justify-content: space-between;
 		width: 100%;
-		max-width: 358px;
-		margin: 0 auto;
+		max-width: 100%;
+		margin: 0;
 		aspect-ratio: auto;
 		height: 300px;
 		min-height: 300px;
@@ -1089,6 +1124,11 @@
 		margin-top: 0;
 		padding: 0;
 		width: 100%;
+		min-width: 0;
+	}
+
+	.explore-artist-card__content {
+		gap: 20px;
 	}
 
 	.explore-artist-card__fav {
@@ -1133,6 +1173,7 @@
 		padding: 10px;
 		font-size: 8px;
 		letter-spacing: 1px;
+		flex-shrink: 0;
 	}
 
 	.explore-artist-card__rating,
@@ -1140,6 +1181,7 @@
 		gap: 5px;
 		font-size: 10px;
 		letter-spacing: 1px;
+		flex-shrink: 0;
 	}
 
 	.explore-artist-card__location {
@@ -1226,7 +1268,7 @@
 		flex: 1 1 0;
 		height: 51px;
 		min-height: 51px;
-		padding: 0 12px;
+		padding: 0 8px;
 		font-size: 16px;
 		letter-spacing: 1px;
 		white-space: nowrap;
@@ -1266,71 +1308,121 @@
 		box-shadow: none;
 	}
 
+	/* Header search zone — Figma 1023:6859 */
 	.explore-artists-search {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
 		gap: 34px;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		overflow: visible;
 	}
 
 	.explore-artists-search__row {
+		display: flex;
 		flex-direction: row;
 		align-items: center;
 		flex-wrap: nowrap;
 		gap: 11px;
-		height: auto;
+		height: 48px;
+		width: 100%;
+		max-width: 100%;
 	}
 
 	.explore-artists-search__form {
-		flex: 0 0 auto;
+		display: flex;
+		flex: 0 1 224px;
 		width: 224px;
 		max-width: 58%;
+		min-width: 0;
 		height: 48px;
 		padding: 10px;
+		border-radius: 40px;
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		background: rgba(255, 255, 255, 0.11);
+		box-sizing: border-box;
 	}
 
 	.explore-artists-search__label {
+		display: flex;
 		flex-direction: row;
 		align-items: flex-end;
 		gap: 3px;
 		min-width: 0;
+		flex: 1 1 auto;
 	}
 
 	.explore-artists-search__title {
-		font-size: 14px;
+		flex-shrink: 0;
 		width: auto;
+		font-size: 14px;
+		font-weight: 600;
+		letter-spacing: 1px;
+		line-height: 1;
+		color: #fff;
 	}
 
 	.explore-artists-search__input {
+		flex: 1 1 auto;
+		min-width: 0;
 		font-size: 8px;
 		font-weight: 300;
 		letter-spacing: 1px;
+		line-height: 1;
+		color: #fff;
+	}
+
+	.explore-artists-search__input::placeholder {
+		color: rgba(255, 255, 255, 0.8);
+		opacity: 1;
 	}
 
 	.explore-artists-search__submit {
+		flex-shrink: 0;
 		width: 34px;
 		height: 34px;
+		border-radius: 50px;
 	}
 
 	.explore-artists-search__submit img {
-		width: 16px;
-		height: 16px;
+		width: 14px;
+		height: 14px;
 	}
 
 	.explore-artists-search__sort {
+		display: inline-flex;
 		flex: 1 1 0;
+		align-items: center;
+		justify-content: center;
 		width: auto;
 		min-width: 0;
 		height: 48px;
 		gap: 6px;
 		padding: 5px 16px;
+		border: 1px solid rgba(255, 255, 255, 0.8);
+		border-radius: 30px;
+		background: #fff;
+		color: #000;
 		font-size: 14px;
+		font-weight: 700;
+		letter-spacing: 1px;
+		line-height: 1;
+		white-space: nowrap;
+		box-sizing: border-box;
 	}
 
 	.explore-artists-search__sort img {
 		width: 14px;
 		height: 14px;
+		flex-shrink: 0;
 	}
 
 	.explore-artists-search__categories {
+		display: flex;
 		flex-wrap: nowrap;
+		align-items: center;
 		gap: 13px;
 		height: 40px;
 		overflow-x: auto;
@@ -1338,6 +1430,7 @@
 		-webkit-overflow-scrolling: touch;
 		scrollbar-width: none;
 		width: calc(100% + 48px);
+		max-width: none;
 		margin-left: -24px;
 		margin-right: -24px;
 		padding: 0 24px;
@@ -1349,33 +1442,109 @@
 	}
 
 	.explore-artists-search__cat {
+		display: inline-flex;
 		flex: 0 0 auto;
+		align-items: center;
+		justify-content: center;
 		height: 40px;
 		padding: 0 25px;
 		gap: 5px;
+		border-radius: 30px;
+		border: 1px solid #fff;
+		background: transparent;
+		background-image: none;
+		box-shadow: none;
+		color: #fff;
+		box-sizing: border-box;
+	}
+
+	.explore-artists-search__cat.is-active {
+		border: 2px solid #eb2055;
+		background-image: var(
+			--ee-quote-gradient,
+			linear-gradient(270deg, #eb2055 0.48%, #ed3153 41.8%, #f8a742 100%)
+		);
+		box-shadow: none;
+		color: #fff;
+	}
+
+	.explore-artists-search__cat.is-active .explore-artists-search__cat-label {
+		font-weight: 800;
+		color: #fff;
+	}
+
+	.explore-artists-search__cat--desktop-only {
+		display: none !important;
+	}
+
+	.explore-artists-search__cat--mobile-only {
+		display: inline-flex !important;
 	}
 
 	.explore-artists-search__cat-label {
 		font-size: 14px;
 		font-weight: 800;
+		letter-spacing: 1px;
+		line-height: 1;
+		color: inherit;
 	}
 
-	.explore-artists-search__cat:not(.is-active) .explore-artists-search__cat-label {
+	.explore-artists-search__cat--plain .explore-artists-search__cat-label {
 		font-weight: 400;
 	}
 
+	.explore-artists-search__cat:not(.is-active) .explore-artists-search__cat-label {
+		font-weight: 800;
+	}
+
+	.explore-artists-search__cat--plain:not(.is-active) .explore-artists-search__cat-label {
+		font-weight: 400;
+	}
+
+	.explore-artists-search__cat-label-desktop {
+		display: none;
+	}
+
+	.explore-artists-search__cat-label-mobile {
+		display: inline;
+	}
+
 	.explore-artists-search__cat-count {
+		font-family: var(--ee-font, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 100;
 		font-size: 8px;
 		font-weight: 300;
+		letter-spacing: 1px;
+		line-height: 1;
+		color: rgba(255, 255, 255, 0.8);
 	}
 
 	.explore-artists-search__cat.is-active .explore-artists-search__cat-count {
 		font-size: 8px;
 		font-weight: 600;
+		color: rgba(255, 255, 255, 0.8);
 	}
 
 	.explore-artists-search__caret {
+		display: none !important;
+	}
+
+	.explore-artists-search__shine {
+		display: block;
 		width: 14px;
 		height: 14px;
+		flex-shrink: 0;
+	}
+
+	.explore-artists-search__arrow {
+		display: block;
+		width: 12px;
+		height: 12px;
+		flex-shrink: 0;
+		transform: rotate(180deg);
+	}
+
+	.explore-artists-search__cat--plain {
+		gap: 10px;
 	}
 }

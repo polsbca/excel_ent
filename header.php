@@ -90,7 +90,7 @@ $excel_ent_quote = excel_ent_get_quote_url();
 							decoding="async"
 						>
 					</button>
-				<?php elseif ( excel_ent_is_artist_page() ) : ?>
+				<?php elseif ( excel_ent_is_artist_page() || excel_ent_is_about_page() || excel_ent_is_package_page() || excel_ent_is_contact_page() ) : ?>
 					<a
 						class="header-search-icon magnetic"
 						href="<?php echo esc_url( home_url( '/explore-artists/' ) ); ?>"

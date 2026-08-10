@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact Us page content — Figma 1159:3881 / Get A Quote 1159:3066
+ * Contact Us page content — Figma 1159:3881 / mobile 1023:11984
  *
  * @package Excel_Ent
  */
@@ -365,7 +365,13 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 
 <section class="contact-intro" aria-label="<?php esc_attr_e( 'Contact Excel Entertainment', 'excel-ent' ); ?>" data-contact-tabs>
 	<header class="contact-intro__header">
-		<h1 class="contact-intro__title"><?php esc_html_e( 'THE Stage Is Ready', 'excel-ent' ); ?></h1>
+		<h1 class="contact-intro__title">
+			<span class="contact-intro__title-desktop"><?php esc_html_e( 'THE Stage Is Ready', 'excel-ent' ); ?></span>
+			<span class="contact-intro__title-mobile"><?php esc_html_e( 'Contact us', 'excel-ent' ); ?></span>
+		</h1>
+		<p class="contact-intro__lede">
+			<?php esc_html_e( "Tell us what you need, a quick question, a full quote, or you're the talent. Pick your path below.", 'excel-ent' ); ?>
+		</p>
 		<div class="contact-intro__tabs" role="tablist" aria-label="<?php esc_attr_e( 'Contact options', 'excel-ent' ); ?>">
 			<button
 				type="button"
@@ -1110,32 +1116,59 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 </section>
 
 <section class="contact-quick" aria-label="<?php esc_attr_e( 'Quick contacts', 'excel-ent' ); ?>">
-	<h2 class="contact-quick__title"><?php esc_html_e( 'Quick contacts', 'excel-ent' ); ?></h2>
-	<div class="contact-quick__grid">
-		<div class="contact-quick__item">
-			<p class="contact-quick__label"><?php esc_html_e( 'EMAIL ADDRESS', 'excel-ent' ); ?></p>
-			<a class="contact-quick__value" href="<?php echo esc_url( 'mailto:' . $excel_ent_email ); ?>">
-				<?php echo esc_html( $excel_ent_email ); ?>
-			</a>
+	<div class="contact-quick__inner">
+		<h2 class="contact-quick__title"><?php esc_html_e( 'Quick contacts', 'excel-ent' ); ?></h2>
+		<div class="contact-quick__grid">
+			<div class="contact-quick__item contact-quick__item--phone">
+				<p class="contact-quick__label"><?php esc_html_e( 'PHONE NUMBER', 'excel-ent' ); ?></p>
+				<a
+					class="contact-quick__value"
+					href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $excel_ent_phone ? $excel_ent_phone : '07853328638' ) ); ?>"
+				>
+					<?php echo esc_html( $excel_ent_phone ? $excel_ent_phone : '07853 328638' ); ?>
+				</a>
+			</div>
+			<div class="contact-quick__item contact-quick__item--email">
+				<p class="contact-quick__label"><?php esc_html_e( 'EMAIL ADDRESS', 'excel-ent' ); ?></p>
+				<a class="contact-quick__value" href="<?php echo esc_url( 'mailto:' . $excel_ent_email ); ?>">
+					<?php echo esc_html( $excel_ent_email ); ?>
+				</a>
+			</div>
+			<div class="contact-quick__item contact-quick__item--location">
+				<p class="contact-quick__label"><?php esc_html_e( 'LOCATION', 'excel-ent' ); ?></p>
+				<p class="contact-quick__value">
+					<?php esc_html_e( '13 Glenavon Drive, Shawclough, Rochdale, OL12 6DT', 'excel-ent' ); ?>
+				</p>
+			</div>
 		</div>
-		<div class="contact-quick__item">
-			<p class="contact-quick__label"><?php esc_html_e( 'PHONE NUMBER', 'excel-ent' ); ?></p>
+		<div class="contact-quick__actions">
 			<a
-				class="contact-quick__value"
-				href="<?php echo esc_url( 'tel:' . preg_replace( '/[^0-9+]/', '', $excel_ent_phone ? $excel_ent_phone : '07853328638' ) ); ?>"
+				class="contact-quick__directions magnetic"
+				href="<?php echo esc_url( 'https://maps.google.com/?q=' . rawurlencode( '13 Glenavon Drive, Shawclough, Rochdale, OL12 6DT' ) ); ?>"
+				target="_blank"
+				rel="noopener noreferrer"
 			>
-				<?php echo esc_html( $excel_ent_phone ? $excel_ent_phone : '07853 328638' ); ?>
+				<?php esc_html_e( 'Get Direction', 'excel-ent' ); ?>
 			</a>
+			<figure class="contact-quick__map">
+				<img
+					src="<?php echo esc_url( $excel_ent_uri . '/quick-map.jpg' ); ?>"
+					alt="<?php esc_attr_e( 'Excel Entertainment location map — Rochdale, United Kingdom', 'excel-ent' ); ?>"
+					width="1761"
+					height="680"
+					loading="lazy"
+					decoding="async"
+				>
+			</figure>
 		</div>
 	</div>
-	<figure class="contact-quick__map">
-		<img
-			src="<?php echo esc_url( $excel_ent_uri . '/quick-map.jpg' ); ?>"
-			alt="<?php esc_attr_e( 'Excel Entertainment location map — Rochdale, United Kingdom', 'excel-ent' ); ?>"
-			width="1761"
-			height="680"
-			loading="lazy"
-			decoding="async"
-		>
-	</figure>
+</section>
+
+<section class="contact-inquire" aria-label="<?php esc_attr_e( 'Inquire now', 'excel-ent' ); ?>">
+	<h2 class="contact-inquire__title"><?php esc_html_e( 'Stage Is Ready', 'excel-ent' ); ?></h2>
+	<a class="contact-inquire__link" href="#contact-tab-booking">
+		<span class="contact-inquire__rule" aria-hidden="true"></span>
+		<span class="contact-inquire__label"><?php esc_html_e( 'INQUIRE_NOW', 'excel-ent' ); ?></span>
+		<span class="contact-inquire__rule" aria-hidden="true"></span>
+	</a>
 </section>

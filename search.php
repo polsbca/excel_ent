@@ -1,6 +1,6 @@
 <?php
 /**
- * Search results template — Figma 1299:11348 / empty state 1299:11417.
+ * Search results template — Figma 1299:11348 / empty 1299:11417 / mobile 1053:4365.
  *
  * @package Excel_Ent
  */

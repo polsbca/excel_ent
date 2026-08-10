@@ -1,6 +1,6 @@
 <?php
 /**
- * Packages page content — Figma 1126:2252
+ * Packages page content — Figma 1126:2252 / mobile 1023:10624
  *
  * @package Excel_Ent
  */
@@ -142,10 +142,12 @@ $excel_ent_bulk = array(
  * @param string $note    Shared pricing note.
  * @param string $quote   Enquiry URL (unused — enquiry opens modal).
  * @param int    $index   Card index for stagger.
+ * @param string $group   Tab group id (wedding|bulk).
  */
-$excel_ent_render_card = static function ( $package, $note, $quote, $index ) {
+$excel_ent_render_card = static function ( $package, $note, $quote, $index, $group = 'wedding' ) {
 	$featured = ! empty( $package['featured'] );
 	$mod      = isset( $package['mod'] ) ? $package['mod'] : '';
+	$pkg_id   = $group . '-' . $mod;
 	$price_label = $package['price']['main'];
 	if ( ! empty( $package['price']['suffix'] ) ) {
 		$price_label .= ' ' . $package['price']['suffix'];
@@ -156,10 +158,14 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index ) {
 		$package['name'],
 		$price_label
 	);
+	$excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 	?>
 	<article
 		class="package-card<?php echo $featured ? ' package-card--featured' : ''; ?> package-card--<?php echo esc_attr( $mod ); ?> reveal"
 		data-reveal
+		data-package-card
+		data-package-id="<?php echo esc_attr( $pkg_id ); ?>"
+		data-package-group="<?php echo esc_attr( $group ); ?>"
 		style="--i: <?php echo esc_attr( (string) $index ); ?>; transition-delay: <?php echo esc_attr( (string) ( $index * 80 ) ); ?>ms"
 	>
 		<div class="package-card__top">
@@ -181,6 +187,23 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index ) {
 			</div>
 		</div>
 
+		<button
+			type="button"
+			class="package-card__more"
+			data-package-more
+			data-package-id="<?php echo esc_attr( $pkg_id ); ?>"
+			aria-haspopup="dialog"
+		>
+			<span><?php esc_html_e( 'Read more', 'excel-ent' ); ?></span>
+			<img
+				src="<?php echo esc_url( $excel_ent_pkg_uri . '/add-fill.svg' ); ?>"
+				alt=""
+				width="24"
+				height="24"
+				decoding="async"
+			>
+		</button>
+
 		<div class="package-card__body">
 			<p class="package-card__includes"><?php esc_html_e( 'This includes:', 'excel-ent' ); ?></p>
 			<ul class="package-card__features">
@@ -188,24 +211,63 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index ) {
 					<li><?php echo esc_html( $feature ); ?></li>
 				<?php endforeach; ?>
 			</ul>
-			<button
-				type="button"
-				class="package-card__btn<?php echo $featured ? ' package-card__btn--gradient' : ''; ?> magnetic"
-				data-package-enquiry
-				data-package-name="<?php echo esc_attr( $package['name'] ); ?>"
-				data-package-label="<?php echo esc_attr( $selected_label ); ?>"
-			>
-				<?php esc_html_e( 'Start Your Enquiry', 'excel-ent' ); ?>
-			</button>
 		</div>
+
+		<button
+			type="button"
+			class="package-card__btn<?php echo $featured ? ' package-card__btn--gradient' : ''; ?> magnetic"
+			data-package-enquiry
+			data-package-name="<?php echo esc_attr( $package['name'] ); ?>"
+			data-package-label="<?php echo esc_attr( $selected_label ); ?>"
+		>
+			<span class="package-card__btn-label-desktop"><?php esc_html_e( 'Start Your Enquiry', 'excel-ent' ); ?></span>
+			<span class="package-card__btn-label-mobile"><?php esc_html_e( 'Start Enquiry', 'excel-ent' ); ?></span>
+		</button>
 	</article>
 	<?php
 };
+
+$excel_ent_catalog_map = static function ( $packages, $group, $note ) {
+	$out = array();
+	foreach ( $packages as $package ) {
+		$mod = isset( $package['mod'] ) ? $package['mod'] : '';
+		$price_label = $package['price']['main'];
+		if ( ! empty( $package['price']['suffix'] ) ) {
+			$price_label .= ' ' . $package['price']['suffix'];
+		}
+		$out[ $group . '-' . $mod ] = array(
+			'id'       => $group . '-' . $mod,
+			'group'    => $group,
+			'name'     => $package['name'],
+			'main'     => $package['price']['main'],
+			'suffix'   => isset( $package['price']['suffix'] ) ? $package['price']['suffix'] : '',
+			'alt'      => isset( $package['price']['alt'] ) ? $package['price']['alt'] : '',
+			'note'     => $note,
+			'features' => $package['features'],
+			'label'    => sprintf(
+				/* translators: 1: package name, 2: price */
+				__( '%1$s from %2$s', 'excel-ent' ),
+				$package['name'],
+				$price_label
+			),
+		);
+	}
+	return $out;
+};
+
+$excel_ent_compare_catalog = array_merge(
+	$excel_ent_catalog_map( $excel_ent_wedding, 'wedding', $excel_ent_note ),
+	$excel_ent_catalog_map( $excel_ent_bulk, 'bulk', $excel_ent_note )
+);
+$excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 ?>
 
 <section class="package-intro" aria-label="<?php esc_attr_e( 'Event packages', 'excel-ent' ); ?>" data-package-tabs>
 	<header class="package-intro__header">
 		<h1 class="package-intro__title"><?php esc_html_e( 'PACKAGES', 'excel-ent' ); ?></h1>
+		<p class="package-intro__lede">
+			<?php esc_html_e( "From intimate gallery openings to stadium-scale productions, we've designed our tiers to be the foundation of a memorable experience. Pick your base, then let's get specific.", 'excel-ent' ); ?>
+		</p>
 		<div class="package-intro__tabs" role="tablist" aria-label="<?php esc_attr_e( 'Package types', 'excel-ent' ); ?>">
 			<button
 				type="button"
@@ -244,7 +306,7 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index ) {
 		</p>
 		<div class="package-grid stagger">
 			<?php foreach ( $excel_ent_wedding as $excel_ent_i => $excel_ent_pkg ) : ?>
-				<?php $excel_ent_render_card( $excel_ent_pkg, $excel_ent_note, $excel_ent_quote, $excel_ent_i ); ?>
+				<?php $excel_ent_render_card( $excel_ent_pkg, $excel_ent_note, $excel_ent_quote, $excel_ent_i, 'wedding' ); ?>
 			<?php endforeach; ?>
 		</div>
 	</div>
@@ -262,11 +324,115 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index ) {
 		</p>
 		<div class="package-grid stagger">
 			<?php foreach ( $excel_ent_bulk as $excel_ent_i => $excel_ent_pkg ) : ?>
-				<?php $excel_ent_render_card( $excel_ent_pkg, $excel_ent_note, $excel_ent_quote, $excel_ent_i ); ?>
+				<?php $excel_ent_render_card( $excel_ent_pkg, $excel_ent_note, $excel_ent_quote, $excel_ent_i, 'bulk' ); ?>
 			<?php endforeach; ?>
 		</div>
 	</div>
 </section>
+
+<script type="application/json" data-package-catalog><?php echo wp_json_encode( $excel_ent_compare_catalog ); ?></script>
+
+<!-- Compare modal (Figma 1023:10785 / 1023:10826) -->
+<div class="package-compare" data-package-compare hidden>
+	<div class="package-compare__backdrop" data-package-compare-close tabindex="-1"></div>
+	<div
+		class="package-compare__dialog"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="package-compare-title"
+		data-package-compare-dialog
+	>
+		<header class="package-compare__bar">
+			<button type="button" class="package-compare__close-text" data-package-compare-close>
+				<?php esc_html_e( 'Close', 'excel-ent' ); ?>
+			</button>
+			<button
+				type="button"
+				class="package-compare__close-icon"
+				aria-label="<?php esc_attr_e( 'Close compare', 'excel-ent' ); ?>"
+				data-package-compare-close
+			>
+				<img src="<?php echo esc_url( $excel_ent_pkg_uri . '/close-x.svg' ); ?>" alt="" width="24" height="24" decoding="async">
+			</button>
+		</header>
+
+		<div class="package-compare__scroll">
+			<div class="package-compare__pickers">
+				<div class="package-compare__picker-wrap">
+					<button type="button" class="package-compare__picker package-compare__picker--a is-filled" data-compare-picker="a" aria-haspopup="listbox" aria-expanded="false">
+						<span class="package-compare__picker-meta">
+							<span class="package-compare__picker-label"><?php esc_html_e( 'Option A', 'excel-ent' ); ?></span>
+							<span class="package-compare__picker-value" data-compare-a-name><?php esc_html_e( 'Bronze', 'excel-ent' ); ?></span>
+						</span>
+						<img class="package-compare__picker-chevron package-compare__picker-chevron--white" src="<?php echo esc_url( $excel_ent_pkg_uri . '/arrow-drop-down-white.svg' ); ?>" alt="" width="24" height="24" decoding="async">
+						<img class="package-compare__picker-chevron package-compare__picker-chevron--dark" src="<?php echo esc_url( $excel_ent_pkg_uri . '/arrow-drop-down.svg' ); ?>" alt="" width="24" height="24" decoding="async" hidden>
+					</button>
+					<ul class="package-compare__menu" data-compare-menu="a" role="listbox" hidden></ul>
+				</div>
+
+				<button type="button" class="package-compare__swap" data-compare-swap aria-label="<?php esc_attr_e( 'Swap packages', 'excel-ent' ); ?>">
+					<img src="<?php echo esc_url( $excel_ent_pkg_uri . '/arrow-left-right.svg' ); ?>" alt="" width="24" height="24" decoding="async">
+				</button>
+
+				<div class="package-compare__picker-wrap">
+					<button type="button" class="package-compare__picker package-compare__picker--b" data-compare-picker="b" aria-haspopup="listbox" aria-expanded="false">
+						<span class="package-compare__picker-meta">
+							<span class="package-compare__picker-label"><?php esc_html_e( 'Option B', 'excel-ent' ); ?></span>
+							<span class="package-compare__picker-value" data-compare-b-name><?php esc_html_e( 'Select', 'excel-ent' ); ?></span>
+						</span>
+						<img class="package-compare__picker-chevron package-compare__picker-chevron--white" src="<?php echo esc_url( $excel_ent_pkg_uri . '/arrow-drop-down-white.svg' ); ?>" alt="" width="24" height="24" decoding="async" hidden>
+						<img class="package-compare__picker-chevron package-compare__picker-chevron--dark" src="<?php echo esc_url( $excel_ent_pkg_uri . '/arrow-drop-down.svg' ); ?>" alt="" width="24" height="24" decoding="async">
+					</button>
+					<ul class="package-compare__menu" data-compare-menu="b" role="listbox" hidden></ul>
+				</div>
+			</div>
+
+			<div class="package-compare__panels" data-compare-panels>
+				<article class="package-compare__panel" data-compare-panel="a" id="package-compare-title">
+					<header class="package-compare__panel-head">
+						<h3 class="package-compare__panel-name" data-compare-name></h3>
+						<p class="package-compare__panel-from"><?php esc_html_e( 'Prices start from:', 'excel-ent' ); ?></p>
+					</header>
+					<div class="package-compare__panel-price">
+						<p class="package-compare__panel-amount">
+							<span data-compare-main></span>
+							<span class="package-compare__panel-suffix" data-compare-suffix></span>
+						</p>
+						<p class="package-compare__panel-note" data-compare-note></p>
+					</div>
+					<div class="package-compare__panel-includes">
+						<p><?php esc_html_e( 'This includes:', 'excel-ent' ); ?></p>
+						<ul data-compare-features></ul>
+					</div>
+					<button type="button" class="package-compare__enquiry" data-compare-enquiry data-side="a">
+						<?php esc_html_e( 'Start Enquiry', 'excel-ent' ); ?>
+					</button>
+				</article>
+
+				<article class="package-compare__panel" data-compare-panel="b" hidden>
+					<header class="package-compare__panel-head">
+						<h3 class="package-compare__panel-name" data-compare-name></h3>
+						<p class="package-compare__panel-from"><?php esc_html_e( 'Prices start from:', 'excel-ent' ); ?></p>
+					</header>
+					<div class="package-compare__panel-price">
+						<p class="package-compare__panel-amount">
+							<span data-compare-main></span>
+							<span class="package-compare__panel-suffix" data-compare-suffix></span>
+						</p>
+						<p class="package-compare__panel-note" data-compare-note></p>
+					</div>
+					<div class="package-compare__panel-includes">
+						<p><?php esc_html_e( 'This includes:', 'excel-ent' ); ?></p>
+						<ul data-compare-features></ul>
+					</div>
+					<button type="button" class="package-compare__enquiry" data-compare-enquiry data-side="b">
+						<?php esc_html_e( 'Start Enquiry', 'excel-ent' ); ?>
+					</button>
+				</article>
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Enquiry modal (Figma 1101:3152) -->
 <div class="package-enquiry" data-package-enquiry-modal hidden>

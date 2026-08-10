@@ -101,8 +101,10 @@
 	display: flex;
 	align-items: stretch;
 	width: 100%;
+	min-height: 674px;
 	height: 674px;
 	box-sizing: border-box;
+	overflow: visible;
 }
 
 .services-grid {
@@ -110,7 +112,7 @@
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	grid-template-rows: repeat(2, minmax(0, 1fr));
 	width: 531px;
-	height: 100%;
+	align-self: stretch;
 	flex-shrink: 0;
 }
 
@@ -205,7 +207,7 @@
 	position: relative;
 	flex: 1 1 0;
 	min-width: 0;
-	height: 100%;
+	align-self: stretch;
 	overflow: hidden;
 	color: #fff;
 }
@@ -238,10 +240,11 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-	gap: 420px;
+	gap: 32px;
 	box-sizing: border-box;
 	width: 100%;
 	height: 100%;
+	min-height: 100%;
 	padding: 40px 60px;
 }
 
@@ -340,9 +343,19 @@
 	box-sizing: border-box;
 	border: 0;
 	border-bottom: 2px solid #f89a42;
-	background-image: var(
-		--ee-quote-gradient,
-		linear-gradient(270deg, #eb2055 0.48%, #f1634c 80%, #f8a742 100%)
+	background-image: linear-gradient(
+		270deg,
+		#eb2055 0.48%,
+		#eb2454 17.67%,
+		#ec2654 26.26%,
+		#ec2854 34.86%,
+		#ec2d53 40.07%,
+		#ed3153 41.72%,
+		#ed3153 53.85%,
+		#ed3951 58.17%,
+		#ee4250 69.71%,
+		#f1634c 80.29%,
+		#f8a742 100%
 	);
 	box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
@@ -358,7 +371,7 @@
 	flex-shrink: 0;
 }
 
-.service-featured__cta-label--mobile {
+.service-featured__cta--mobile {
 	display: none;
 }
 
@@ -417,6 +430,10 @@
 	color: #fff;
 }
 
+.service-featured__title-text--mobile {
+	display: none;
+}
+
 .service-featured__subtitle {
 	display: none;
 	font-size: 12px;
@@ -448,11 +465,13 @@
 	}
 
 	.services-section__grid {
-		height: 560px;
+		height: auto;
+		min-height: 560px;
 	}
 
 	.services-grid {
 		width: min(420px, 38%);
+		min-height: 560px;
 	}
 
 	.service-card__name {
@@ -464,8 +483,9 @@
 	}
 
 	.service-featured__inner {
-		gap: 240px;
+		gap: 32px;
 		padding: 32px 40px;
+		min-height: 560px;
 	}
 
 	.service-featured__price,
@@ -701,12 +721,12 @@
 		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
 	}
 
-	.service-featured__cta-label--desktop {
+	.service-featured__cta--desktop {
 		display: none;
 	}
 
-	.service-featured__cta-label--mobile {
-		display: inline;
+	.service-featured__cta--mobile {
+		display: inline-flex;
 	}
 
 	.service-featured__bottom {
@@ -742,6 +762,14 @@
 		font-size: 24px;
 		gap: 10px;
 		align-items: flex-end;
+	}
+
+	.service-featured__title-text--desktop {
+		display: none;
+	}
+
+	.service-featured__title-text--mobile {
+		display: inline;
 	}
 
 	.service-featured__subtitle {
@@ -793,7 +821,74 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.service-card__image,
-	.service-featured__image {
+	.service-featured__image,
+	.service-swap-flyer,
+	.service-card.is-swap-in .service-card__content,
+	.service-featured.is-swap-in .service-featured__inner {
 		transition: none !important;
+		animation: none !important;
+	}
+}
+
+/* Shared swap animation (desktop hover + mobile/tablet tap) */
+.services-section.is-swapping .service-card,
+.services-section.is-swapping .service-featured {
+	pointer-events: none;
+}
+
+.service-card.is-swap-ghost .service-card__image,
+.service-card.is-swap-ghost .service-card__overlay,
+.service-card.is-swap-ghost .service-card__content,
+.service-featured.is-swap-ghost .service-featured__image,
+.service-featured.is-swap-ghost .service-featured__overlay,
+.service-featured.is-swap-ghost .service-featured__inner {
+	opacity: 0 !important;
+	transition: none !important;
+}
+
+.service-card.is-swap-in .service-card__content,
+.service-featured.is-swap-in .service-featured__inner {
+	animation: service-swap-fade-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.service-card.is-swap-in .service-card__image,
+.service-featured.is-swap-in .service-featured__image {
+	animation: service-swap-fade-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (min-width: 1200px) {
+	.services-section.is-swapping {
+		cursor: progress;
+	}
+}
+
+.service-swap-flyer {
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.service-swap-flyer__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center;
+	display: block;
+	transform: none !important;
+}
+
+.service-swap-flyer__shade {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.35);
+	pointer-events: none;
+}
+
+@keyframes service-swap-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
 	}
 }

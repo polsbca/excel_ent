@@ -1,6 +1,6 @@
 <?php
 /**
- * About page content — Figma 1126:1218
+ * About page content — Figma desktop 1126:1218 / mobile 1023:8454
  *
  * @package Excel_Ent
  */
@@ -85,6 +85,8 @@ $excel_ent_review_seed = array(
 for ( $excel_ent_ri = 0; $excel_ent_ri < 12; $excel_ent_ri++ ) {
 	$excel_ent_reviews[] = $excel_ent_review_seed[ $excel_ent_ri % count( $excel_ent_review_seed ) ];
 }
+
+$excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment+reviews';
 ?>
 
 <!-- Intro -->
@@ -94,14 +96,31 @@ for ( $excel_ent_ri = 0; $excel_ent_ri < 12; $excel_ent_ri++ ) {
 		<p class="about-intro__eyebrow"><?php esc_html_e( 'Trusted · Experienced · Personal', 'excel-ent' ); ?></p>
 	</header>
 
-	<div class="about-intro__grid">
-		<div class="about-intro__copy">
-			<h2 class="about-intro__heading"><?php esc_html_e( 'Entertainment Without Compromise', 'excel-ent' ); ?></h2>
-			<p class="about-intro__lede">
-				<?php esc_html_e( "Excel Entertainment isn't just an entertainment agency, we're the team behind unforgettable experiences. We specialise in delivering high-quality, fully vetted entertainment solutions designed to help venues increase footfall, customer retention, and bar revenue through structured and reliable live entertainment.", 'excel-ent' ); ?>
-			</p>
-		</div>
+	<!-- Mobile media strip — Figma 1023:8503 -->
+	<div class="about-intro__media" aria-hidden="false">
+		<figure class="about-intro__media-item">
+			<img
+				src="<?php echo esc_url( $excel_ent_uri . '/hero-mobile-1.jpg' ); ?>"
+				alt=""
+				width="330"
+				height="363"
+				decoding="async"
+				fetchpriority="high"
+			>
+		</figure>
+		<figure class="about-intro__media-item">
+			<img
+				src="<?php echo esc_url( $excel_ent_uri . '/hero-mobile-2.jpg' ); ?>"
+				alt=""
+				width="330"
+				height="363"
+				decoding="async"
+				loading="lazy"
+			>
+		</figure>
+	</div>
 
+	<div class="about-intro__body">
 		<div class="about-intro__collage">
 			<div class="about-intro__collage-main">
 				<img
@@ -130,6 +149,13 @@ for ( $excel_ent_ri = 0; $excel_ent_ri < 12; $excel_ent_ri++ ) {
 					loading="lazy"
 				>
 			</div>
+		</div>
+
+		<div class="about-intro__copy">
+			<h2 class="about-intro__heading"><?php esc_html_e( 'Entertainment Without Compromise', 'excel-ent' ); ?></h2>
+			<p class="about-intro__lede">
+				<?php esc_html_e( "Excel Entertainment isn't just an entertainment agency, we're the team behind unforgettable experiences. We specialise in delivering high-quality, fully vetted entertainment solutions designed to help venues increase footfall, customer retention, and bar revenue through structured and reliable live entertainment.", 'excel-ent' ); ?>
+			</p>
 		</div>
 	</div>
 </section>
@@ -268,11 +294,20 @@ for ( $excel_ent_ri = 0; $excel_ent_ri < 12; $excel_ent_ri++ ) {
 <section class="about-reviews" aria-label="<?php esc_attr_e( 'Client reviews', 'excel-ent' ); ?>" data-about-reviews>
 	<div class="about-reviews__main">
 		<div class="about-reviews__heading reveal" data-reveal>
-			<h2 class="about-reviews__title">
+			<h2 class="about-reviews__title about-reviews__title--desktop">
 				<span><?php esc_html_e( 'OUR', 'excel-ent' ); ?></span>
 				<span><?php esc_html_e( 'HAPPY', 'excel-ent' ); ?></span>
 				<span><?php esc_html_e( 'CLIENTS!', 'excel-ent' ); ?></span>
 			</h2>
+			<h2 class="about-reviews__title about-reviews__title--mobile"><?php esc_html_e( 'Loved by Clients', 'excel-ent' ); ?></h2>
+			<a
+				class="about-reviews__google magnetic"
+				href="<?php echo esc_url( $excel_ent_google_reviews ); ?>"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				<?php esc_html_e( 'Read Google Reviews', 'excel-ent' ); ?>
+			</a>
 			<span class="about-reviews__rule" aria-hidden="true"></span>
 		</div>
 
@@ -288,7 +323,15 @@ for ( $excel_ent_ri = 0; $excel_ent_ri < 12; $excel_ent_ri++ ) {
 						<blockquote class="about-reviews__quote">
 							<p><?php echo esc_html( $excel_ent_review['quote'] ); ?></p>
 						</blockquote>
-						<p class="about-reviews__author"><?php echo esc_html( $excel_ent_review['author'] ); ?></p>
+						<div class="about-reviews__meta">
+							<span class="about-reviews__avatar" aria-hidden="true">
+								<?php echo esc_html( strtoupper( substr( $excel_ent_review['author'], 0, 1 ) ) ); ?>
+							</span>
+							<div class="about-reviews__meta-copy">
+								<p class="about-reviews__author"><?php echo esc_html( $excel_ent_review['author'] ); ?></p>
+								<p class="about-reviews__stars" aria-label="<?php esc_attr_e( '5 star rating', 'excel-ent' ); ?>">_ _ _ _ _</p>
+							</div>
+						</div>
 					</article>
 				<?php endforeach; ?>
 			</div>

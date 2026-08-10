@@ -1,4 +1,4 @@
-/* Excel Ent — Search no-results (Figma 1299:11348 / 1299:11417) */
+/* Excel Ent — Search no-results (Figma 1299:11348 / empty 1299:11417 / mobile 1053:4365) */
 
 .search-page {
 	display: flex;
@@ -206,20 +206,38 @@
 }
 
 @media (max-width: 767px) {
+	/* Figma 1053:4365 — no filter chips on mobile empty state */
 	.search-page__chips-bar {
-		padding: 20px;
+		display: none;
 	}
 
 	.search-empty {
-		gap: 48px;
-		padding: 56px 20px;
+		gap: 120px;
+		padding: 60px 24px 100px;
+	}
+
+	.search-empty__visual {
+		max-width: 190px;
+	}
+
+	.search-empty__illustration {
+		max-width: 190px;
+	}
+
+	.search-empty__copy {
+		gap: 60px;
+		padding: 0;
+		max-width: none;
 	}
 
 	.search-empty__title {
 		font-size: 32px;
+		letter-spacing: 1px;
 	}
 
 	.search-empty__lede {
 		font-size: 16px;
+		letter-spacing: 1px;
+		max-width: none;
 	}
 }

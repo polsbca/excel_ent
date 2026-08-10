@@ -1,6 +1,6 @@
 <?php
 /**
- * Artist profile page content — Figma 1113:872
+ * Artist profile page content — Figma 1113:872 / mobile 1023:10057
  *
  * @package Excel_Ent
  */
@@ -158,18 +158,20 @@ $excel_ent_similar = array(
 		</div>
 
 		<div class="artist-hero__details">
-			<div class="artist-hero__pricing">
-				<p class="artist-hero__price"><?php esc_html_e( '£600', 'excel-ent' ); ?></p>
-				<p class="artist-hero__price-note">
-					<?php esc_html_e( 'Price varies by event type, duration & location. Request a tailored quote for your event.', 'excel-ent' ); ?>
-				</p>
-			</div>
+			<div class="artist-hero__price-info">
+				<div class="artist-hero__pricing">
+					<p class="artist-hero__price"><?php esc_html_e( '£600', 'excel-ent' ); ?></p>
+					<p class="artist-hero__price-note">
+						<?php esc_html_e( 'Price varies by event type, duration & location. Request a tailored quote for your event.', 'excel-ent' ); ?>
+					</p>
+				</div>
 
-			<ul class="artist-hero__perks">
-				<?php foreach ( $excel_ent_perks as $excel_ent_perk ) : ?>
-					<li><?php echo esc_html( $excel_ent_perk ); ?></li>
-				<?php endforeach; ?>
-			</ul>
+				<ul class="artist-hero__perks">
+					<?php foreach ( $excel_ent_perks as $excel_ent_perk ) : ?>
+						<li><?php echo esc_html( $excel_ent_perk ); ?></li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
 
 			<div class="artist-hero__rating">
 				<span class="artist-hero__approved artist-hero__approved--inline">
@@ -491,46 +493,48 @@ $excel_ent_similar = array(
 						</button>
 					</div>
 					<div class="explore-artist-card__body">
-						<div class="explore-artist-card__meta">
-							<span class="explore-artist-card__status explore-artist-card__status--<?php echo esc_attr( $excel_ent_artist['status_mod'] ); ?>">
-								<?php echo esc_html( $excel_ent_artist['status'] ); ?>
-							</span>
-							<span class="explore-artist-card__rating">
-								<img src="<?php echo esc_url( $excel_ent_ea . '/star.svg' ); ?>" alt="" width="18" height="18" decoding="async">
-								<?php
-								printf(
-									/* translators: %s: rating value */
-									esc_html__( '%s Rating', 'excel-ent' ),
-									esc_html( $excel_ent_artist['rating'] )
-								);
-								?>
-							</span>
-							<span class="explore-artist-card__location">
-								<img src="<?php echo esc_url( $excel_ent_ea . '/map-pin.svg' ); ?>" alt="" width="18" height="18" decoding="async">
-								<?php echo esc_html( $excel_ent_artist['location'] ); ?>
-							</span>
+						<div class="explore-artist-card__content">
+							<div class="explore-artist-card__meta">
+								<span class="explore-artist-card__status explore-artist-card__status--<?php echo esc_attr( $excel_ent_artist['status_mod'] ); ?>">
+									<?php echo esc_html( $excel_ent_artist['status'] ); ?>
+								</span>
+								<span class="explore-artist-card__rating">
+									<img src="<?php echo esc_url( $excel_ent_ea . '/star.svg' ); ?>" alt="" width="18" height="18" decoding="async">
+									<?php
+									printf(
+										/* translators: %s: rating value */
+										esc_html__( '%s Rating', 'excel-ent' ),
+										esc_html( $excel_ent_artist['rating'] )
+									);
+									?>
+								</span>
+								<span class="explore-artist-card__location">
+									<img src="<?php echo esc_url( $excel_ent_ea . '/map-pin.svg' ); ?>" alt="" width="18" height="18" decoding="async">
+									<?php echo esc_html( $excel_ent_artist['location'] ); ?>
+								</span>
+							</div>
+							<div class="explore-artist-card__identity">
+								<h3 class="explore-artist-card__name"><?php echo esc_html( $excel_ent_artist['name'] ); ?></h3>
+								<p class="explore-artist-card__price">
+									<strong><?php echo esc_html( $excel_ent_artist['price'] ); ?></strong>
+									<span><?php esc_html_e( 'Starting From', 'excel-ent' ); ?></span>
+								</p>
+							</div>
+							<ul class="explore-artist-card__tags">
+								<?php foreach ( $excel_ent_artist['tags'] as $excel_ent_tag ) : ?>
+									<li><?php echo esc_html( $excel_ent_tag ); ?></li>
+								<?php endforeach; ?>
+								<li class="explore-artist-card__tag-more" aria-hidden="true">
+									<img
+										src="<?php echo esc_url( $excel_ent_ea . '/add-fill.svg' ); ?>"
+										alt=""
+										width="13"
+										height="13"
+										decoding="async"
+									>
+								</li>
+							</ul>
 						</div>
-						<div class="explore-artist-card__identity">
-							<h3 class="explore-artist-card__name"><?php echo esc_html( $excel_ent_artist['name'] ); ?></h3>
-							<p class="explore-artist-card__price">
-								<strong><?php echo esc_html( $excel_ent_artist['price'] ); ?></strong>
-								<span><?php esc_html_e( 'Starting From', 'excel-ent' ); ?></span>
-							</p>
-						</div>
-						<ul class="explore-artist-card__tags">
-							<?php foreach ( $excel_ent_artist['tags'] as $excel_ent_tag ) : ?>
-								<li><?php echo esc_html( $excel_ent_tag ); ?></li>
-							<?php endforeach; ?>
-							<li class="explore-artist-card__tag-more" aria-hidden="true">
-								<img
-									src="<?php echo esc_url( $excel_ent_ea . '/add-fill.svg' ); ?>"
-									alt=""
-									width="13"
-									height="13"
-									decoding="async"
-								>
-							</li>
-						</ul>
 						<div class="explore-artist-card__actions">
 							<a class="explore-artist-card__btn explore-artist-card__btn--profile magnetic" href="<?php echo esc_url( $excel_ent_profile ); ?>">
 								<?php esc_html_e( 'View Profile', 'excel-ent' ); ?>

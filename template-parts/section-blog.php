@@ -1,13 +1,15 @@
 <?php
 /**
- * Latest from the Blog section (Figma 1173:70215).
+ * Latest from the Blog section + detail modal (Figma 1173:70215 / 1023:6274).
  *
  * @package Excel_Ent
  */
 
-$excel_ent_blog_uri  = EXCEL_ENT_URI . '/assets/images/blog';
-$excel_ent_blog_url  = get_permalink( get_option( 'page_for_posts' ) );
-$excel_ent_blog_url  = $excel_ent_blog_url ? $excel_ent_blog_url : home_url( '/blog/' );
+$excel_ent_blog_uri = EXCEL_ENT_URI . '/assets/images/blog';
+$excel_ent_blog_url = get_permalink( get_option( 'page_for_posts' ) );
+$excel_ent_blog_url = $excel_ent_blog_url ? $excel_ent_blog_url : home_url( '/blog/' );
+
+$excel_ent_blog_demo_body = '<p>' . esc_html__( 'Great pub nights don\'t happen by accident. The right DJ knows how to read a room, shift the energy at the right moment, and keep drinkers on their feet without pushing them out the door. Start by defining the vibe. A sports pub crowd wants sing-along anthems and 80s classics; a cocktail-driven venue leans towards deep house and disco cuts. Share your typical crowd age and peak hours before you book.', 'excel-ent' ) . '</p><p>' . esc_html__( 'Ask for references, watch a live clip, and always sign a written agreement covering set times, equipment, and cancellation. A professional DJ will welcome the paperwork — it\'s a sign they treat your venue seriously.', 'excel-ent' ) . '</p>';
 
 $excel_ent_blog_query = new WP_Query(
 	array(
@@ -29,6 +31,11 @@ if ( $excel_ent_blog_query->have_posts() ) {
 		$excel_ent_category   = get_the_category();
 		$excel_ent_cat_name   = ! empty( $excel_ent_category[0] ) ? $excel_ent_category[0]->name : __( 'Blog', 'excel-ent' );
 		$excel_ent_thumb      = get_the_post_thumbnail_url( get_the_ID(), 'large' );
+		$excel_ent_content    = apply_filters( 'the_content', get_the_content() );
+
+		if ( '' === trim( wp_strip_all_tags( $excel_ent_content ) ) ) {
+			$excel_ent_content = $excel_ent_blog_demo_body;
+		}
 
 		$excel_ent_blog_posts[] = array(
 			'title'    => get_the_title(),
@@ -42,6 +49,7 @@ if ( $excel_ent_blog_query->have_posts() ) {
 			'category' => $excel_ent_cat_name,
 			'image'    => $excel_ent_thumb ? $excel_ent_thumb : $excel_ent_blog_uri . '/post-1.jpg',
 			'url'      => get_permalink(),
+			'content'  => $excel_ent_content,
 		);
 	}
 	wp_reset_postdata();
@@ -55,6 +63,7 @@ if ( empty( $excel_ent_blog_posts ) ) {
 		'read'     => __( '5 min read', 'excel-ent' ),
 		'category' => __( 'Pub Night', 'excel-ent' ),
 		'url'      => $excel_ent_blog_url,
+		'content'  => $excel_ent_blog_demo_body . $excel_ent_blog_demo_body . $excel_ent_blog_demo_body,
 	);
 
 	for ( $excel_ent_i = 0; $excel_ent_i < 9; $excel_ent_i++ ) {
@@ -117,9 +126,23 @@ $excel_ent_blog_total = count( $excel_ent_blog_posts );
 						<p class="blog-card__excerpt"><?php echo esc_html( $excel_ent_post['excerpt'] ); ?></p>
 					</div>
 
-					<a class="blog-card__cta magnetic" href="<?php echo esc_url( $excel_ent_post['url'] ); ?>">
+					<button
+						type="button"
+						class="blog-card__cta magnetic"
+						data-blog-modal-open
+						data-blog-title="<?php echo esc_attr( $excel_ent_post['title'] ); ?>"
+						data-blog-excerpt="<?php echo esc_attr( $excel_ent_post['excerpt'] ); ?>"
+						data-blog-date="<?php echo esc_attr( $excel_ent_post['date'] ); ?>"
+						data-blog-read="<?php echo esc_attr( $excel_ent_post['read'] ); ?>"
+						data-blog-category="<?php echo esc_attr( $excel_ent_post['category'] ); ?>"
+						data-blog-image="<?php echo esc_url( $excel_ent_post['image'] ); ?>"
+					>
 						<?php esc_html_e( 'Read Article', 'excel-ent' ); ?>
-					</a>
+					</button>
+
+					<template data-blog-content>
+						<?php echo $excel_ent_post['content']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- post content / curated demo HTML. ?>
+					</template>
 				</article>
 			<?php endforeach; ?>
 		</div>
@@ -155,3 +178,62 @@ $excel_ent_blog_total = count( $excel_ent_blog_posts );
 		</div>
 	</div>
 </section>
+
+<div class="blog-modal" data-blog-modal hidden>
+	<button type="button" class="blog-modal__backdrop" data-blog-modal-close aria-label="<?php esc_attr_e( 'Close article', 'excel-ent' ); ?>"></button>
+
+	<div class="blog-modal__shell">
+		<div
+			class="blog-modal__dialog"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="blog-modal-title"
+			data-blog-modal-dialog
+			tabindex="-1"
+		>
+			<div class="blog-modal__hero">
+				<img
+					class="blog-modal__image"
+					src=""
+					alt=""
+					width="1480"
+					height="338"
+					decoding="async"
+					data-blog-modal-image
+				>
+				<div class="blog-modal__hero-bar">
+					<span class="blog-modal__badge" data-blog-modal-category></span>
+					<div class="blog-modal__meta">
+						<span class="blog-modal__meta-item">
+							<img src="<?php echo esc_url( $excel_ent_blog_uri . '/calendar-fill.svg' ); ?>" alt="" width="24" height="24" decoding="async">
+							<span data-blog-modal-date></span>
+						</span>
+						<span class="blog-modal__meta-item">
+							<img src="<?php echo esc_url( $excel_ent_blog_uri . '/time-fill.svg' ); ?>" alt="" width="24" height="24" decoding="async">
+							<span data-blog-modal-read></span>
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="blog-modal__main">
+				<div class="blog-modal__scroll" data-blog-modal-scroll>
+					<header class="blog-modal__intro">
+						<h2 class="blog-modal__title" id="blog-modal-title" data-blog-modal-title></h2>
+						<p class="blog-modal__excerpt" data-blog-modal-excerpt></p>
+					</header>
+					<div class="blog-modal__content" data-blog-modal-content></div>
+				</div>
+			</div>
+		</div>
+
+		<button
+			type="button"
+			class="blog-modal__close magnetic"
+			data-blog-modal-close
+			aria-label="<?php esc_attr_e( 'Close article', 'excel-ent' ); ?>"
+		>
+			<img src="<?php echo esc_url( $excel_ent_blog_uri . '/close-large-line.svg' ); ?>" alt="" width="24" height="24" decoding="async">
+		</button>
+	</div>
+</div>

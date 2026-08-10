@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Package
- * Packages page — Figma 1126:2252
+ * Packages page — Figma 1126:2252 / mobile 1023:10624
  *
  * @package Excel_Ent
  */

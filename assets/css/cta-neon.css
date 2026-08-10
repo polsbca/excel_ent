@@ -268,11 +268,12 @@
 		flex: 1 1 0;
 		min-width: 0;
 		width: auto;
-		padding: 20px;
-		font-size: 16px;
+		padding: 20px 12px;
+		font-size: 14px;
 		text-align: center;
-		white-space: nowrap;
+		white-space: normal;
 		justify-content: center;
+		line-height: 1.2;
 	}
 
 	.cta-neon__btn--outline {
