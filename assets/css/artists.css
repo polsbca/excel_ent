@@ -147,6 +147,7 @@
 	border: 2px solid #eb2055;
 	font-weight: 700;
 	color: #fff;
+	-webkit-text-fill-color: #fff;
 }
 
 .artists-filter--link img {
@@ -162,11 +163,18 @@
 	color: inherit;
 }
 
+.artists-filter--active:hover,
+.artists-filter--active:focus-visible {
+	color: #fff;
+	-webkit-text-fill-color: #fff;
+}
+
 /* Carousel */
 .artists-section__carousel {
 	width: 100%;
 	overflow: hidden;
 	padding: 0 40px;
+	touch-action: pan-y;
 }
 
 .artists-section__track {
@@ -787,6 +795,7 @@
 		background: #000;
 		font-weight: 700;
 		color: #fff;
+		-webkit-text-fill-color: #fff;
 	}
 
 	.artists-filter--link {

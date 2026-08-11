@@ -111,6 +111,15 @@ function excel_ent_enqueue_assets() {
 		EXCEL_ENT_VERSION
 	);
 
+	if ( is_front_page() ) {
+		wp_enqueue_style(
+			'excel-ent-front-page-tablet',
+			EXCEL_ENT_URI . '/assets/css/front-page-tablet.css',
+			array( 'excel-ent-cta-neon' ),
+			EXCEL_ENT_VERSION
+		);
+	}
+
 	wp_enqueue_style(
 		'excel-ent-explore-artists',
 		EXCEL_ENT_URI . '/assets/css/explore-artists.css',

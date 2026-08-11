@@ -72,16 +72,17 @@ $excel_ent_venues = array(
 					<?php esc_html_e( 'From intimate local pubs to large golf clubs and luxury hotels — Excel supplies entertainment that fits the setting perfectly.', 'excel-ent' ); ?>
 				</p>
 			</div>
+		</header>
 
-			<div class="venues-section__aside">
+		<div class="venues-section__types">
+			<div class="venues-section__aside reveal" data-reveal>
 				<div class="venues-section__eyebrow">
 					<img src="<?php echo esc_url( $excel_ent_venues_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
 					<span><?php esc_html_e( 'Venue Types', 'excel-ent' ); ?></span>
 				</div>
 			</div>
-		</header>
 
-		<div class="venues-accordion" data-venues-accordion>
+			<div class="venues-accordion" data-venues-accordion>
 			<?php foreach ( $excel_ent_venues as $excel_ent_index => $excel_ent_venue ) : ?>
 				<?php
 				$excel_ent_is_active = ! empty( $excel_ent_venue['active'] );
@@ -156,6 +157,7 @@ $excel_ent_venues = array(
 					</div>
 				</article>
 			<?php endforeach; ?>
+		</div>
 		</div>
 	</div>
 </section>

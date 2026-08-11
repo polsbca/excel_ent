@@ -385,6 +385,21 @@
 	.blog-section__eyebrow {
 		width: 100%;
 		justify-content: flex-start;
+		gap: 7px;
+	}
+
+	.blog-section__eyebrow span {
+		order: -1;
+		flex-shrink: 0;
+	}
+
+	.blog-section__eyebrow img {
+		flex: 1 1 auto;
+		width: auto;
+		min-width: 0;
+		max-width: none;
+		height: 1px;
+		object-fit: fill;
 	}
 
 	.blog-section__track {

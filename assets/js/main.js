@@ -537,12 +537,21 @@
 			});
 		});
 
-		/* Touch / pointer swipe — Figma mobile 1037:904 */
+		/* Touch / pointer swipe — tablet + phone only (desktop uses arrows + wheel scroll) */
+		const isArtistsSwipe = () => window.matchMedia("(max-width: 1199px)").matches;
+
 		const bindArtistsSwipe = (panel) => {
 			if (!panel || panel.dataset.eeSwipeBound === "1") {
 				return;
 			}
 			panel.dataset.eeSwipeBound = "1";
+
+			const panelMode = panel.getAttribute("data-mode-panel") || activeMode;
+			const getPanelTrack = () => panel.querySelector("[data-artists-track]");
+			const getPanelVisible = () =>
+				Array.from(panel.querySelectorAll("[data-artists-card]")).filter(
+					(card) => !card.classList.contains("is-hidden")
+				);
 
 			let pointerId = null;
 			let startX = 0;
@@ -553,8 +562,8 @@
 			let baseOffset = 0;
 
 			const getOffset = () => {
-				const track = getTrack();
-				const visible = visibleCards();
+				const track = getPanelTrack();
+				const visible = getPanelVisible();
 				if (!track || !visible[0]) {
 					return 0;
 				}
@@ -564,6 +573,16 @@
 			};
 
 			const onDown = (e) => {
+				if (!isArtistsSwipe()) {
+					return;
+				}
+				if (
+					panel.hidden ||
+					panel.classList.contains("is-hidden") ||
+					panelMode !== activeMode
+				) {
+					return;
+				}
 				if (e.pointerType === "mouse" && e.button !== 0) {
 					return;
 				}
@@ -574,15 +593,10 @@
 				axis = null;
 				swiping = false;
 				baseOffset = getOffset();
-				try {
-					panel.setPointerCapture(e.pointerId);
-				} catch (err) {
-					/* ignore */
-				}
 			};
 
 			const onMove = (e) => {
-				if (pointerId !== e.pointerId) {
+				if (!isArtistsSwipe() || pointerId !== e.pointerId) {
 					return;
 				}
 				const dx = e.clientX - startX;
@@ -593,6 +607,17 @@
 						return;
 					}
 					axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+					if (axis === "y") {
+						pointerId = null;
+						axis = null;
+						return;
+					}
+					window.excelEntLenis?.stop();
+					try {
+						panel.setPointerCapture(e.pointerId);
+					} catch (err) {
+						/* ignore */
+					}
 				}
 
 				if (axis !== "x") {
@@ -601,7 +626,7 @@
 
 				swiping = true;
 				deltaX = dx;
-				const track = getTrack();
+				const track = getPanelTrack();
 				if (track) {
 					track.style.transition = "none";
 					track.style.transform = `translateX(${-(baseOffset - deltaX)}px)`;
@@ -609,13 +634,10 @@
 				e.preventDefault();
 			};
 
-			const onUp = (e) => {
-				if (pointerId !== e.pointerId) {
-					return;
-				}
-				pointerId = null;
+			const finishSwipe = () => {
+				window.excelEntLenis?.start();
 
-				const track = getTrack();
+				const track = getPanelTrack();
 				if (track) {
 					track.style.transition = "";
 				}
@@ -641,6 +663,14 @@
 				swiping = false;
 				deltaX = 0;
 				axis = null;
+			};
+
+			const onUp = (e) => {
+				if (pointerId === null || pointerId !== e.pointerId) {
+					return;
+				}
+				pointerId = null;
+				finishSwipe();
 			};
 
 			panel.addEventListener("pointerdown", onDown);
@@ -696,6 +726,7 @@
 		let index = cards.length > 2 ? 1 : 0;
 
 		const isBlogMobile = () => window.innerWidth <= 767;
+		const isBlogSwipe = () => window.innerWidth <= 1199;
 
 		const update = () => {
 			const total = cards.length;
@@ -710,8 +741,11 @@
 					const viewportWidth = viewport.getBoundingClientRect().width;
 					const offset = index * (cardWidth + gap) - (viewportWidth - cardWidth) / 2;
 					track.style.transform = `translateX(${-offset}px)`;
+				} else if (isBlogSwipe() && viewport) {
+					track.style.transform = `translateX(-${index * (cardWidth + gap)}px)`;
 				} else {
-					const visibleCount = window.innerWidth < 1200 ? 1 : 3;
+					const visibleCount =
+						window.innerWidth <= 767 ? 1 : window.innerWidth < 1200 ? 2 : 3;
 					const start = Math.max(
 						0,
 						Math.min(index - Math.floor(visibleCount / 2), cards.length - visibleCount)
@@ -773,7 +807,7 @@
 			};
 
 			const onDown = (e) => {
-				if (!isBlogMobile()) {
+				if (!isBlogSwipe()) {
 					return;
 				}
 				if (e.pointerType === "mouse" && e.button !== 0) {
@@ -794,7 +828,7 @@
 			};
 
 			const onMove = (e) => {
-				if (pointerId !== e.pointerId || !isBlogMobile()) {
+				if (pointerId !== e.pointerId || !isBlogSwipe()) {
 					return;
 				}
 				const dx = e.clientX - startX;
@@ -978,6 +1012,8 @@
 		const image = artistVenue.querySelector("[data-venue-image]");
 		const label = artistVenue.querySelector("[data-venue-label]");
 		const progress = artistVenue.querySelector("[data-venue-progress]");
+		const dotsRoot = artistVenue.querySelector("[data-venue-dots]");
+		const dots = [];
 
 		const render = () => {
 			const slide = slides[index];
@@ -994,7 +1030,30 @@
 			if (progress && slides.length) {
 				progress.style.width = `${((index + 1) / slides.length) * 100}%`;
 			}
+			dots.forEach((dot, i) => {
+				const active = i === index;
+				dot.classList.toggle("is-active", active);
+				dot.setAttribute("aria-current", active ? "true" : "false");
+			});
 		};
+
+		if (dotsRoot && slides.length) {
+			dotsRoot.hidden = false;
+			dotsRoot.setAttribute("role", "tablist");
+			dotsRoot.setAttribute("aria-label", "Performance gallery");
+			slides.forEach((slide, i) => {
+				const dot = document.createElement("button");
+				dot.type = "button";
+				dot.className = "artist-performance__dot";
+				dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
+				dot.addEventListener("click", () => {
+					index = i;
+					render();
+				});
+				dotsRoot.appendChild(dot);
+				dots.push(dot);
+			});
+		}
 
 		artistVenue.querySelector("[data-venue-prev]")?.addEventListener("click", () => {
 			if (!slides.length) {
@@ -1149,13 +1208,13 @@
 		const count = artistSimilar.querySelector("[data-similar-count]");
 		let index = 0;
 
-		const isMobile = () => window.matchMedia("(max-width: 767px)").matches;
+		const isSwipeCarousel = () => window.matchMedia("(max-width: 1199px)").matches;
 
 		const update = () => {
 			const max = Math.max(cards.length - 1, 0);
 			index = Math.min(Math.max(index, 0), max);
 
-			if (isMobile()) {
+			if (isSwipeCarousel()) {
 				if (track) {
 					track.style.transform = "";
 				}
@@ -1182,7 +1241,7 @@
 		};
 
 		const syncFromScroll = () => {
-			if (!isMobile() || !viewport || !cards.length) {
+			if (!isSwipeCarousel() || !viewport || !cards.length) {
 				return;
 			}
 			const pad = parseFloat(getComputedStyle(viewport).paddingLeft) || 0;
@@ -2762,10 +2821,10 @@
 		});
 	});
 
-	/* ---------- Footer accordion (phone) ---------- */
+	/* ---------- Footer accordion (phone + tablet) ---------- */
 	const footerAccordions = document.querySelectorAll("[data-footer-acc]");
 	if (footerAccordions.length) {
-		const isPhone = () => window.matchMedia("(max-width: 767px)").matches;
+		const isFooterAccordion = () => window.matchMedia("(max-width: 1199px)").matches;
 
 		footerAccordions.forEach((column) => {
 			const trigger = column.querySelector("[data-footer-trigger]");
@@ -2775,7 +2834,7 @@
 			}
 
 			trigger.addEventListener("click", () => {
-				if (!isPhone()) {
+				if (!isFooterAccordion()) {
 					return;
 				}
 

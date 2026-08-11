@@ -1,6 +1,6 @@
 <?php
 /**
- * Artist profile page content — Figma 1113:872 / mobile 1023:10057
+ * Artist profile page content — Figma 1113:872 / tablet 1099:3663 / mobile 1023:10057
  *
  * @package Excel_Ent
  */
@@ -132,7 +132,7 @@ $excel_ent_similar = array(
 <section class="artist-hero" aria-label="<?php esc_attr_e( 'Artist profile', 'excel-ent' ); ?>">
 	<div class="artist-hero__media">
 		<img
-			src="<?php echo esc_url( $excel_ent_uri . '/hero.jpg' ); ?>"
+			src="<?php echo esc_url( $excel_ent_uri . '/hero.webp' ); ?>"
 			alt="<?php esc_attr_e( 'Rose Sax', 'excel-ent' ); ?>"
 			width="851"
 			height="958"
@@ -268,6 +268,7 @@ $excel_ent_similar = array(
 			<div class="artist-performance__progress" aria-hidden="true">
 				<span class="artist-performance__progress-fill" data-venue-progress></span>
 			</div>
+			<div class="artist-performance__dots" data-venue-dots hidden></div>
 			<button class="artist-performance__arrow magnetic" type="button" data-venue-next aria-label="<?php esc_attr_e( 'Next venue', 'excel-ent' ); ?>">
 				<img src="<?php echo esc_url( $excel_ent_uri . '/arrow-right.svg' ); ?>" alt="" width="55" height="55" decoding="async">
 			</button>

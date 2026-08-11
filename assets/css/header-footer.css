@@ -3511,7 +3511,7 @@ body.mobile-search-open {
 	}
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1200px) {
 	.footer-column__icon {
 		display: none !important;
 	}
@@ -3519,5 +3519,404 @@ body.mobile-search-open {
 	.footer-column__panel,
 	.footer-column__panel[hidden] {
 		display: block !important;
+	}
+}
+
+/* Tablet — Figma 1083:582 (front page header + compact search) */
+@media (min-width: 768px) and (max-width: 1199px) {
+	body.home .site-header,
+	body.front-page .site-header {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		background: transparent;
+		backdrop-filter: none;
+	}
+
+	body.home .site-header__inner,
+	body.front-page .site-header__inner {
+		padding: 0 40px 30px;
+		gap: 34px;
+	}
+
+	body.home .site-header__bar,
+	body.front-page .site-header__bar {
+		padding: 30px 0 0;
+		gap: 20px;
+	}
+
+	body.home .site-logo--header .custom-logo,
+	body.home .site-logo--header img,
+	body.home .site-branding .custom-logo,
+	body.front-page .site-logo--header .custom-logo,
+	body.front-page .site-logo--header img,
+	body.front-page .site-branding .custom-logo {
+		width: 62px;
+		height: 39px;
+	}
+
+	body.home .nav-toggle,
+	body.front-page .nav-toggle {
+		width: 50px;
+		height: 50px;
+	}
+
+	body.home .btn-quote,
+	body.front-page .btn-quote {
+		font-size: 18px;
+		padding: 14px 24px;
+		height: auto;
+		min-height: 50px;
+		box-sizing: border-box;
+	}
+
+	body.home .header-search,
+	body.front-page .header-search {
+		display: flex !important;
+		gap: 10px;
+		padding: 10px 10px 10px 14px;
+		border-radius: 100px;
+	}
+
+	body.home .header-search-mobile,
+	body.front-page .header-search-mobile {
+		display: none !important;
+	}
+
+	.header-search__field {
+		gap: 10px;
+		padding: 0 10px;
+	}
+
+	.header-search__icon {
+		width: 20px;
+		height: 20px;
+	}
+
+	.header-search__title {
+		font-size: 16px;
+	}
+
+	.header-search__submit {
+		width: 34px;
+		height: 34px;
+		padding: 0;
+		border-radius: 50px;
+	}
+
+	.header-search__submit img {
+		width: 16px;
+		height: 16px;
+	}
+
+	body.home .site-header.is-nav-open .header-search,
+	body.front-page .site-header.is-nav-open .header-search {
+		display: none !important;
+	}
+
+	body.home .site-header.is-nav-open .header-search-mobile,
+	body.front-page .site-header.is-nav-open .header-search-mobile {
+		display: block !important;
+	}
+
+	/* Explore Artists header — Figma 1099:3174 */
+	body.page-template-page-explore-artists .site-header {
+		background: #000;
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+	}
+
+	body.page-template-page-explore-artists .site-header__inner {
+		padding: 0 40px 30px;
+		gap: 34px;
+	}
+
+	body.page-template-page-explore-artists .site-header__bar {
+		padding: 30px 0 0;
+		gap: 20px;
+	}
+
+	body.page-template-page-explore-artists .site-logo--header .custom-logo,
+	body.page-template-page-explore-artists .site-logo--header img,
+	body.page-template-page-explore-artists .site-branding .custom-logo {
+		width: 62px;
+		height: 39px;
+	}
+
+	body.page-template-page-explore-artists .nav-toggle {
+		width: 50px;
+		height: 50px;
+	}
+
+	body.page-template-page-explore-artists .btn-quote {
+		font-size: 18px;
+		padding: 14px 20px;
+		height: auto;
+		min-height: 50px;
+		box-sizing: border-box;
+	}
+
+	body.page-template-page-explore-artists .site-header__actions {
+		gap: 20px;
+	}
+
+	body.page-template-page-explore-artists .header-search-icon {
+		display: none !important;
+	}
+
+	/* Artist detail header — Figma 1099:4016 */
+	body.page-template-page-artist .site-header {
+		background: #000;
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+	}
+
+	body.page-template-page-artist .site-header__inner {
+		padding: 0 40px 30px;
+		gap: 0;
+	}
+
+	body.page-template-page-artist .site-header__bar {
+		padding: 30px 0 0;
+		gap: 20px;
+	}
+
+	body.page-template-page-artist .site-logo--header .custom-logo,
+	body.page-template-page-artist .site-logo--header img,
+	body.page-template-page-artist .site-branding .custom-logo {
+		width: 62px;
+		height: 39px;
+	}
+
+	body.page-template-page-artist .nav-toggle {
+		width: 50px;
+		height: 50px;
+	}
+
+	body.page-template-page-artist .btn-quote {
+		font-size: 18px;
+		padding: 14px 20px;
+		height: auto;
+		min-height: 50px;
+		box-sizing: border-box;
+	}
+
+	body.page-template-page-artist .site-header__actions {
+		gap: 20px;
+	}
+
+	body.page-template-page-artist .header-search-icon {
+		display: inline-flex !important;
+		width: 50px;
+		height: 50px;
+		border: 1px solid #fff;
+		border-radius: 30px;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		padding: 0;
+	}
+
+	body.page-template-page-artist .header-search-icon img {
+		width: 18px;
+		height: 18px;
+	}
+
+	/* Footer — Figma 1090:1526 */
+	.site-footer {
+		padding: 40px;
+		background: #141414;
+	}
+
+	.site-footer__glow {
+		display: none;
+	}
+
+	.site-footer__inner {
+		gap: 32px;
+		max-width: none;
+	}
+
+	.site-footer__top {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0;
+		width: 100%;
+	}
+
+	.site-footer__menus {
+		order: 1;
+		display: flex;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		align-items: stretch;
+		gap: 0;
+		width: 100%;
+	}
+
+	.site-footer__brand {
+		order: 2;
+		align-items: center;
+		width: 100%;
+		max-width: none;
+		gap: 29px;
+		padding: 10px 0;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+		text-align: center;
+	}
+
+	.site-logo--footer {
+		width: 70px;
+		height: 44px;
+	}
+
+	.site-logo--footer img {
+		width: 70px;
+		height: 44px;
+		object-fit: contain;
+	}
+
+	.site-footer__tagline {
+		max-width: none;
+		font-size: 16px;
+		line-height: 1.6;
+		opacity: 0.6;
+	}
+
+	.footer-column {
+		gap: 0;
+		width: 100%;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+	}
+
+	.footer-column.is-open {
+		display: flex;
+		flex-direction: column;
+		gap: 40px;
+		padding-bottom: 40px;
+	}
+
+	.footer-column:not(.is-open) {
+		padding: 40px 0;
+	}
+
+	.footer-column__toggle {
+		cursor: pointer;
+	}
+
+	.footer-column__title {
+		font-size: 24px;
+		font-weight: 700;
+		line-height: normal;
+		letter-spacing: 1px;
+		background-image: linear-gradient(180deg, #ed3153 0%, #f89a42 100%);
+		background-clip: text;
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		color: transparent;
+	}
+
+	.footer-column__icon {
+		display: block !important;
+		width: 24px;
+		height: 24px;
+	}
+
+	.footer-column__panel[hidden] {
+		display: none !important;
+	}
+
+	.footer-column__menu {
+		display: grid;
+		grid-template-columns: repeat(3, auto);
+		justify-content: flex-end;
+		align-items: start;
+		column-gap: 80px;
+		row-gap: 30px;
+		width: 100%;
+	}
+
+	.footer-column:first-child .footer-column__menu li:nth-child(1) {
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.footer-column:first-child .footer-column__menu li:nth-child(2) {
+		grid-column: 3;
+		grid-row: 1;
+	}
+
+	.footer-column:first-child .footer-column__menu li:nth-child(3) {
+		grid-column: 1;
+		grid-row: 2;
+	}
+
+	.footer-column:first-child .footer-column__menu li:nth-child(4) {
+		grid-column: 3;
+		grid-row: 2;
+	}
+
+	.footer-column:first-child .footer-column__menu li:nth-child(5) {
+		grid-column: 2;
+		grid-row: 1;
+	}
+
+	.footer-column:first-child .footer-column__menu li:nth-child(6) {
+		grid-column: 2;
+		grid-row: 2;
+	}
+
+	.footer-column__menu li {
+		margin: 0;
+		padding: 0;
+	}
+
+	.footer-column__menu a {
+		display: inline-block;
+		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 75;
+		font-weight: 400;
+		font-size: 16px;
+		line-height: normal;
+		letter-spacing: 1px;
+		color: #fff;
+		text-decoration: none;
+	}
+
+	.footer-column__menu a:hover,
+	.footer-column__menu a:focus-visible,
+	.footer-column__menu .current-menu-item > a,
+	.footer-column__menu .is-active > a {
+		font-weight: 800;
+		color: #f89a42;
+		text-decoration: underline;
+		text-decoration-color: #f89a42;
+		text-decoration-thickness: 12.5%;
+		text-underline-offset: 0.28em;
+	}
+
+	.site-footer__bottom {
+		order: 3;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 14px;
+		width: 100%;
+		padding-top: 0;
+		border-top: 0;
+		opacity: 1;
+		text-align: center;
+	}
+
+	.site-footer__copy,
+	.site-footer__credit {
+		font-family: var(--ee-font-dm, "DM Sans", sans-serif);
+		font-size: 12px;
+		line-height: normal;
+		color: #fff;
+		white-space: normal;
+		opacity: 1;
 	}
 }

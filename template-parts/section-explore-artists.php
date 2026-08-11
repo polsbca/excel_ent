@@ -1,6 +1,6 @@
 <?php
 /**
- * Explore Artists listing — Figma 1224:89355 / mobile 1023:6857
+ * Explore Artists listing — Figma 1224:89355 / tablet 1099:2920 / mobile 1023:6857
  *
  * @package Excel_Ent
  */

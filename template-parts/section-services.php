@@ -71,15 +71,16 @@ $excel_ent_featured = array(
 				<?php esc_html_e( 'From intimate local pubs to large golf clubs and luxury hotels — Excel supplies entertainment that fits the setting perfectly.', 'excel-ent' ); ?>
 			</p>
 		</div>
+	</header>
 
-		<a class="services-section__eyebrow magnetic" href="<?php echo esc_url( $excel_ent_services_url ); ?>">
+	<div class="services-section__content">
+		<a class="services-section__eyebrow magnetic reveal" data-reveal href="<?php echo esc_url( $excel_ent_services_url ); ?>">
 			<img src="<?php echo esc_url( $excel_ent_services_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
 			<span class="services-section__eyebrow-label services-section__eyebrow-label--desktop"><?php esc_html_e( 'View All Services', 'excel-ent' ); ?></span>
 			<span class="services-section__eyebrow-label services-section__eyebrow-label--mobile"><?php esc_html_e( 'Venue Types', 'excel-ent' ); ?></span>
 		</a>
-	</header>
 
-	<div class="services-section__grid reveal" data-reveal>
+		<div class="services-section__grid reveal" data-reveal>
 		<div class="services-grid">
 			<?php foreach ( $excel_ent_service_cards as $excel_ent_index => $excel_ent_card ) : ?>
 				<a
@@ -181,5 +182,6 @@ $excel_ent_featured = array(
 				</div>
 			</div>
 		</article>
+		</div>
 	</div>
 </section>
