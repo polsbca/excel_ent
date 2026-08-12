@@ -111,7 +111,7 @@ $excel_ent_location_label = isset( $excel_ent_location_options[ $excel_ent_locat
 	? $excel_ent_location_options[ $excel_ent_location ]['label']
 	: __( 'Location', 'excel-ent' );
 
-$excel_ent_category_label  = __( 'Browse Categories', 'excel-ent' );
+$excel_ent_category_label  = __( 'Occasion', 'excel-ent' );
 $excel_ent_category_group  = 'artist-type';
 $excel_ent_category_tag    = '';
 foreach ( $excel_ent_category_groups as $excel_ent_group_key => $excel_ent_group ) {
@@ -126,7 +126,7 @@ foreach ( $excel_ent_category_groups as $excel_ent_group_key => $excel_ent_group
 $excel_ent_artist_query = get_search_query();
 $excel_ent_artist_label = $excel_ent_artist_query
 	? $excel_ent_artist_query
-	: __( 'Search Artist', 'excel-ent' );
+	: __( 'Search', 'excel-ent' );
 
 $excel_ent_artist_avatar = EXCEL_ENT_URI . '/assets/images/icons/artist-search-avatar.jpg';
 $excel_ent_artist_results = array(

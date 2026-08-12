@@ -420,30 +420,6 @@
 	}
 }
 
-@media (max-width: 1199px) {
-	.package-intro {
-		padding: 48px 40px 0;
-	}
-
-	.package-intro__header {
-		gap: 48px;
-	}
-
-	.package-intro__tabs {
-		flex-direction: column;
-		gap: 12px;
-	}
-
-	.package-intro__tab {
-		min-height: 72px;
-		padding: 20px 24px;
-	}
-
-	.package-panel {
-		padding: 40px 0 100px;
-		gap: 40px;
-	}
-}
 
 @media (max-width: 767px) {
 	/* Packages mobile — Figma 1023:10624 */
@@ -1436,7 +1412,7 @@ body.package-compare-open {
 	overflow: hidden;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1200px) {
 	.package-compare {
 		display: none !important;
 	}

@@ -1,6 +1,6 @@
 <?php
 /**
- * Packages page content — Figma 1126:2252 / mobile 1023:10624
+ * Packages page content — Figma 1126:2252 / tablet 1104:6130 / mobile 1023:10624
  *
  * @package Excel_Ent
  */

@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Contact Us
- * Contact Us page — Figma 1159:3881 / mobile 1023:11984
+ * Contact Us page — Figma desktop 1159:3881 / tablet 1104:6918 / mobile 1023:11984
  *
  * @package Excel_Ent
  */

@@ -1,0 +1,77 @@
+/* Excel Ent — Search page tablet empty (Figma 1114:11425, 768–1199px) */
+
+@media (min-width: 768px) and (max-width: 1199px) {
+	body.search .search-page,
+	.search-page {
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		overflow-x: hidden;
+	}
+
+	/* Figma 1114:11425 — empty state has no filter chips */
+	body.search .search-page .search-page__chips-bar,
+	.search-page .search-page__chips-bar {
+		display: none !important;
+	}
+
+	body.search .search-page .search-empty,
+	.search-page .search-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 120px;
+		width: 100%;
+		/* Figma 1114:11423 — ~100px white before CTA (Contact at y=1016 after empty at 916) */
+		padding: 60px 0 100px;
+		background: #fff;
+		box-sizing: border-box;
+		text-align: center;
+	}
+
+	body.search .search-page .search-empty__visual,
+	.search-page .search-empty__visual {
+		width: 100%;
+		max-width: 376px;
+	}
+
+	body.search .search-page .search-empty__illustration,
+	.search-page .search-empty__illustration {
+		width: 100%;
+		max-width: 376px;
+		height: auto;
+		aspect-ratio: 376 / 339;
+		object-fit: contain;
+	}
+
+	body.search .search-page .search-empty__copy,
+	.search-page .search-empty__copy {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 40px;
+		width: 100%;
+		max-width: none;
+		padding: 0 40px;
+		letter-spacing: 1px;
+		box-sizing: border-box;
+	}
+
+	body.search .search-page .search-empty__title,
+	.search-page .search-empty__title {
+		width: 100%;
+		max-width: 724px;
+		font-size: 54px;
+		line-height: normal;
+		letter-spacing: 1px;
+	}
+
+	body.search .search-page .search-empty__lede,
+	.search-page .search-empty__lede {
+		width: 100%;
+		max-width: none;
+		font-size: 20px;
+		line-height: 32px;
+		letter-spacing: 1px;
+	}
+}

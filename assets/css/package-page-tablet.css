@@ -1,0 +1,295 @@
+/* Excel Ent — Packages page tablet (Figma 1104:6130, 768–1199px) */
+
+@media (min-width: 768px) and (max-width: 1199px) {
+	.package-page {
+		overflow-x: hidden;
+		max-width: 100%;
+		min-width: 0;
+	}
+
+	.package-page .package-intro {
+		padding: 64px 40px 0;
+		gap: 0;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		box-sizing: border-box;
+	}
+
+	.package-page .package-intro__header {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 40px;
+		width: 100%;
+		min-width: 0;
+	}
+
+	.package-page .package-intro__title,
+	.package-page .package-intro__tab {
+		opacity: 1;
+		transform: none;
+	}
+
+	.package-page .package-intro__title {
+		font-size: 80px;
+		line-height: 0.8;
+		font-weight: 700;
+	}
+
+	.package-page .package-intro__lede {
+		display: block;
+		margin: 0;
+		padding: 30px 0;
+		border-top: 1px solid #000;
+		border-bottom: 1px solid #000;
+		font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 100;
+		font-weight: 400;
+		font-size: 16px;
+		line-height: 1.06;
+		text-transform: uppercase;
+		color: #000;
+		box-sizing: border-box;
+	}
+
+	.package-page .package-intro__tabs {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		align-items: stretch;
+		gap: 16px;
+		width: 100%;
+		height: 62px;
+		margin-top: 24px;
+		padding-bottom: 0;
+		border-bottom: 0;
+		box-sizing: border-box;
+	}
+
+	.package-page .package-intro__tab {
+		flex: 1 1 0;
+		min-width: 0;
+		min-height: 62px;
+		height: 62px;
+		padding: 0 40px;
+		border: 1px solid #000;
+		background: #fff;
+		font-size: 20px;
+		font-weight: 600;
+		letter-spacing: 1px;
+		text-transform: uppercase;
+		color: #000;
+		box-sizing: border-box;
+	}
+
+	.package-page .package-intro__tab.is-active {
+		background: #000;
+		border: 1px solid #f89a42;
+		color: #fff;
+		font-weight: 800;
+		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
+	}
+
+	.package-page .package-panel {
+		padding: 40px 0 100px;
+		gap: 40px;
+		width: 100%;
+		min-width: 0;
+	}
+
+	.package-page .package-panel__lede {
+		display: none;
+	}
+
+	.package-page .package-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 20px;
+		width: 100%;
+		min-width: 0;
+	}
+
+	.package-page .package-card,
+	.package-page .package-card--featured {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		gap: 0;
+		min-width: 0;
+		min-height: 0;
+		height: 100%;
+		padding: 20px;
+		border: 0.5px solid rgba(0, 0, 0, 0.5);
+		background: #fff;
+		color: #000;
+		box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+		box-sizing: border-box;
+	}
+
+	.package-page .package-card--featured .package-card__name,
+	.package-page .package-card--featured .package-card__price {
+		background: none;
+		background-clip: border-box;
+		-webkit-background-clip: border-box;
+		-webkit-text-fill-color: #000;
+		color: #000;
+	}
+
+	.package-page .package-card--featured .package-card__from,
+	.package-page .package-card--featured .package-card__note,
+	.package-page .package-card--featured .package-card__includes,
+	.package-page .package-card--featured .package-card__features li {
+		color: #000;
+	}
+
+	.package-page .package-card__top {
+		gap: 40px;
+	}
+
+	.package-page .package-card__identity {
+		gap: 20px;
+	}
+
+	.package-page .package-card__name {
+		font-size: 28px;
+		font-weight: 700;
+		line-height: normal;
+		color: #000;
+	}
+
+	.package-page .package-card__from {
+		font-size: 16px;
+		color: #000;
+	}
+
+	.package-page .package-card__pricing {
+		gap: 30px;
+	}
+
+	.package-page .package-card__price {
+		gap: 4px;
+		color: #000;
+	}
+
+	.package-page .package-card__price-main {
+		font-size: 48px;
+	}
+
+	.package-page .package-card__price-suffix {
+		font-size: 14px;
+		font-weight: 800;
+	}
+
+	.package-page .package-card__alt {
+		display: none;
+	}
+
+	.package-page .package-card__note {
+		font-size: 16px;
+		font-weight: 400;
+		line-height: normal;
+		color: #000;
+	}
+
+	.package-page .package-card__more {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		height: 44px;
+		margin: 30px 0 0;
+		padding: 10px 0;
+		border: 0;
+		border-top: 1px solid rgba(0, 0, 0, 0.3);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+		background: transparent;
+		cursor: pointer;
+		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 75;
+		font-weight: 800;
+		font-size: 14px;
+		line-height: normal;
+		text-transform: uppercase;
+		color: #ed3153;
+		box-sizing: border-box;
+	}
+
+	.package-page .package-card__more img {
+		width: 24px;
+		height: 24px;
+		display: block;
+		flex-shrink: 0;
+	}
+
+	.package-page .package-card__body {
+		display: none;
+	}
+
+	.package-page .package-card__btn,
+	.package-page .package-card__btn--gradient,
+	.package-page .package-card--featured .package-card__btn {
+		width: 100%;
+		min-height: 62px;
+		height: 62px;
+		margin-top: 40px;
+		padding: 0 40px;
+		border: 0;
+		border-bottom: 2px solid #f89a42;
+		background-image: linear-gradient(
+			270deg,
+			#f8a742 0%,
+			#f1634c 19.712%,
+			#ee4250 44.231%,
+			#eb2055 72.115%
+		);
+		color: #fff;
+		font-size: 20px;
+		font-weight: 800;
+		letter-spacing: 1px;
+		text-transform: uppercase;
+		box-shadow: none;
+		box-sizing: border-box;
+	}
+
+	.package-page .package-card__btn:hover,
+	.package-page .package-card__btn:focus-visible,
+	.package-page .package-card__btn--gradient:hover,
+	.package-page .package-card__btn--gradient:focus-visible {
+		background: transparent;
+		background-image: linear-gradient(
+			270deg,
+			#f8a742 0%,
+			#f1634c 19.712%,
+			#ee4250 44.231%,
+			#eb2055 72.115%
+		);
+		color: #fff;
+		filter: brightness(1.05);
+	}
+
+	.package-page .package-card__btn-label-desktop {
+		display: none;
+	}
+
+	.package-page .package-card__btn-label-mobile {
+		display: inline;
+	}
+
+	.package-page .package-enquiry__form {
+		padding: 48px 40px;
+		gap: 40px;
+	}
+
+	.package-page .package-enquiry__fields {
+		gap: 40px;
+	}
+
+	.package-page .package-enquiry__row {
+		gap: 28px;
+	}
+
+	.package-page .package-enquiry__header {
+		gap: 24px;
+	}
+}

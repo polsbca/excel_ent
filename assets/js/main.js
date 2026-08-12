@@ -1367,16 +1367,10 @@
 		const viewport = aboutReviews.querySelector(".about-reviews__viewport");
 		const cards = Array.from(aboutReviews.querySelectorAll(".about-reviews__card"));
 		const pages = Array.from(aboutReviews.querySelectorAll("[data-about-reviews-page]"));
-		const mobileMq = window.matchMedia("(max-width: 767px)");
-		const tabletMq = window.matchMedia("(max-width: 1199px)");
+		const scrollCarouselMq = window.matchMedia("(max-width: 1199px)");
 		let page = 0;
 
-		const getPerPage = () => {
-			if (mobileMq.matches) {
-				return 1;
-			}
-			return tabletMq.matches ? 1 : 3;
-		};
+		const getPerPage = () => 3;
 
 		const getPageCount = () => Math.max(1, Math.ceil(cards.length / getPerPage()));
 
@@ -1399,11 +1393,12 @@
 			const pageCount = getPageCount();
 			const target = ((next % pageCount) + pageCount) % pageCount;
 
-			if (mobileMq.matches && viewport) {
-				const card = cards[target];
+			if (scrollCarouselMq.matches && viewport) {
+				const card = cards[target * getPerPage()];
 				if (card) {
+					const pad = track ? parseFloat(window.getComputedStyle(track).paddingLeft) || 0 : 0;
 					viewport.scrollTo({
-						left: card.offsetLeft,
+						left: Math.max(0, card.offsetLeft - pad),
 						behavior: "smooth",
 					});
 				}
@@ -1412,7 +1407,7 @@
 			}
 
 			syncPager(target);
-			track.style.transform = `translateX(-${page * 100}%)`;
+			track.style.transform = `translateX(-${target * 100}%)`;
 		};
 
 		pages.forEach((btn) => {
@@ -1427,7 +1422,7 @@
 		let currentX = 0;
 
 		const onPointerDown = (e) => {
-			if (mobileMq.matches) {
+			if (scrollCarouselMq.matches) {
 				return;
 			}
 			dragging = true;
@@ -1436,14 +1431,14 @@
 		};
 
 		const onPointerMove = (e) => {
-			if (!dragging || mobileMq.matches) {
+			if (!dragging || scrollCarouselMq.matches) {
 				return;
 			}
 			currentX = e.clientX || (e.touches && e.touches[0]?.clientX) || currentX;
 		};
 
 		const onPointerUp = () => {
-			if (!dragging || mobileMq.matches) {
+			if (!dragging || scrollCarouselMq.matches) {
 				dragging = false;
 				return;
 			}
@@ -1454,21 +1449,22 @@
 			}
 		};
 
-		const onMobileScroll = () => {
-			if (!mobileMq.matches || !viewport || !cards.length) {
+		const onScrollCarousel = () => {
+			if (!scrollCarouselMq.matches || !viewport || !cards.length) {
 				return;
 			}
 			const left = viewport.scrollLeft;
+			const pad = track ? parseFloat(window.getComputedStyle(track).paddingLeft) || 0 : 0;
 			let closest = 0;
 			let closestDist = Infinity;
 			cards.forEach((card, i) => {
-				const dist = Math.abs(card.offsetLeft - left);
+				const dist = Math.abs(card.offsetLeft - pad - left);
 				if (dist < closestDist) {
 					closestDist = dist;
 					closest = i;
 				}
 			});
-			syncPager(closest);
+			syncPager(Math.floor(closest / getPerPage()));
 		};
 
 		track?.addEventListener("mousedown", onPointerDown);
@@ -1477,17 +1473,17 @@
 		window.addEventListener("touchmove", onPointerMove, { passive: true });
 		window.addEventListener("mouseup", onPointerUp);
 		window.addEventListener("touchend", onPointerUp);
-		viewport?.addEventListener("scroll", onMobileScroll, { passive: true });
+		viewport?.addEventListener("scroll", onScrollCarousel, { passive: true });
 
 		const onResize = () => {
-			if (mobileMq.matches) {
+			if (scrollCarouselMq.matches) {
 				track.style.transform = "";
-				onMobileScroll();
+				onScrollCarousel();
 			} else {
 				goTo(page);
 			}
 		};
-		mobileMq.addEventListener("change", onResize);
+		scrollCarouselMq.addEventListener("change", onResize);
 
 		goTo(0);
 	}

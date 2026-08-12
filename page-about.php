@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: About
- * About page — Figma desktop 1126:1218 / mobile 1023:8454
+ * About page — Figma desktop 1126:1218 / tablet 1099:5036 / mobile 1023:8454
  *
  * @package Excel_Ent
  */

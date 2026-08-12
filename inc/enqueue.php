@@ -141,12 +141,30 @@ function excel_ent_enqueue_assets() {
 		EXCEL_ENT_VERSION
 	);
 
+	if ( excel_ent_is_about_page() ) {
+		wp_enqueue_style(
+			'excel-ent-about-page-tablet',
+			EXCEL_ENT_URI . '/assets/css/about-page-tablet.css',
+			array( 'excel-ent-about-page' ),
+			EXCEL_ENT_VERSION
+		);
+	}
+
 	wp_enqueue_style(
 		'excel-ent-package-page',
 		EXCEL_ENT_URI . '/assets/css/package-page.css',
 		array( 'excel-ent-about-page' ),
 		EXCEL_ENT_VERSION
 	);
+
+	if ( excel_ent_is_package_page() ) {
+		wp_enqueue_style(
+			'excel-ent-package-page-tablet',
+			EXCEL_ENT_URI . '/assets/css/package-page-tablet.css',
+			array( 'excel-ent-package-page' ),
+			EXCEL_ENT_VERSION
+		);
+	}
 
 	wp_enqueue_style(
 		'excel-ent-contact-page',
@@ -155,10 +173,26 @@ function excel_ent_enqueue_assets() {
 		EXCEL_ENT_VERSION
 	);
 
+	if ( excel_ent_is_contact_page() ) {
+		wp_enqueue_style(
+			'excel-ent-contact-page-tablet',
+			EXCEL_ENT_URI . '/assets/css/contact-page-tablet.css',
+			array( 'excel-ent-contact-page' ),
+			EXCEL_ENT_VERSION
+		);
+	}
+
 	wp_enqueue_style(
 		'excel-ent-search-page',
 		EXCEL_ENT_URI . '/assets/css/search-page.css',
 		array( 'excel-ent-contact-page' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
+		'excel-ent-search-page-tablet',
+		EXCEL_ENT_URI . '/assets/css/search-page-tablet.css',
+		array( 'excel-ent-search-page' ),
 		EXCEL_ENT_VERSION
 	);
 

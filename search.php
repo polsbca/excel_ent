@@ -1,6 +1,6 @@
 <?php
 /**
- * Search results template — Figma 1299:11348 / empty 1299:11417 / mobile 1053:4365.
+ * Search results template — Figma desktop 1299:11348 / empty 1299:11417 / tablet 1114:11425 / mobile 1053:4365.
  *
  * @package Excel_Ent
  */
@@ -185,8 +185,8 @@ $excel_ent_base_args = array_filter(
 				class="search-empty__illustration"
 				src="<?php echo esc_url( $excel_ent_search_uri . '/empty-dog.jpg' ); ?>"
 				alt="<?php esc_attr_e( 'Sad dog illustration indicating no results', 'excel-ent' ); ?>"
-				width="410"
-				height="410"
+				width="376"
+				height="339"
 				decoding="async"
 			>
 		</div>

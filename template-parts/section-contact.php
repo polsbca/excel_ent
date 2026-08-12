@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact Us page content — Figma 1159:3881 / mobile 1023:11984
+ * Contact Us page content — Figma 1159:3881 / tablet 1104:6918 / mobile 1023:11984
  *
  * @package Excel_Ent
  */
@@ -85,12 +85,11 @@ $excel_ent_perf_categories = array(
 	'duo'     => __( 'Duo', 'excel-ent' ),
 );
 
-$excel_ent_offer_options = array(
-	'wedding'   => __( 'Wedding entertainment', 'excel-ent' ),
-	'corporate' => __( 'Corporate events', 'excel-ent' ),
-	'private'   => __( 'Private parties', 'excel-ent' ),
-	'festival'  => __( 'Festival', 'excel-ent' ),
-	'duo'       => __( 'Duo', 'excel-ent' ),
+$excel_ent_venue_options = array(
+	'pubs-clubs'   => __( 'Pubs & Clubs', 'excel-ent' ),
+	'hotels'       => __( 'Hotels', 'excel-ent' ),
+	'golf-social'  => __( 'Golf & Social Clubs', 'excel-ent' ),
+	'community'    => __( 'Community Centres', 'excel-ent' ),
 );
 
 $excel_ent_travel_options = array(
@@ -897,15 +896,13 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 							);
 							$excel_ent_render_dd(
 								array(
-									'name'               => 'excel_ent_offer',
-									'label'              => __( 'What You Offer', 'excel-ent' ),
-									'title'              => __( 'What You Offer', 'excel-ent' ),
-									'placeholder'        => __( 'show like to be listed?', 'excel-ent' ),
-									'options'            => $excel_ent_offer_options,
+									'name'               => 'excel_ent_venue_type',
+									'label'              => __( 'Venue', 'excel-ent' ),
+									'title'              => __( 'Venue', 'excel-ent' ),
+									'placeholder'        => __( 'Select venue type', 'excel-ent' ),
+									'options'            => $excel_ent_venue_options,
 									'selected'           => '',
 									'label_strong'       => true,
-									'allow_custom'       => true,
-									'custom_placeholder' => __( 'Add your own', 'excel-ent' ),
 									'scrollable'         => true,
 								)
 							);

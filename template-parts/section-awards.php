@@ -48,6 +48,51 @@ $excel_ent_partner_logos = array(
 		'panel'  => true,
 	),
 );
+
+/* About page tablet — Figma 1099:5349 logo order (GigRealm → Stonegate → Urban Village → Craft Union) */
+if ( function_exists( 'excel_ent_is_about_page' ) && excel_ent_is_about_page() ) {
+	$excel_ent_partner_logos = array(
+		array(
+			'slug'   => 'gig-realm',
+			'src'    => $excel_ent_awards_uri . '/gig-realm.svg',
+			'alt'    => __( 'GigRealm', 'excel-ent' ),
+			'width'  => 156,
+			'height' => 33,
+		),
+		array(
+			'slug'   => 'stonegate',
+			'src'    => $excel_ent_awards_uri . '/stonegate.svg',
+			'alt'    => __( 'Stonegate Pub Company', 'excel-ent' ),
+			'width'  => 155,
+			'height' => 35,
+			'object' => true,
+		),
+		array(
+			'slug'   => 'urban-village',
+			'src'    => $excel_ent_awards_uri . '/urban-village.svg',
+			'alt'    => __( 'Urban Village Pub Company', 'excel-ent' ),
+			'width'  => 109,
+			'height' => 76,
+		),
+		array(
+			'slug'   => 'craft-union',
+			'src'    => $excel_ent_awards_uri . '/craft-union.svg',
+			'alt'    => __( 'Craft Union', 'excel-ent' ),
+			'width'  => 100,
+			'height' => 103,
+			'object' => true,
+		),
+		array(
+			'slug'   => 'greene-king',
+			'src'    => $excel_ent_awards_uri . '/greene-king.svg',
+			'alt'    => __( 'Greene King Brewery', 'excel-ent' ),
+			'width'  => 68,
+			'height' => 103,
+			'object' => true,
+			'panel'  => true,
+		),
+	);
+}
 ?>
 <section class="awards-marquee" aria-label="<?php esc_attr_e( 'Trusted partners', 'excel-ent' ); ?>">
 	<div class="awards-marquee__viewport">

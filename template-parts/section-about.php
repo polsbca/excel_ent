@@ -1,6 +1,6 @@
 <?php
 /**
- * About page content — Figma desktop 1126:1218 / mobile 1023:8454
+ * About page content — Figma desktop 1126:1218 / tablet 1099:5036 / mobile 1023:8454
  *
  * @package Excel_Ent
  */
@@ -111,6 +111,16 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 		<figure class="about-intro__media-item">
 			<img
 				src="<?php echo esc_url( $excel_ent_uri . '/hero-mobile-2.jpg' ); ?>"
+				alt=""
+				width="330"
+				height="363"
+				decoding="async"
+				loading="lazy"
+			>
+		</figure>
+		<figure class="about-intro__media-item about-intro__media-item--tablet-only">
+			<img
+				src="<?php echo esc_url( $excel_ent_uri . '/collage-main.jpg' ); ?>"
 				alt=""
 				width="330"
 				height="363"
