@@ -6,7 +6,8 @@
  * @package Excel_Ent
  */
 
-$excel_ent_artist_uri = EXCEL_ENT_URI . '/assets/images/artists';
+$excel_ent_artist_uri     = EXCEL_ENT_URI . '/assets/images/artists';
+$excel_ent_preview_video  = $excel_ent_artist_uri . '/preview.mp4';
 
 $excel_ent_occasion_filters = array(
 	array( 'id' => 'all', 'label' => __( 'All', 'excel-ent' ), 'active' => true ),
@@ -318,15 +319,24 @@ $excel_ent_profile_cards = array(
 				<article class="artist-card artist-card--profile magnetic reveal" data-reveal data-artists-card data-category="<?php echo esc_attr( $excel_ent_profile['category'] ); ?>" style="--i: <?php echo esc_attr( (string) $excel_ent_index ); ?>">
 					<a class="artist-card__link" href="<?php echo esc_url( $excel_ent_profile['link'] ); ?>">
 						<img class="artist-card__image" src="<?php echo esc_url( $excel_ent_profile['image'] ); ?>" alt="<?php echo esc_attr( $excel_ent_profile['name'] ); ?>" width="518" height="811" loading="lazy" decoding="async">
+						<video
+							class="artist-card__video"
+							data-artist-video
+							muted
+							loop
+							playsinline
+							preload="none"
+							poster="<?php echo esc_url( $excel_ent_profile['image'] ); ?>"
+							aria-hidden="true"
+						>
+							<source src="<?php echo esc_url( $excel_ent_preview_video ); ?>" type="video/mp4">
+						</video>
 						<span class="artist-card__scrim" aria-hidden="true"></span>
 						<img class="artist-card__orb artist-card__orb--visible" src="<?php echo esc_url( $excel_ent_artist_uri . '/card-orb.svg' ); ?>" alt="" width="63" height="63" decoding="async">
 
 						<div class="artist-card__profile">
 							<div class="artist-card__top">
 								<span class="artist-card__era"><?php echo esc_html( $excel_ent_profile['era'] ); ?></span>
-								<span class="artist-card__mute" aria-hidden="true">
-									<img src="<?php echo esc_url( $excel_ent_artist_uri . '/volume-mute.svg' ); ?>" alt="" width="43" height="43" decoding="async">
-								</span>
 							</div>
 
 							<div class="artist-card__bottom">
@@ -341,6 +351,33 @@ $excel_ent_profile_cards = array(
 							</div>
 						</div>
 					</a>
+					<button
+						type="button"
+						class="artist-card__mute magnetic"
+						data-artist-mute
+						aria-pressed="false"
+						aria-label="<?php esc_attr_e( 'Unmute preview', 'excel-ent' ); ?>"
+					>
+						<img
+							class="artist-card__mute-icon artist-card__mute-icon--off"
+							data-artist-mute-off
+							src="<?php echo esc_url( $excel_ent_artist_uri . '/volume-mute.svg' ); ?>"
+							alt=""
+							width="43"
+							height="43"
+							decoding="async"
+						>
+						<img
+							class="artist-card__mute-icon artist-card__mute-icon--on"
+							data-artist-mute-on
+							src="<?php echo esc_url( $excel_ent_artist_uri . '/volume.svg' ); ?>"
+							alt=""
+							width="43"
+							height="43"
+							decoding="async"
+							hidden
+						>
+					</button>
 				</article>
 			<?php endforeach; ?>
 		</div>

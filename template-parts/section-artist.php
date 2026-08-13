@@ -22,9 +22,16 @@ $excel_ent_tags = array(
 );
 
 $excel_ent_perks = array(
-	__( 'Personally auditioned by Excel', 'excel-ent' ),
-	__( 'PLI & PAT certified as standard', 'excel-ent' ),
-	__( 'No hidden fees — transparent pricing', 'excel-ent' ),
+	array(
+		'default' => __( 'Personally verified by Excel Entertainment', 'excel-ent' ),
+		'mobile'  => __( 'Personally auditioned by Excel', 'excel-ent' ),
+	),
+	array(
+		'default' => __( 'PLI & PAT certified as standard', 'excel-ent' ),
+	),
+	array(
+		'default' => __( 'No hidden fees — transparent pricing', 'excel-ent' ),
+	),
 );
 
 $excel_ent_songs = array(
@@ -160,15 +167,24 @@ $excel_ent_similar = array(
 		<div class="artist-hero__details">
 			<div class="artist-hero__price-info">
 				<div class="artist-hero__pricing">
-					<p class="artist-hero__price"><?php esc_html_e( '£600', 'excel-ent' ); ?></p>
+					<p class="artist-hero__price">
+						<span class="artist-hero__price-from"><?php esc_html_e( 'from', 'excel-ent' ); ?> </span><?php esc_html_e( '£600', 'excel-ent' ); ?>
+					</p>
 					<p class="artist-hero__price-note">
-						<?php esc_html_e( 'Price varies by event type, duration & location. Request a tailored quote for your event.', 'excel-ent' ); ?>
+						<span class="artist-hero__price-note-lead"><?php esc_html_e( 'Based on two hour set. ', 'excel-ent' ); ?></span><?php esc_html_e( 'Price varies by event type, duration & location. Request a tailored quote for your event.', 'excel-ent' ); ?>
 					</p>
 				</div>
 
 				<ul class="artist-hero__perks">
 					<?php foreach ( $excel_ent_perks as $excel_ent_perk ) : ?>
-						<li><?php echo esc_html( $excel_ent_perk ); ?></li>
+						<li>
+							<?php if ( ! empty( $excel_ent_perk['mobile'] ) ) : ?>
+								<span class="artist-hero__perk-desktop"><?php echo esc_html( $excel_ent_perk['default'] ); ?></span>
+								<span class="artist-hero__perk-mobile"><?php echo esc_html( $excel_ent_perk['mobile'] ); ?></span>
+							<?php else : ?>
+								<?php echo esc_html( $excel_ent_perk['default'] ); ?>
+							<?php endif; ?>
+						</li>
 					<?php endforeach; ?>
 				</ul>
 			</div>
@@ -467,8 +483,8 @@ $excel_ent_similar = array(
 	<header class="artist-similar__header reveal" data-reveal>
 		<h2 class="artist-similar__title"><?php esc_html_e( 'View Similar Artists', 'excel-ent' ); ?></h2>
 		<div class="artist-similar__eyebrow">
-			<span><?php esc_html_e( '(Recommended)', 'excel-ent' ); ?></span>
 			<img src="<?php echo esc_url( $excel_ent_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
+			<span><?php esc_html_e( '(Recommended)', 'excel-ent' ); ?></span>
 		</div>
 	</header>
 

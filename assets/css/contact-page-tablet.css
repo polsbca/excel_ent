@@ -40,11 +40,12 @@
 		font-weight: 700;
 	}
 
-	.contact-page .contact-intro__title-desktop {
+	.contact-page .contact-intro__title-desktop,
+	.contact-page .contact-intro__title-mobile {
 		display: none;
 	}
 
-	.contact-page .contact-intro__title-mobile {
+	.contact-page .contact-intro__title-tablet {
 		display: inline;
 	}
 
@@ -135,11 +136,11 @@
 	}
 
 	.contact-page .contact-acc {
-		border-bottom-color: #909090;
+		border-bottom-color: rgba(0, 0, 0, 0.2);
 	}
 
 	.contact-page .contact-acc--last {
-		border-bottom: 1px solid #909090;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 	}
 
 	.contact-page .contact-acc__toggle {
@@ -211,12 +212,17 @@
 	}
 
 	.contact-page .contact-field__input,
-	.contact-page .contact-dd__trigger {
+	.contact-page .contact-dd__trigger,
+	.contact-page .contact-date__trigger {
 		font-size: 18px;
 		font-weight: 600;
 		letter-spacing: 1px;
 		min-height: 0;
 		padding-bottom: 12px;
+	}
+
+	.contact-page .contact-field--date .contact-field__chevron {
+		bottom: 12px;
 	}
 
 	.contact-page .contact-prefs__row {

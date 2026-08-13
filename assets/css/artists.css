@@ -217,8 +217,25 @@
 	transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.artist-card__video {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	opacity: 0;
+	pointer-events: none;
+	z-index: 1;
+	transition: opacity 0.35s ease, transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.artist-card--profile.is-playing .artist-card__video {
+	opacity: 1;
+}
+
 .artist-card:hover .artist-card__image,
-.artist-card:focus-within .artist-card__image {
+.artist-card:focus-within .artist-card__image,
+.artist-card--profile.is-playing .artist-card__video {
 	transform: scale(1.05);
 }
 
@@ -422,16 +439,32 @@
 }
 
 .artist-card__mute {
+	position: absolute;
+	top: 30px;
+	right: 30px;
+	z-index: 5;
 	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	width: 43px;
 	height: 43px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
 	line-height: 0;
 }
 
-.artist-card__mute img {
+.artist-card__mute img,
+.artist-card__mute-icon {
 	width: 43px;
 	height: 43px;
 	display: block;
+}
+
+.artist-card--profile.is-unmuted .artist-card__mute-icon--off,
+.artist-card--profile:not(.is-unmuted) .artist-card__mute-icon--on {
+	display: none;
 }
 
 .artist-card__bottom {
@@ -512,6 +545,11 @@
 @media (max-width: 1199px) {
 	.artist-card__profile {
 		padding: 20px;
+	}
+
+	.artist-card__mute {
+		top: 20px;
+		right: 20px;
 	}
 
 	.artist-card__profile-name {
@@ -955,6 +993,7 @@
 @media (prefers-reduced-motion: reduce) {
 	.artists-section__track,
 	.artist-card__image,
+	.artist-card__video,
 	.artist-card__detail,
 	.artist-card__orb,
 	.artist-card__profile-name,

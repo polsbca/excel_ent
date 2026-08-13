@@ -1,6 +1,6 @@
 <?php
 /**
- * Packages page content — Figma 1126:2252 / tablet 1104:6130 / mobile 1023:10624
+ * Packages page content — Figma desktop 1464:3103 / 1126:2252 / tablet 1104:6130 / mobile 1023:10624
  *
  * @package Excel_Ent
  */
@@ -13,15 +13,15 @@ $excel_ent_wedding = array(
 		'name'     => __( 'Bronze', 'excel-ent' ),
 		'mod'      => 'bronze',
 		'price'    => array(
-			'main'   => '£50',
-			'suffix' => __( 'ph', 'excel-ent' ),
-			'alt'    => __( '£75 ph (Minimum 4 hours)', 'excel-ent' ),
+			'main'          => '£75',
+			'suffix'        => __( 'ph', 'excel-ent' ),
+			'suffix_detail' => __( '(min 4 hr - £50/hr thereafter)', 'excel-ent' ),
 		),
 		'features' => array(
-			__( 'Professional DJ, P.A. Equipment and Lighting (certified to industry regulations).', 'excel-ent' ),
-			__( 'Providing a selection of music to entertain all the guests.', 'excel-ent' ),
-			__( 'You can provide your own part/full playlist if you prefer or leave the selection to our Host DJ.', 'excel-ent' ),
-			__( 'Our most popular package for lively weddings and events.', 'excel-ent' ),
+			__( 'A professional wedding DJ with high-quality PA equipment and lighting, all fully PAT tested and compliant with current industry regulations.', 'excel-ent' ),
+			__( 'Your DJ will provide a carefully selected mix of music to entertain guests of all ages, creating the perfect atmosphere throughout your celebration.', 'excel-ent' ),
+			__( "You're welcome to provide a full playlist, a selection of favourite songs, or a list of music you'd prefer not to hear. Alternatively, you can leave the music selection to your experienced DJ, who will read the room and tailor the entertainment to keep your dance floor full all evening.", 'excel-ent' ),
+			__( 'Professional sound, lighting and seamless entertainment are included as standard, ensuring your wedding reception runs smoothly from start to finish.', 'excel-ent' ),
 		),
 	),
 	array(
@@ -30,12 +30,11 @@ $excel_ent_wedding = array(
 		'price'    => array(
 			'main'   => '£350',
 			'suffix' => '',
-			'alt'    => __( '2 × 45-minute or 2 × 60-minute live sets', 'excel-ent' ),
 		),
 		'features' => array(
-			__( 'Professional Entertainer to perform Live music at your Wedding.', 'excel-ent' ),
-			__( 'International Performer Darin Day is available as "The Sultan of Swing" performing fantastic songs from Sinatra, Dean Martin, Bobby Darin, Bublé, Andy Williams, Tony Bennett, Matt Monro, Nat King Cole and many more. Darin will also learn any songs required (with notice) for that personal feeling.', 'excel-ent' ),
-			__( 'We also have a vast choice of other Solo acts, Duos, Bands, Tribute artists, Themed shows to Entertain your guests. The artists usually perform 2 x 45 min sets or 2 x 60 minute sets. All P.A. equipment and lighting is provided.', 'excel-ent' ),
+			__( 'A professional live entertainer performing at your wedding to create the perfect atmosphere and provide unforgettable entertainment for you and your guests.', 'excel-ent' ),
+			__( "We offer an extensive choice of solo singers, duos, live bands, themed shows and speciality acts to suit every style of wedding and musical taste. Whether you're looking for elegant background music, upbeat party classics or a high-energy evening performance, we can help you find the perfect act.", 'excel-ent' ),
+			__( 'Our performers typically provide either 2 x 45-minute or 2 x 60-minute live sets, with all professional PA equipment and lighting included where required.', 'excel-ent' ),
 		),
 	),
 	array(
@@ -44,13 +43,12 @@ $excel_ent_wedding = array(
 		'price'    => array(
 			'main'   => '£750',
 			'suffix' => '',
-			'alt'    => __( 'up to five hours of seamless entertainment', 'excel-ent' ),
 		),
 		'features' => array(
-			__( 'This package is Taylor made for your Wedding for that unique entertainment.', 'excel-ent' ),
-			__( 'This is a combined package of a Professional DJ and a Live Performer / Tribute act / Band covering upto a combined 5 hours of Entertainment.', 'excel-ent' ),
-			__( 'You can choose from a vast list of performers to entertain your guests alongside a DJ that will work around the Live performers.', 'excel-ent' ),
-			__( 'This is the most popular package that we provide. The DJ will kick things off, then a live set from the Artists, then the DJ will continue to entertain until the 2nd live set from the artists. The DJ will then finish off with a selection of fantastic and lively music to get everyone dancing until the party stops.', 'excel-ent' ),
+			__( 'This package is tailor-made for your wedding, creating a truly memorable entertainment experience for you and your guests.', 'excel-ent' ),
+			__( 'It combines the services of a professional DJ with a live vocalist, providing up to five hours of seamless entertainment throughout your evening.', 'excel-ent' ),
+			__( 'Choose from our extensive selection of talented singers, with your DJ working alongside the live performer to ensure smooth transitions and a packed dance floor from start to finish.', 'excel-ent' ),
+			__( 'This is one of our most popular wedding packages. Your DJ will begin the evening before introducing the live vocalist for the first performance set. The DJ will then continue the entertainment before the second live set, finishing the night with an outstanding mix of floor-filling classics and party favourites to keep your guests dancing until the very end.', 'excel-ent' ),
 		),
 	),
 	array(
@@ -60,13 +58,12 @@ $excel_ent_wedding = array(
 		'price'    => array(
 			'main'   => '£999',
 			'suffix' => '',
-			'alt'    => __( 'Professional Covers / Function Band', 'excel-ent' ),
 		),
 		'features' => array(
-			__( 'If you want to provide a jaw dropping entertainment package that will have your guests dancing and talking about for weeks after then you should hire Darin Day & The Darin Day Bigband.', 'excel-ent' ),
-			__( 'This is a Live band playing fantastic music that the guests can perform all kinds of dances too.', 'excel-ent' ),
-			__( 'Due to the popular "Strictly Come Dancing" show, this package is getting more popular.', 'excel-ent' ),
-			__( 'Waltzes, Foxtrots, Tangos, Quicksteps, Jive, Latin and Ballroom all performed with a sound that you can only get from a BIGBAND. Available as a 9 piece or a 16 piece band. This is also available with a Professional DJ.', 'excel-ent' ),
+			__( 'If you want to provide an unforgettable entertainment experience that will keep your guests on the dance floor and talking about your wedding for weeks afterwards, a professional covers and function band is the perfect choice.', 'excel-ent' ),
+			__( 'Performing an exciting mix of timeless classics and modern chart favourites, our experienced live bands create an incredible atmosphere from the first dance through to the final encore. Their versatile repertoire appeals to all ages, ensuring everyone has something to enjoy.', 'excel-ent' ),
+			__( "Whether you're looking for pop, rock, soul, Motown, indie, funk, disco or party anthems, our professional musicians deliver outstanding live performances with exceptional sound and energy.", 'excel-ent' ),
+			__( 'Available in a variety of line-ups to suit your venue and budget, our function bands can also be combined with a professional DJ to provide seamless entertainment throughout your entire evening, keeping the party going until the very end.', 'excel-ent' ),
 		),
 	),
 );
@@ -240,8 +237,9 @@ $excel_ent_catalog_map = static function ( $packages, $group, $note ) {
 			'group'    => $group,
 			'name'     => $package['name'],
 			'main'     => $package['price']['main'],
-			'suffix'   => isset( $package['price']['suffix'] ) ? $package['price']['suffix'] : '',
-			'alt'      => isset( $package['price']['alt'] ) ? $package['price']['alt'] : '',
+			'suffix'        => isset( $package['price']['suffix'] ) ? $package['price']['suffix'] : '',
+			'suffix_detail' => isset( $package['price']['suffix_detail'] ) ? $package['price']['suffix_detail'] : '',
+			'alt'           => isset( $package['price']['alt'] ) ? $package['price']['alt'] : '',
 			'note'     => $note,
 			'features' => $package['features'],
 			'label'    => sprintf(
@@ -332,7 +330,7 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 
 <script type="application/json" data-package-catalog><?php echo wp_json_encode( $excel_ent_compare_catalog ); ?></script>
 
-<!-- Compare modal (Figma 1023:10785 / 1023:10826) -->
+<!-- Compare modal (Figma mobile 1487:13435 / tablet 1104:5783) -->
 <div class="package-compare" data-package-compare hidden>
 	<div class="package-compare__backdrop" data-package-compare-close tabindex="-1"></div>
 	<div
@@ -434,7 +432,7 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 	</div>
 </div>
 
-<!-- Enquiry modal (Figma 1101:3152) -->
+<!-- Enquiry modal (Figma desktop 1101:3152 / mobile 1487:13238) -->
 <div class="package-enquiry" data-package-enquiry-modal hidden>
 	<div class="package-enquiry__backdrop" data-package-enquiry-close tabindex="-1"></div>
 	<div
@@ -477,7 +475,7 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 							data-package-enquiry-name
 						>
 					</label>
-					<label class="package-enquiry__field">
+					<label class="package-enquiry__field package-enquiry__field--email">
 						<span class="package-enquiry__label"><?php esc_html_e( 'Email address', 'excel-ent' ); ?></span>
 						<input
 							class="package-enquiry__input"
@@ -487,6 +485,18 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 							autocomplete="email"
 							required
 							data-package-enquiry-email
+						>
+					</label>
+					<label class="package-enquiry__field package-enquiry__field--phone">
+						<span class="package-enquiry__label"><?php esc_html_e( 'Phone Number', 'excel-ent' ); ?></span>
+						<input
+							class="package-enquiry__input"
+							type="tel"
+							name="excel_ent_enquiry_phone"
+							placeholder="<?php esc_attr_e( '+44 7700 900000', 'excel-ent' ); ?>"
+							autocomplete="tel"
+							inputmode="tel"
+							data-package-enquiry-phone
 						>
 					</label>
 				</div>
@@ -501,12 +511,15 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 				</div>
 
 				<label class="package-enquiry__field package-enquiry__field--notes">
-					<span class="package-enquiry__label"><?php esc_html_e( 'Any additional information', 'excel-ent' ); ?></span>
+					<span class="package-enquiry__label package-enquiry__label--desktop"><?php esc_html_e( 'Any additional information', 'excel-ent' ); ?></span>
+					<span class="package-enquiry__label package-enquiry__label--mobile"><?php esc_html_e( 'Are you looking for regular entertainment', 'excel-ent' ); ?></span>
 					<textarea
 						class="package-enquiry__input package-enquiry__textarea"
 						name="excel_ent_enquiry_notes"
 						rows="3"
 						placeholder="<?php esc_attr_e( 'this is optional', 'excel-ent' ); ?>"
+						data-placeholder-desktop="<?php esc_attr_e( 'this is optional', 'excel-ent' ); ?>"
+						data-placeholder-mobile="<?php esc_attr_e( 'Add details for recurring bookings.', 'excel-ent' ); ?>"
 						data-package-enquiry-notes
 					></textarea>
 				</label>

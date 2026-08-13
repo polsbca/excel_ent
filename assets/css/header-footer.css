@@ -191,6 +191,11 @@ body.page-template-page-explore-artists .explore-artists-page {
 	max-width: 100%;
 }
 
+body.page-template-page-explore-artists .site-header,
+body.page-template-page-explore-artists .site-header__inner {
+	overflow: visible;
+}
+
 body.page-template-page-explore-artists .site-header__inner {
 	padding-bottom: 60px;
 }
@@ -3686,8 +3691,8 @@ body.mobile-search-open {
 	body.page-template-page-artist .site-logo--header .custom-logo,
 	body.page-template-page-artist .site-logo--header img,
 	body.page-template-page-artist .site-branding .custom-logo {
-		width: 62px;
-		height: 39px;
+		width: 67px;
+		height: 42px;
 	}
 
 	body.page-template-page-artist .nav-toggle {
@@ -3802,13 +3807,20 @@ body.mobile-search-open {
 	body.page-template-page-package .site-logo--header .custom-logo,
 	body.page-template-page-package .site-logo--header img,
 	body.page-template-page-package .site-branding .custom-logo {
-		width: 62px;
-		height: 39px;
+		width: 67px;
+		height: 42px;
 	}
 
 	body.page-template-page-package .nav-toggle {
+		order: 3;
+		margin-left: 0;
 		width: 50px;
 		height: 50px;
+		border-radius: 30px;
+		border: 1px solid #fff;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
 	}
 
 	body.page-template-page-package .btn-quote {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Contact Us page content — Figma 1159:3881 / tablet 1104:6918 / mobile 1023:11984
+ * Contact Us page content — Figma desktop quote 1477:8256 / 1159:3881 / tablet 1104:6918 / mobile 1023:11984
  *
  * @package Excel_Ent
  */
@@ -58,15 +58,12 @@ $excel_ent_rank_labels = array(
 );
 
 $excel_ent_payment_methods = array(
-	'google-pay'    => __( 'Google pay', 'excel-ent' ),
-	'apple-pay'     => __( 'Apple Pay', 'excel-ent' ),
+	'google-pay'    => __( 'Cash', 'excel-ent' ),
 	'card'          => __( 'Debit / Credit Card', 'excel-ent' ),
 	'bank-transfer' => __( 'Bank Transfer', 'excel-ent' ),
-	'paypal'        => __( 'PayPal', 'excel-ent' ),
-	'invoice'       => __( 'Invoice on Completion', 'excel-ent' ),
 );
 
-$excel_ent_payment_default = 'google-pay';
+$excel_ent_payment_default = 'card';
 
 $excel_ent_years_options = array(
 	'lt-1'  => __( 'Less than 1 year', 'excel-ent' ),
@@ -366,7 +363,8 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 	<header class="contact-intro__header">
 		<h1 class="contact-intro__title">
 			<span class="contact-intro__title-desktop"><?php esc_html_e( 'THE Stage Is Ready', 'excel-ent' ); ?></span>
-			<span class="contact-intro__title-mobile"><?php esc_html_e( 'Contact us', 'excel-ent' ); ?></span>
+			<span class="contact-intro__title-tablet"><?php esc_html_e( 'Contact us', 'excel-ent' ); ?></span>
+			<span class="contact-intro__title-mobile"><?php esc_html_e( 'GET STARTED', 'excel-ent' ); ?></span>
 		</h1>
 		<p class="contact-intro__lede">
 			<?php esc_html_e( "Tell us what you need, a quick question, a full quote, or you're the talent. Pick your path below.", 'excel-ent' ); ?>
@@ -592,13 +590,88 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 					</button>
 					<div class="contact-acc__body" data-contact-acc-body hidden>
 						<div class="contact-fields">
-							<label class="contact-field contact-field--icon">
+							<div class="contact-field contact-field--icon contact-field--date" data-header-date data-header-date-format="dd-mm-yyyy">
 								<span class="contact-field__label contact-field__label--strong"><?php esc_html_e( 'Event Date', 'excel-ent' ); ?></span>
-								<span class="contact-field__select-wrap">
-									<input class="contact-field__input contact-field__input--muted" type="date" name="excel_ent_event_date" aria-label="<?php esc_attr_e( 'Choose a date', 'excel-ent' ); ?>">
+								<div class="contact-field__select-wrap">
+									<button
+										type="button"
+										class="contact-date__trigger"
+										data-header-date-trigger
+										aria-expanded="false"
+										aria-haspopup="dialog"
+										aria-controls="contact-date-panel"
+									>
+										<span data-header-date-label data-placeholder="<?php esc_attr_e( 'dd-mm-yyyy', 'excel-ent' ); ?>"><?php esc_html_e( 'dd-mm-yyyy', 'excel-ent' ); ?></span>
+									</button>
+									<input
+										class="screen-reader-text"
+										type="hidden"
+										name="excel_ent_event_date"
+										value=""
+										data-header-date-input
+									>
 									<img class="contact-field__chevron" src="<?php echo esc_url( $excel_ent_uri . '/icon-calendar-fill.svg' ); ?>" alt="" width="24" height="24" decoding="async">
-								</span>
-							</label>
+									<div
+										id="contact-date-panel"
+										class="contact-date"
+										data-header-date-panel
+										role="dialog"
+										aria-label="<?php esc_attr_e( 'Select event date', 'excel-ent' ); ?>"
+										hidden
+									>
+										<div class="contact-date__card">
+											<div class="header-date__header">
+												<p class="header-date__month" data-header-date-month></p>
+												<div class="header-date__nav">
+													<button
+														type="button"
+														class="header-date__nav-btn"
+														data-header-date-prev
+														aria-label="<?php esc_attr_e( 'Previous month', 'excel-ent' ); ?>"
+													>
+														<img
+															src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/chevron-left.svg' ); ?>"
+															alt=""
+															width="14"
+															height="14"
+															decoding="async"
+														>
+													</button>
+													<button
+														type="button"
+														class="header-date__nav-btn"
+														data-header-date-next
+														aria-label="<?php esc_attr_e( 'Next month', 'excel-ent' ); ?>"
+													>
+														<img
+															src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/chevron-right.svg' ); ?>"
+															alt=""
+															width="14"
+															height="14"
+															decoding="async"
+														>
+													</button>
+												</div>
+											</div>
+											<div class="header-date__weekdays" aria-hidden="true">
+												<span><?php esc_html_e( 'Su', 'excel-ent' ); ?></span>
+												<span><?php esc_html_e( 'Mo', 'excel-ent' ); ?></span>
+												<span><?php esc_html_e( 'Tu', 'excel-ent' ); ?></span>
+												<span><?php esc_html_e( 'We', 'excel-ent' ); ?></span>
+												<span><?php esc_html_e( 'Th', 'excel-ent' ); ?></span>
+												<span><?php esc_html_e( 'Fr', 'excel-ent' ); ?></span>
+												<span><?php esc_html_e( 'Sa', 'excel-ent' ); ?></span>
+											</div>
+											<div class="header-date__grid" data-header-date-grid role="grid" aria-label="<?php esc_attr_e( 'Calendar', 'excel-ent' ); ?>"></div>
+											<div class="header-date__footer">
+												<button type="button" class="header-date__confirm" data-header-date-confirm>
+													<?php esc_html_e( 'Confirm Date', 'excel-ent' ); ?>
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
 							<label class="contact-field contact-field--icon">
 								<span class="contact-field__label contact-field__label--strong"><?php esc_html_e( 'Start Time', 'excel-ent' ); ?></span>
 								<span class="contact-field__select-wrap">
@@ -897,8 +970,8 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 							$excel_ent_render_dd(
 								array(
 									'name'               => 'excel_ent_venue_type',
-									'label'              => __( 'Venue', 'excel-ent' ),
-									'title'              => __( 'Venue', 'excel-ent' ),
+									'label'              => __( 'Where Do You Perform?', 'excel-ent' ),
+									'title'              => __( 'Where Do You Perform?', 'excel-ent' ),
 									'placeholder'        => __( 'Select venue type', 'excel-ent' ),
 									'options'            => $excel_ent_venue_options,
 									'selected'           => '',

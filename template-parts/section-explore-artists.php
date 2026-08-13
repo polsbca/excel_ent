@@ -9,12 +9,6 @@ $excel_ent_ea_uri   = EXCEL_ENT_URI . '/assets/images/explore-artists';
 $excel_ent_quote    = excel_ent_get_quote_url();
 $excel_ent_profile  = excel_ent_get_artist_page_url();
 
-$excel_ent_chips = array(
-	__( 'Solo male', 'excel-ent' ),
-	__( 'budget :High to low', 'excel-ent' ),
-	__( 'Most booked', 'excel-ent' ),
-);
-
 $excel_ent_artists = array(
 	array(
 		'name'      => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
@@ -104,23 +98,18 @@ $excel_ent_artists = array(
 			</p>
 		</header>
 
-		<div class="explore-artists__chips-bar reveal" data-reveal data-explore-chips-bar>
-			<div class="explore-artists__chips" data-explore-chips>
-				<?php foreach ( $excel_ent_chips as $excel_ent_chip ) : ?>
-					<button class="explore-artists__chip magnetic" type="button" data-explore-chip>
-						<span><?php echo esc_html( $excel_ent_chip ); ?></span>
-						<img
-							src="<?php echo esc_url( $excel_ent_ea_uri . '/close-line.svg' ); ?>"
-							alt=""
-							width="24"
-							height="24"
-							decoding="async"
-						>
-					</button>
-				<?php endforeach; ?>
-			</div>
+		<div class="explore-artists__chips-bar is-empty reveal" data-reveal data-explore-chips-bar>
+			<div class="explore-artists__chips" data-explore-chips></div>
 			<button class="explore-artists__clear magnetic" type="button" data-explore-clear>
-				<?php esc_html_e( 'Clear All filters', 'excel-ent' ); ?>
+				<img
+					class="explore-artists__clear-icon"
+					src="<?php echo esc_url( $excel_ent_ea_uri . '/close-line.svg' ); ?>"
+					alt=""
+					width="12"
+					height="12"
+					decoding="async"
+				>
+				<span><?php esc_html_e( 'Clear all Filters', 'excel-ent' ); ?></span>
 			</button>
 		</div>
 
