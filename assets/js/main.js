@@ -162,10 +162,19 @@
 	const siteHeader = document.querySelector(".site-header");
 
 	if (navToggle && navigation) {
+		const closeMobileNav = () => {
+			navToggle.setAttribute("aria-expanded", "false");
+			navToggle.setAttribute("aria-label", "Toggle menu");
+			navigation.classList.remove("is-open");
+			siteHeader?.classList.remove("is-nav-open");
+			document.body.classList.remove("nav-open");
+		};
+
 		navToggle.addEventListener("click", () => {
 			const expanded = navToggle.getAttribute("aria-expanded") === "true";
 			const next = !expanded;
 			navToggle.setAttribute("aria-expanded", String(next));
+			navToggle.setAttribute("aria-label", next ? "Close menu" : "Toggle menu");
 			navigation.classList.toggle("is-open", next);
 			siteHeader?.classList.toggle("is-nav-open", next);
 			document.body.classList.toggle("nav-open", next);
@@ -173,39 +182,94 @@
 
 		document.addEventListener("keydown", (e) => {
 			if (e.key !== "Escape" || !navigation.classList.contains("is-open")) return;
-			navToggle.setAttribute("aria-expanded", "false");
-			navigation.classList.remove("is-open");
-			siteHeader?.classList.remove("is-nav-open");
-			document.body.classList.remove("nav-open");
+			closeMobileNav();
+		});
+
+		document.querySelectorAll(".header-search-icon").forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				if (!siteHeader?.classList.contains("is-nav-open")) {
+					return;
+				}
+				if (!window.matchMedia("(max-width: 767px)").matches) {
+					return;
+				}
+				const mobileOpen = document.querySelector("[data-mobile-search-open]");
+				if (mobileOpen) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					closeMobileNav();
+					window.setTimeout(() => mobileOpen.click(), 0);
+					return;
+				}
+				closeMobileNav();
+			});
 		});
 	}
 
-	/* ---------- Header on scroll ---------- */
+	/* ---------- Header on scroll (desktop sticky — Figma 1570:18908) ---------- */
 	if (header) {
-		const isHomeHeroHeader =
-			document.body.classList.contains("home") ||
-			document.body.classList.contains("front-page");
+		const stickyMq = window.matchMedia("(min-width: 1200px)");
+		let scrolled = false;
 
-		/* Home header sits absolutely over the hero — keep it transparent; no scroll restyle. */
-		if (!isHomeHeroHeader) {
-			let scrolled = false;
-			const onScroll = (scrollY) => {
-				const y = typeof scrollY === "number" ? scrollY : window.scrollY;
-				/* Hysteresis so Lenis doesn't thrash the class near the threshold */
-				const next = scrolled ? y > 40 : y > 80;
-				if (next === scrolled) {
-					return;
-				}
-				scrolled = next;
-				header.classList.toggle("is-scrolled", scrolled);
-			};
-			onScroll(window.scrollY);
-			if (lenis) {
-				lenis.on("scroll", ({ scroll }) => onScroll(scroll));
-			} else {
-				window.addEventListener("scroll", () => onScroll(window.scrollY), { passive: true });
+		const stickySearch = document.querySelector("[data-header-sticky-search]");
+		let searchOpenAtY = 0;
+
+		const setStickySearchOpen = (open) => {
+			header.classList.toggle("is-search-open", open);
+			stickySearch?.setAttribute("aria-expanded", String(open));
+			if (open) {
+				searchOpenAtY = window.excelEntLenis?.scroll ?? window.scrollY ?? 0;
+				window.setTimeout(() => {
+					document.querySelector(".header-search__artist-trigger")?.focus({ preventScroll: true });
+				}, 40);
 			}
+		};
+
+		const onScroll = (scrollY) => {
+			const y = typeof scrollY === "number" ? scrollY : window.scrollY;
+			const next = stickyMq.matches ? (scrolled ? y > 40 : y > 80) : false;
+
+			if (header.classList.contains("is-search-open") && Math.abs(y - searchOpenAtY) > 12) {
+				setStickySearchOpen(false);
+			}
+
+			if (next === scrolled) {
+				return;
+			}
+			scrolled = next;
+			header.classList.toggle("is-scrolled", scrolled);
+			if (!scrolled) {
+				setStickySearchOpen(false);
+			}
+		};
+
+		onScroll(window.scrollY);
+		if (lenis) {
+			lenis.on("scroll", ({ scroll }) => onScroll(scroll));
+		} else {
+			window.addEventListener("scroll", () => onScroll(window.scrollY), { passive: true });
 		}
+		if (typeof stickyMq.addEventListener === "function") {
+			stickyMq.addEventListener("change", () => onScroll(window.scrollY));
+		} else if (typeof stickyMq.addListener === "function") {
+			stickyMq.addListener(() => onScroll(window.scrollY));
+		}
+
+		stickySearch?.setAttribute("aria-expanded", "false");
+		stickySearch?.addEventListener("click", () => {
+			if (!header.classList.contains("is-scrolled")) {
+				return;
+			}
+			setStickySearchOpen(!header.classList.contains("is-search-open"));
+		});
+
+		window.addEventListener("keydown", (e) => {
+			if (e.key !== "Escape" || !header.classList.contains("is-search-open")) {
+				return;
+			}
+			setStickySearchOpen(false);
+			stickySearch?.focus();
+		});
 	}
 
 	/* ---------- Scroll reveal ---------- */
@@ -3794,4 +3858,50 @@
 			card.addEventListener("click", (event) => onTap(event, card));
 		});
 	}
+})();
+
+(() => {
+	const chipsBar = document.querySelector("[data-search-chips-bar]");
+	if (!chipsBar) {
+		return;
+	}
+
+	const chipsWrap = chipsBar.querySelector(".search-page__chips");
+	const filterKeys = new Set(["s", "occasion", "location", "event_date", "budget"]);
+
+	const syncChipBar = () => {
+		const remaining = chipsWrap?.querySelectorAll("[data-search-chip]").length || 0;
+		chipsBar.classList.toggle("is-empty", remaining === 0);
+	};
+
+	const removeUrlParam = (key) => {
+		if (!key || !filterKeys.has(key)) {
+			return;
+		}
+		const url = new URL(window.location.href);
+		url.searchParams.delete(key);
+		window.history.replaceState({}, "", url);
+	};
+
+	chipsBar.addEventListener("click", (event) => {
+		const clearBtn = event.target.closest("[data-search-chips-clear]");
+		if (clearBtn && chipsBar.contains(clearBtn)) {
+			event.preventDefault();
+			chipsWrap?.querySelectorAll("[data-search-chip]").forEach((chip) => {
+				removeUrlParam(chip.getAttribute("data-chip-key"));
+				chip.remove();
+			});
+			syncChipBar();
+			return;
+		}
+
+		const chip = event.target.closest("[data-search-chip]");
+		if (!chip || !chipsBar.contains(chip)) {
+			return;
+		}
+		event.preventDefault();
+		removeUrlParam(chip.getAttribute("data-chip-key"));
+		chip.remove();
+		syncChipBar();
+	});
 })();

@@ -74,15 +74,11 @@ function excel_ent_post_thumbnail( $size = 'excel-ent-card' ) {
  * Header logo (custom logo or Figma asset fallback).
  */
 function excel_ent_header_logo() {
-	if ( has_custom_logo() ) {
-		the_custom_logo();
-		return;
-	}
 	?>
 	<a class="custom-logo-link site-logo site-logo--header" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
 		<img
 			class="custom-logo"
-			src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/logo/logo-header.svg' ); ?>"
+			src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/logo/logo-header.png' ); ?>"
 			alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
 			width="100"
 			height="63"

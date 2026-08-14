@@ -207,6 +207,8 @@ body.page-template-page-explore-artists .site-header__bar {
 
 /* Search results — black header + search bar (Figma 1299:11348 / mobile 1053:4365) */
 body.search .site-header {
+	position: relative;
+	top: auto;
 	background: #000;
 }
 
@@ -2413,6 +2415,12 @@ body.mobile-search-open {
 	transform: translateY(-3px) rotate(-45deg);
 }
 
+.nav-toggle__close {
+	display: none;
+	width: 18px;
+	height: 18px;
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer {
@@ -2675,6 +2683,119 @@ body.mobile-search-open {
 	body.front-page .hero {
 		min-height: 100vh;
 		min-height: 100svh;
+	}
+
+	/* Explore Artists desktop header — Figma 1567:18477 */
+	body.page-template-page-explore-artists .header-phone,
+	body.search .header-phone {
+		display: none;
+	}
+
+	body.page-template-page-explore-artists .header-search-icon {
+		display: none !important;
+	}
+
+	body.page-template-page-explore-artists .explore-artists-search {
+		margin-top: 60px;
+	}
+
+	body.page-template-page-explore-artists .explore-artists-search__categories {
+		order: 1;
+	}
+
+	body.page-template-page-explore-artists .explore-artists-search__row {
+		order: 2;
+	}
+
+	/* Sticky header — Figma 1570:18908 */
+	body:not(.home):not(.front-page):not(.search) .site-header {
+		position: sticky;
+		top: 0;
+	}
+
+	body.home .site-header.is-scrolled,
+	body.front-page .site-header.is-scrolled {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		background: #000;
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		box-shadow: none;
+		border-bottom: 0;
+	}
+
+	body.home .site-header.is-scrolled::before,
+	body.front-page .site-header.is-scrolled::before {
+		display: none;
+	}
+
+	body.home .site-header.is-scrolled .site-header__inner,
+	body.front-page .site-header.is-scrolled .site-header__inner {
+		padding-bottom: 0;
+	}
+
+	body.home .site-header.is-scrolled .header-search,
+	body.front-page .site-header.is-scrolled .header-search,
+	body.home .site-header.is-scrolled .header-search-mobile,
+	body.front-page .site-header.is-scrolled .header-search-mobile {
+		display: none !important;
+	}
+
+	body.home .site-header.is-scrolled .header-phone,
+	body.front-page .site-header.is-scrolled .header-phone {
+		display: none;
+	}
+
+	body.home .site-header.is-scrolled .header-search-icon,
+	body.front-page .site-header.is-scrolled .header-search-icon {
+		display: inline-flex !important;
+		order: 1;
+		width: 70px;
+		height: 70px;
+		padding: 20px;
+		border: 2px solid #fff;
+		border-radius: 50px;
+		background: rgba(255, 255, 255, 0.08);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		box-sizing: border-box;
+	}
+
+	body.home .site-header.is-scrolled .header-search-icon img,
+	body.front-page .site-header.is-scrolled .header-search-icon img {
+		width: 30px;
+		height: 30px;
+	}
+
+	body.home .site-header.is-scrolled .btn-quote,
+	body.front-page .site-header.is-scrolled .btn-quote {
+		order: 2;
+	}
+
+	body.home .site-header.is-scrolled .site-logo--header img,
+	body.home .site-header.is-scrolled .site-branding .custom-logo,
+	body.front-page .site-header.is-scrolled .site-logo--header img,
+	body.front-page .site-header.is-scrolled .site-branding .custom-logo {
+		transform: none;
+	}
+
+	/* Sticky search open — Figma 1570:18858 */
+	body.home .site-header.is-scrolled.is-search-open .site-header__inner,
+	body.front-page .site-header.is-scrolled.is-search-open .site-header__inner {
+		padding-bottom: 60px;
+	}
+
+	body.home .site-header.is-scrolled.is-search-open .header-search,
+	body.front-page .site-header.is-scrolled.is-search-open .header-search {
+		display: flex !important;
+	}
+
+	body.home .site-header.is-scrolled.is-search-open .header-search-icon,
+	body.front-page .site-header.is-scrolled.is-search-open .header-search-icon {
+		display: none !important;
 	}
 }
 
@@ -3339,8 +3460,227 @@ body.mobile-search-open {
 	}
 }
 
-/* Phone footer — Figma 1041:2053 */
+/* Phone — Figma 1573:19655 menu / 1041:2053 footer */
 @media (max-width: 767px) {
+	/* Open menu — Figma 1573:19655
+	   Nav lives inside .site-header__bar, so keep display:contents
+	   and place links on their own grid row (not inside the 42px top bar). */
+	body.nav-open .site-header.is-nav-open {
+		background: #000;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+	}
+
+	body.nav-open .site-header.is-nav-open .site-header__inner,
+	body.home.nav-open .site-header.is-nav-open .site-header__inner,
+	body.front-page.nav-open .site-header.is-nav-open .site-header__inner,
+	body.search.nav-open .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-explore-artists.nav-open .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-artist.nav-open .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-about.nav-open .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-package.nav-open .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-contactus.nav-open .site-header.is-nav-open .site-header__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-rows: 42px minmax(0, 1fr);
+		grid-template-areas:
+			"actions toggle"
+			"nav nav";
+		align-content: stretch;
+		align-items: stretch;
+		justify-items: stretch;
+		column-gap: 14px;
+		row-gap: 40px;
+		width: 100%;
+		min-height: 100%;
+		height: 100%;
+		padding: 30px 23px;
+		box-sizing: border-box;
+	}
+
+	body.nav-open .site-header.is-nav-open .site-header__bar {
+		display: contents;
+	}
+
+	body.nav-open .site-header.is-nav-open .site-branding {
+		display: none;
+	}
+
+	body.nav-open .site-header.is-nav-open .header-phone {
+		display: none !important;
+	}
+
+	body.nav-open .site-header.is-nav-open .site-header__actions {
+		display: flex;
+		grid-area: actions;
+		order: unset;
+		flex: none;
+		width: auto;
+		margin: 0;
+		justify-content: flex-start;
+		justify-self: stretch;
+		align-items: center;
+		gap: 14px;
+	}
+
+	body.nav-open .site-header.is-nav-open .btn-quote {
+		height: 42px;
+		padding: 14px 20px;
+		font-size: 14px;
+		font-weight: 800;
+		letter-spacing: 0;
+		line-height: 1;
+		border-radius: 30px;
+		border-bottom: 2px solid #f89a42;
+		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
+		box-sizing: border-box;
+	}
+
+	body.nav-open .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-explore-artists.nav-open .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-artist.nav-open .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-about.nav-open .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-package.nav-open .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-contactus.nav-open .site-header.is-nav-open .header-search-icon {
+		display: inline-flex !important;
+		order: 2;
+		width: 42px;
+		height: 42px;
+		min-width: 42px;
+		padding: 0;
+		margin-left: auto;
+		border: 1px solid #fff;
+		border-radius: 50px;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		box-sizing: border-box;
+	}
+
+	body.nav-open .site-header.is-nav-open .header-search-icon img {
+		width: 18px;
+		height: 18px;
+	}
+
+	body.nav-open .site-header.is-nav-open .nav-toggle {
+		display: inline-flex;
+		grid-area: toggle;
+		order: unset;
+		margin-left: 0;
+		width: 42px;
+		height: 42px;
+		min-width: 42px;
+		padding: 0;
+		border: 1px solid #fff;
+		border-radius: 30px;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+	}
+
+	body.nav-open .site-header.is-nav-open .nav-toggle__bar {
+		display: none;
+	}
+
+	body.nav-open .site-header.is-nav-open .nav-toggle__close {
+		display: block;
+	}
+
+	body.nav-open .site-header.is-nav-open .header-search,
+	body.nav-open .site-header.is-nav-open .header-search-mobile,
+	body.home.nav-open .site-header.is-nav-open .header-search-mobile,
+	body.front-page.nav-open .site-header.is-nav-open .header-search-mobile,
+	body.search.nav-open .site-header.is-nav-open .header-search-mobile,
+	body.nav-open .site-header.is-nav-open .explore-artists-search,
+	body.page-template-page-explore-artists.nav-open .site-header.is-nav-open .explore-artists-search {
+		display: none !important;
+	}
+
+	body.nav-open .site-header.is-nav-open .main-navigation,
+	body.nav-open .site-header.is-nav-open .main-navigation.is-open,
+	body.home.nav-open .site-header.is-nav-open .main-navigation,
+	body.front-page.nav-open .site-header.is-nav-open .main-navigation {
+		display: flex;
+		flex-direction: column;
+		grid-area: nav;
+		position: static;
+		left: auto;
+		right: auto;
+		width: 100%;
+		height: 100%;
+		min-height: 0;
+		margin: 0;
+		padding: 0;
+		background: transparent;
+		border: 0;
+	}
+
+	body.nav-open .site-header.is-nav-open .main-navigation .menu {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		align-items: stretch;
+		justify-content: stretch;
+		gap: 0;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	body.nav-open .site-header.is-nav-open .main-navigation .menu > li {
+		display: flex;
+		flex: 1 1 0;
+		align-items: stretch;
+		width: 100%;
+		min-height: 0;
+		margin: 0;
+		border-top: 0.5px solid #fff;
+	}
+
+	body.nav-open .site-header.is-nav-open .main-navigation .menu > li:last-child {
+		border-bottom: 0.5px solid #fff;
+	}
+
+	body.nav-open .site-header.is-nav-open .main-navigation .menu > li > a,
+	body.nav-open .site-header.is-nav-open .main-navigation .menu > li.current-menu-item > a,
+	body.nav-open .site-header.is-nav-open .main-navigation .menu > li.current_page_item > a,
+	body.nav-open .site-header.is-nav-open .main-navigation .menu > li.current-menu-ancestor > a {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		width: 100%;
+		min-height: 100%;
+		padding: 30px 24px;
+		border: 0;
+		border-radius: 0;
+		background: none;
+		background-image: none;
+		box-shadow: none;
+		filter: none;
+		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 75;
+		font-weight: 400;
+		font-size: 24px;
+		letter-spacing: 1px;
+		line-height: 1;
+		text-transform: uppercase;
+		color: #fff;
+		-webkit-text-fill-color: #fff;
+		box-sizing: border-box;
+	}
+
+	body.nav-open .site-header.is-nav-open .main-navigation .menu > li > a::after {
+		content: "";
+		display: block;
+		width: 16px;
+		height: 16px;
+		flex-shrink: 0;
+		background: url("../images/nav/arrow-right.svg") center / contain no-repeat;
+	}
+
 	.site-footer {
 		padding: 24px;
 		background: #141414;

@@ -1073,18 +1073,20 @@
 
 	.explore-artists-search__categories {
 		gap: 12px;
-		height: auto;
-		flex-wrap: wrap;
+		height: 66px;
+		flex-wrap: nowrap;
 	}
 
 	.explore-artists-search__cat-wrap {
-		flex: 1 1 calc(33.333% - 12px);
+		flex: 1 1 0;
+		min-width: 0;
 	}
 
 	.explore-artists-search__cat {
-		flex: 1 1 calc(33.333% - 12px);
+		flex: 1 1 0;
+		min-width: 0;
 		height: 56px;
-		padding: 0 16px;
+		padding: 0 12px;
 	}
 
 	.explore-artists-search__cat-wrap .explore-artists-search__cat {

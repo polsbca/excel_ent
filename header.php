@@ -39,6 +39,14 @@ $excel_ent_quote = excel_ent_get_quote_url();
 			>
 				<span class="nav-toggle__bar" aria-hidden="true"></span>
 				<span class="nav-toggle__bar" aria-hidden="true"></span>
+				<img
+					class="nav-toggle__close"
+					src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/nav/close-large-line.svg' ); ?>"
+					alt=""
+					width="18"
+					height="18"
+					decoding="async"
+				>
 			</button>
 
 			<nav id="site-navigation" class="main-navigation" aria-label="<?php esc_attr_e( 'Primary', 'excel-ent' ); ?>">
@@ -75,7 +83,39 @@ $excel_ent_quote = excel_ent_get_quote_url();
 					<?php esc_html_e( 'Get a Quote', 'excel-ent' ); ?>
 				</a>
 
-				<?php if ( excel_ent_is_explore_artists_page() ) : ?>
+				<?php if ( is_front_page() ) : ?>
+					<button
+						class="header-search-icon magnetic"
+						type="button"
+						data-header-sticky-search
+						aria-label="<?php esc_attr_e( 'Search', 'excel-ent' ); ?>"
+						aria-expanded="false"
+						aria-controls="header-search-query"
+					>
+						<img
+							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line.svg' ); ?>"
+							alt=""
+							width="30"
+							height="30"
+							decoding="async"
+						>
+					</button>
+				<?php elseif ( is_search() ) : ?>
+					<button
+						class="header-search-icon magnetic"
+						type="button"
+						data-nav-menu-search
+						aria-label="<?php esc_attr_e( 'Search', 'excel-ent' ); ?>"
+					>
+						<img
+							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line.svg' ); ?>"
+							alt=""
+							width="18"
+							height="18"
+							decoding="async"
+						>
+					</button>
+				<?php elseif ( excel_ent_is_explore_artists_page() ) : ?>
 					<button
 						class="header-search-icon magnetic"
 						type="button"
@@ -110,6 +150,7 @@ $excel_ent_quote = excel_ent_get_quote_url();
 
 			<?php
 			if ( excel_ent_is_explore_artists_page() ) {
+				get_template_part( 'template-parts/header', 'search' );
 				get_template_part( 'template-parts/header', 'search-explore' );
 			} elseif ( ! excel_ent_is_artist_page() && ! excel_ent_is_about_page() && ! excel_ent_is_package_page() && ! excel_ent_is_contact_page() ) {
 				get_template_part( 'template-parts/header', 'search' );

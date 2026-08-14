@@ -207,17 +207,9 @@ body.ee-has-cursor .ee-cursor {
 	will-change: transform;
 }
 
-/* Header scroll state — visual only (no padding/layout shifts; those jerk with Lenis) */
-.site-header.is-scrolled {
-	background: rgba(10, 9, 16, 0.86) !important;
-	backdrop-filter: blur(14px);
-	box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.6);
-	border-bottom: 1px solid rgba(244, 239, 228, 0.12);
-}
-
+/* Header scroll state — compact sticky look lives in header-footer.css (Figma 1570:18908) */
 .site-header.is-scrolled .site-logo--header img,
 .site-header.is-scrolled .site-branding .custom-logo {
-	transform: scale(0.92);
 	transition: transform 0.4s var(--ee-ease-spring);
 }
 

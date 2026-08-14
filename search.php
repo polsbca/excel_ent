@@ -130,32 +130,19 @@ if ( empty( $excel_ent_chips ) ) {
 	);
 }
 
-$excel_ent_clear_url = home_url( '/' );
-$excel_ent_base_args = array_filter(
-	array(
-		's'          => $excel_ent_query,
-		'occasion'   => $excel_ent_occasion,
-		'location'   => $excel_ent_location,
-		'event_date' => $excel_ent_event_date,
-		'budget'     => $excel_ent_budget,
-	)
-);
 ?>
 
 <div class="search-page">
-	<div class="search-page__chips-bar" aria-label="<?php esc_attr_e( 'Active filters', 'excel-ent' ); ?>">
+	<div class="search-page__chips-bar" data-search-chips-bar aria-label="<?php esc_attr_e( 'Active filters', 'excel-ent' ); ?>">
 		<div class="search-page__chips">
 			<?php foreach ( $excel_ent_chips as $excel_ent_chip ) : ?>
-				<?php
-				$excel_ent_chip_args = $excel_ent_base_args;
-				if ( isset( $excel_ent_chip_args[ $excel_ent_chip['key'] ] ) ) {
-					unset( $excel_ent_chip_args[ $excel_ent_chip['key'] ] );
-				}
-				$excel_ent_chip_url = ! empty( $excel_ent_chip_args )
-					? add_query_arg( $excel_ent_chip_args, home_url( '/' ) )
-					: $excel_ent_clear_url;
-				?>
-				<a class="search-page__chip magnetic" href="<?php echo esc_url( $excel_ent_chip_url ); ?>">
+				<button
+					type="button"
+					class="search-page__chip magnetic"
+					data-search-chip
+					data-chip-key="<?php echo esc_attr( $excel_ent_chip['key'] ); ?>"
+					aria-label="<?php echo esc_attr( sprintf( /* translators: %s: filter label */ __( 'Remove filter: %s', 'excel-ent' ), $excel_ent_chip['label'] ) ); ?>"
+				>
 					<span><?php echo esc_html( $excel_ent_chip['label'] ); ?></span>
 					<img
 						src="<?php echo esc_url( $excel_ent_search_uri . '/close-line.svg' ); ?>"
@@ -164,10 +151,10 @@ $excel_ent_base_args = array_filter(
 						height="24"
 						decoding="async"
 					>
-				</a>
+				</button>
 			<?php endforeach; ?>
 		</div>
-		<a class="search-page__clear magnetic" href="<?php echo esc_url( $excel_ent_clear_url ); ?>">
+		<button type="button" class="search-page__clear magnetic" data-search-chips-clear>
 			<img
 				src="<?php echo esc_url( $excel_ent_search_uri . '/close-large-line.svg' ); ?>"
 				alt=""
@@ -176,7 +163,7 @@ $excel_ent_base_args = array_filter(
 				decoding="async"
 			>
 			<span><?php esc_html_e( 'Clear all Filters', 'excel-ent' ); ?></span>
-		</a>
+		</button>
 	</div>
 
 	<section class="search-empty" aria-label="<?php esc_attr_e( 'No search results', 'excel-ent' ); ?>">
