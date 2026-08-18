@@ -79,8 +79,6 @@ input[type="button"],
 	will-change: auto;
 }
 
-.header-search__field:hover,
-.header-search__field:focus-within,
 .header-search__submit:hover,
 .header-search__submit:focus-visible {
 	will-change: transform;
@@ -253,13 +251,6 @@ input[type="submit"]:active,
 	transform: scale(0.96) rotate(0deg);
 }
 
-/* ---------- Search fields ---------- */
-
-.header-search__field:hover {
-	background: rgba(244, 239, 228, 0.05);
-	border-radius: 20px;
-}
-
 /* ---------- Nav links ---------- */
 
 .main-navigation .menu > li > a {
@@ -385,4 +376,31 @@ input[type="submit"]:active,
 	.footer-column__menu a:hover {
 		transform: none !important;
 	}
+}
+
+/* Keep header CTAs from compositing above Explore Artists filter popovers */
+body.is-explore-filter-open .site-header,
+body.is-explore-filter-open .site-header .header-search,
+body.is-explore-filter-open .site-header .header-search__submit,
+body.is-explore-filter-open .site-header .header-search-icon,
+body.is-explore-filter-open .site-header .explore-artists-search__cat,
+body.is-explore-filter-open .site-header .explore-artists-search__submit,
+body.is-explore-filter-open .site-header .explore-artists-search__sort,
+body.is-explore-filter-open .site-header button,
+body.is-explore-filter-open .site-header .magnetic {
+	transform: none !important;
+	will-change: auto !important;
+	filter: none !important;
+	z-index: auto;
+}
+
+.site-header.is-panel-open .explore-artists-search__cat,
+.site-header.is-panel-open .explore-artists-search__submit,
+.site-header.is-panel-open .explore-artists-search__sort,
+.site-header:has(.header-search .is-open) .explore-artists-search__cat,
+.site-header:has(.header-search .is-open) .explore-artists-search__submit,
+.site-header:has(.header-search .is-open) .explore-artists-search__sort {
+	transform: none !important;
+	will-change: auto !important;
+	z-index: 0 !important;
 }

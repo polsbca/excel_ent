@@ -103,10 +103,10 @@ $excel_ent_artists = array(
 			<button class="explore-artists__clear magnetic" type="button" data-explore-clear>
 				<img
 					class="explore-artists__clear-icon"
-					src="<?php echo esc_url( $excel_ent_ea_uri . '/close-line.svg' ); ?>"
+					src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/search/close-large-line.svg' ); ?>"
 					alt=""
-					width="12"
-					height="12"
+					width="24"
+					height="24"
 					decoding="async"
 				>
 				<span><?php esc_html_e( 'Clear all Filters', 'excel-ent' ); ?></span>
@@ -115,7 +115,7 @@ $excel_ent_artists = array(
 
 		<div class="explore-artists__results reveal" data-reveal>
 			<div class="explore-artists__results-label">
-				<span><?php esc_html_e( 'All', 'excel-ent' ); ?></span>
+				<span data-explore-results-label data-default-label="<?php esc_attr_e( 'All', 'excel-ent' ); ?>"><?php esc_html_e( 'All', 'excel-ent' ); ?></span>
 				<img
 					src="<?php echo esc_url( $excel_ent_ea_uri . '/line-accent.svg' ); ?>"
 					alt=""

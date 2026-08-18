@@ -32,34 +32,37 @@ $excel_ent_ea_filters = array(
 		),
 	),
 	'genre'       => array(
-		'label' => __( 'Music Genre', 'excel-ent' ),
-		'mod'   => 'genre',
+		'label' => __( 'Genres & Music', 'excel-ent' ),
+		'mod'   => 'wide',
 		'tags'  => array(
-			'pop'               => __( 'Pop', 'excel-ent' ),
-			'rock'              => __( 'Rock', 'excel-ent' ),
-			'rock-n-roll'       => __( "Rock 'n' Roll", 'excel-ent' ),
-			'soul-motown'       => __( 'Soul & Motown', 'excel-ent' ),
-			'rnb'               => __( 'R&B', 'excel-ent' ),
-			'disco'             => __( 'Disco', 'excel-ent' ),
-			'country'           => __( 'Country', 'excel-ent' ),
-			'jazz'              => __( 'Jazz', 'excel-ent' ),
-			'swing'             => __( 'Swing', 'excel-ent' ),
 			'blues'             => __( 'Blues', 'excel-ent' ),
-			'reggae'            => __( 'Reggae', 'excel-ent' ),
-			'opera'             => __( 'Opera', 'excel-ent' ),
 			'classical'         => __( 'Classical', 'excel-ent' ),
-			'indie'             => __( 'Indie', 'excel-ent' ),
-			'latin-party-bands' => __( 'Latin Party Bands', 'excel-ent' ),
-			'cabaret'           => __( 'Cabaret', 'excel-ent' ),
-			'ska'               => __( 'Ska', 'excel-ent' ),
-			'vintage-music'     => __( 'Vintage Music', 'excel-ent' ),
-			'irish-music'       => __( 'Irish Music', 'excel-ent' ),
+			'covers'            => __( 'Covers', 'excel-ent' ),
+			'country'           => __( 'Country', 'excel-ent' ),
+			'dance'             => __( 'Dance', 'excel-ent' ),
+			'disco'             => __( 'Disco', 'excel-ent' ),
 			'glam-rock'         => __( 'Glam Rock', 'excel-ent' ),
+			'indie-mod'         => __( 'Indie & Mod', 'excel-ent' ),
+			'irish-music'       => __( 'Irish music', 'excel-ent' ),
+			'irish'             => __( 'Irish', 'excel-ent' ),
+			'jazz'              => __( 'Jazz', 'excel-ent' ),
+			'latin-party-bands' => __( 'Latin and party bands', 'excel-ent' ),
+			'opera'             => __( 'Opera', 'excel-ent' ),
+			'pop'               => __( 'Pop', 'excel-ent' ),
+			'rnb'               => __( 'R&B', 'excel-ent' ),
 			'rat-pack'          => __( 'Rat Pack', 'excel-ent' ),
+			'reggae'            => __( 'Reggae', 'excel-ent' ),
+			'rock'              => __( 'Rock', 'excel-ent' ),
+			'rock-n-roll'       => __( 'Rock n Roll', 'excel-ent' ),
+			'ska'               => __( 'Ska', 'excel-ent' ),
+			'soul-motown'       => __( 'Soul & Motown', 'excel-ent' ),
+			'swing'             => __( 'Swing', 'excel-ent' ),
+			'vintage-music'     => __( 'Vintage music', 'excel-ent' ),
 		),
 	),
 	'era'         => array(
-		'label' => __( 'Era / Decade', 'excel-ent' ),
+		'label' => __( 'Decades', 'excel-ent' ),
+		'mod'   => 'wide',
 		'tags'  => array(
 			'00s' => __( "00's", 'excel-ent' ),
 			'10s' => __( "10's", 'excel-ent' ),
@@ -74,22 +77,41 @@ $excel_ent_ea_filters = array(
 		),
 	),
 	'event'       => array(
-		'label' => __( 'Event Type', 'excel-ent' ),
+		'label' => __( 'Entertainment & Events', 'excel-ent' ),
 		'mod'   => 'event',
 		'tags'  => array(
-			'wedding'       => __( 'Wedding', 'excel-ent' ),
-			'corporate'     => __( 'Corporate', 'excel-ent' ),
-			'private-party' => __( 'Private Party', 'excel-ent' ),
-			'birthday'      => __( 'Birthday', 'excel-ent' ),
-			'festival'      => __( 'Festival', 'excel-ent' ),
-			'christmas'     => __( 'Christmas', 'excel-ent' ),
-			'charity'       => __( 'Charity', 'excel-ent' ),
+			'celebrity-act'          => __( 'Celebrity Act', 'excel-ent' ),
+			'comedy'                 => __( 'Comedy', 'excel-ent' ),
+			'corporate'              => __( 'Corporate', 'excel-ent' ),
+			'drag-artists'           => __( 'Drag Artists', 'excel-ent' ),
+			'karaoke'                => __( 'Karaoke', 'excel-ent' ),
+			'magicians-hypnotists'   => __( 'Magicians – hypnotists', 'excel-ent' ),
+			'shows'                  => __( 'Shows', 'excel-ent' ),
+			'variety'                => __( 'Variety', 'excel-ent' ),
+			'wedding'                => __( 'Weddings', 'excel-ent' ),
+		),
+	),
+	'artists-tributes' => array(
+		'label' => __( 'Artists & Tributes', 'excel-ent' ),
+		'mod'   => 'wide',
+		'tags'  => array(
+			'bands'           => __( 'Bands', 'excel-ent' ),
+			'big-band'        => __( 'Big Band', 'excel-ent' ),
+			'djs'             => __( "DJ's", 'excel-ent' ),
+			'duo-tributes'    => __( 'Duo Tributes', 'excel-ent' ),
+			'duos'            => __( 'Duos', 'excel-ent' ),
+			'female-solo'     => __( 'Female Solo', 'excel-ent' ),
+			'female-tributes' => __( 'Female Tributes', 'excel-ent' ),
+			'male-solo'       => __( 'Male Solo', 'excel-ent' ),
+			'male-tributes'   => __( 'Male Tributes', 'excel-ent' ),
+			'tribute'         => __( 'Tribute', 'excel-ent' ),
 		),
 	),
 	'sort'        => array(
-		'label' => __( 'Sort By', 'excel-ent' ),
-		'mod'   => 'sort',
-		'tags'  => array(
+		'label'   => __( 'Sort by filter', 'excel-ent' ),
+		'mod'     => 'sort',
+		'confirm' => false,
+		'tags'    => array(
 			'recommended'    => __( 'Recommended', 'excel-ent' ),
 			'most-popular'   => __( 'Most Popular', 'excel-ent' ),
 			'highest-rated'  => __( 'Highest Rated', 'excel-ent' ),
@@ -105,9 +127,9 @@ $excel_ent_search_categories = array(
 	array(
 		'id'     => 'all',
 		'label'  => __( 'ALL', 'excel-ent' ),
-		'count'  => '1200',
+		'count'  => '1800',
 		'active' => true,
-		'icon'   => 'shine',
+		'icon'   => 'none',
 	),
 	array(
 		'id'           => 'artist-type',
@@ -117,6 +139,7 @@ $excel_ent_search_categories = array(
 		'icon'         => 'shine',
 		'mobile_label' => __( 'ALL', 'excel-ent' ),
 		'filter'       => 'artist-type',
+		'compact_only' => true,
 	),
 	array(
 		'id'           => 'tribute',
@@ -126,19 +149,20 @@ $excel_ent_search_categories = array(
 		'icon'         => 'shine',
 		'mobile_label' => __( 'ALL', 'excel-ent' ),
 		'filter'       => 'tribute',
+		'compact_only' => true,
 	),
 	array(
-		'id'           => 'genre',
-		'label'        => __( 'Music Genre', 'excel-ent' ),
-		'count'        => '1200',
-		'active'       => false,
-		'icon'         => 'caret',
-		'desktop_only' => true,
-		'filter'       => 'genre',
+		'id'        => 'artists-tributes',
+		'label'     => __( 'Artists & Tributes', 'excel-ent' ),
+		'count'     => '1200',
+		'active'    => false,
+		'icon'      => 'caret',
+		'wide_only' => true,
+		'filter'    => 'artists-tributes',
 	),
 	array(
 		'id'           => 'era',
-		'label'        => __( 'Era / Decade', 'excel-ent' ),
+		'label'        => __( 'Decades', 'excel-ent' ),
 		'count'        => '1200',
 		'active'       => false,
 		'icon'         => 'caret',
@@ -147,12 +171,22 @@ $excel_ent_search_categories = array(
 	),
 	array(
 		'id'           => 'event',
-		'label'        => __( 'Event Type', 'excel-ent' ),
+		'label'        => __( 'Entertainment & Events', 'excel-ent' ),
 		'count'        => '1200',
 		'active'       => false,
 		'icon'         => 'caret',
 		'desktop_only' => true,
+		'fit'          => true,
 		'filter'       => 'event',
+	),
+	array(
+		'id'           => 'genre',
+		'label'        => __( 'Genres & Music', 'excel-ent' ),
+		'count'        => '1200',
+		'active'       => false,
+		'icon'         => 'caret',
+		'desktop_only' => true,
+		'filter'       => 'genre',
 	),
 	array(
 		'id'          => 'wedding',
@@ -172,8 +206,10 @@ $excel_ent_search_categories = array(
 	),
 );
 
-$excel_ent_render_filter_panel = static function ( $id, $group ) {
-	$mod = ! empty( $group['mod'] ) ? ' explore-filter--' . $group['mod'] : '';
+$excel_ent_render_filter_panel = static function ( $id, $group ) use ( $excel_ent_ea_uri ) {
+	$mod          = ! empty( $group['mod'] ) ? ' explore-filter--' . $group['mod'] : '';
+	$is_sort      = ! empty( $group['mod'] ) && 'sort' === $group['mod'];
+	$show_confirm = ! isset( $group['confirm'] ) || $group['confirm'];
 	?>
 	<div
 		id="explore-filter-<?php echo esc_attr( $id ); ?>"
@@ -204,20 +240,67 @@ $excel_ent_render_filter_panel = static function ( $id, $group ) {
 				<p class="explore-filter__title"><?php echo esc_html( $group['label'] ); ?></p>
 				<span class="explore-filter__line" aria-hidden="true"></span>
 			</div>
-			<div class="explore-filter__tags" role="listbox" aria-label="<?php echo esc_attr( $group['label'] ); ?>">
+			<div
+				class="explore-filter__tags"
+				role="listbox"
+				aria-multiselectable="<?php echo $is_sort ? 'false' : 'true'; ?>"
+				aria-label="<?php echo esc_attr( $group['label'] ); ?>"
+			>
 				<?php foreach ( $group['tags'] as $excel_ent_value => $excel_ent_tag_label ) : ?>
+					<?php $excel_ent_tag_on = $is_sort && 'recommended' === $excel_ent_value; ?>
 					<button
 						type="button"
-						class="explore-filter__tag"
+						class="explore-filter__tag<?php echo $excel_ent_tag_on ? ' is-selected' : ''; ?>"
 						role="option"
-						aria-selected="false"
+						aria-selected="<?php echo $excel_ent_tag_on ? 'true' : 'false'; ?>"
 						data-explore-filter-tag
 						data-value="<?php echo esc_attr( $excel_ent_value ); ?>"
 					>
-						<?php echo esc_html( $excel_ent_tag_label ); ?>
+						<img
+							class="explore-filter__check explore-filter__check--off"
+							src="<?php echo esc_url( $excel_ent_ea_uri . '/check-line.svg' ); ?>"
+							alt=""
+							width="16"
+							height="16"
+							decoding="async"
+						>
+						<img
+							class="explore-filter__check explore-filter__check--on"
+							src="<?php echo esc_url( $excel_ent_ea_uri . '/check-line-on.svg' ); ?>"
+							alt=""
+							width="16"
+							height="16"
+							decoding="async"
+						>
+						<img
+							class="explore-filter__radio explore-filter__radio--off"
+							src="<?php echo esc_url( $excel_ent_ea_uri . '/radio-off.svg' ); ?>"
+							alt=""
+							width="14"
+							height="14"
+							decoding="async"
+						>
+						<img
+							class="explore-filter__radio explore-filter__radio--on"
+							src="<?php echo esc_url( $excel_ent_ea_uri . '/radio-on.svg' ); ?>"
+							alt=""
+							width="14"
+							height="14"
+							decoding="async"
+						>
+						<span class="explore-filter__tag-label"><?php echo esc_html( $excel_ent_tag_label ); ?></span>
 					</button>
 				<?php endforeach; ?>
 			</div>
+			<?php if ( $show_confirm ) : ?>
+				<button
+					type="button"
+					class="explore-filter__confirm magnetic"
+					data-explore-filter-confirm
+				>
+					<?php esc_html_e( 'Confirm Selection', 'excel-ent' ); ?>
+				</button>
+			<?php endif; ?>
 		</div>
 	</div>
 	<?php
@@ -293,16 +376,35 @@ $excel_ent_render_filter_panel = static function ( $id, $group ) {
 			if ( ! empty( $excel_ent_cat['desktop_only'] ) ) {
 				$excel_ent_cat_class .= ' explore-artists-search__cat--desktop-only';
 			}
+			if ( ! empty( $excel_ent_cat['compact_only'] ) ) {
+				$excel_ent_cat_class .= ' explore-artists-search__cat--compact-only';
+			}
+			if ( ! empty( $excel_ent_cat['wide_only'] ) ) {
+				$excel_ent_cat_class .= ' explore-artists-search__cat--wide-only';
+			}
 			if ( empty( $excel_ent_cat['count'] ) ) {
 				$excel_ent_cat_class .= ' explore-artists-search__cat--plain';
 			}
 			$excel_ent_icon      = isset( $excel_ent_cat['icon'] ) ? $excel_ent_cat['icon'] : 'caret';
 			$excel_ent_filter_id = isset( $excel_ent_cat['filter'] ) ? $excel_ent_cat['filter'] : '';
 			$excel_ent_has_panel = $excel_ent_filter_id && isset( $excel_ent_ea_filters[ $excel_ent_filter_id ] );
+			$excel_ent_wrap_mods = '';
+			if ( ! empty( $excel_ent_cat['desktop_only'] ) ) {
+				$excel_ent_wrap_mods .= ' explore-artists-search__cat-wrap--desktop-only';
+			}
+			if ( ! empty( $excel_ent_cat['compact_only'] ) ) {
+				$excel_ent_wrap_mods .= ' explore-artists-search__cat-wrap--compact-only';
+			}
+			if ( ! empty( $excel_ent_cat['wide_only'] ) ) {
+				$excel_ent_wrap_mods .= ' explore-artists-search__cat-wrap--wide-only';
+			}
+			if ( ! empty( $excel_ent_cat['fit'] ) ) {
+				$excel_ent_wrap_mods .= ' explore-artists-search__cat-wrap--fit';
+			}
 			?>
 			<?php if ( $excel_ent_has_panel ) : ?>
 				<div
-					class="explore-artists-search__cat-wrap<?php echo ! empty( $excel_ent_cat['desktop_only'] ) ? ' explore-artists-search__cat-wrap--desktop-only' : ''; ?>"
+					class="explore-artists-search__cat-wrap<?php echo esc_attr( $excel_ent_wrap_mods ); ?>"
 					data-explore-filter="<?php echo esc_attr( $excel_ent_filter_id ); ?>"
 				>
 			<?php endif; ?>

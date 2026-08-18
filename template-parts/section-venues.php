@@ -1,6 +1,6 @@
 <?php
 /**
- * Venues accordion section (Figma 1084:1970 — desktop).
+ * Venues accordion section (Figma 1668:1849 desktop / content 1673:9082).
  *
  * @package Excel_Ent
  */
@@ -13,52 +13,35 @@ $excel_ent_venues = array(
 		'id'          => 'pubs-clubs',
 		'title'       => __( 'Pubs & Clubs', 'excel-ent' ),
 		'image'       => $excel_ent_venues_uri . '/pubs-clubs.jpg',
-		'description' => __( 'Regular weekly acts to keep your venue packed and your regulars coming back every time.', 'excel-ent' ),
-		'tags'        => array(
-			__( 'Nightclubs', 'excel-ent' ),
-			__( 'Bars & Pubs', 'excel-ent' ),
-			__( 'DJ Nights', 'excel-ent' ),
-			__( 'Live Music Nights', 'excel-ent' ),
-		),
+		'description' => __( 'Keep your venue lively with regular entertainment for busy nights, weekend events, and returning guests.', 'excel-ent' ),
 		'active'      => true,
-	),
-	array(
-		'id'          => 'hotels',
-		'title'       => __( 'Hotels', 'excel-ent' ),
-		'image'       => $excel_ent_venues_uri . '/hotels.jpg',
-		'description' => __( 'Polished performers for weddings, conferences, and hotel events that reflect your brand at its best.', 'excel-ent' ),
-		'tags'        => array(
-			__( 'Weddings', 'excel-ent' ),
-			__( 'Conferences', 'excel-ent' ),
-			__( 'Ballrooms', 'excel-ent' ),
-			__( 'Corporate Dinners', 'excel-ent' ),
-		),
-		'active'      => false,
 	),
 	array(
 		'id'          => 'golf-social',
 		'title'       => __( 'Golf & Social Clubs', 'excel-ent' ),
 		'image'       => $excel_ent_venues_uri . '/golf-social.jpg',
-		'description' => __( 'Entertainment tailored for members\' nights, social calendars, and clubhouse celebrations of every size.', 'excel-ent' ),
-		'tags'        => array(
-			__( 'Members Events', 'excel-ent' ),
-			__( 'Social Evenings', 'excel-ent' ),
-			__( 'Live Acts', 'excel-ent' ),
-			__( 'Themed Nights', 'excel-ent' ),
-		),
+		'description' => __( 'Create memorable experiences with entertainment suited to members, social gatherings, and special celebrations.', 'excel-ent' ),
 		'active'      => false,
 	),
 	array(
-		'id'          => 'community',
-		'title'       => __( 'Community Centres', 'excel-ent' ),
-		'image'       => $excel_ent_venues_uri . '/community.jpg',
-		'description' => __( 'Family-friendly and community-focused acts that bring people together for celebrations of every kind.', 'excel-ent' ),
-		'tags'        => array(
-			__( 'Weddings', 'excel-ent' ),
-			__( 'Local Events', 'excel-ent' ),
-			__( 'Charity Nights', 'excel-ent' ),
-			__( 'Family Parties', 'excel-ent' ),
-		),
+		'id'          => 'hotels',
+		'title'       => __( 'Hotels', 'excel-ent' ),
+		'image'       => $excel_ent_venues_uri . '/hotels.jpg',
+		'description' => __( 'Enhance your guests\' experience with professional entertainment for events, evenings, and special occasions.', 'excel-ent' ),
+		'active'      => false,
+	),
+	array(
+		'id'          => 'weddings',
+		'title'       => __( 'Weddings', 'excel-ent' ),
+		'image'       => $excel_ent_venues_uri . '/weddings.jpg',
+		'description' => __( 'Make every celebration memorable with entertainment tailored to your wedding, guests, and special moments.', 'excel-ent' ),
+		'active'      => false,
+	),
+	array(
+		'id'          => 'corporate',
+		'title'       => __( 'Corporate Functions', 'excel-ent' ),
+		'image'       => $excel_ent_venues_uri . '/corporate-functions.jpg',
+		'description' => __( 'Bring your corporate events to life with professional entertainment for parties, celebrations, and company gatherings.', 'excel-ent' ),
 		'active'      => false,
 	),
 );
@@ -137,16 +120,6 @@ $excel_ent_venues = array(
 						<div class="venue-panel__content">
 							<div class="venue-panel__copy">
 								<h3 class="venue-panel__title"><?php echo esc_html( $excel_ent_venue['title'] ); ?></h3>
-
-								<div class="venue-panel__tags">
-									<?php foreach ( $excel_ent_venue['tags'] as $excel_ent_tag ) : ?>
-										<span class="venue-tag"><?php echo esc_html( $excel_ent_tag ); ?></span>
-									<?php endforeach; ?>
-									<span class="venue-tag venue-tag--more" aria-hidden="true">
-										<img src="<?php echo esc_url( $excel_ent_venues_uri . '/add-large-line.svg' ); ?>" alt="" width="24" height="24" decoding="async">
-									</span>
-								</div>
-
 								<p class="venue-panel__text"><?php echo esc_html( $excel_ent_venue['description'] ); ?></p>
 							</div>
 

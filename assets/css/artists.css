@@ -1,4 +1,4 @@
-/* Excel Ent — Artists section (Figma 898:8531) */
+/* Excel Ent — Artists section (Figma 1668:1706 / 1673:8826) */
 
 .artists-section {
 	background: #fff;
@@ -7,26 +7,32 @@
 	display: flex;
 	flex-direction: column;
 	gap: 60px;
-	overflow: hidden;
+	overflow-x: clip;
+	overflow-y: visible;
 }
 
 .artists-section__header {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: 40px;
 	padding: 20px 40px 0;
+	min-width: 0;
 }
 
 .artists-section__intro {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: flex-start;
 	justify-content: space-between;
 	gap: 40px;
 	width: 100%;
+	min-width: 0;
 }
 
 .artists-section__title {
 	margin: 0;
+	flex: 1 1 auto;
+	min-width: 0;
 	max-width: 872px;
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
@@ -42,10 +48,25 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
-	gap: 30px;
-	width: 600px;
+	gap: 0;
+	width: auto;
 	max-width: 100%;
-	flex-shrink: 0;
+	flex: 0 0 auto;
+	margin-left: auto;
+}
+
+.artists-section__toolbar {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 24px;
+	width: 100%;
+	min-width: 0;
+}
+
+.artists-section__toolbar > .artists-section__filters {
+	flex: 1 1 auto;
+	min-width: 0;
 }
 
 .artists-section__eyebrow {
@@ -78,7 +99,9 @@
 .artists-section__mode {
 	display: flex;
 	gap: 20px;
-	width: 100%;
+	width: auto;
+	justify-content: flex-end;
+	overflow: visible;
 }
 
 .artists-mode {
@@ -86,8 +109,10 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 290px;
-	max-width: calc(50% - 10px);
+	width: auto;
+	flex: 0 0 auto;
+	height: 74px;
+	min-height: 74px;
 	padding: 30px 40px;
 	border: 1px solid #000;
 	background: transparent;
@@ -97,8 +122,21 @@
 	font-size: 24px;
 	line-height: 1;
 	letter-spacing: 1px;
+	text-transform: uppercase;
+	white-space: nowrap;
 	color: #000;
 	cursor: pointer;
+	box-sizing: border-box;
+}
+
+/* Figma 1673:8826 — Artist tab is always 290px (active or inactive) */
+.artists-mode[data-artists-mode="artist"] {
+	width: 290px;
+}
+
+/* Figma 1668:1706 — Music tab auto-sizes when active; fixed width only when inactive */
+.artists-mode[data-artists-mode="occasion"]:not(.artists-mode--active) {
+	width: auto;
 }
 
 .artists-mode--active {
@@ -110,7 +148,7 @@
 		--ee-quote-gradient,
 		linear-gradient(270deg, #eb2055 0.48%, #f1634c 80%, #f8a742 100%)
 	);
-	box-shadow: 0 4px 4px rgba(155, 77, 255, 0.5);
+	box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
 }
 
 .artists-section__filters {
@@ -155,6 +193,40 @@
 	height: 16px;
 	transform: rotate(180deg);
 	display: block;
+}
+
+.artists-filter--link-artist-types span {
+	text-transform: capitalize;
+}
+
+@media (min-width: 1200px) {
+	.artists-section__toolbar {
+		flex-direction: row;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 24px;
+	}
+
+	.artists-section__toolbar > .artists-section__filters:not(.is-hidden) {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+
+	.artists-section__mode {
+		width: auto;
+		max-width: 100%;
+		flex-shrink: 0;
+		justify-content: flex-end;
+	}
+
+	.artists-filter--link-artist-types {
+		height: 51px;
+		min-height: 51px;
+		padding-top: 0;
+		padding-bottom: 0;
+		box-sizing: border-box;
+	}
 }
 
 .artists-filter:hover,
@@ -643,10 +715,6 @@
 		height: 660px;
 	}
 
-	.artists-section__browse {
-		width: 480px;
-	}
-
 	.artists-mode {
 		padding: 22px 28px;
 		font-size: 20px;
@@ -674,6 +742,27 @@
 	.artists-section__browse {
 		align-items: flex-start;
 		width: 100%;
+		margin-left: 0;
+	}
+
+	.artists-section__toolbar {
+		gap: 28px;
+	}
+
+	.artists-section__mode {
+		width: auto;
+		padding: 0;
+		justify-content: flex-start;
+	}
+
+	.artists-mode[data-artists-mode="artist"] {
+		width: auto;
+		flex: 1 1 0;
+	}
+
+	.artists-mode {
+		height: 54px;
+		min-height: 54px;
 	}
 
 	.artists-section__title {
@@ -716,6 +805,7 @@
 	.artists-section {
 		padding: 40px 0;
 		gap: 40px;
+		overflow-x: hidden;
 	}
 
 	.artists-section__header {
@@ -741,7 +831,12 @@
 	.artists-section__browse {
 		align-items: flex-start;
 		width: 100%;
-		gap: 40px;
+		margin-left: 0;
+		gap: 0;
+	}
+
+	.artists-section__toolbar {
+		gap: 24px;
 	}
 
 	.artists-section__eyebrow {
@@ -784,9 +879,14 @@
 		text-transform: uppercase;
 	}
 
+	.artists-mode[data-artists-mode="artist"] {
+		width: auto;
+		flex: 1 1 0;
+	}
+
 	.artists-mode--active {
 		font-weight: 800;
-		box-shadow: 0 4px 4px rgba(155, 77, 255, 0.5);
+		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
 	}
 
 	.artists-section__filters {

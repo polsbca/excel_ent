@@ -201,6 +201,52 @@ function excel_ent_get_artist_page_url() {
 }
 
 /**
+ * Explore Artists listing page URL (Template: Explore Artists).
+ *
+ * @param array $args {
+ *     Optional query arguments.
+ *
+ *     @type string[] $categories Category pill ids (e.g. artist-type, tribute).
+ * }
+ * @return string
+ */
+function excel_ent_get_explore_artists_url( $args = array() ) {
+	$pages = get_posts(
+		array(
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'meta_key'       => '_wp_page_template',
+			'meta_value'     => 'page-explore-artists.php',
+			'no_found_rows'  => true,
+		)
+	);
+
+	if ( ! empty( $pages[0] ) ) {
+		$url = get_permalink( $pages[0] );
+	} else {
+		$page = get_page_by_path( 'explore-artists' );
+		$url  = $page ? get_permalink( $page ) : home_url( '/explore-artists/' );
+	}
+
+	if ( ! empty( $args['categories'] ) && is_array( $args['categories'] ) ) {
+		$categories = array();
+		foreach ( $args['categories'] as $category ) {
+			$category = sanitize_key( (string) $category );
+			if ( '' !== $category ) {
+				$categories[] = $category;
+			}
+		}
+		if ( $categories ) {
+			$url = add_query_arg( 'categories', implode( ',', $categories ), $url );
+		}
+	}
+
+	return $url;
+}
+
+/**
  * Fallback menu when no primary menu is assigned.
  */
 function excel_ent_fallback_menu() {

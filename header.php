@@ -104,8 +104,11 @@ $excel_ent_quote = excel_ent_get_quote_url();
 					<button
 						class="header-search-icon magnetic"
 						type="button"
+						data-header-sticky-search
 						data-nav-menu-search
 						aria-label="<?php esc_attr_e( 'Search', 'excel-ent' ); ?>"
+						aria-expanded="false"
+						aria-controls="header-search-query"
 					>
 						<img
 							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line.svg' ); ?>"
@@ -119,14 +122,17 @@ $excel_ent_quote = excel_ent_get_quote_url();
 					<button
 						class="header-search-icon magnetic"
 						type="button"
+						data-header-sticky-search
 						data-explore-header-search
-						aria-label="<?php esc_attr_e( 'Focus search', 'excel-ent' ); ?>"
+						aria-label="<?php esc_attr_e( 'Search', 'excel-ent' ); ?>"
+						aria-expanded="false"
+						aria-controls="header-search-query"
 					>
 						<img
 							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line.svg' ); ?>"
 							alt=""
-							width="18"
-							height="18"
+							width="30"
+							height="30"
 							decoding="async"
 						>
 					</button>

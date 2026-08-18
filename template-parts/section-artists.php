@@ -1,48 +1,50 @@
 <?php
 /**
  * Artists / occasions browse section.
- * Occasion: Figma 898:8531 | Artist: Figma 898:8824
+ * Occasion: Figma 1668:1706 | Artist: Figma 1673:8826
  *
  * @package Excel_Ent
  */
 
 $excel_ent_artist_uri     = EXCEL_ENT_URI . '/assets/images/artists';
 $excel_ent_preview_video  = $excel_ent_artist_uri . '/preview.mp4';
+$excel_ent_artist_page_url = excel_ent_get_artist_page_url();
 
 $excel_ent_occasion_filters = array(
 	array( 'id' => 'all', 'label' => __( 'All', 'excel-ent' ), 'active' => true ),
-	array( 'id' => 'wedding', 'label' => __( 'Wedding', 'excel-ent' ), 'active' => false ),
-	array( 'id' => 'corporate', 'label' => __( 'Corporate events', 'excel-ent' ), 'active' => false ),
-	array( 'id' => 'pubs', 'label' => __( 'Pubs & Clubs', 'excel-ent' ), 'active' => false ),
+	array( 'id' => 'decades', 'label' => __( 'Decades', 'excel-ent' ), 'active' => false ),
+	array( 'id' => 'entertainment-events', 'label' => __( 'Entertainment & Events', 'excel-ent' ), 'active' => false ),
+	array( 'id' => 'genres-music', 'label' => __( 'Genres & Music', 'excel-ent' ), 'active' => false ),
 );
 
 $excel_ent_profile_filters = array(
 	array( 'id' => 'all', 'label' => __( 'All', 'excel-ent' ), 'active' => true ),
-	array( 'id' => 'solo', 'label' => __( 'Solo', 'excel-ent' ), 'active' => false ),
-	array( 'id' => 'brands', 'label' => __( 'Brands', 'excel-ent' ), 'active' => false ),
-	array( 'id' => 'brands', 'label' => __( 'Brands', 'excel-ent' ), 'active' => false ),
+	array( 'id' => 'male-solo', 'label' => __( 'Male Solo', 'excel-ent' ), 'active' => false ),
+	array( 'id' => 'female-solo', 'label' => __( 'Female Solo', 'excel-ent' ), 'active' => false ),
+	array( 'id' => 'duos', 'label' => __( 'Duos', 'excel-ent' ), 'active' => false ),
+	array( 'id' => 'tribute', 'label' => __( 'Tribute', 'excel-ent' ), 'active' => false ),
 );
 
 $excel_ent_occasion_cards = array(
 	array(
-		'title'        => __( 'DJs', 'excel-ent' ),
+		'title'        => __( 'Irish music', 'excel-ent' ),
 		'options'      => __( '1000+ OPTIONS', 'excel-ent' ),
 		'image'        => $excel_ent_artist_uri . '/card-djs.jpg',
-		'category'     => 'djs',
-		'detail_title' => __( 'DJs', 'excel-ent' ),
+		'category'     => 'genres-music',
+		'detail_title' => __( 'Irish music', 'excel-ent' ),
 		'bullets'      => array(
-			__( '100+ Experienced DJs', 'excel-ent' ),
+			__( '100+ Experienced Irish music', 'excel-ent' ),
 			__( 'All Event Types Covered', 'excel-ent' ),
 			__( 'Tailored Music Experience', 'excel-ent' ),
 			__( 'Pro Sound & Lighting', 'excel-ent' ),
 		),
-		'link'         => home_url( '/djs/' ),
+		'link'         => home_url( '/irish-music/' ),
 	),
 	array(
 		'title'    => __( 'Corporate Events', 'excel-ent' ),
 		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
 		'image'    => $excel_ent_artist_uri . '/card-corporate.jpg',
-		'category' => 'corporate',
+		'category' => 'entertainment-events',
 		'bullets'  => array(
 			__( 'Corporate entertainment experts', 'excel-ent' ),
 			__( 'Brand-safe performances', 'excel-ent' ),
@@ -52,49 +54,50 @@ $excel_ent_occasion_cards = array(
 		'link'     => home_url( '/corporate-events/' ),
 	),
 	array(
-		'title'    => __( 'Wedding', 'excel-ent' ),
+		'title'    => __( 'Celebrity Act', 'excel-ent' ),
 		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
 		'image'    => $excel_ent_artist_uri . '/card-wedding.jpg',
-		'category' => 'wedding',
+		'category' => 'entertainment-events',
 		'bullets'  => array(
-			__( 'Ceremony to reception', 'excel-ent' ),
-			__( 'Live bands & DJs', 'excel-ent' ),
-			__( 'Personalised playlists', 'excel-ent' ),
-			__( 'Fully vetted acts', 'excel-ent' ),
+			__( 'Headline celebrity performers', 'excel-ent' ),
+			__( 'Premium event experiences', 'excel-ent' ),
+			__( 'Fully managed bookings', 'excel-ent' ),
+			__( 'Nationwide availability', 'excel-ent' ),
 		),
-		'link'     => home_url( '/wedding-packages/' ),
+		'link'     => home_url( '/celebrity-acts/' ),
 	),
 	array(
-		'title'    => __( 'Live Bands', 'excel-ent' ),
+		'title'    => __( 'Rock n Roll', 'excel-ent' ),
 		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
 		'image'    => $excel_ent_artist_uri . '/card-djs-2.jpg',
-		'category' => 'pubs',
+		'category' => 'decades',
 		'bullets'  => array(
-			__( 'High-energy live sets', 'excel-ent' ),
-			__( 'Pubs, clubs & parties', 'excel-ent' ),
-			__( 'Tribute & original acts', 'excel-ent' ),
+			__( 'Classic rock & roll acts', 'excel-ent' ),
+			__( 'Era-authentic performances', 'excel-ent' ),
+			__( 'Live bands & tributes', 'excel-ent' ),
 			__( 'Book with confidence', 'excel-ent' ),
 		),
-		'link'     => home_url( '/bands/' ),
+		'link'     => home_url( '/rock-n-roll/' ),
 	),
 	array(
-		'title'    => __( 'Wedding', 'excel-ent' ),
-		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
-		'image'    => $excel_ent_artist_uri . '/card-wedding.jpg',
-		'category' => 'wedding',
-		'bullets'  => array(
-			__( 'Ceremony to reception', 'excel-ent' ),
-			__( 'Live bands & DJs', 'excel-ent' ),
-			__( 'Personalised playlists', 'excel-ent' ),
-			__( 'Fully vetted acts', 'excel-ent' ),
+		'title'        => __( 'Irish music', 'excel-ent' ),
+		'options'      => __( '1000+ OPTIONS', 'excel-ent' ),
+		'image'        => $excel_ent_artist_uri . '/card-djs.jpg',
+		'category'     => 'genres-music',
+		'detail_title' => __( 'Irish music', 'excel-ent' ),
+		'bullets'      => array(
+			__( '100+ Experienced Irish music', 'excel-ent' ),
+			__( 'All Event Types Covered', 'excel-ent' ),
+			__( 'Tailored Music Experience', 'excel-ent' ),
+			__( 'Pro Sound & Lighting', 'excel-ent' ),
 		),
-		'link'     => home_url( '/wedding-packages/' ),
+		'link'         => home_url( '/irish-music/' ),
 	),
 	array(
 		'title'    => __( 'Corporate Events', 'excel-ent' ),
 		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
 		'image'    => $excel_ent_artist_uri . '/card-corporate.jpg',
-		'category' => 'corporate',
+		'category' => 'entertainment-events',
 		'bullets'  => array(
 			__( 'Corporate entertainment experts', 'excel-ent' ),
 			__( 'Brand-safe performances', 'excel-ent' ),
@@ -104,43 +107,43 @@ $excel_ent_occasion_cards = array(
 		'link'     => home_url( '/corporate-events/' ),
 	),
 	array(
-		'title'    => __( 'DJs', 'excel-ent' ),
-		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
-		'image'    => $excel_ent_artist_uri . '/card-djs.jpg',
-		'category' => 'djs',
-		'bullets'  => array(
-			__( '100+ Experienced DJs', 'excel-ent' ),
-			__( 'All Event Types Covered', 'excel-ent' ),
-			__( 'Tailored Music Experience', 'excel-ent' ),
-			__( 'Pro Sound & Lighting', 'excel-ent' ),
-		),
-		'link'     => home_url( '/djs/' ),
-	),
-	array(
-		'title'    => __( 'Live Bands', 'excel-ent' ),
-		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
-		'image'    => $excel_ent_artist_uri . '/card-djs-2.jpg',
-		'category' => 'pubs',
-		'bullets'  => array(
-			__( 'High-energy live sets', 'excel-ent' ),
-			__( 'Pubs, clubs & parties', 'excel-ent' ),
-			__( 'Tribute & original acts', 'excel-ent' ),
-			__( 'Book with confidence', 'excel-ent' ),
-		),
-		'link'     => home_url( '/bands/' ),
-	),
-	array(
-		'title'    => __( 'Wedding', 'excel-ent' ),
+		'title'    => __( 'Celebrity Act', 'excel-ent' ),
 		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
 		'image'    => $excel_ent_artist_uri . '/card-wedding.jpg',
-		'category' => 'wedding',
+		'category' => 'entertainment-events',
 		'bullets'  => array(
-			__( 'Ceremony to reception', 'excel-ent' ),
-			__( 'Live bands & DJs', 'excel-ent' ),
-			__( 'Personalised playlists', 'excel-ent' ),
-			__( 'Fully vetted acts', 'excel-ent' ),
+			__( 'Headline celebrity performers', 'excel-ent' ),
+			__( 'Premium event experiences', 'excel-ent' ),
+			__( 'Fully managed bookings', 'excel-ent' ),
+			__( 'Nationwide availability', 'excel-ent' ),
 		),
-		'link'     => home_url( '/wedding-packages/' ),
+		'link'     => home_url( '/celebrity-acts/' ),
+	),
+	array(
+		'title'    => __( 'Rock n Roll', 'excel-ent' ),
+		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
+		'image'    => $excel_ent_artist_uri . '/card-djs-2.jpg',
+		'category' => 'decades',
+		'bullets'  => array(
+			__( 'Classic rock & roll acts', 'excel-ent' ),
+			__( 'Era-authentic performances', 'excel-ent' ),
+			__( 'Live bands & tributes', 'excel-ent' ),
+			__( 'Book with confidence', 'excel-ent' ),
+		),
+		'link'     => home_url( '/rock-n-roll/' ),
+	),
+	array(
+		'title'    => __( 'Corporate Events', 'excel-ent' ),
+		'options'  => __( '1000+ OPTIONS', 'excel-ent' ),
+		'image'    => $excel_ent_artist_uri . '/card-corporate.jpg',
+		'category' => 'entertainment-events',
+		'bullets'  => array(
+			__( 'Corporate entertainment experts', 'excel-ent' ),
+			__( 'Brand-safe performances', 'excel-ent' ),
+			__( 'Flexible setups', 'excel-ent' ),
+			__( 'Nationwide coverage', 'excel-ent' ),
+		),
+		'link'     => home_url( '/corporate-events/' ),
 	),
 );
 
@@ -150,81 +153,81 @@ $excel_ent_profile_cards = array(
 		'era'      => __( '70s', 'excel-ent' ),
 		'price'    => '£1,200',
 		'type'     => __( 'Tribute Act', 'excel-ent' ),
-		'category' => 'brands',
+		'category' => 'tribute',
 		'image'    => $excel_ent_artist_uri . '/artist-1.jpg',
-		'link'     => home_url( '/artists/andy-crosbie/' ),
+		'link'     => $excel_ent_artist_page_url,
 	),
 	array(
 		'name'     => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
 		'era'      => __( '70s', 'excel-ent' ),
 		'price'    => '£1,200',
 		'type'     => __( 'Tribute Act', 'excel-ent' ),
-		'category' => 'solo',
+		'category' => 'male-solo',
 		'image'    => $excel_ent_artist_uri . '/artist-2.jpg',
-		'link'     => home_url( '/artists/andy-crosbie/' ),
+		'link'     => $excel_ent_artist_page_url,
 	),
 	array(
 		'name'     => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
 		'era'      => __( '70s', 'excel-ent' ),
 		'price'    => '£1,200',
 		'type'     => __( 'Tribute Act', 'excel-ent' ),
-		'category' => 'brands',
+		'category' => 'female-solo',
 		'image'    => $excel_ent_artist_uri . '/artist-3.jpg',
-		'link'     => home_url( '/artists/andy-crosbie/' ),
+		'link'     => $excel_ent_artist_page_url,
 	),
 	array(
 		'name'     => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
 		'era'      => __( '70s', 'excel-ent' ),
 		'price'    => '£1,200',
 		'type'     => __( 'Tribute Act', 'excel-ent' ),
-		'category' => 'brands',
+		'category' => 'duos',
 		'image'    => $excel_ent_artist_uri . '/artist-4.jpg',
-		'link'     => home_url( '/artists/andy-crosbie/' ),
+		'link'     => $excel_ent_artist_page_url,
 	),
 	array(
 		'name'     => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
 		'era'      => __( '70s', 'excel-ent' ),
 		'price'    => '£1,200',
 		'type'     => __( 'Tribute Act', 'excel-ent' ),
-		'category' => 'solo',
+		'category' => 'tribute',
 		'image'    => $excel_ent_artist_uri . '/artist-1.jpg',
-		'link'     => home_url( '/artists/andy-crosbie/' ),
+		'link'     => $excel_ent_artist_page_url,
 	),
 	array(
 		'name'     => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
 		'era'      => __( '70s', 'excel-ent' ),
 		'price'    => '£1,200',
 		'type'     => __( 'Tribute Act', 'excel-ent' ),
-		'category' => 'brands',
+		'category' => 'male-solo',
 		'image'    => $excel_ent_artist_uri . '/artist-2.jpg',
-		'link'     => home_url( '/artists/andy-crosbie/' ),
+		'link'     => $excel_ent_artist_page_url,
 	),
 	array(
 		'name'     => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
 		'era'      => __( '70s', 'excel-ent' ),
 		'price'    => '£1,200',
 		'type'     => __( 'Tribute Act', 'excel-ent' ),
-		'category' => 'brands',
+		'category' => 'tribute',
 		'image'    => $excel_ent_artist_uri . '/artist-3.jpg',
-		'link'     => home_url( '/artists/andy-crosbie/' ),
+		'link'     => $excel_ent_artist_page_url,
 	),
 	array(
 		'name'     => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
 		'era'      => __( '70s', 'excel-ent' ),
 		'price'    => '£1,200',
 		'type'     => __( 'Tribute Act', 'excel-ent' ),
-		'category' => 'solo',
+		'category' => 'female-solo',
 		'image'    => $excel_ent_artist_uri . '/artist-4.jpg',
-		'link'     => home_url( '/artists/andy-crosbie/' ),
+		'link'     => $excel_ent_artist_page_url,
 	),
 	array(
 		'name'     => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
 		'era'      => __( '70s', 'excel-ent' ),
 		'price'    => '£1,200',
 		'type'     => __( 'Tribute Act', 'excel-ent' ),
-		'category' => 'brands',
+		'category' => 'duos',
 		'image'    => $excel_ent_artist_uri . '/artist-1.jpg',
-		'link'     => home_url( '/artists/andy-crosbie/' ),
+		'link'     => $excel_ent_artist_page_url,
 	),
 );
 ?>
@@ -240,50 +243,48 @@ $excel_ent_profile_cards = array(
 					<img src="<?php echo esc_url( $excel_ent_artist_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
 					<span><?php esc_html_e( 'Browse by Artist & occasions', 'excel-ent' ); ?></span>
 				</div>
-
-				<div class="artists-section__mode" role="tablist" aria-label="<?php esc_attr_e( 'Browse mode', 'excel-ent' ); ?>">
-					<button type="button" class="artists-mode artists-mode--active magnetic" data-artists-mode="occasion" role="tab" aria-selected="true">
-						<?php esc_html_e( 'Occasion', 'excel-ent' ); ?>
-					</button>
-					<button type="button" class="artists-mode magnetic" data-artists-mode="artist" role="tab" aria-selected="false">
-						<?php esc_html_e( 'Artist', 'excel-ent' ); ?>
-					</button>
-				</div>
 			</div>
 		</div>
 
-		<div class="artists-section__filters reveal" data-reveal data-mode-filters="occasion" role="tablist" aria-label="<?php esc_attr_e( 'Occasion categories', 'excel-ent' ); ?>">
-			<?php foreach ( $excel_ent_occasion_filters as $excel_ent_filter ) : ?>
-				<button
-					type="button"
-					class="artists-filter magnetic<?php echo ! empty( $excel_ent_filter['active'] ) ? ' artists-filter--active' : ''; ?>"
-					data-artists-filter="<?php echo esc_attr( $excel_ent_filter['id'] ); ?>"
-					aria-selected="<?php echo ! empty( $excel_ent_filter['active'] ) ? 'true' : 'false'; ?>"
-				>
-					<?php echo esc_html( $excel_ent_filter['label'] ); ?>
-				</button>
-			<?php endforeach; ?>
-			<a class="artists-filter artists-filter--link magnetic" href="<?php echo esc_url( home_url( '/artists/' ) ); ?>">
-				<span><?php esc_html_e( 'View All Categories', 'excel-ent' ); ?></span>
-				<img src="<?php echo esc_url( $excel_ent_artist_uri . '/arrow-pill.svg' ); ?>" alt="" width="16" height="16" decoding="async">
-			</a>
-		</div>
+		<div class="artists-section__toolbar reveal" data-reveal>
+			<div class="artists-section__filters" data-mode-filters="occasion" role="tablist" aria-label="<?php esc_attr_e( 'Occasion categories', 'excel-ent' ); ?>">
+				<?php foreach ( $excel_ent_occasion_filters as $excel_ent_filter ) : ?>
+					<button
+						type="button"
+						class="artists-filter magnetic<?php echo ! empty( $excel_ent_filter['active'] ) ? ' artists-filter--active' : ''; ?>"
+						data-artists-filter="<?php echo esc_attr( $excel_ent_filter['id'] ); ?>"
+						aria-selected="<?php echo ! empty( $excel_ent_filter['active'] ) ? 'true' : 'false'; ?>"
+					>
+						<?php echo esc_html( $excel_ent_filter['label'] ); ?>
+					</button>
+				<?php endforeach; ?>
+			</div>
 
-		<div class="artists-section__filters reveal is-hidden" data-reveal data-mode-filters="artist" role="tablist" aria-label="<?php esc_attr_e( 'Artist categories', 'excel-ent' ); ?>" hidden>
-			<?php foreach ( $excel_ent_profile_filters as $excel_ent_filter ) : ?>
-				<button
-					type="button"
-					class="artists-filter magnetic<?php echo ! empty( $excel_ent_filter['active'] ) ? ' artists-filter--active' : ''; ?>"
-					data-artists-filter="<?php echo esc_attr( $excel_ent_filter['id'] ); ?>"
-					aria-selected="<?php echo ! empty( $excel_ent_filter['active'] ) ? 'true' : 'false'; ?>"
-				>
-					<?php echo esc_html( $excel_ent_filter['label'] ); ?>
+			<div class="artists-section__filters is-hidden" data-mode-filters="artist" role="tablist" aria-label="<?php esc_attr_e( 'Artist categories', 'excel-ent' ); ?>" hidden>
+				<?php foreach ( $excel_ent_profile_filters as $excel_ent_filter ) : ?>
+					<button
+						type="button"
+						class="artists-filter magnetic<?php echo ! empty( $excel_ent_filter['active'] ) ? ' artists-filter--active' : ''; ?>"
+						data-artists-filter="<?php echo esc_attr( $excel_ent_filter['id'] ); ?>"
+						aria-selected="<?php echo ! empty( $excel_ent_filter['active'] ) ? 'true' : 'false'; ?>"
+					>
+						<?php echo esc_html( $excel_ent_filter['label'] ); ?>
+					</button>
+				<?php endforeach; ?>
+				<a class="artists-filter artists-filter--link artists-filter--link-artist-types magnetic" href="<?php echo esc_url( excel_ent_get_explore_artists_url( array( 'categories' => array( 'artist-type', 'tribute' ) ) ) ); ?>">
+					<span><?php esc_html_e( 'View All artist types', 'excel-ent' ); ?></span>
+					<img src="<?php echo esc_url( $excel_ent_artist_uri . '/arrow-pill.svg' ); ?>" alt="" width="16" height="16" decoding="async">
+				</a>
+			</div>
+
+			<div class="artists-section__mode" role="tablist" aria-label="<?php esc_attr_e( 'Browse mode', 'excel-ent' ); ?>">
+				<button type="button" class="artists-mode artists-mode--active magnetic" data-artists-mode="occasion" role="tab" aria-selected="true">
+					<?php esc_html_e( 'Music & Entertainment', 'excel-ent' ); ?>
 				</button>
-			<?php endforeach; ?>
-			<a class="artists-filter artists-filter--link magnetic" href="<?php echo esc_url( home_url( '/artists/' ) ); ?>">
-				<span><?php esc_html_e( 'View All Categories', 'excel-ent' ); ?></span>
-				<img src="<?php echo esc_url( $excel_ent_artist_uri . '/arrow-pill.svg' ); ?>" alt="" width="16" height="16" decoding="async">
-			</a>
+				<button type="button" class="artists-mode magnetic" data-artists-mode="artist" role="tab" aria-selected="false">
+					<?php esc_html_e( 'Artist', 'excel-ent' ); ?>
+				</button>
+			</div>
 		</div>
 	</div>
 

@@ -105,7 +105,7 @@ if ( $excel_ent_event_date ) {
 	if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_event_date ) ) {
 		$excel_ent_ts = strtotime( $excel_ent_event_date );
 		if ( $excel_ent_ts ) {
-			$excel_ent_date_chip = wp_date( 'j M Y', $excel_ent_ts );
+			$excel_ent_date_chip = wp_date( 'd/m/Y', $excel_ent_ts );
 		}
 	}
 	$excel_ent_chips[] = array(
@@ -117,7 +117,11 @@ if ( $excel_ent_event_date ) {
 if ( $excel_ent_query ) {
 	$excel_ent_chips[] = array(
 		'key'   => 's',
-		'label' => $excel_ent_query,
+		'label' => sprintf(
+			/* translators: %s: search term */
+			__( 'Search by name: %s', 'excel-ent' ),
+			$excel_ent_query
+		),
 	);
 }
 

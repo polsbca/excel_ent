@@ -41,92 +41,156 @@ $excel_ent_location_options = array(
 	),
 );
 
-/* Figma 1179:77179 — Browse Categories groups + tags */
+/* Figma 1669:6537 / 6613 / 6682 / 6747 — Browse Categories groups + tags */
+$excel_ent_occasion_values = array_values(
+	array_filter(
+		array_map(
+			'trim',
+			explode( ',', $excel_ent_occasion )
+		)
+	)
+);
+
 $excel_ent_category_groups = array(
-	'artist-type' => array(
-		'label' => __( 'Artist Type', 'excel-ent' ),
-		'tags'  => array(
-			'male-solo'             => __( 'Male Solo', 'excel-ent' ),
-			'female-solo'           => __( 'Female Solo', 'excel-ent' ),
-			'duos'                  => __( 'Duos', 'excel-ent' ),
-			'bands'                 => __( 'Bands', 'excel-ent' ),
-			'djs'                   => __( "DJ's", 'excel-ent' ),
-			'celebrity-acts'        => __( 'Celebrity Acts', 'excel-ent' ),
-			'professional-dancers'  => __( 'Professional Dancers', 'excel-ent' ),
-			'magicians-hypnotists'  => __( 'Magicians & Hypnotists', 'excel-ent' ),
-			'shows'                 => __( 'Shows', 'excel-ent' ),
+	'artists-tributes'    => array(
+		'label'   => __( 'Artists & Tributes', 'excel-ent' ),
+		'columns' => 2,
+		'tags'    => array(
+			'bands'                => __( 'Bands', 'excel-ent' ),
+			'big-band'             => __( 'Big Band', 'excel-ent' ),
+			'djs'                  => __( "DJ's", 'excel-ent' ),
+			'duo-tributes'         => __( 'Duo Tributes', 'excel-ent' ),
+			'duos'                 => __( 'Duos', 'excel-ent' ),
+			'female-solo'          => __( 'Female Solo', 'excel-ent' ),
+			'female-tributes'      => __( 'Female Tributes', 'excel-ent' ),
+			'male-solo'            => __( 'Male Solo', 'excel-ent' ),
+			'male-tributes'        => __( 'Male Tributes', 'excel-ent' ),
+			'tribute'              => __( 'Tribute', 'excel-ent' ),
+			'celebrity-acts'       => __( 'Celebrity Act', 'excel-ent' ),
+			'elvis'                => __( 'Elvis', 'excel-ent' ),
+			'queen'                => __( 'Queen', 'excel-ent' ),
+			'adele'                => __( 'Adele', 'excel-ent' ),
+			'abba'                 => __( 'ABBA', 'excel-ent' ),
+			'beatles'              => __( 'The Beatles', 'excel-ent' ),
+			'motown'               => __( 'Motown', 'excel-ent' ),
 		),
 	),
-	'tribute'     => array(
-		'label' => __( 'Tribute Acts', 'excel-ent' ),
-		'tags'  => array(
-			'elvis'   => __( 'Elvis', 'excel-ent' ),
-			'queen'   => __( 'Queen', 'excel-ent' ),
-			'adele'   => __( 'Adele', 'excel-ent' ),
-			'abba'    => __( 'ABBA', 'excel-ent' ),
-			'beatles' => __( 'The Beatles', 'excel-ent' ),
-			'motown'  => __( 'Motown', 'excel-ent' ),
+	'decades'              => array(
+		'label'   => __( 'Decades', 'excel-ent' ),
+		'columns' => 2,
+		'tags'    => array(
+			'2000s' => __( "00's", 'excel-ent' ),
+			'2010s' => __( "10's", 'excel-ent' ),
+			'2020s' => __( "20's", 'excel-ent' ),
+			'2030s' => __( "30's", 'excel-ent' ),
+			'2040s' => __( "40's", 'excel-ent' ),
+			'50s'   => __( "50's", 'excel-ent' ),
+			'60s'   => __( "60's", 'excel-ent' ),
+			'70s'   => __( "70's", 'excel-ent' ),
+			'80s'   => __( "80's", 'excel-ent' ),
+			'90s'   => __( "90's", 'excel-ent' ),
 		),
 	),
-	'genre'       => array(
-		'label' => __( 'Music Genre', 'excel-ent' ),
-		'tags'  => array(
-			'pop'       => __( 'Pop', 'excel-ent' ),
-			'rock'      => __( 'Rock', 'excel-ent' ),
-			'soul'      => __( 'Soul', 'excel-ent' ),
-			'jazz'      => __( 'Jazz', 'excel-ent' ),
-			'rnb'       => __( 'R&B', 'excel-ent' ),
-			'classical' => __( 'Classical', 'excel-ent' ),
-			'country'   => __( 'Country', 'excel-ent' ),
+	'entertainment-events' => array(
+		'label'   => __( 'Entertainment & Events', 'excel-ent' ),
+		'columns' => 2,
+		'tags'    => array(
+			'celebrity-acts'       => __( 'Celebrity Act', 'excel-ent' ),
+			'comedy'               => __( 'Comedy', 'excel-ent' ),
+			'corporate'            => __( 'Corporate', 'excel-ent' ),
+			'drag-artists'         => __( 'Drag Artists', 'excel-ent' ),
+			'karaoke'              => __( 'Karaoke', 'excel-ent' ),
+			'magicians-hypnotists' => __( 'Magicians-hypnotists', 'excel-ent' ),
+			'shows'                => __( 'Shows', 'excel-ent' ),
+			'variety'              => __( 'Variety', 'excel-ent' ),
+			'wedding'              => __( 'Weddings', 'excel-ent' ),
 		),
 	),
-	'era'         => array(
-		'label' => __( 'Era / Decade', 'excel-ent' ),
-		'tags'  => array(
-			'60s'    => __( "60's", 'excel-ent' ),
-			'70s'    => __( "70's", 'excel-ent' ),
-			'80s'    => __( "80's", 'excel-ent' ),
-			'90s'    => __( "90's", 'excel-ent' ),
-			'2000s'  => __( "2000's", 'excel-ent' ),
-			'modern' => __( 'Modern', 'excel-ent' ),
-		),
-	),
-	'event'       => array(
-		'label' => __( 'Event Type', 'excel-ent' ),
-		'tags'  => array(
-			'wedding'   => __( 'Wedding', 'excel-ent' ),
-			'corporate' => __( 'Corporate', 'excel-ent' ),
-			'pubs'      => __( 'Pubs & Clubs', 'excel-ent' ),
-			'private'   => __( 'Private Party', 'excel-ent' ),
-			'festival'  => __( 'Festival', 'excel-ent' ),
+	'genres-music'         => array(
+		'label'   => __( 'Genres & Music', 'excel-ent' ),
+		'columns' => 3,
+		'tags'    => array(
+			'blues'            => __( 'Blues', 'excel-ent' ),
+			'classical'        => __( 'Classical', 'excel-ent' ),
+			'covers'           => __( 'Covers', 'excel-ent' ),
+			'country'          => __( 'Country', 'excel-ent' ),
+			'dance'            => __( 'Dance', 'excel-ent' ),
+			'disco'            => __( 'Disco', 'excel-ent' ),
+			'glam-rock'        => __( 'Glam Rock', 'excel-ent' ),
+			'indie-mod'        => __( 'Indie & Mod', 'excel-ent' ),
+			'irish-music'      => __( 'Irish music', 'excel-ent' ),
+			'irish'            => __( 'Irish', 'excel-ent' ),
+			'jazz'             => __( 'Jazz', 'excel-ent' ),
+			'latin-party'      => __( 'Latin and party bands', 'excel-ent' ),
+			'opera'            => __( 'Opera', 'excel-ent' ),
+			'pop'              => __( 'Pop', 'excel-ent' ),
+			'rnb'              => __( 'R&B', 'excel-ent' ),
+			'rat-pack'         => __( 'Rat Pack', 'excel-ent' ),
+			'reggae'           => __( 'Reggae', 'excel-ent' ),
+			'rock'             => __( 'Rock', 'excel-ent' ),
+			'rock-n-roll'      => __( 'Rock n Roll', 'excel-ent' ),
+			'ska'              => __( 'Ska', 'excel-ent' ),
+			'soul'             => __( 'Soul & Motown', 'excel-ent' ),
+			'swing'            => __( 'Swing', 'excel-ent' ),
+			'vintage-music'    => __( 'Vintage music', 'excel-ent' ),
 		),
 	),
 );
 
-$excel_ent_budget_label = isset( $excel_ent_budget_options[ $excel_ent_budget ] )
+$excel_ent_budget_value = isset( $excel_ent_budget_options[ $excel_ent_budget ] )
 	? $excel_ent_budget_options[ $excel_ent_budget ]
-	: __( 'Budget', 'excel-ent' );
+	: '';
 
-$excel_ent_location_label = isset( $excel_ent_location_options[ $excel_ent_location ] )
-	? $excel_ent_location_options[ $excel_ent_location ]['label']
-	: __( 'Location', 'excel-ent' );
+$excel_ent_location_value = '';
+if ( $excel_ent_location ) {
+	$excel_ent_location_value = isset( $excel_ent_location_options[ $excel_ent_location ] )
+		? $excel_ent_location_options[ $excel_ent_location ]['label']
+		: $excel_ent_location;
+}
 
-$excel_ent_category_label  = __( 'Occasion', 'excel-ent' );
-$excel_ent_category_group  = 'artist-type';
-$excel_ent_category_tag    = '';
+$excel_ent_category_value  = '';
+$excel_ent_category_group  = 'artists-tributes';
+$excel_ent_category_tags   = array();
 foreach ( $excel_ent_category_groups as $excel_ent_group_key => $excel_ent_group ) {
-	if ( isset( $excel_ent_group['tags'][ $excel_ent_occasion ] ) ) {
-		$excel_ent_category_group = $excel_ent_group_key;
-		$excel_ent_category_tag   = $excel_ent_occasion;
-		$excel_ent_category_label = $excel_ent_group['tags'][ $excel_ent_occasion ];
-		break;
+	foreach ( $excel_ent_occasion_values as $excel_ent_selected_tag ) {
+		if ( isset( $excel_ent_group['tags'][ $excel_ent_selected_tag ] ) ) {
+			$excel_ent_category_group = $excel_ent_group_key;
+			break 2;
+		}
+	}
+}
+
+foreach ( $excel_ent_occasion_values as $excel_ent_selected_tag ) {
+	foreach ( $excel_ent_category_groups as $excel_ent_group ) {
+		if ( isset( $excel_ent_group['tags'][ $excel_ent_selected_tag ] ) ) {
+			$excel_ent_category_tags[] = $excel_ent_selected_tag;
+			break;
+		}
+	}
+}
+
+$excel_ent_category_tags = array_values( array_unique( $excel_ent_category_tags ) );
+
+$excel_ent_category_labels_selected = array();
+foreach ( $excel_ent_category_tags as $excel_ent_selected_tag ) {
+	foreach ( $excel_ent_category_groups as $excel_ent_group ) {
+		if ( isset( $excel_ent_group['tags'][ $excel_ent_selected_tag ] ) ) {
+			$excel_ent_category_labels_selected[] = $excel_ent_group['tags'][ $excel_ent_selected_tag ];
+			break;
+		}
+	}
+}
+
+if ( ! empty( $excel_ent_category_labels_selected ) ) {
+	if ( count( $excel_ent_category_labels_selected ) > 3 ) {
+		$excel_ent_category_value = implode( ', ', array_slice( $excel_ent_category_labels_selected, 0, 3 ) ) . '...';
+	} else {
+		$excel_ent_category_value = implode( ', ', $excel_ent_category_labels_selected );
 	}
 }
 
 $excel_ent_artist_query = get_search_query();
-$excel_ent_artist_label = $excel_ent_artist_query
-	? $excel_ent_artist_query
-	: __( 'Search', 'excel-ent' );
+$excel_ent_artist_value = $excel_ent_artist_query;
 
 $excel_ent_artist_avatar = EXCEL_ENT_URI . '/assets/images/icons/artist-search-avatar.jpg';
 $excel_ent_artist_results = array(
@@ -157,16 +221,16 @@ $excel_ent_artist_results = array(
 	),
 );
 
-$excel_ent_date_label = __( 'Event Date', 'excel-ent' );
+$excel_ent_date_value = '';
 if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_event_date ) ) {
 	$excel_ent_date_ts = strtotime( $excel_ent_event_date );
 	if ( $excel_ent_date_ts ) {
-		$excel_ent_date_label = wp_date( 'j M Y', $excel_ent_date_ts );
+		$excel_ent_date_value = wp_date( 'd/m/Y', $excel_ent_date_ts );
 	}
 }
 ?>
 <form class="header-search" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-	<div class="header-search__field header-search__field--artist" data-header-artist>
+	<div class="header-search__field header-search__field--artist<?php echo $excel_ent_artist_value ? ' is-filled' : ''; ?>" data-header-artist>
 		<button
 			type="button"
 			class="header-search__artist-trigger"
@@ -184,7 +248,10 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 				decoding="async"
 			>
 			<span class="header-search__label">
-				<span class="header-search__title" data-header-artist-label><?php echo esc_html( $excel_ent_artist_label ); ?></span>
+				<span class="header-search__title" data-header-artist-title><?php esc_html_e( 'Search Artist', 'excel-ent' ); ?></span>
+				<span class="header-search__meta" data-header-artist-meta data-default-meta="<?php esc_attr_e( 'Artists, Djs, Bands...', 'excel-ent' ); ?>">
+					<?php echo esc_html( $excel_ent_artist_value ? $excel_ent_artist_value : __( 'Artists, Djs, Bands...', 'excel-ent' ) ); ?>
+				</span>
 			</span>
 		</button>
 		<input
@@ -262,7 +329,7 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 		</div>
 	</div>
 
-	<div class="header-search__field header-search__field--categories" data-header-categories>
+	<div class="header-search__field header-search__field--categories<?php echo $excel_ent_category_value ? ' is-filled' : ''; ?>" data-header-categories>
 		<button
 			type="button"
 			class="header-search__categories-trigger"
@@ -280,7 +347,10 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 				decoding="async"
 			>
 			<span class="header-search__label">
-				<span class="header-search__title" data-header-categories-label><?php echo esc_html( $excel_ent_category_label ); ?></span>
+				<span class="header-search__title" data-header-categories-title><?php esc_html_e( 'Browse Categories', 'excel-ent' ); ?></span>
+				<span class="header-search__meta" data-header-categories-meta data-default-meta="<?php esc_attr_e( 'Any occasions or categories', 'excel-ent' ); ?>">
+					<?php echo esc_html( $excel_ent_category_value ? $excel_ent_category_value : __( 'Any occasions or categories', 'excel-ent' ) ); ?>
+				</span>
 			</span>
 		</button>
 		<input
@@ -295,13 +365,12 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 			id="header-categories-panel"
 			class="header-categories"
 			data-header-categories-panel
+			data-lenis-prevent
+			data-lenis-prevent-wheel
 			role="dialog"
 			aria-label="<?php esc_attr_e( 'Browse Categories', 'excel-ent' ); ?>"
 			hidden
 		>
-			<div class="header-categories__header">
-				<p class="header-categories__title"><?php esc_html_e( 'Browse Categories', 'excel-ent' ); ?></p>
-			</div>
 			<div class="header-categories__body">
 				<ul class="header-categories__nav" role="tablist" aria-label="<?php esc_attr_e( 'Category groups', 'excel-ent' ); ?>">
 					<?php foreach ( $excel_ent_category_groups as $excel_ent_group_key => $excel_ent_group ) : ?>
@@ -350,9 +419,9 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 								<p class="header-categories__divider-label"><?php echo esc_html( $excel_ent_group['label'] ); ?></p>
 								<span class="header-categories__divider-line" aria-hidden="true"></span>
 							</div>
-							<div class="header-categories__tags" role="listbox" aria-label="<?php echo esc_attr( $excel_ent_group['label'] ); ?>">
+							<div class="header-categories__tags header-categories__tags--cols-<?php echo esc_attr( $excel_ent_group['columns'] ); ?>" role="listbox" aria-label="<?php echo esc_attr( $excel_ent_group['label'] ); ?>">
 								<?php foreach ( $excel_ent_group['tags'] as $excel_ent_tag_value => $excel_ent_tag_label ) : ?>
-									<?php $excel_ent_tag_selected = ( (string) $excel_ent_category_tag === (string) $excel_ent_tag_value ); ?>
+									<?php $excel_ent_tag_selected = in_array( (string) $excel_ent_tag_value, $excel_ent_category_tags, true ); ?>
 									<button
 										type="button"
 										class="header-categories__tag<?php echo $excel_ent_tag_selected ? ' is-selected' : ''; ?>"
@@ -362,7 +431,8 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 										data-value="<?php echo esc_attr( $excel_ent_tag_value ); ?>"
 										data-label="<?php echo esc_attr( $excel_ent_tag_label ); ?>"
 									>
-										<?php echo esc_html( $excel_ent_tag_label ); ?>
+										<span class="header-categories__tag-box" aria-hidden="true"></span>
+										<span class="header-categories__tag-text"><?php echo esc_html( $excel_ent_tag_label ); ?></span>
 									</button>
 								<?php endforeach; ?>
 							</div>
@@ -370,10 +440,13 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 					<?php endforeach; ?>
 				</div>
 			</div>
+			<button type="button" class="header-categories__confirm" data-header-categories-confirm>
+				<?php esc_html_e( 'Confirm Selection', 'excel-ent' ); ?>
+			</button>
 		</div>
 	</div>
 
-	<div class="header-search__field header-search__field--location" data-header-location>
+	<div class="header-search__field header-search__field--location<?php echo $excel_ent_location_value ? ' is-filled' : ''; ?>" data-header-location>
 		<button
 			type="button"
 			class="header-search__location-trigger"
@@ -391,7 +464,10 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 				decoding="async"
 			>
 			<span class="header-search__label">
-				<span class="header-search__title" data-header-location-label><?php echo esc_html( $excel_ent_location_label ); ?></span>
+				<span class="header-search__title" data-header-location-title><?php esc_html_e( 'Location', 'excel-ent' ); ?></span>
+				<span class="header-search__meta" data-header-location-meta data-default-meta="<?php esc_attr_e( 'Add Postalcode', 'excel-ent' ); ?>">
+					<?php echo esc_html( $excel_ent_location_value ? $excel_ent_location_value : __( 'Add Postalcode', 'excel-ent' ) ); ?>
+				</span>
 			</span>
 		</button>
 		<input
@@ -407,9 +483,10 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 			class="header-location"
 			data-header-location-panel
 			role="dialog"
-			aria-label="<?php esc_attr_e( 'Select location', 'excel-ent' ); ?>"
+			aria-label="<?php esc_attr_e( 'Enter your post code', 'excel-ent' ); ?>"
 			hidden
 		>
+			<p class="header-location__heading"><?php esc_html_e( 'Enter your post code', 'excel-ent' ); ?></p>
 			<label class="header-location__search">
 				<img
 					class="header-location__search-icon"
@@ -419,80 +496,26 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 					height="16"
 					decoding="async"
 				>
-				<span class="screen-reader-text"><?php esc_html_e( 'Search for a city', 'excel-ent' ); ?></span>
+				<span class="screen-reader-text"><?php esc_html_e( 'Post code', 'excel-ent' ); ?></span>
 				<input
 					class="header-location__search-input"
-					type="search"
-					placeholder="<?php esc_attr_e( 'Search for a city...', 'excel-ent' ); ?>"
+					type="text"
+					placeholder="<?php esc_attr_e( 'E.g. SW1A 1AA', 'excel-ent' ); ?>"
+					value="<?php echo esc_attr( $excel_ent_location_value ); ?>"
 					data-header-location-search
-					autocomplete="off"
+					autocomplete="postal-code"
+					spellcheck="false"
 				>
 			</label>
-
-			<div class="header-location__section">
-				<p class="header-location__heading"><?php esc_html_e( 'Popular Cities', 'excel-ent' ); ?></p>
-				<ul class="header-location__list" role="listbox" aria-label="<?php esc_attr_e( 'Popular cities', 'excel-ent' ); ?>">
-					<?php foreach ( $excel_ent_location_options as $excel_ent_loc_value => $excel_ent_loc_data ) : ?>
-						<?php
-						$excel_ent_loc_selected = ( (string) $excel_ent_location === (string) $excel_ent_loc_value );
-						$excel_ent_loc_search   = strtolower( $excel_ent_loc_data['label'] . ' ' . $excel_ent_loc_data['region'] );
-						?>
-						<li class="header-location__item" role="none">
-							<button
-								type="button"
-								class="header-location__option<?php echo $excel_ent_loc_selected ? ' is-selected' : ''; ?>"
-								role="option"
-								aria-selected="<?php echo $excel_ent_loc_selected ? 'true' : 'false'; ?>"
-								data-header-location-option
-								data-value="<?php echo esc_attr( $excel_ent_loc_value ); ?>"
-								data-label="<?php echo esc_attr( $excel_ent_loc_data['label'] ); ?>"
-								data-search="<?php echo esc_attr( $excel_ent_loc_search ); ?>"
-							>
-								<span class="header-location__icon-wrap">
-									<img
-										class="header-location__pin header-location__pin--muted"
-										src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/map-pin-muted.svg' ); ?>"
-										alt=""
-										width="16"
-										height="16"
-										decoding="async"
-									>
-									<img
-										class="header-location__pin header-location__pin--accent"
-										src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/map-pin-accent.svg' ); ?>"
-										alt=""
-										width="16"
-										height="16"
-										decoding="async"
-									>
-								</span>
-								<span class="header-location__text">
-									<span class="header-location__city"><?php echo esc_html( $excel_ent_loc_data['label'] ); ?></span>
-									<span class="header-location__region"><?php echo esc_html( $excel_ent_loc_data['region'] ); ?></span>
-								</span>
-								<img
-									class="header-location__check"
-									src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/check-accent.svg' ); ?>"
-									alt=""
-									width="18"
-									height="18"
-									decoding="async"
-								>
-							</button>
-						</li>
-					<?php endforeach; ?>
-				</ul>
-			</div>
-
 			<div class="header-location__footer">
-				<button type="button" class="header-location__confirm" data-header-location-confirm<?php echo $excel_ent_location ? '' : ' disabled'; ?>>
-					<?php esc_html_e( 'Confirm Location', 'excel-ent' ); ?>
+				<button type="button" class="header-location__confirm" data-header-location-confirm<?php echo $excel_ent_location_value ? '' : ' disabled'; ?>>
+					<?php esc_html_e( 'Confirm Post Code', 'excel-ent' ); ?>
 				</button>
 			</div>
 		</div>
 	</div>
 
-	<div class="header-search__field header-search__field--date" data-header-date>
+	<div class="header-search__field header-search__field--date<?php echo $excel_ent_date_value ? ' is-filled' : ''; ?>" data-header-date>
 		<button
 			type="button"
 			class="header-search__date-trigger"
@@ -510,7 +533,10 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 				decoding="async"
 			>
 			<span class="header-search__label">
-				<span class="header-search__title" data-header-date-label><?php echo esc_html( $excel_ent_date_label ); ?></span>
+				<span class="header-search__title" data-header-date-title><?php esc_html_e( 'Event Date', 'excel-ent' ); ?></span>
+				<span class="header-search__meta" data-header-date-meta data-default-meta="<?php esc_attr_e( 'Select event date', 'excel-ent' ); ?>">
+					<?php echo esc_html( $excel_ent_date_value ? $excel_ent_date_value : __( 'Select event date', 'excel-ent' ) ); ?>
+				</span>
 			</span>
 		</button>
 		<input
@@ -580,7 +606,7 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 		</div>
 	</div>
 
-	<div class="header-search__field header-search__field--last header-search__field--budget" data-header-budget>
+	<div class="header-search__field header-search__field--last header-search__field--budget<?php echo $excel_ent_budget_value ? ' is-filled' : ''; ?>" data-header-budget>
 		<button
 			type="button"
 			class="header-search__budget-trigger"
@@ -598,7 +624,10 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 				decoding="async"
 			>
 			<span class="header-search__label">
-				<span class="header-search__title" data-header-budget-label><?php echo esc_html( $excel_ent_budget_label ); ?></span>
+				<span class="header-search__title" data-header-budget-title><?php esc_html_e( 'Budget', 'excel-ent' ); ?></span>
+				<span class="header-search__meta" data-header-budget-meta data-default-meta="<?php esc_attr_e( 'Select budget', 'excel-ent' ); ?>">
+					<?php echo esc_html( $excel_ent_budget_value ? $excel_ent_budget_value : __( 'Select budget', 'excel-ent' ) ); ?>
+				</span>
 			</span>
 		</button>
 		<input

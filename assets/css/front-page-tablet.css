@@ -112,7 +112,7 @@
 		flex-direction: column;
 		align-items: flex-start;
 		width: 100%;
-		gap: 48px;
+		gap: 0;
 	}
 
 	.artists-section__eyebrow {
@@ -140,9 +140,18 @@
 		object-fit: fill;
 	}
 
+	.artists-section__toolbar {
+		display: flex;
+		flex-direction: column;
+		gap: 32px;
+		width: 100%;
+	}
+
 	.artists-section__mode {
 		gap: 23px;
 		width: auto;
+		padding: 0 40px;
+		box-sizing: border-box;
 	}
 
 	.artists-mode {
@@ -155,6 +164,10 @@
 		box-sizing: border-box;
 		font-size: 20px;
 		line-height: 1;
+	}
+
+	.artists-mode[data-artists-mode="artist"] {
+		width: auto;
 	}
 
 	.artists-mode--active {

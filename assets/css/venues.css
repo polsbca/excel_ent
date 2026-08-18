@@ -1,4 +1,4 @@
-/* Excel Ent — Venues accordion (Figma 1084:1970, desktop) */
+/* Excel Ent — Venues accordion (Figma 1668:1849 desktop, content 1673:9082) */
 
 .venues-section {
 	background: #fff;
@@ -158,9 +158,14 @@
 	top: -297.68%;
 }
 
-.venue-panel[data-venue-id="community"] .venue-panel__image {
+.venue-panel[data-venue-id="weddings"] .venue-panel__image,
+.venue-panel[data-venue-id="corporate"] .venue-panel__image {
 	height: 546.2%;
 	top: -134.71%;
+}
+
+.venue-panel[data-venue-id="hotels"] .venue-panel__image {
+	object-fit: cover;
 }
 
 .venue-panel.is-active .venue-panel__image,
@@ -179,7 +184,8 @@
 }
 
 .venue-panel:not(.is-active)[data-venue-id="golf-social"] .venue-panel__overlay,
-.venue-panel:not(.is-active)[data-venue-id="community"] .venue-panel__overlay {
+.venue-panel:not(.is-active)[data-venue-id="weddings"] .venue-panel__overlay,
+.venue-panel:not(.is-active)[data-venue-id="corporate"] .venue-panel__overlay {
 	background:
 		linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.7) 100%),
 		linear-gradient(90deg, rgba(248, 154, 66, 0.16) 0%, rgba(235, 32, 85, 0.16) 100%);
@@ -398,6 +404,25 @@
 	.venues-accordion {
 		grid-column: 1 / -1;
 		grid-row: 2;
+	}
+
+	.venue-panel__cta {
+		display: none;
+	}
+
+	.venue-panel__content {
+		align-items: center;
+		justify-content: flex-start;
+	}
+
+	.venue-panel__copy {
+		width: 910px;
+		max-width: 100%;
+		gap: 43px;
+	}
+
+	.venue-panel.is-active .venue-panel__body {
+		justify-content: flex-start;
 	}
 }
 
