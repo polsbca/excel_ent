@@ -12,7 +12,7 @@ $excel_ent_venues = array(
 		'id'          => 'pubs-clubs',
 		'title'       => __( 'Pubs & Clubs', 'excel-ent' ),
 		'image'       => $excel_ent_venues_uri . '/pubs-clubs.jpg',
-		'description' => __( 'Keep your venue lively with regular entertainment for busy nights, weekend events, and returning guests.', 'excel-ent' ),
+		'description' => __( 'Regular weekly acts to keep your venue packed and your regulars coming back every time.', 'excel-ent' ),
 		'active'      => true,
 	),
 	array(
@@ -54,16 +54,15 @@ $excel_ent_venues = array(
 					<?php esc_html_e( 'From intimate local pubs to large golf clubs and luxury hotels — Excel supplies entertainment that fits the setting perfectly.', 'excel-ent' ); ?>
 				</p>
 			</div>
-		</header>
-
-		<div class="venues-section__types">
 			<div class="venues-section__aside reveal" data-reveal>
 				<div class="venues-section__eyebrow">
 					<img src="<?php echo esc_url( $excel_ent_venues_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
 					<span><?php esc_html_e( 'Venue Types', 'excel-ent' ); ?></span>
 				</div>
 			</div>
+		</header>
 
+		<div class="venues-section__types">
 			<div class="venues-accordion" data-venues-accordion>
 			<?php foreach ( $excel_ent_venues as $excel_ent_index => $excel_ent_venue ) : ?>
 				<?php

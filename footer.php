@@ -26,25 +26,37 @@
 					</p>
 				</div>
 
-				<div class="site-footer__menus">
-					<?php
-					excel_ent_footer_column(
-						'footer-entertainment',
-						__( 'Entertainment', 'excel-ent' ),
-						excel_ent_default_entertainment_links(),
-						array( 'open' => true )
-					);
-					excel_ent_footer_column(
-						'footer-services',
-						__( 'Services', 'excel-ent' ),
-						excel_ent_default_services_links()
-					);
-					excel_ent_footer_column(
-						'footer-company',
-						__( 'Company', 'excel-ent' ),
-						excel_ent_default_company_links()
-					);
-					?>
+				<div class="site-footer__aside">
+					<div class="site-footer__menus">
+						<?php
+						excel_ent_footer_column(
+							'footer-entertainment',
+							__( 'Entertainment', 'excel-ent' ),
+							excel_ent_default_entertainment_links(),
+							array( 'open' => true )
+						);
+						excel_ent_footer_column(
+							'footer-services',
+							__( 'Services', 'excel-ent' ),
+							excel_ent_default_services_links()
+						);
+						excel_ent_footer_column(
+							'footer-company',
+							__( 'Company', 'excel-ent' ),
+							excel_ent_default_company_links()
+						);
+						?>
+					</div>
+
+					<div class="site-footer__subscribe">
+						<div class="site-footer__subscribe-copy">
+							<p class="site-footer__subscribe-label"><?php esc_html_e( 'Get to know our updates:', 'excel-ent' ); ?></p>
+							<span class="site-footer__subscribe-line" aria-hidden="true"></span>
+						</div>
+						<a class="site-footer__subscribe-btn magnetic" href="<?php echo esc_url( home_url( '/#newsletter' ) ); ?>">
+							<?php esc_html_e( 'Subscribe', 'excel-ent' ); ?>
+						</a>
+					</div>
 				</div>
 			</div>
 

@@ -28,7 +28,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(72px, 10.4vw, 200px);
+	font-size: max(72px, 10.4vw);
 	line-height: 0.8;
 	letter-spacing: 0;
 	text-transform: uppercase;
@@ -61,7 +61,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 400;
-	font-size: clamp(18px, 1.25vw, 24px);
+	font-size: max(18px, 1.25vw);
 	line-height: 1;
 	letter-spacing: 1px;
 	text-transform: uppercase;
@@ -149,7 +149,7 @@
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 100;
 	font-weight: 400;
-	font-size: clamp(18px, 1.25vw, 24px);
+	font-size: max(18px, 1.25vw);
 	line-height: 1.5;
 	color: #000;
 }
@@ -210,7 +210,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(32px, 2.1vw, 40px);
+	font-size: max(32px, 2.1vw);
 	line-height: normal;
 	color: #000;
 }
@@ -257,7 +257,7 @@
 }
 
 .package-card__price-main {
-	font-size: clamp(48px, 4.2vw, 80px);
+	font-size: max(48px, 4.2vw);
 }
 
 .package-card__price-suffix {
@@ -277,13 +277,13 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 800;
-	font-size: clamp(14px, 0.9vw, 16px);
+	font-size: max(14px, 0.9vw);
 	line-height: normal;
 	color: #000;
 }
 
 .package-card--bronze .package-card__alt {
-	font-size: clamp(18px, 1.3vw, 34px);
+	font-size: max(18px, 1.3vw);
 }
 
 .package-card--featured .package-card__alt {
@@ -316,7 +316,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(24px, 1.7vw, 32px);
+	font-size: max(24px, 1.7vw);
 	line-height: normal;
 	color: #000;
 }
@@ -804,7 +804,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(32px, 2.5vw, 48px);
+	font-size: max(32px, 2.5vw);
 	line-height: normal;
 	color: #000;
 }
@@ -814,7 +814,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 400;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: normal;
 	color: #000;
 }
@@ -843,7 +843,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #000;
@@ -860,7 +860,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(18px, 1.25vw, 24px);
+	font-size: max(18px, 1.25vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #000;
@@ -888,7 +888,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(18px, 1.25vw, 24px);
+	font-size: max(18px, 1.25vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #909090;
@@ -901,7 +901,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #000;

@@ -657,17 +657,17 @@
 	}
 
 	.venues-section__inner {
-		gap: 64px;
+		gap: 40px;
 	}
 
 	.venues-section__types {
-		gap: 40px;
+		gap: 0;
 	}
 
 	.venues-section__header {
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 32px;
+		gap: 64px;
 	}
 
 	.venues-section__heading {

@@ -5,7 +5,7 @@
 	isolation: isolate;
 	color: #fff;
 	overflow: hidden;
-	padding: 160px 0;
+	padding: max(80px, 8.33vw) 0;
 }
 
 .excel-way__media {
@@ -17,13 +17,12 @@
 
 .excel-way__bg {
 	position: absolute;
-	left: 0;
-	top: -25.07%;
+	inset: 0;
 	width: 100%;
-	height: 248.25%;
+	height: 100%;
 	max-width: none;
 	object-fit: cover;
-	object-position: center top;
+	object-position: center;
 }
 
 .excel-way__overlay {
@@ -37,11 +36,11 @@
 	z-index: 1;
 	display: flex;
 	flex-direction: column;
-	gap: 100px;
+	gap: max(64px, 5.21vw);
 	width: 100%;
-	max-width: 1920px;
+	max-width: none;
 	margin: 0 auto;
-	padding: 0 80px;
+	padding: 0 max(48px, 4.17vw);
 	box-sizing: border-box;
 }
 
@@ -49,16 +48,19 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 40px;
+	gap: max(16px, 2.08vw);
 	width: 100%;
+	min-width: 0;
 }
 
 .excel-way__title {
 	margin: 0;
+	min-width: 0;
+	flex: 1 1 auto;
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: 80px;
+	font-size: max(36px, 4.17vw);
 	line-height: 1;
 	letter-spacing: 1px;
 	text-transform: uppercase;
@@ -68,10 +70,12 @@
 
 .excel-way__tabs {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 20px;
+	gap: max(10px, 1.04vw);
+	flex: 0 0 auto;
+	min-width: 0;
 }
 
 .excel-way-tab {
@@ -79,21 +83,22 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 74px;
-	padding: 30px 40px;
+	min-height: max(48px, 3.85vw);
+	padding: max(12px, 1.56vw) max(14px, 2.08vw);
 	box-sizing: border-box;
 	border: 1px solid #fff;
 	background: rgba(255, 255, 255, 0.2);
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 400;
-	font-size: 24px;
+	font-size: max(14px, 1.25vw);
 	line-height: 1;
 	letter-spacing: 1px;
 	text-transform: uppercase;
 	color: #fff;
 	cursor: pointer;
 	white-space: nowrap;
+	flex: 0 0 auto;
 }
 
 .excel-way-tab--active {
@@ -158,7 +163,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: 40px;
+	font-size: max(28px, 2.08vw);
 	line-height: normal;
 	letter-spacing: 1px;
 	color: #fff;
@@ -174,8 +179,8 @@
 	margin: 0;
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-weight: 400;
-	font-size: 24px;
-	line-height: normal;
+	font-size: max(16px, 1.25vw);
+	line-height: 1.35;
 	letter-spacing: 1px;
 	color: #fff;
 }
@@ -193,21 +198,23 @@
 }
 
 .excel-way__steps--how {
-	min-height: 476px;
-	height: 476px;
+	min-height: max(360px, 24.8vw);
+	height: auto;
+	align-items: stretch;
 }
 
 .excel-way__steps--cancel {
-	min-height: 381px;
-	height: 381px;
+	min-height: max(300px, 19.8vw);
+	height: auto;
+	align-items: stretch;
 }
 
 .excel-way-step {
 	flex: 1 1 0;
 	min-width: 0;
-	background: rgba(255, 255, 255, 0.01);
+	background: rgba(255, 255, 255, 0.14);
 	border-right: 0.5px solid rgba(255, 255, 255, 0.6);
-	overflow: hidden;
+	overflow: visible;
 }
 
 .excel-way__steps--cancel .excel-way-step {
@@ -222,11 +229,12 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 60px;
+	justify-content: space-between;
+	gap: max(24px, 3.125vw);
 	box-sizing: border-box;
 	width: 100%;
 	height: 100%;
-	padding: 100px 40px 93px;
+	padding: max(40px, 5.21vw) max(16px, 2.08vw) max(32px, 4.84vw);
 }
 
 .excel-way__steps--cancel .excel-way-step__inner {
@@ -237,13 +245,13 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 52px;
-	height: 52px;
+	width: max(36px, 2.71vw);
+	height: max(36px, 2.71vw);
 	border: 1px solid #fff;
 	border-radius: 200px;
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-weight: 600;
-	font-size: 24px;
+	font-size: max(16px, 1.25vw);
 	letter-spacing: 1px;
 	color: #fff;
 	flex-shrink: 0;
@@ -253,7 +261,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 40px;
+	gap: max(16px, 2.08vw);
 	width: 100%;
 }
 
@@ -262,14 +270,14 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: 28px;
-	line-height: normal;
+	font-size: max(18px, 1.46vw);
+	line-height: 1.15;
 	letter-spacing: 1px;
 	color: #fff;
 }
 
 .excel-way__steps--how .excel-way-step:last-child .excel-way-step__title {
-	font-size: 32px;
+	font-size: max(20px, 1.67vw);
 }
 
 .excel-way__steps--cancel .excel-way-step__title {
@@ -280,8 +288,8 @@
 	margin: 0;
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-weight: 400;
-	font-size: 18px;
-	line-height: 33px;
+	font-size: max(14px, 0.94vw);
+	line-height: 1.45;
 	letter-spacing: 0;
 	color: #fff;
 }
@@ -294,9 +302,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 40px;
+	gap: max(16px, 2.08vw);
 	width: 100%;
 	margin: 0;
+	min-width: 0;
 }
 
 .excel-way__footer--how {
@@ -309,16 +318,17 @@
 
 .excel-way__badges {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	align-items: center;
-	gap: 40px;
+	gap: max(12px, 2.08vw);
+	min-width: 0;
 }
 
 .excel-way-badge {
 	display: inline-flex;
 	align-items: center;
 	gap: 11px;
-	min-height: 77px;
+	min-height: max(52px, 4.01vw);
 	padding: 15px 20px;
 	box-sizing: border-box;
 	border: 1px solid #eb2055;
@@ -351,7 +361,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 400;
-	font-size: 24px;
+	font-size: max(14px, 1.25vw);
 	letter-spacing: 1px;
 	color: #fff;
 	white-space: nowrap;
@@ -378,16 +388,17 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 290px;
-	min-height: 74px;
-	padding: 30px 40px;
+	width: auto;
+	min-width: min(290px, 100%);
+	min-height: max(48px, 3.85vw);
+	padding: max(12px, 1.56vw) max(20px, 2.08vw);
 	box-sizing: border-box;
 	border: 1px solid #fff;
 	background: rgba(255, 255, 255, 0.2);
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 400;
-	font-size: 24px;
+	font-size: max(14px, 1.25vw);
 	line-height: 1;
 	letter-spacing: 1px;
 	text-transform: uppercase;
@@ -396,7 +407,6 @@
 	white-space: nowrap;
 	flex-shrink: 0;
 }
-
 .excel-way__cta:hover,
 .excel-way__cta:focus-visible {
 	color: #fff;
@@ -421,11 +431,12 @@
 	-webkit-backdrop-filter: blur(50px);
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-weight: 400;
-	font-size: 24px;
-	line-height: normal;
+	font-size: max(16px, 1.25vw);
+	line-height: 1.35;
 	letter-spacing: 1px;
 	color: #fff;
-	white-space: nowrap;
+	white-space: normal;
+	max-width: min(920px, 62%);
 }
 
 /* Who we are */
@@ -433,7 +444,7 @@
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	min-height: 843px;
+	min-height: 0;
 	box-sizing: border-box;
 	background: rgba(255, 255, 255, 0.14);
 	border-right: 0.5px solid rgba(255, 255, 255, 0.6);
@@ -451,12 +462,12 @@
 
 .excel-way-about__title {
 	margin: 0;
-	padding: 54px 40px 20px;
+	padding: max(32px, 2.81vw) max(24px, 2.08vw) 20px;
 	box-sizing: border-box;
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: 48px;
+	font-size: max(32px, 2.5vw);
 	line-height: normal;
 	letter-spacing: 1px;
 	color: #fff;
@@ -464,11 +475,11 @@
 
 .excel-way-about__lede {
 	margin: 0;
-	padding: 40px;
+	padding: max(24px, 2.08vw);
 	box-sizing: border-box;
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-weight: 400;
-	font-size: 24px;
+	font-size: max(16px, 1.25vw);
 	line-height: normal;
 	color: #fff;
 }
@@ -476,11 +487,11 @@
 .excel-way-about__grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 0 105px;
+	gap: 0 max(32px, 5.47vw);
 	align-items: start;
 	width: 100%;
 	box-sizing: border-box;
-	padding: 40px 36px 60px;
+	padding: max(24px, 2.08vw) max(24px, 1.88vw) max(40px, 3.13vw);
 }
 
 .excel-way-about__col {
@@ -494,7 +505,7 @@
 .excel-way-about__col + .excel-way-about__col::before {
 	content: "";
 	position: absolute;
-	left: -52.5px;
+	left: calc(max(32px, 5.47vw) / -2);
 	top: 0;
 	bottom: 0;
 	width: 1px;
@@ -527,7 +538,7 @@
 	display: flex;
 	flex: 1 1 0;
 	flex-direction: column;
-	gap: 40px;
+	gap: max(16px, 2.08vw);
 	min-width: 0;
 }
 
@@ -536,8 +547,8 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: 32px;
-	line-height: normal;
+	font-size: max(20px, 1.67vw);
+	line-height: 1.15;
 	letter-spacing: 1px;
 	color: #fff;
 }
@@ -546,8 +557,8 @@
 	margin: 0;
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-weight: 400;
-	font-size: 20px;
-	line-height: 33px;
+	font-size: max(14px, 1.04vw);
+	line-height: 1.45;
 	color: #fff;
 }
 
@@ -558,10 +569,10 @@
 	border-top: 1px solid rgba(255, 255, 255, 0.45);
 }
 
-/* Desktop — Figma 1084:1901 (lock layout so tablet/phone rules cannot leak) */
+/* Desktop — Figma 1084:1901 (fluid 1200px+) */
 @media (min-width: 1200px) {
 	.excel-way {
-		padding: 160px 0;
+		padding: max(120px, 8.33vw) 0;
 	}
 
 	.excel-way__overlay {
@@ -569,46 +580,47 @@
 	}
 
 	.excel-way__bg {
-		left: 0;
-		top: -25.07%;
+		inset: 0;
 		width: 100%;
-		height: 248.25%;
+		height: 100%;
 		max-width: none;
-		object-position: center top;
+		object-fit: cover;
+		object-position: center;
 	}
 
 	.excel-way__inner {
-		padding: 0 80px;
-		gap: 100px;
+		padding: 0 max(48px, 4.17vw);
+		gap: max(64px, 5.21vw);
 	}
 
 	.excel-way__header {
 		flex-direction: row;
+		flex-wrap: nowrap;
 		align-items: center;
 		justify-content: space-between;
-		gap: 40px;
+		gap: max(16px, 2.08vw);
 	}
 
 	.excel-way__title {
-		font-size: 80px;
+		font-size: max(36px, 4.17vw);
 		line-height: 1;
 		white-space: nowrap;
 	}
 
 	.excel-way__tabs {
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		justify-content: flex-end;
-		gap: 20px;
+		gap: max(10px, 1.04vw);
 		width: auto;
 		overflow: visible;
 	}
 
 	.excel-way-tab {
 		flex: 0 0 auto;
-		min-height: 74px;
+		min-height: max(48px, 3.85vw);
 		height: auto;
-		padding: 30px 40px;
-		font-size: 24px;
+		padding: max(12px, 1.56vw) max(14px, 2.08vw);
+		font-size: max(14px, 1.25vw);
 	}
 
 	.excel-way__subtitle--desktop {
@@ -625,20 +637,20 @@
 		display: flex !important;
 		flex-direction: row;
 		align-items: stretch;
-		height: 476px;
-		min-height: 476px;
+		height: auto;
+		min-height: max(360px, 24.8vw);
 	}
 
 	.excel-way__steps--how.excel-way__steps--desktop {
-		height: 476px;
-		min-height: 476px;
+		height: auto;
+		min-height: max(360px, 24.8vw);
 	}
 
 	.excel-way__steps--cancel {
 		display: flex;
 		flex-direction: row;
-		height: 381px;
-		min-height: 381px;
+		height: auto;
+		min-height: max(300px, 19.8vw);
 	}
 
 	.excel-way-step {
@@ -647,7 +659,8 @@
 		border-right: 0.5px solid rgba(255, 255, 255, 0.6);
 		border-bottom: 0;
 		border-top: 0;
-		background: rgba(255, 255, 255, 0.01);
+		background: rgba(255, 255, 255, 0.14);
+		overflow: visible;
 	}
 
 	.excel-way__steps--cancel .excel-way-step {
@@ -664,77 +677,79 @@
 		flex-direction: column;
 		height: 100%;
 		min-height: 0;
-		gap: 60px;
-		padding: 100px 40px 93px;
-		justify-content: flex-start;
+		gap: max(24px, 3.125vw);
+		padding: max(40px, 5.21vw) max(16px, 2.08vw) max(32px, 4.84vw);
+		justify-content: space-between;
 	}
 
 	.excel-way__steps--cancel .excel-way-step__inner {
-		padding: 60px 30px 40px;
+		padding: max(32px, 3.13vw) max(16px, 1.56vw) max(24px, 2.08vw);
 	}
 
 	.excel-way-step__num {
-		width: 52px;
-		height: 52px;
-		font-size: 24px;
+		width: max(36px, 2.71vw);
+		height: max(36px, 2.71vw);
+		font-size: max(16px, 1.25vw);
 	}
 
 	.excel-way-step__copy {
-		gap: 40px;
+		gap: max(16px, 2.08vw);
 	}
 
 	.excel-way-step__title {
-		font-size: 28px;
+		font-size: max(18px, 1.46vw);
 	}
 
 	.excel-way__steps--how .excel-way-step:last-child .excel-way-step__title {
-		font-size: 32px;
+		font-size: max(20px, 1.67vw);
 	}
 
 	.excel-way__steps--cancel .excel-way-step__title {
-		font-size: 24px;
+		font-size: max(16px, 1.25vw);
 	}
 
 	.excel-way-step__text {
-		font-size: 18px;
-		line-height: 33px;
+		font-size: max(14px, 0.94vw);
+		line-height: 1.45;
 	}
 
 	.excel-way__footer,
 	.excel-way__footer--how,
 	.excel-way__footer--cancel {
 		flex-direction: row;
+		flex-wrap: nowrap;
 		align-items: center;
 		justify-content: space-between;
-		gap: 40px;
+		gap: max(16px, 2.08vw);
 	}
 
 	.excel-way__footer--how {
-		align-items: flex-start;
+		align-items: center;
 	}
 
 	.excel-way__footer--how .excel-way__badges {
 		display: flex;
+		flex-wrap: nowrap;
 	}
 
 	.excel-way__badges {
 		flex-direction: row;
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		align-items: center;
-		gap: 40px;
+		gap: max(12px, 2.08vw);
 	}
 
 	.excel-way-badge {
 		justify-content: flex-start;
-		min-height: 77px;
+		min-height: max(52px, 4.01vw);
 		padding: 15px 20px;
 		border: 1px solid #eb2055;
 		gap: 11px;
 	}
 
 	.excel-way-badge__icon {
-		width: 37px;
-		height: 37px;
+		width: max(28px, 1.93vw);
+		height: max(28px, 1.93vw);
 	}
 
 	.excel-way-badge__icon img {
@@ -751,23 +766,24 @@
 	}
 
 	.excel-way-badge__label {
-		font-size: 24px;
+		font-size: max(14px, 1.25vw);
 		white-space: nowrap;
 	}
 
 	.excel-way__cta {
 		order: 0;
-		width: 290px;
+		width: auto;
+		min-width: min(290px, 100%);
 		max-width: none;
 		margin: 0;
-		min-height: 74px;
+		min-height: max(48px, 3.85vw);
 		height: auto;
-		padding: 30px 40px;
+		padding: max(12px, 1.56vw) max(20px, 2.08vw);
 		border: 1px solid #fff;
 		background: rgba(255, 255, 255, 0.2);
 		backdrop-filter: none;
 		-webkit-backdrop-filter: none;
-		font-size: 24px;
+		font-size: max(14px, 1.25vw);
 		font-weight: 400;
 	}
 }
@@ -777,124 +793,14 @@
 		padding: 120px 0;
 	}
 
-	.excel-way__inner {
-		padding: 0 48px;
-		gap: 72px;
-	}
-
 	.excel-way__title {
-		font-size: 56px;
-		white-space: normal;
-	}
-
-	.excel-way-tab {
-		min-height: 60px;
-		padding: 20px 24px;
-		font-size: 18px;
-	}
-
-	.excel-way__subtitle {
-		font-size: 32px;
-	}
-
-	.excel-way__lede,
-	.excel-way-about__lede {
-		font-size: 20px;
-	}
-
-	/* Keep 5-column row — only soften height/padding for mid desktop */
-	.excel-way__steps--how.excel-way__steps--desktop {
-		height: 420px;
-		min-height: 420px;
-	}
-
-	.excel-way__steps--cancel {
-		height: 340px;
-		min-height: 340px;
-	}
-
-	.excel-way-step__inner {
-		padding: 56px 24px 48px;
-		gap: 40px;
-	}
-
-	.excel-way__steps--cancel .excel-way-step__inner {
-		padding: 40px 20px 32px;
-	}
-
-	.excel-way-step__title {
-		font-size: 22px;
-	}
-
-	.excel-way__steps--how .excel-way-step:last-child .excel-way-step__title {
-		font-size: 24px;
-	}
-
-	.excel-way-step__text {
-		font-size: 16px;
-		line-height: 1.5;
-	}
-
-	.excel-way__steps--cancel .excel-way-step__text {
-		font-size: 17px;
-	}
-
-	.excel-way__cta {
-		width: auto;
-		min-width: 240px;
-		min-height: 60px;
-		padding: 20px 28px;
-		font-size: 18px;
-	}
-
-	.excel-way-badge {
-		min-height: 60px;
-	}
-
-	.excel-way-badge__label {
-		font-size: 18px;
+		white-space: nowrap;
 	}
 
 	.excel-way-notice {
 		white-space: normal;
-		font-size: 18px;
 		min-height: 0;
-		max-width: min(920px, 68%);
-	}
-
-	.excel-way-about {
-		min-height: 0;
-	}
-
-	.excel-way-about__title {
-		font-size: 40px;
-		padding: 40px 32px 16px;
-	}
-
-	.excel-way-about__lede {
-		padding: 28px 32px;
-	}
-
-	.excel-way-about__grid {
-		gap: 0 48px;
-		padding: 28px 28px 48px;
-	}
-
-	.excel-way-about__col + .excel-way-about__col::before {
-		left: -24px;
-	}
-
-	.excel-way-about__item-title {
-		font-size: 24px;
-	}
-
-	.excel-way-about__copy {
-		gap: 24px;
-	}
-
-	.excel-way-about__item-text {
-		font-size: 16px;
-		line-height: 1.5;
+		max-width: min(920px, 62%);
 	}
 }
 
@@ -920,6 +826,7 @@
 	}
 
 	.excel-way__tabs {
+		flex-wrap: wrap;
 		justify-content: flex-start;
 		width: 100%;
 	}
@@ -989,6 +896,7 @@
 	.excel-way__footer--how,
 	.excel-way__footer--cancel {
 		flex-direction: column;
+		flex-wrap: wrap;
 		align-items: stretch;
 		gap: 28px;
 	}
@@ -1021,6 +929,7 @@
 		font-size: 16px;
 		min-height: 0;
 		border-radius: 24px;
+		max-width: 100%;
 	}
 
 	.excel-way-about {

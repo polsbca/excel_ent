@@ -79,6 +79,13 @@ input[type="button"],
 	will-change: auto;
 }
 
+.footer-column__menu a,
+.footer-column__menu a:hover,
+.footer-column__menu a:focus-visible {
+	transform: none !important;
+	will-change: auto;
+}
+
 .header-search__submit:hover,
 .header-search__submit:focus-visible {
 	will-change: transform;

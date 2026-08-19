@@ -28,7 +28,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(72px, 10.4vw, 200px);
+	font-size: max(72px, 10.4vw);
 	line-height: 0.8;
 	letter-spacing: 0;
 	text-transform: uppercase;
@@ -43,7 +43,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(16px, 1.25vw, 24px);
+	font-size: max(16px, 1.25vw);
 	line-height: normal;
 	text-transform: uppercase;
 	color: #000;
@@ -71,7 +71,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(40px, 4.2vw, 80px);
+	font-size: max(40px, 4.2vw);
 	line-height: 1.1;
 	text-transform: uppercase;
 	color: #000;
@@ -249,7 +249,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(40px, 4.2vw, 80px);
+	font-size: max(40px, 4.2vw);
 	line-height: 1.1;
 	text-transform: uppercase;
 	color: #000;
@@ -262,7 +262,7 @@
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 100;
 	font-weight: 400;
-	font-size: clamp(18px, 1.25vw, 24px);
+	font-size: max(18px, 1.25vw);
 	line-height: 1.69;
 	color: #000;
 }
@@ -318,7 +318,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(56px, 5.2vw, 100px);
+	font-size: max(56px, 5.2vw);
 	line-height: 1.1;
 	color: #000;
 }
@@ -328,7 +328,7 @@
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 100;
 	font-weight: 400;
-	font-size: clamp(14px, 1.05vw, 20px);
+	font-size: max(14px, 1.05vw);
 	line-height: 1.8;
 	color: #000;
 }
@@ -345,7 +345,7 @@
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 100;
 	font-weight: 400;
-	font-size: clamp(14px, 1.25vw, 24px);
+	font-size: max(14px, 1.25vw);
 	line-height: normal;
 	color: rgba(0, 0, 0, 0.55);
 	text-transform: uppercase;
@@ -374,7 +374,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(48px, 6.25vw, 120px);
+	font-size: max(48px, 6.25vw);
 	line-height: 1.07;
 	text-transform: uppercase;
 	background-image: linear-gradient(180deg, #f89a42 0%, #eb2055 100%);
@@ -393,7 +393,7 @@
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 100;
 	font-weight: 400;
-	font-size: clamp(18px, 1.25vw, 24px);
+	font-size: max(18px, 1.25vw);
 	line-height: normal;
 	color: #fff;
 }
@@ -407,7 +407,7 @@
 .about-why__item {
 	display: flex;
 	align-items: center;
-	gap: clamp(40px, 6.25vw, 120px);
+	gap: max(40px, 6.25vw);
 	padding: 48px 0;
 	border-top: 1px solid rgba(255, 255, 255, 0.5);
 }
@@ -417,7 +417,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(36px, 3.1vw, 60px);
+	font-size: max(36px, 3.1vw);
 	line-height: normal;
 	background-image: linear-gradient(180deg, #f89a42 0%, #f2654a 50%, #ef4b4e 75%, #ed3153 100%);
 	background-clip: text;
@@ -430,7 +430,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 400;
-	font-size: clamp(24px, 2.3vw, 44px);
+	font-size: max(24px, 2.3vw);
 	line-height: normal;
 	color: #fff;
 }
@@ -456,7 +456,7 @@
 .about-approach__viewport {
 	position: relative;
 	width: 100%;
-	height: clamp(320px, 40.7vw, 782px);
+	height: max(320px, 40.7vw);
 	overflow: hidden;
 }
 
@@ -530,7 +530,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 800;
-	font-size: clamp(28px, 1.9vw, 36px);
+	font-size: max(28px, 1.9vw);
 	line-height: normal;
 	text-transform: uppercase;
 	color: #000;
@@ -582,7 +582,7 @@
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 100;
 	font-weight: 400;
-	font-size: clamp(16px, 1.05vw, 20px);
+	font-size: max(16px, 1.05vw);
 	line-height: normal;
 	text-transform: uppercase;
 	color: #000;
@@ -617,7 +617,7 @@
 	flex-direction: column;
 	justify-content: center;
 	gap: 24px;
-	min-height: clamp(420px, 43.6vw, 838px);
+	min-height: max(420px, 43.6vw);
 	padding: 120px 80px;
 	border-right: 1px solid #000;
 	box-sizing: border-box;
@@ -628,7 +628,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(64px, 7.3vw, 140px);
+	font-size: max(64px, 7.3vw);
 	line-height: 1.12;
 	text-transform: uppercase;
 	color: #000;
@@ -664,7 +664,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 80px;
-	min-height: clamp(420px, 32.4vw, 623px);
+	min-height: max(420px, 32.4vw);
 	padding: 102px 64px 64px;
 	background: #000;
 	border-left: 1px solid #fff;
@@ -693,7 +693,7 @@
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 100;
 	font-weight: 400;
-	font-size: clamp(16px, 1.05vw, 20px);
+	font-size: max(16px, 1.05vw);
 	line-height: 1.86;
 	color: #fff;
 }

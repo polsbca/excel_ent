@@ -3,28 +3,28 @@
 .cta-neon {
 	background: #000;
 	color: #fff;
-	padding: 100px 120px;
+	padding: max(80px, 5.21vw) max(48px, 6.25vw);
 }
 
 .cta-neon__inner {
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	align-items: flex-start;
 	justify-content: space-between;
-	column-gap: 300px;
+	column-gap: max(40px, 15.625vw);
 	row-gap: 51px;
 	width: 100%;
-	max-width: 1680px;
+	max-width: none;
 	margin: 0 auto;
 }
 
 .cta-neon__copy {
 	display: flex;
-	flex: 1 1 0;
+	flex: 1 1 auto;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 74px;
-	min-width: min(520px, 100%);
+	gap: max(36px, 3.85vw);
+	min-width: 0;
 }
 
 .cta-neon__title {
@@ -33,7 +33,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: 120px;
+	font-size: max(56px, 6.25vw);
 	line-height: 0.85;
 	letter-spacing: 0;
 	text-transform: uppercase;
@@ -60,7 +60,7 @@
 	font-family: var(--ee-font, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 100;
 	font-weight: 400;
-	font-size: 24px;
+	font-size: max(16px, 1.25vw);
 	line-height: 1.5;
 	color: #fff;
 	opacity: 0.7;
@@ -71,8 +71,8 @@
 	flex-direction: column;
 	align-items: flex-end;
 	gap: 20px;
-	width: 320px;
-	flex-shrink: 0;
+	width: max(240px, 16.67vw);
+	flex: 0 0 auto;
 }
 
 .cta-neon__actions {
@@ -88,11 +88,11 @@
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	padding: 30px 40px;
+	padding: max(16px, 1.56vw) max(16px, 2.08vw);
 	box-sizing: border-box;
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
-	font-size: 24px;
+	font-size: max(14px, 1.25vw);
 	line-height: 1;
 	letter-spacing: 1px;
 	text-transform: uppercase;
@@ -146,25 +146,20 @@
 	display: block;
 }
 
-@media (max-width: 1599px) {
-	.cta-neon {
-		padding: 96px 64px;
-	}
-
+@media (min-width: 1200px) {
 	.cta-neon__inner {
-		column-gap: 80px;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		align-items: flex-start;
 	}
 
-	.cta-neon__title {
-		font-size: 88px;
+	.cta-neon__rail {
+		align-items: flex-end;
 	}
 
-	.cta-neon__lede {
-		font-size: 20px;
-	}
-
-	.cta-neon__copy {
-		gap: 48px;
+	.cta-neon__actions {
+		flex-direction: column;
+		width: 100%;
 	}
 }
 

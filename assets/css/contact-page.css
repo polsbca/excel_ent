@@ -25,7 +25,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(64px, 9.4vw, 180px);
+	font-size: max(64px, 9.4vw);
 	line-height: 0.8;
 	text-transform: uppercase;
 	color: #000;
@@ -234,7 +234,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(24px, 1.8vw, 34px);
+	font-size: max(24px, 1.8vw);
 	line-height: 1.1;
 	color: #000;
 }
@@ -344,7 +344,7 @@
 
 .contact-field__label--strong {
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 }
 
 .contact-field__input {
@@ -711,7 +711,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: rgba(255, 255, 255, 0.52);
@@ -734,7 +734,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #fff;
@@ -871,7 +871,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: rgba(255, 255, 255, 0.52);
@@ -983,7 +983,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #fff;
@@ -1054,7 +1054,7 @@
 	border: 0;
 	border-radius: 0;
 	background: transparent;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 }
 
 .contact-dd--set-length .contact-dd__option {
@@ -1638,7 +1638,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #000;
@@ -1727,7 +1727,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #ed3153;
@@ -1837,7 +1837,7 @@
 }
 
 .contact-radio__text--pref {
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	color: #909090;
 }
 
@@ -1889,7 +1889,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #000;
@@ -1911,7 +1911,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #000;
@@ -1962,7 +1962,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 600;
-	font-size: clamp(20px, 1.5vw, 28px);
+	font-size: max(20px, 1.5vw);
 	line-height: 1.364;
 	letter-spacing: 1px;
 	color: #000;
@@ -2126,7 +2126,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
-	font-size: clamp(40px, 4.2vw, 80px);
+	font-size: max(40px, 4.2vw);
 	line-height: 1.2;
 	letter-spacing: 2px;
 	text-align: center;
@@ -2171,7 +2171,7 @@
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 300;
-	font-size: clamp(22px, 1.7vw, 32px);
+	font-size: max(22px, 1.7vw);
 	line-height: normal;
 	letter-spacing: 1px;
 	color: #fff;
@@ -2183,7 +2183,7 @@
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 100;
 	font-weight: 600;
-	font-size: clamp(22px, 1.8vw, 34px);
+	font-size: max(22px, 1.8vw);
 	line-height: normal;
 	letter-spacing: 1px;
 	color: #fff;
@@ -2207,7 +2207,7 @@
 .contact-quick__map {
 	margin: 0;
 	width: 100%;
-	height: clamp(320px, 35.4vw, 680px);
+	height: max(320px, 35.4vw);
 	overflow: hidden;
 }
 
