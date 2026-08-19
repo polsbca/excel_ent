@@ -28,8 +28,9 @@
 
 .services-section__title {
 	margin: 0;
-	width: 716px;
-	max-width: 100%;
+	width: auto;
+	max-width: none;
+	white-space: nowrap;
 	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 	font-variation-settings: "wdth" 75;
 	font-weight: 700;
@@ -492,7 +493,9 @@
 
 	.services-section__title {
 		font-size: 56px;
-		width: 520px;
+		width: auto;
+		max-width: none;
+		white-space: nowrap;
 	}
 
 	.services-section__grid {

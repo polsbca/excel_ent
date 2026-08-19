@@ -233,6 +233,8 @@
 		let scrolled = false;
 		const isSearchPage = document.body.classList.contains("search");
 		const isExplorePage = document.body.classList.contains("page-template-page-explore-artists");
+		const isAboutPage = document.body.classList.contains("page-template-page-about");
+		const isContactPage = document.body.classList.contains("page-template-page-contactus");
 		const isHomePage =
 			document.body.classList.contains("home") || document.body.classList.contains("front-page");
 		const primary = document.getElementById("primary");
@@ -281,7 +283,13 @@
 		const onScroll = (scrollY) => {
 			const y = typeof scrollY === "number" ? scrollY : window.scrollY;
 			const panelOpen = hasOpenHeaderPanel();
-			const stickyOn = stickyMq.matches || isExplorePage || isHomePage || (isSearchPage && window.matchMedia("(min-width: 768px)").matches);
+			const stickyOn =
+				stickyMq.matches ||
+				isExplorePage ||
+				isHomePage ||
+				isAboutPage ||
+				isContactPage ||
+				(isSearchPage && window.matchMedia("(min-width: 768px)").matches);
 			const next = stickyOn ? (scrolled ? y > 40 : y > 80) : false;
 
 			header.classList.toggle("is-panel-open", panelOpen);
@@ -798,8 +806,11 @@
 			});
 		});
 
-		/* Touch / pointer swipe — tablet + phone only (desktop uses arrows + wheel scroll) */
-		const isArtistsSwipe = () => window.matchMedia("(max-width: 1199px)").matches;
+		const isPanelActive = (panel) =>
+			panel &&
+			!panel.hidden &&
+			!panel.classList.contains("is-hidden") &&
+			(panel.getAttribute("data-mode-panel") || "") === activeMode;
 
 		const bindArtistsSwipe = (panel) => {
 			if (!panel || panel.dataset.eeSwipeBound === "1") {
@@ -807,7 +818,6 @@
 			}
 			panel.dataset.eeSwipeBound = "1";
 
-			const panelMode = panel.getAttribute("data-mode-panel") || activeMode;
 			const getPanelTrack = () => panel.querySelector("[data-artists-track]");
 			const getPanelVisible = () =>
 				Array.from(panel.querySelectorAll("[data-artists-card]")).filter(
@@ -821,27 +831,36 @@
 			let axis = null;
 			let swiping = false;
 			let baseOffset = 0;
+			let step = 568;
+			let maxOffset = 0;
+			let wheelAccum = 0;
+			let wheelLock = false;
 
-			const getOffset = () => {
-				const track = getPanelTrack();
+			const measure = () => {
 				const visible = getPanelVisible();
-				if (!track || !visible[0]) {
-					return 0;
+				const track = getPanelTrack();
+				const gap = track ? parseFloat(getComputedStyle(track).gap) || 50 : 50;
+				const cardWidth = visible[0]?.getBoundingClientRect().width || 518;
+				step = cardWidth + gap;
+				maxOffset = Math.max(visible.length - 1, 0) * step;
+				return index * step;
+			};
+
+			const rubber = (offset) => {
+				if (offset < 0) {
+					return offset * 0.22;
 				}
-				const gap = parseFloat(getComputedStyle(track).gap) || 50;
-				const cardWidth = visible[0].getBoundingClientRect().width || 518;
-				return index * (cardWidth + gap);
+				if (offset > maxOffset) {
+					return maxOffset + (offset - maxOffset) * 0.22;
+				}
+				return offset;
 			};
 
 			const onDown = (e) => {
-				if (!isArtistsSwipe()) {
+				if (!isPanelActive(panel)) {
 					return;
 				}
-				if (
-					panel.hidden ||
-					panel.classList.contains("is-hidden") ||
-					panelMode !== activeMode
-				) {
+				if (e.target.closest("button, input, textarea, select, a.artists-filter")) {
 					return;
 				}
 				if (e.pointerType === "mouse" && e.button !== 0) {
@@ -853,18 +872,18 @@
 				deltaX = 0;
 				axis = null;
 				swiping = false;
-				baseOffset = getOffset();
+				baseOffset = measure();
 			};
 
 			const onMove = (e) => {
-				if (!isArtistsSwipe() || pointerId !== e.pointerId) {
+				if (pointerId !== e.pointerId) {
 					return;
 				}
 				const dx = e.clientX - startX;
 				const dy = e.clientY - startY;
 
 				if (!axis) {
-					if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+					if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
 						return;
 					}
 					axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
@@ -873,7 +892,6 @@
 						axis = null;
 						return;
 					}
-					window.excelEntLenis?.stop();
 					try {
 						panel.setPointerCapture(e.pointerId);
 					} catch (err) {
@@ -890,26 +908,26 @@
 				const track = getPanelTrack();
 				if (track) {
 					track.style.transition = "none";
-					track.style.transform = `translateX(${-(baseOffset - deltaX)}px)`;
+					track.style.transform = `translateX(${-rubber(baseOffset - deltaX)}px)`;
 				}
 				e.preventDefault();
 			};
 
 			const finishSwipe = () => {
-				window.excelEntLenis?.start();
-
 				const track = getPanelTrack();
 				if (track) {
 					track.style.transition = "";
 				}
 
-				if (swiping && Math.abs(deltaX) > 48) {
-					go(deltaX < 0 ? 1 : -1);
-				} else {
-					update();
-				}
-
 				if (swiping) {
+					const visible = getPanelVisible();
+					const max = Math.max(visible.length - 1, 0);
+					if (Math.abs(deltaX) > 40 && step) {
+						index = Math.round((baseOffset - deltaX) / step);
+					}
+					index = Math.max(0, Math.min(max, index));
+					update();
+
 					const suppressClick = (ev) => {
 						ev.preventDefault();
 						ev.stopPropagation();
@@ -934,10 +952,37 @@
 				finishSwipe();
 			};
 
-			panel.addEventListener("pointerdown", onDown);
+			const onWheel = (e) => {
+				if (!isPanelActive(panel)) {
+					return;
+				}
+				const absX = Math.abs(e.deltaX);
+				const absY = Math.abs(e.deltaY);
+				if (!e.shiftKey && absX < 8 && absY >= absX) {
+					return;
+				}
+				e.preventDefault();
+				if (wheelLock) {
+					return;
+				}
+				wheelAccum += e.shiftKey && absX < absY ? e.deltaY : e.deltaX || e.deltaY;
+				if (Math.abs(wheelAccum) < 60) {
+					return;
+				}
+				go(wheelAccum > 0 ? 1 : -1);
+				wheelAccum = 0;
+				wheelLock = true;
+				window.setTimeout(() => {
+					wheelLock = false;
+				}, 420);
+			};
+
+			panel.addEventListener("pointerdown", onDown, { passive: true });
 			panel.addEventListener("pointermove", onMove, { passive: false });
 			panel.addEventListener("pointerup", onUp);
 			panel.addEventListener("pointercancel", onUp);
+			panel.addEventListener("lostpointercapture", onUp);
+			panel.addEventListener("wheel", onWheel, { passive: false });
 		};
 
 		artistsSection.querySelectorAll("[data-artists-carousel]").forEach(bindArtistsSwipe);

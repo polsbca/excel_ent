@@ -86,19 +86,26 @@ body.page-template-page-artist .site-header__bar {
 
 /* About — bar only, no search strip (Figma 1126:1218) */
 body.page-template-page-about .site-header {
+	position: sticky;
+	top: 0;
+	z-index: 50;
 	background: #000;
 }
 
 body.page-template-page-about {
-	overflow-x: hidden !important;
+	overflow-x: clip;
 }
 
 html:has(body.page-template-page-about) {
-	overflow-x: hidden !important;
+	overflow-x: clip;
 }
 
 body.page-template-page-about .site,
-body.page-template-page-about .site-main,
+body.page-template-page-about .site-main {
+	max-width: 100%;
+	overflow-x: clip;
+}
+
 body.page-template-page-about .about-page {
 	max-width: 100%;
 	overflow-x: hidden;
@@ -144,19 +151,26 @@ body.page-template-page-package .site-header__bar {
 
 /* Contact Us — bar only, no search strip (Figma 1159:3881) */
 body.page-template-page-contactus .site-header {
+	position: sticky;
+	top: 0;
+	z-index: 50;
 	background: #000;
 }
 
 body.page-template-page-contactus {
-	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 html:has(body.page-template-page-contactus) {
-	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 body.page-template-page-contactus .site,
-body.page-template-page-contactus .site-main,
+body.page-template-page-contactus .site-main {
+	overflow-x: clip;
+	max-width: 100%;
+}
+
 body.page-template-page-contactus .contact-page {
 	overflow-x: hidden;
 	max-width: 100%;
@@ -3076,6 +3090,41 @@ body.mobile-search-open {
 		order: 2;
 	}
 
+	body.page-template-page-about .header-phone,
+	body.page-template-page-package .header-phone,
+	body.page-template-page-contactus .header-phone {
+		display: none;
+	}
+
+	body.page-template-page-about .header-search-icon,
+	body.page-template-page-package .header-search-icon,
+	body.page-template-page-contactus .header-search-icon {
+		display: inline-flex !important;
+		order: 1;
+		width: 70px;
+		height: 70px;
+		padding: 20px;
+		border: 2px solid #fff;
+		border-radius: 50px;
+		background: rgba(255, 255, 255, 0.08);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		box-sizing: border-box;
+	}
+
+	body.page-template-page-about .header-search-icon img,
+	body.page-template-page-package .header-search-icon img,
+	body.page-template-page-contactus .header-search-icon img {
+		width: 30px;
+		height: 30px;
+	}
+
+	body.page-template-page-about .btn-quote,
+	body.page-template-page-package .btn-quote,
+	body.page-template-page-contactus .btn-quote {
+		order: 2;
+	}
+
 	body.page-template-page-explore-artists .explore-artists-search {
 		margin-top: 0;
 	}
@@ -5607,10 +5656,14 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	}
 
 	/* About page header — Figma 1099:5298 */
-	body.page-template-page-about .site-header {
+	body.page-template-page-about .site-header,
+	body.page-template-page-contactus .site-header {
 		background: #000;
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
+		position: sticky;
+		top: 0;
+		z-index: 50;
 	}
 
 	body.page-template-page-about .site-header__inner {
@@ -5734,6 +5787,9 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		background: #000;
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
+		position: sticky;
+		top: 0;
+		z-index: 50;
 	}
 
 	body.page-template-page-contactus .site-header__inner {

@@ -242,7 +242,15 @@
 	width: 100%;
 	overflow: hidden;
 	padding: 0 40px;
-	touch-action: pan-y;
+	touch-action: pan-x;
+	overscroll-behavior: contain;
+	cursor: grab;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.artists-section__carousel:active {
+	cursor: grabbing;
 }
 
 .artists-section__track {
@@ -976,7 +984,8 @@
 	.artists-section__carousel {
 		padding-left: 24px;
 		padding-right: 0;
-		touch-action: pan-y;
+		touch-action: pan-x;
+		overscroll-behavior: contain;
 		cursor: grab;
 		user-select: none;
 		-webkit-user-select: none;
@@ -993,7 +1002,7 @@
 	.artist-card {
 		width: 285px;
 		height: 536px;
-		touch-action: pan-y;
+		touch-action: pan-x;
 	}
 
 	.artist-card__link {

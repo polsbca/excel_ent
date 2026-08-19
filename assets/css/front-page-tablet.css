@@ -223,7 +223,8 @@
 	.artists-section__carousel {
 		padding-left: 40px;
 		padding-right: 0;
-		touch-action: pan-y;
+		touch-action: pan-x;
+		overscroll-behavior: contain;
 		cursor: grab;
 		user-select: none;
 		-webkit-user-select: none;
@@ -240,7 +241,7 @@
 	.artist-card {
 		width: 400px;
 		height: 560px;
-		touch-action: pan-y;
+		touch-action: pan-x;
 	}
 
 	.artist-card--occasion {
@@ -886,7 +887,9 @@
 	.services-section__title {
 		font-size: 54px;
 		line-height: 30px;
-		width: 100%;
+		width: auto;
+		max-width: none;
+		white-space: nowrap;
 	}
 
 	.services-section__title-line {

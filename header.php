@@ -143,10 +143,10 @@ $excel_ent_quote = excel_ent_get_quote_url();
 						aria-label="<?php esc_attr_e( 'Search artists', 'excel-ent' ); ?>"
 					>
 						<img
-							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line.svg' ); ?>"
+							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line-header.svg' ); ?>"
 							alt=""
-							width="18"
-							height="18"
+							width="30"
+							height="30"
 							decoding="async"
 						>
 					</a>

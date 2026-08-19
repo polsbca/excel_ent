@@ -203,6 +203,13 @@ function excel_ent_enqueue_assets() {
 		EXCEL_ENT_VERSION
 	);
 
+	wp_enqueue_style(
+		'excel-ent-large-desktop',
+		EXCEL_ENT_URI . '/assets/css/large-desktop.css',
+		array( 'excel-ent-button-hovers' ),
+		EXCEL_ENT_VERSION
+	);
+
 	wp_enqueue_script(
 		'excel-ent-lenis',
 		'https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js',
