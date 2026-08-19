@@ -438,7 +438,7 @@
 	}
 }
 
-/* Phone — Figma 1023:3201 */
+/* Phone — Figma 1706:23743 */
 @media (max-width: 767px) {
 	.blog-section {
 		padding: 50px 0;
@@ -502,20 +502,18 @@
 	}
 
 	.blog-card,
-	.blog-card.is-active {
-		width: 283px;
+	.blog-card.is-active,
+	.blog-card:hover,
+	.blog-card:focus-within {
+		width: 303px;
 		height: auto;
 		min-height: 0;
-		padding: 10px 10px 40px;
+		padding: 20px;
 		gap: 24px;
 		border: 1px solid #fff;
-		background: linear-gradient(
-			180deg,
-			rgba(248, 154, 66, 0.62) 0%,
-			rgba(237, 49, 83, 0.62) 100%
-		);
-		box-shadow: 4px 4px 4px rgba(155, 77, 255, 0.5);
-		color: #fff;
+		background: #fff;
+		box-shadow: 4px 4px 2px rgba(155, 77, 255, 0.5);
+		color: #000;
 	}
 
 	.blog-card__media {
@@ -528,13 +526,13 @@
 		border: 1px solid #fff;
 	}
 
+	.blog-card:hover .blog-card__image,
+	.blog-card:focus-within .blog-card__image {
+		transform: none;
+	}
+
 	.blog-card__badge {
-		top: 12px;
-		left: 12px;
-		padding: 10px;
-		border-radius: 100px;
-		font-size: 14px;
-		font-weight: 600;
+		display: none;
 	}
 
 	.blog-card__meta {
@@ -544,19 +542,21 @@
 	.blog-card__meta-item {
 		gap: 8px;
 		font-size: 10px;
-		color: #fff;
+		color: #000;
 	}
 
+	.blog-card .blog-card__icon--light,
 	.blog-card.is-active .blog-card__icon--light,
 	.blog-card:hover .blog-card__icon--light,
 	.blog-card:focus-within .blog-card__icon--light {
-		display: block;
+		display: none;
 	}
 
+	.blog-card .blog-card__icon--dark,
 	.blog-card.is-active .blog-card__icon--dark,
 	.blog-card:hover .blog-card__icon--dark,
 	.blog-card:focus-within .blog-card__icon--dark {
-		display: none;
+		display: block;
 	}
 
 	.blog-card__copy {
@@ -565,14 +565,14 @@
 
 	.blog-card__title {
 		font-size: 20px;
-		color: #fff;
+		color: #000;
 	}
 
 	.blog-card__excerpt {
 		font-size: 12px;
 		line-height: 1.6;
 		letter-spacing: 1px;
-		color: #fff;
+		color: #000;
 	}
 
 	.blog-card__cta,
@@ -582,13 +582,13 @@
 		height: 51px;
 		min-height: 51px;
 		padding: 0 20px;
-		border: 1px solid #fff;
-		border-bottom: 1px solid #fff;
+		border: 0;
+		border-bottom: 2px solid #f89a42;
 		background: transparent;
-		background-image: none;
-		box-shadow: none;
+		background-image: linear-gradient(270deg, #f8a742 0%, #f1634c 19.71%, #ee4250 44.23%, #eb2055 72.12%);
+		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
 		font-size: 16px;
-		font-weight: 400;
+		font-weight: 800;
 		color: #fff;
 	}
 

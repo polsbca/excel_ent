@@ -9,10 +9,42 @@
 		overflow-x: hidden;
 	}
 
-	/* Figma 1114:11425 — empty state has no filter chips */
-	body.search .search-page .search-page__chips-bar,
-	.search-page .search-page__chips-bar {
+	/* Figma 1706:32608 — chips only when filters are selected */
+	body.search .search-page .search-page__chips-bar.is-empty,
+	.search-page .search-page__chips-bar.is-empty {
 		display: none !important;
+	}
+
+	body.search .search-page .search-page__chips-bar:not(.is-empty),
+	.search-page .search-page__chips-bar:not(.is-empty) {
+		display: flex !important;
+		align-items: center;
+		justify-content: space-between;
+		gap: 20px;
+		padding: 24px 40px;
+		background: rgba(235, 32, 85, 0.04);
+		box-sizing: border-box;
+	}
+
+	.search-page__chips {
+		gap: 20px;
+		flex-wrap: wrap;
+	}
+
+	.search-page__chip {
+		height: 58px;
+		font-size: 18px;
+	}
+
+	.search-page__clear {
+		height: 58px;
+		min-width: 0;
+		font-size: 18px;
+	}
+
+	.search-page__clear img {
+		width: 18px;
+		height: 18px;
 	}
 
 	body.search .search-page .search-empty,

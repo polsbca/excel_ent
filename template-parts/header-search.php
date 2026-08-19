@@ -684,10 +684,19 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 
 	<button class="header-search__submit magnetic" type="submit" aria-label="<?php esc_attr_e( 'Search', 'excel-ent' ); ?>">
 		<img
+			class="header-search__submit-icon header-search__submit-icon--arrow"
 			src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/arrow-right-line.svg' ); ?>"
 			alt=""
 			width="34"
 			height="34"
+			decoding="async"
+		>
+		<img
+			class="header-search__submit-icon header-search__submit-icon--search"
+			src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line.svg' ); ?>"
+			alt=""
+			width="14"
+			height="14"
 			decoding="async"
 		>
 	</button>

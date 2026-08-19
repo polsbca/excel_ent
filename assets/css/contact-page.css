@@ -2578,6 +2578,74 @@
 		text-align: left;
 	}
 
+	.contact-prefs__row {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 8px;
+	}
+
+	.contact-prefs__select,
+	.contact-prefs__select.contact-field {
+		flex: 1 1 auto;
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.contact-dd,
+	.contact-field--dd {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.contact-dd__panel,
+	.contact-prefs__select .contact-dd__panel {
+		left: 0;
+		right: 0;
+		width: 100%;
+		min-width: 0;
+		max-width: 100%;
+		padding: 16px;
+		gap: 16px;
+		border-radius: 20px;
+		box-sizing: border-box;
+	}
+
+	.contact-dd__panel--scroll {
+		max-height: min(70vh, 480px);
+	}
+
+	.contact-dd__title {
+		font-size: 16px;
+	}
+
+	.contact-dd__search {
+		min-height: 48px;
+		padding: 0 12px;
+		border-radius: 20px;
+	}
+
+	.contact-dd__search-input {
+		font-size: 14px;
+	}
+
+	.contact-dd__option,
+	.contact-dd__option--artist {
+		min-height: 48px;
+		padding: 10px 12px;
+	}
+
+	.contact-dd__option-label,
+	.contact-dd__option--artist .contact-dd__option-label,
+	.contact-dd__option-meta {
+		white-space: normal;
+		font-size: 14px;
+	}
+
+	.contact-dd__option-text {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
 	.contact-radio-inline {
 		flex-wrap: wrap;
 		gap: 20px;

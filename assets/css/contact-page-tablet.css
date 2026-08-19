@@ -241,8 +241,23 @@
 	}
 
 	.contact-page .contact-prefs__row {
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
+		align-items: flex-start;
 		gap: 16px;
+	}
+
+	.contact-page .contact-prefs__select,
+	.contact-page .contact-prefs__select.contact-field {
+		flex: 1 1 auto;
+		width: auto;
+		min-width: 0;
+	}
+
+	.contact-page .contact-dd__panel,
+	.contact-page .contact-prefs__select .contact-dd__panel {
+		width: 100%;
+		min-width: 0;
+		max-width: 100%;
 	}
 
 	.contact-page .contact-prefs__rank {

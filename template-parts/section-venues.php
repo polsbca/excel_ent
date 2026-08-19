@@ -6,7 +6,6 @@
  */
 
 $excel_ent_venues_uri = EXCEL_ENT_URI . '/assets/images/venues';
-$excel_ent_venues_url = home_url( '/venues/' );
 
 $excel_ent_venues = array(
 	array(
@@ -122,10 +121,6 @@ $excel_ent_venues = array(
 								<h3 class="venue-panel__title"><?php echo esc_html( $excel_ent_venue['title'] ); ?></h3>
 								<p class="venue-panel__text"><?php echo esc_html( $excel_ent_venue['description'] ); ?></p>
 							</div>
-
-							<a class="venue-panel__cta magnetic" href="<?php echo esc_url( $excel_ent_venues_url ); ?>">
-								<?php esc_html_e( 'View All', 'excel-ent' ); ?>
-							</a>
 						</div>
 					</div>
 				</article>

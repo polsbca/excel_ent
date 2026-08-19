@@ -26,15 +26,25 @@
 			<label class="screen-reader-text" for="newsletter-email">
 				<?php esc_html_e( 'Email address', 'excel-ent' ); ?>
 			</label>
-			<input
-				id="newsletter-email"
-				class="newsletter-cta__input"
-				type="email"
-				name="excel_ent_newsletter_email"
-				placeholder="<?php esc_attr_e( 'ADD YOUR EMAIL', 'excel-ent' ); ?>"
-				autocomplete="email"
-				required
-			>
+			<div class="newsletter-cta__field">
+				<img
+					class="newsletter-cta__mail"
+					src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/mail-line.svg' ); ?>"
+					alt=""
+					width="14"
+					height="14"
+					decoding="async"
+				>
+				<input
+					id="newsletter-email"
+					class="newsletter-cta__input"
+					type="email"
+					name="excel_ent_newsletter_email"
+					placeholder="<?php esc_attr_e( 'ADD YOUR EMAIL', 'excel-ent' ); ?>"
+					autocomplete="email"
+					required
+				>
+			</div>
 			<button class="newsletter-cta__submit magnetic" type="submit">
 				<?php esc_html_e( 'Subscribe', 'excel-ent' ); ?>
 			</button>

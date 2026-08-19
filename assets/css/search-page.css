@@ -187,10 +187,42 @@
 		overflow-x: hidden;
 	}
 
-	/* Empty frame has no filter chips */
-	body.search .search-page .search-page__chips-bar,
-	.search-page .search-page__chips-bar {
+	/* Empty frame has no filter chips; selected filters — Figma 1706:32608 */
+	body.search .search-page .search-page__chips-bar.is-empty,
+	.search-page .search-page__chips-bar.is-empty {
 		display: none !important;
+	}
+
+	body.search .search-page .search-page__chips-bar:not(.is-empty),
+	.search-page .search-page__chips-bar:not(.is-empty) {
+		display: flex !important;
+		align-items: center;
+		justify-content: space-between;
+		gap: 20px;
+		padding: 24px 40px;
+		background: rgba(235, 32, 85, 0.04);
+		box-sizing: border-box;
+	}
+
+	.search-page__chips {
+		gap: 20px;
+		flex-wrap: wrap;
+	}
+
+	.search-page__chip {
+		height: 58px;
+		font-size: 18px;
+	}
+
+	.search-page__clear {
+		height: 58px;
+		min-width: 0;
+		font-size: 18px;
+	}
+
+	.search-page__clear img {
+		width: 18px;
+		height: 18px;
 	}
 
 	body.search .search-page .search-empty,
@@ -255,9 +287,70 @@
 }
 
 @media (max-width: 767px) {
-	/* Figma 1053:4365 — no filter chips on mobile empty state */
+	/* Figma 1706:27415 — selected filters under the mobile search header */
 	.search-page__chips-bar {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: flex-start;
+		gap: 30px;
+		padding: 16px 24px;
+		background: rgba(236, 40, 84, 0.04);
+		overflow: hidden;
+	}
+
+	.search-page__chips-bar.is-empty {
 		display: none;
+	}
+
+	.search-page__clear {
+		order: -1;
+		height: auto;
+		min-width: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+		font-size: 14px;
+		font-weight: 700;
+		letter-spacing: 1px;
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		text-decoration-thickness: 14.5%;
+	}
+
+	.search-page__clear img {
+		display: none;
+	}
+
+	.search-page__chips {
+		flex-wrap: nowrap;
+		gap: 19px;
+		width: 100%;
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+
+	.search-page__chips::-webkit-scrollbar {
+		display: none;
+	}
+
+	.search-page__chip {
+		height: 40px;
+		padding: 14px 25px;
+		border-width: 1px;
+		border-color: #000;
+		background: transparent;
+		font-size: 14px;
+		gap: 5px;
+		flex-shrink: 0;
+	}
+
+	.search-page__chip img {
+		width: 12px;
+		height: 12px;
 	}
 
 	.search-empty {

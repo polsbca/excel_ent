@@ -1381,7 +1381,7 @@ body.front-page .site-header::before {
 	}
 }
 
-@media (max-width: 900px) {
+@media (max-width: 767px) {
 	.header-categories {
 		width: min(420px, calc(100vw - 32px));
 		left: 0;
@@ -1700,6 +1700,10 @@ body.front-page .site-header::before {
 	display: block;
 }
 
+.header-search__submit .header-search__submit-icon--search {
+	display: none;
+}
+
 /* Compact mobile search — Figma 1023:2897 / open state 1059:5334 */
 .header-search-mobile {
 	display: none;
@@ -1806,15 +1810,20 @@ body.front-page .site-header::before {
 
 .header-search-mobile__overlay {
 	position: fixed;
-	inset: 0;
-	z-index: 1200;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 10000;
 	display: flex;
 	align-items: stretch;
 	justify-content: center;
+	width: 100vw;
+	height: 100dvh;
 	padding: 0;
 	box-sizing: border-box;
 	overflow-y: auto;
-	background: rgba(255, 255, 255, 0.11);
+	background: rgba(20, 16, 16, 0.72);
 	backdrop-filter: blur(89px);
 	-webkit-backdrop-filter: blur(89px);
 }
@@ -1927,18 +1936,20 @@ body.front-page .site-header::before {
 	display: flex;
 	flex: 1 1 auto;
 	flex-direction: column;
+	justify-content: flex-start;
 	gap: 17px;
 	width: 100%;
 	min-height: 0;
+	overflow-y: auto;
 }
 
 .header-search-mobile__card {
 	display: flex;
-	flex: 1 1 0;
+	flex: 0 0 auto;
 	flex-direction: column;
 	align-items: stretch;
 	justify-content: center;
-	min-height: 0;
+	min-height: 88px;
 	padding: 20px;
 	border: 1px solid #fff;
 	border-radius: 16px;
@@ -2709,7 +2720,7 @@ body.front-page .site-header::before {
 	justify-content: center;
 	width: 100%;
 	height: 40px;
-	margin: 0;
+	margin: auto 0 0;
 	padding: 0;
 	border: 0;
 	background-image: linear-gradient(90deg, #f89a42 0%, #eb2055 100%);
@@ -3496,6 +3507,12 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		backdrop-filter: blur(12px);
 	}
 
+	body.mobile-search-open .site-header,
+	body.is-explore-filter-overlay .site-header {
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+	}
+
 	body.home .site-header,
 	body.front-page .site-header {
 		background: transparent;
@@ -3778,6 +3795,15 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	}
 
 	body.search .site-header.is-nav-open {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		min-height: 100dvh;
+		z-index: 1100;
 		background: rgba(0, 0, 0, 0.88);
 	}
 
@@ -3846,6 +3872,123 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		background: #000;
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
+	}
+
+	body.page-template-page-explore-artists #primary {
+		--ee-search-sticky-offset: 0px;
+		padding-top: var(--ee-search-sticky-offset);
+	}
+
+	body.page-template-page-explore-artists .site-header.is-scrolled {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		z-index: 50;
+		background: #000;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-scrolled.is-explore-filter-open {
+		z-index: 100;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-scrolled .site-header__inner {
+		padding-bottom: 16px;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-scrolled .explore-artists-search {
+		display: none !important;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-scrolled.is-search-open .explore-artists-search,
+	body.page-template-page-explore-artists .site-header.is-scrolled.is-explore-filter-open .explore-artists-search {
+		display: flex !important;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-scrolled.is-search-open .site-header__inner,
+	body.page-template-page-explore-artists .site-header.is-scrolled.is-explore-filter-open .site-header__inner {
+		padding-bottom: 30px;
+	}
+
+	body.home .site-header.is-scrolled:not(.is-nav-open),
+	body.front-page .site-header.is-scrolled:not(.is-nav-open) {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		z-index: 50;
+		background: #000;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+	}
+
+	body.home .site-header.is-scrolled::before,
+	body.front-page .site-header.is-scrolled::before {
+		display: none;
+	}
+
+	body.home .site-header.is-scrolled .site-header__inner,
+	body.front-page .site-header.is-scrolled .site-header__inner {
+		padding-bottom: 16px;
+		gap: 0;
+	}
+
+	body.home .site-header.is-scrolled .header-search,
+	body.front-page .site-header.is-scrolled .header-search,
+	body.home .site-header.is-scrolled .header-search-mobile,
+	body.front-page .site-header.is-scrolled .header-search-mobile {
+		display: none !important;
+	}
+
+	body.home .site-header.is-scrolled .header-search-icon,
+	body.front-page .site-header.is-scrolled .header-search-icon {
+		display: inline-flex !important;
+		order: 2;
+		width: 42px;
+		height: 42px;
+		min-width: 42px;
+		padding: 0;
+		border: 1px solid #fff;
+		border-radius: 50px;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		box-sizing: border-box;
+	}
+
+	body.home .site-header.is-scrolled .header-search-icon img,
+	body.front-page .site-header.is-scrolled .header-search-icon img {
+		width: 18px;
+		height: 18px;
+	}
+
+	body.home .site-header.is-scrolled.is-search-open .header-search,
+	body.front-page .site-header.is-scrolled.is-search-open .header-search {
+		display: flex !important;
+	}
+
+	body.home .site-header.is-scrolled.is-search-open .site-header__inner,
+	body.front-page .site-header.is-scrolled.is-search-open .site-header__inner {
+		padding-bottom: 24px;
+		gap: 34px;
+	}
+
+	body.home .site-header.is-scrolled.is-search-open .header-search-icon,
+	body.front-page .site-header.is-scrolled.is-search-open .header-search-icon {
+		display: none !important;
+	}
+
+	body.page-template-page-explore-artists.nav-open .site-header.is-nav-open {
+		position: fixed;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		min-height: 100dvh;
+		z-index: 1100;
 	}
 
 	body.page-template-page-artist .site-header__inner,
@@ -4071,7 +4214,17 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	/* Open menu — Figma 1573:19655
 	   Nav lives inside .site-header__bar, so keep display:contents
 	   and place links on their own grid row (not inside the 42px top bar). */
-	body.nav-open .site-header.is-nav-open {
+	body.nav-open .site-header.is-nav-open,
+	body.search.nav-open .site-header.is-nav-open {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		min-height: 100dvh;
+		z-index: 1100;
 		background: #000;
 		backdrop-filter: none;
 		-webkit-backdrop-filter: none;
@@ -4205,7 +4358,8 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	body.nav-open .site-header.is-nav-open .main-navigation,
 	body.nav-open .site-header.is-nav-open .main-navigation.is-open,
 	body.home.nav-open .site-header.is-nav-open .main-navigation,
-	body.front-page.nav-open .site-header.is-nav-open .main-navigation {
+	body.front-page.nav-open .site-header.is-nav-open .main-navigation,
+	body.search.nav-open .site-header.is-nav-open .main-navigation {
 		display: flex;
 		flex-direction: column;
 		grid-area: nav;
@@ -4240,7 +4394,7 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		flex: 1 1 0;
 		align-items: stretch;
 		width: 100%;
-		min-height: 0;
+		min-height: 64px;
 		margin: 0;
 		border-top: 0.5px solid #fff;
 	}
@@ -4486,9 +4640,293 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		backdrop-filter: none;
 	}
 
+	/* Keep the overlay on the viewport after sticky scroll (absolute top:0 is document-top). */
+	body.home .site-header.is-nav-open,
+	body.front-page .site-header.is-nav-open,
+	body.search .site-header.is-nav-open,
+	body.page-template-page-explore-artists .site-header.is-nav-open,
+	body.page-template-page-artist .site-header.is-nav-open,
+	body.page-template-page-about .site-header.is-nav-open,
+	body.page-template-page-package .site-header.is-nav-open,
+	body.page-template-page-contactus .site-header.is-nav-open {
+		position: fixed;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		min-height: 100dvh;
+		z-index: 1100;
+		background: rgba(0, 0, 0, 0.92);
+		backdrop-filter: blur(16px);
+		-webkit-backdrop-filter: blur(16px);
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	body.home .site-header.is-nav-open .site-header__inner,
+	body.front-page .site-header.is-nav-open .site-header__inner,
+	body.search .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-explore-artists .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-artist .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-about .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-package .site-header.is-nav-open .site-header__inner,
+	body.page-template-page-contactus .site-header.is-nav-open .site-header__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-rows: 50px minmax(0, 1fr);
+		grid-template-areas:
+			"actions toggle"
+			"nav nav";
+		align-content: stretch;
+		align-items: stretch;
+		column-gap: 20px;
+		row-gap: 40px;
+		width: 100%;
+		min-height: 100%;
+		height: 100%;
+		padding: 30px 40px;
+		box-sizing: border-box;
+	}
+
+	body.home .site-header.is-nav-open .site-header__bar,
+	body.front-page .site-header.is-nav-open .site-header__bar,
+	body.search .site-header.is-nav-open .site-header__bar,
+	body.page-template-page-explore-artists .site-header.is-nav-open .site-header__bar,
+	body.page-template-page-artist .site-header.is-nav-open .site-header__bar,
+	body.page-template-page-about .site-header.is-nav-open .site-header__bar,
+	body.page-template-page-package .site-header.is-nav-open .site-header__bar,
+	body.page-template-page-contactus .site-header.is-nav-open .site-header__bar {
+		display: contents;
+	}
+
+	body.home .site-header.is-nav-open .site-branding,
+	body.front-page .site-header.is-nav-open .site-branding,
+	body.search .site-header.is-nav-open .site-branding,
+	body.page-template-page-explore-artists .site-header.is-nav-open .site-branding,
+	body.page-template-page-artist .site-header.is-nav-open .site-branding,
+	body.page-template-page-about .site-header.is-nav-open .site-branding,
+	body.page-template-page-package .site-header.is-nav-open .site-branding,
+	body.page-template-page-contactus .site-header.is-nav-open .site-branding {
+		display: none;
+	}
+
+	body.home .site-header.is-nav-open .site-header__actions,
+	body.front-page .site-header.is-nav-open .site-header__actions,
+	body.search .site-header.is-nav-open .site-header__actions,
+	body.page-template-page-explore-artists .site-header.is-nav-open .site-header__actions,
+	body.page-template-page-artist .site-header.is-nav-open .site-header__actions,
+	body.page-template-page-about .site-header.is-nav-open .site-header__actions,
+	body.page-template-page-package .site-header.is-nav-open .site-header__actions,
+	body.page-template-page-contactus .site-header.is-nav-open .site-header__actions {
+		display: flex;
+		grid-area: actions;
+		order: unset;
+		width: auto;
+		margin: 0;
+		justify-content: flex-start;
+		align-items: center;
+		gap: 20px;
+	}
+
+	body.home .site-header.is-nav-open .header-search-icon,
+	body.front-page .site-header.is-nav-open .header-search-icon,
+	body.search .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-explore-artists .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-artist .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-about .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-package .site-header.is-nav-open .header-search-icon,
+	body.page-template-page-contactus .site-header.is-nav-open .header-search-icon {
+		display: inline-flex !important;
+		order: 2;
+		width: 50px;
+		height: 50px;
+		min-width: 50px;
+		margin-left: auto;
+		border: 1px solid #fff;
+		border-radius: 50px;
+		background: rgba(255, 255, 255, 0.03);
+	}
+
+	body.home .site-header.is-nav-open .nav-toggle,
+	body.front-page .site-header.is-nav-open .nav-toggle,
+	body.search .site-header.is-nav-open .nav-toggle,
+	body.page-template-page-explore-artists .site-header.is-nav-open .nav-toggle,
+	body.page-template-page-artist .site-header.is-nav-open .nav-toggle,
+	body.page-template-page-about .site-header.is-nav-open .nav-toggle,
+	body.page-template-page-package .site-header.is-nav-open .nav-toggle,
+	body.page-template-page-contactus .site-header.is-nav-open .nav-toggle {
+		grid-area: toggle;
+		width: 50px;
+		height: 50px;
+		min-width: 50px;
+		margin-left: 0;
+	}
+
+	body.home .site-header.is-nav-open .nav-toggle__bar,
+	body.front-page .site-header.is-nav-open .nav-toggle__bar,
+	body.search .site-header.is-nav-open .nav-toggle__bar,
+	body.page-template-page-explore-artists .site-header.is-nav-open .nav-toggle__bar,
+	body.page-template-page-artist .site-header.is-nav-open .nav-toggle__bar,
+	body.page-template-page-about .site-header.is-nav-open .nav-toggle__bar,
+	body.page-template-page-package .site-header.is-nav-open .nav-toggle__bar,
+	body.page-template-page-contactus .site-header.is-nav-open .nav-toggle__bar {
+		display: none;
+	}
+
+	body.home .site-header.is-nav-open .nav-toggle__close,
+	body.front-page .site-header.is-nav-open .nav-toggle__close,
+	body.search .site-header.is-nav-open .nav-toggle__close,
+	body.page-template-page-explore-artists .site-header.is-nav-open .nav-toggle__close,
+	body.page-template-page-artist .site-header.is-nav-open .nav-toggle__close,
+	body.page-template-page-about .site-header.is-nav-open .nav-toggle__close,
+	body.page-template-page-package .site-header.is-nav-open .nav-toggle__close,
+	body.page-template-page-contactus .site-header.is-nav-open .nav-toggle__close {
+		display: block;
+		width: 18px;
+		height: 18px;
+	}
+
+	body.home .site-header.is-nav-open .header-search,
+	body.front-page .site-header.is-nav-open .header-search,
+	body.search .site-header.is-nav-open .header-search,
+	body.home .site-header.is-nav-open .header-search-mobile,
+	body.front-page .site-header.is-nav-open .header-search-mobile,
+	body.search .site-header.is-nav-open .header-search-mobile,
+	body.page-template-page-explore-artists .site-header.is-nav-open .explore-artists-search {
+		display: none !important;
+	}
+
+	body.home .site-header.is-nav-open .main-navigation,
+	body.front-page .site-header.is-nav-open .main-navigation,
+	body.search .site-header.is-nav-open .main-navigation,
+	body.page-template-page-explore-artists .site-header.is-nav-open .main-navigation,
+	body.page-template-page-artist .site-header.is-nav-open .main-navigation,
+	body.page-template-page-about .site-header.is-nav-open .main-navigation,
+	body.page-template-page-package .site-header.is-nav-open .main-navigation,
+	body.page-template-page-contactus .site-header.is-nav-open .main-navigation,
+	body.home .site-header.is-nav-open .main-navigation.is-open,
+	body.front-page .site-header.is-nav-open .main-navigation.is-open {
+		display: flex;
+		flex-direction: column;
+		grid-area: nav;
+		position: static;
+		left: auto;
+		right: auto;
+		width: 100%;
+		height: 100%;
+		min-height: 0;
+		margin: 0;
+		padding: 0;
+		background: transparent;
+		border: 0;
+	}
+
+	body.home .site-header.is-nav-open .main-navigation .menu,
+	body.front-page .site-header.is-nav-open .main-navigation .menu,
+	body.search .site-header.is-nav-open .main-navigation .menu,
+	body.page-template-page-explore-artists .site-header.is-nav-open .main-navigation .menu,
+	body.page-template-page-artist .site-header.is-nav-open .main-navigation .menu,
+	body.page-template-page-about .site-header.is-nav-open .main-navigation .menu,
+	body.page-template-page-package .site-header.is-nav-open .main-navigation .menu,
+	body.page-template-page-contactus .site-header.is-nav-open .main-navigation .menu {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		align-items: stretch;
+		justify-content: stretch;
+		gap: 0;
+		width: 100%;
+		height: 100%;
+		margin: 0;
+		padding: 0;
+	}
+
+	body.home .site-header.is-nav-open .main-navigation .menu > li,
+	body.front-page .site-header.is-nav-open .main-navigation .menu > li,
+	body.search .site-header.is-nav-open .main-navigation .menu > li,
+	body.page-template-page-explore-artists .site-header.is-nav-open .main-navigation .menu > li,
+	body.page-template-page-artist .site-header.is-nav-open .main-navigation .menu > li,
+	body.page-template-page-about .site-header.is-nav-open .main-navigation .menu > li,
+	body.page-template-page-package .site-header.is-nav-open .main-navigation .menu > li,
+	body.page-template-page-contactus .site-header.is-nav-open .main-navigation .menu > li {
+		display: flex;
+		flex: 1 1 0;
+		align-items: stretch;
+		width: 100%;
+		min-height: 72px;
+		margin: 0;
+		border-top: 0.5px solid #fff;
+	}
+
+	body.home .site-header.is-nav-open .main-navigation .menu > li:last-child,
+	body.front-page .site-header.is-nav-open .main-navigation .menu > li:last-child,
+	body.search .site-header.is-nav-open .main-navigation .menu > li:last-child,
+	body.page-template-page-explore-artists .site-header.is-nav-open .main-navigation .menu > li:last-child,
+	body.page-template-page-artist .site-header.is-nav-open .main-navigation .menu > li:last-child,
+	body.page-template-page-about .site-header.is-nav-open .main-navigation .menu > li:last-child,
+	body.page-template-page-package .site-header.is-nav-open .main-navigation .menu > li:last-child,
+	body.page-template-page-contactus .site-header.is-nav-open .main-navigation .menu > li:last-child {
+		border-bottom: 0.5px solid #fff;
+	}
+
+	body.home .site-header.is-nav-open .main-navigation .menu > li > a,
+	body.front-page .site-header.is-nav-open .main-navigation .menu > li > a,
+	body.search .site-header.is-nav-open .main-navigation .menu > li > a,
+	body.page-template-page-explore-artists .site-header.is-nav-open .main-navigation .menu > li > a,
+	body.page-template-page-artist .site-header.is-nav-open .main-navigation .menu > li > a,
+	body.page-template-page-about .site-header.is-nav-open .main-navigation .menu > li > a,
+	body.page-template-page-package .site-header.is-nav-open .main-navigation .menu > li > a,
+	body.page-template-page-contactus .site-header.is-nav-open .main-navigation .menu > li > a,
+	body.home .site-header.is-nav-open .main-navigation .menu > li.current-menu-item > a,
+	body.front-page .site-header.is-nav-open .main-navigation .menu > li.current-menu-item > a,
+	body.search .site-header.is-nav-open .main-navigation .menu > li.current-menu-item > a,
+	body.home .site-header.is-nav-open .main-navigation .menu > li.current_page_item > a,
+	body.front-page .site-header.is-nav-open .main-navigation .menu > li.current_page_item > a {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+		width: 100%;
+		min-height: 100%;
+		padding: 30px 24px;
+		border: 0;
+		border-radius: 0;
+		background: none;
+		background-image: none;
+		box-shadow: none;
+		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 75;
+		font-weight: 400;
+		font-size: 28px;
+		letter-spacing: 1px;
+		line-height: 1;
+		text-transform: uppercase;
+		color: #fff;
+		-webkit-text-fill-color: #fff;
+		box-sizing: border-box;
+	}
+
+	body.home .site-header.is-nav-open .main-navigation .menu > li > a::after,
+	body.front-page .site-header.is-nav-open .main-navigation .menu > li > a::after,
+	body.search .site-header.is-nav-open .main-navigation .menu > li > a::after,
+	body.page-template-page-explore-artists .site-header.is-nav-open .main-navigation .menu > li > a::after,
+	body.page-template-page-artist .site-header.is-nav-open .main-navigation .menu > li > a::after,
+	body.page-template-page-about .site-header.is-nav-open .main-navigation .menu > li > a::after,
+	body.page-template-page-package .site-header.is-nav-open .main-navigation .menu > li > a::after,
+	body.page-template-page-contactus .site-header.is-nav-open .main-navigation .menu > li > a::after {
+		content: "";
+		display: block;
+		width: 16px;
+		height: 16px;
+		flex-shrink: 0;
+		background: url("../images/nav/arrow-right.svg") center / contain no-repeat;
+	}
+
 	body.home .site-header__inner,
 	body.front-page .site-header__inner {
-		padding: 0 40px 30px;
+		padding: 0 16px 30px;
 		gap: 34px;
 	}
 
@@ -4523,12 +4961,20 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		box-sizing: border-box;
 	}
 
+	/* Homepage tablet search — Figma 1728:3694 (944 × 74) */
 	body.home .header-search,
 	body.front-page .header-search {
 		display: flex !important;
-		gap: 10px;
-		padding: 10px 10px 10px 14px;
-		border-radius: 100px;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 0;
+		height: 74px;
+		padding: 20px 10px;
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		border-radius: 40px;
+		background: rgba(255, 255, 255, 0.11);
+		box-shadow: none;
+		box-sizing: border-box;
 	}
 
 	body.home .header-search-mobile,
@@ -4536,43 +4982,336 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		display: none !important;
 	}
 
-	.header-search__field {
+	body.home .header-search__field,
+	body.front-page .header-search__field {
+		flex: 1 1 0;
+		justify-content: center;
+		align-items: center;
 		gap: 10px;
+		min-width: 0;
+		height: auto;
 		padding: 0 10px;
+		border-right: 1px solid rgba(255, 255, 255, 0.6);
+		overflow: visible;
 	}
 
-	.header-search__icon {
+	body.home .header-search__field--artist,
+	body.front-page .header-search__field--artist {
+		flex: 1 1 0;
+		width: auto;
+		max-width: none;
+		justify-content: flex-start;
+	}
+
+	body.home .header-search__field--categories,
+	body.front-page .header-search__field--categories {
+		flex: 0 0 200px;
+		width: 200px;
+		max-width: 200px;
+	}
+
+	body.home .header-search__field--location,
+	body.front-page .header-search__field--location {
+		border-right: 0;
+	}
+
+	body.home .header-search__field--date,
+	body.front-page .header-search__field--date,
+	body.home .header-search__field--budget,
+	body.front-page .header-search__field--budget,
+	body.home .header-search__field--last,
+	body.front-page .header-search__field--last {
+		border-right: 0;
+		border-left: 1px solid rgba(255, 255, 255, 0.6);
+	}
+
+	body.home .header-search__budget-trigger,
+	body.front-page .header-search__budget-trigger,
+	body.home .header-search__date-trigger,
+	body.front-page .header-search__date-trigger,
+	body.home .header-search__location-trigger,
+	body.front-page .header-search__location-trigger,
+	body.home .header-search__categories-trigger,
+	body.front-page .header-search__categories-trigger,
+	body.home .header-search__artist-trigger,
+	body.front-page .header-search__artist-trigger {
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 10px;
+		width: 100%;
+	}
+
+	body.home .header-search__icon,
+	body.front-page .header-search__icon {
 		width: 20px;
 		height: 20px;
+		flex-shrink: 0;
 	}
 
-	.header-search__title {
+	body.home .header-search__field--categories .header-search__icon,
+	body.front-page .header-search__field--categories .header-search__icon {
+		width: 18px;
+		height: 18px;
+	}
+
+	body.home .header-search__label,
+	body.front-page .header-search__label {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		flex: 0 1 auto;
+		width: auto;
+		min-width: 0;
+		max-width: none;
+	}
+
+	body.home .header-search__title,
+	body.front-page .header-search__title {
 		font-size: 16px;
+		font-weight: 600;
+		letter-spacing: 1px;
+		line-height: 1;
+		white-space: nowrap;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
 	}
 
-	.header-search__submit {
+	body.home .header-search__meta,
+	body.front-page .header-search__meta {
+		font-size: 12px;
+		font-weight: 300;
+		letter-spacing: 0;
+		line-height: 1;
+		color: rgba(255, 255, 255, 0.8);
+		white-space: nowrap;
+		overflow: visible;
+		text-overflow: unset;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
+	}
+
+	body.home .header-search__field--date .header-search__meta,
+	body.front-page .header-search__field--date .header-search__meta {
+		letter-spacing: 1px;
+	}
+
+	body.home .header-search__field.is-filled .header-search__title,
+	body.front-page .header-search__field.is-filled .header-search__title {
+		font-size: 12px;
+		font-weight: 300;
+		white-space: nowrap;
+	}
+
+	body.home .header-search__field.is-filled .header-search__meta,
+	body.front-page .header-search__field.is-filled .header-search__meta {
+		font-size: 16px;
+		font-weight: 600;
+		white-space: nowrap;
+		overflow: visible;
+		text-overflow: unset;
+	}
+
+	body.home .header-search__submit,
+	body.front-page .header-search__submit {
 		width: 34px;
 		height: 34px;
+		margin-left: 20px;
 		padding: 0;
-		border-radius: 50px;
+		border-radius: 50%;
+		flex-shrink: 0;
 	}
 
-	.header-search__submit img {
-		width: 16px;
-		height: 16px;
+	body.home .header-search__submit-icon--arrow,
+	body.front-page .header-search__submit-icon--arrow {
+		display: none;
+	}
+
+	body.home .header-search__submit .header-search__submit-icon--search,
+	body.front-page .header-search__submit .header-search__submit-icon--search {
+		display: block;
+		width: 14px;
+		height: 14px;
+	}
+
+	@media (min-width: 1024px) {
+		body.home .site-header__inner,
+		body.front-page .site-header__inner {
+			padding: 0 40px 30px;
+		}
+	}
+
+	@media (max-width: 1023px) {
+		body.home .header-search,
+		body.front-page .header-search {
+			height: auto;
+			min-height: 74px;
+		}
+
+		body.home .header-search__field--categories,
+		body.front-page .header-search__field--categories {
+			flex: 1 1 0;
+			width: auto;
+			max-width: none;
+		}
+
+		body.home .header-search__title,
+		body.front-page .header-search__title,
+		body.home .header-search__meta,
+		body.front-page .header-search__meta,
+		body.home .header-search__field.is-filled .header-search__title,
+		body.front-page .header-search__field.is-filled .header-search__title,
+		body.home .header-search__field.is-filled .header-search__meta,
+		body.front-page .header-search__field.is-filled .header-search__meta {
+			white-space: normal;
+		}
 	}
 
 	body.home .site-header.is-nav-open .header-search,
-	body.front-page .site-header.is-nav-open .header-search {
+	body.front-page .site-header.is-nav-open .header-search,
+	body.home .site-header.is-nav-open .header-search-mobile,
+	body.front-page .site-header.is-nav-open .header-search-mobile {
 		display: none !important;
 	}
 
-	body.home .site-header.is-nav-open .header-search-mobile,
-	body.front-page .site-header.is-nav-open .header-search-mobile {
-		display: block !important;
+	/* Tablet search dropdowns — keep panels inside the search bar */
+	.header-search__field--categories {
+		position: static;
 	}
 
-	/* Explore Artists header — Figma 1099:3174 */
+	.header-categories {
+		left: 0;
+		right: 0;
+		width: 100%;
+		max-width: none;
+		transform: none;
+		top: calc(100% + 12px);
+		padding: 20px 20px 16px;
+		gap: 16px;
+		border-radius: 20px;
+		--ee-categories-nav-row: 56px;
+		--ee-categories-body-max: calc(var(--ee-panel-max-height, calc(100dvh - 180px)) - 88px);
+	}
+
+	.header-categories__body {
+		flex-direction: row;
+		gap: 16px;
+		height: var(--ee-categories-body-h);
+		max-height: var(--ee-categories-body-max);
+	}
+
+	.header-categories__nav {
+		flex: 0 0 210px;
+		width: 210px;
+		height: 100%;
+	}
+
+	.header-categories__nav-item {
+		flex: 0 0 25%;
+		height: 25%;
+		min-height: 0;
+	}
+
+	.header-categories__nav-btn {
+		height: 100%;
+		min-height: 0;
+		padding: 0 10px;
+		gap: 8px;
+	}
+
+	.header-categories__nav-label {
+		font-size: 16px;
+		line-height: 1.2;
+		white-space: normal;
+		overflow: visible;
+		text-overflow: unset;
+	}
+
+	.header-categories__nav-arrow {
+		flex: 0 0 18px;
+		width: 18px;
+		height: 18px;
+	}
+
+	.header-categories__panels {
+		height: 100%;
+		max-height: none;
+		padding-left: 16px;
+		padding-right: 0;
+		border-left: 1px solid #bebebe;
+	}
+
+	.header-categories__divider-label {
+		font-size: 13px;
+		white-space: normal;
+	}
+
+	.header-categories__tags,
+	.header-categories__tags--cols-3 {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+	}
+
+	.header-categories__tag {
+		height: auto;
+		min-height: 44px;
+		padding: 10px 12px;
+		font-size: 14px;
+		gap: 8px;
+		border-radius: 10px;
+	}
+
+	.header-categories__tags--cols-3 .header-categories__tag {
+		padding: 10px 12px;
+	}
+
+	.header-categories__tag-box {
+		flex: 0 0 18px;
+		width: 18px;
+		height: 18px;
+	}
+
+	.header-categories__tag.is-selected .header-categories__tag-box::after {
+		left: 5px;
+		top: 1px;
+		width: 5px;
+		height: 10px;
+	}
+
+	.header-categories__tag-text,
+	.header-categories__tags--cols-3 .header-categories__tag-text {
+		font-size: 14px;
+		white-space: normal;
+		overflow: visible;
+		text-overflow: unset;
+		line-height: 1.2;
+	}
+
+	.header-categories__confirm {
+		width: calc(100% - 226px);
+		min-height: 52px;
+		margin-left: auto;
+		padding: 14px 20px;
+		font-size: 16px;
+	}
+
+	@media (max-width: 900px) {
+		.header-categories__nav {
+			flex: 0 0 180px;
+			width: 180px;
+		}
+
+		.header-categories__nav-label {
+			font-size: 14px;
+		}
+
+		.header-categories__confirm {
+			width: calc(100% - 196px);
+		}
+	}
+
+	/* Explore Artists header — Figma 1728:995 / 1728:1154 / 1728:1155 */
 	body.page-template-page-explore-artists .site-header {
 		background: #000;
 		backdrop-filter: blur(20px);
@@ -4581,24 +5320,39 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 
 	body.page-template-page-explore-artists .site-header__inner {
 		padding: 0 40px 30px;
-		gap: 34px;
+		gap: 40px;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .site-header__inner {
+		gap: 30px;
 	}
 
 	body.page-template-page-explore-artists .site-header__bar {
 		padding: 30px 0 0;
 		gap: 20px;
+		flex-wrap: nowrap;
+		align-items: center;
 	}
 
 	body.page-template-page-explore-artists .site-logo--header .custom-logo,
 	body.page-template-page-explore-artists .site-logo--header img,
 	body.page-template-page-explore-artists .site-branding .custom-logo {
-		width: 62px;
-		height: 39px;
+		width: 67px;
+		height: 42px;
 	}
 
 	body.page-template-page-explore-artists .nav-toggle {
+		display: inline-flex !important;
+		order: 3;
+		margin-left: 0;
 		width: 50px;
 		height: 50px;
+		border: 1px solid #fff;
+		border-radius: 30px;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		box-sizing: border-box;
 	}
 
 	body.page-template-page-explore-artists .btn-quote {
@@ -4606,6 +5360,9 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		padding: 14px 20px;
 		height: auto;
 		min-height: 50px;
+		border-radius: 30px;
+		border-bottom: 2px solid #f89a42;
+		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
 		box-sizing: border-box;
 	}
 
@@ -4613,8 +5370,182 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		gap: 20px;
 	}
 
-	body.page-template-page-explore-artists .header-search-icon {
+	body.page-template-page-explore-artists .header-search {
 		display: none !important;
+	}
+
+	body.page-template-page-explore-artists .site-header:not(.is-search-open) .header-search {
+		display: none !important;
+	}
+
+	body.page-template-page-explore-artists .header-search-icon {
+		display: inline-flex !important;
+		order: 2;
+		width: 50px;
+		height: 50px;
+		min-width: 50px;
+		padding: 0;
+		border: 1px solid #fff;
+		border-radius: 30px;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		box-sizing: border-box;
+	}
+
+	body.page-template-page-explore-artists .header-search-icon img {
+		width: 18px;
+		height: 18px;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search-icon {
+		display: none !important;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search {
+		display: flex !important;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 0;
+		height: 74px;
+		width: 100%;
+		padding: 20px 10px;
+		border-radius: 40px;
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		background: rgba(255, 255, 255, 0.11);
+		box-shadow: none;
+		box-sizing: border-box;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__field {
+		flex: 1 1 0;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		min-width: 0;
+		height: auto;
+		padding: 0 10px;
+		border-right: 1px solid rgba(255, 255, 255, 0.6);
+		overflow: visible;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__field--artist {
+		flex: 1 1 0;
+		width: auto;
+		max-width: none;
+		justify-content: flex-start;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__field--categories {
+		flex: 0 0 200px;
+		width: 200px;
+		max-width: 200px;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__field--location {
+		border-right: 0;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__field--date,
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__field--budget,
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__field--last {
+		border-right: 0;
+		border-left: 1px solid rgba(255, 255, 255, 0.6);
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__budget-trigger,
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__date-trigger,
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__location-trigger,
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__categories-trigger,
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__artist-trigger {
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 10px;
+		width: 100%;
+		min-width: 0;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__icon {
+		width: 20px;
+		height: 20px;
+		flex-shrink: 0;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__field--categories .header-search__icon {
+		width: 18px;
+		height: 18px;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__label {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		flex: 0 1 auto;
+		width: auto;
+		min-width: 0;
+		max-width: 100%;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__title {
+		font-size: 16px;
+		font-weight: 600;
+		letter-spacing: 1px;
+		line-height: 1;
+		text-transform: none;
+		white-space: nowrap;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__meta {
+		font-size: 12px;
+		font-weight: 300;
+		letter-spacing: 0;
+		line-height: 1;
+		color: rgba(255, 255, 255, 0.8);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__submit {
+		width: 34px;
+		height: 34px;
+		margin-left: 20px;
+		padding: 0;
+		border-radius: 50%;
+		flex-shrink: 0;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__submit-icon--arrow {
+		display: none;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .header-search__submit .header-search__submit-icon--search {
+		display: block;
+		width: 14px;
+		height: 14px;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-search-open .explore-artists-search {
+		display: flex !important;
+		margin-top: 10px;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-scrolled .header-search-icon {
+		display: inline-flex !important;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-scrolled.is-search-open .header-search-icon {
+		display: none !important;
+	}
+
+	body.page-template-page-explore-artists .site-header.is-scrolled.is-search-open .header-search {
+		display: flex !important;
 	}
 
 	/* Artist detail header — Figma 1099:4016 */
@@ -4856,7 +5787,7 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 		height: 18px;
 	}
 
-	/* Search results header — Figma 1114:11425 / 1114:12819 */
+	/* Search results header — Figma 1706:32608 / sticky 1706:32658 */
 	body.search .site-header {
 		background: #000;
 		backdrop-filter: blur(20px);
@@ -4864,31 +5795,44 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	}
 
 	body.search .site-header__inner {
-		padding: 0 80px 40px;
-		gap: 34px;
+		padding: 0 40px 30px;
+		gap: 30px;
 	}
 
 	body.search .site-header__bar {
-		padding: 40px 0;
-		gap: 40px;
+		padding: 30px 0 0;
+		gap: 20px;
+		flex-wrap: nowrap;
+		align-items: center;
 	}
 
 	body.search .site-logo--header .custom-logo,
 	body.search .site-logo--header img,
 	body.search .site-branding .custom-logo {
-		width: 100px;
-		height: 63px;
+		width: 67px;
+		height: 42px;
 	}
 
 	body.search .nav-toggle {
-		display: none !important;
+		display: inline-flex !important;
+		order: 3;
+		margin-left: 0;
+		width: 50px;
+		height: 50px;
+		border: 1px solid #fff;
+		border-radius: 30px;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		box-sizing: border-box;
 	}
 
 	body.search .btn-quote {
-		font-size: 28px;
+		font-size: 18px;
 		font-weight: 800;
-		padding: 20px;
-		height: 60px;
+		padding: 14px 20px;
+		height: auto;
+		min-height: 50px;
 		border-radius: 30px;
 		border-bottom: 2px solid #f89a42;
 		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
@@ -4896,7 +5840,7 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	}
 
 	body.search .site-header__actions {
-		gap: 27px;
+		gap: 20px;
 	}
 
 	body.search .header-phone {
@@ -4910,94 +5854,249 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	body.search .header-search {
 		display: flex !important;
 		align-items: center;
-		justify-content: center;
-		gap: 20px;
+		justify-content: flex-start;
+		gap: 0;
+		height: 74px;
 		width: 100%;
-		padding: 20px;
-		border-radius: 100px;
+		padding: 20px 10px;
+		border-radius: 40px;
 		border: 1px solid rgba(255, 255, 255, 0.6);
 		background: rgba(255, 255, 255, 0.11);
-		backdrop-filter: blur(20px) saturate(160%);
-		-webkit-backdrop-filter: blur(20px) saturate(160%);
-		box-shadow:
-			inset 0 1px 0 rgba(255, 255, 255, 0.28),
-			inset 0 -1px 0 rgba(255, 255, 255, 0.06),
-			0 10px 40px rgba(0, 0, 0, 0.28);
+		box-shadow: none;
 		box-sizing: border-box;
 	}
 
 	body.search .header-search__field {
 		flex: 1 1 0;
 		justify-content: center;
-		gap: 12px;
+		align-items: center;
+		gap: 10px;
 		min-width: 0;
-		padding: 0 40px;
+		height: auto;
+		padding: 0 10px;
+		border-right: 1px solid rgba(255, 255, 255, 0.6);
+		overflow: visible;
 	}
 
-	body.search .header-search__field:not(.header-search__field--last) {
-		border-right: 1px solid rgba(255, 255, 255, 0.5);
+	body.search .header-search__field--artist {
+		flex: 1 1 0;
+		width: auto;
+		max-width: none;
+		justify-content: flex-start;
+	}
+
+	body.search .header-search__field--categories {
+		flex: 0 0 200px;
+		width: 200px;
+		max-width: 200px;
+		padding: 0 20px;
 	}
 
 	body.search .header-search__field--location {
-		border-right: 1px solid rgba(255, 255, 255, 0.5);
-	}
-
-	body.search .header-search__field--date,
-	body.search .header-search__field--budget {
-		border-left: 0;
-		border-right: 1px solid rgba(255, 255, 255, 0.5);
-	}
-
-	body.search .header-search__field--last {
 		border-right: 0;
 	}
 
+	body.search .header-search__field--date,
+	body.search .header-search__field--budget,
+	body.search .header-search__field--last {
+		border-right: 0;
+		border-left: 1px solid rgba(255, 255, 255, 0.6);
+	}
+
+	body.search .header-search__budget-trigger,
+	body.search .header-search__date-trigger,
+	body.search .header-search__location-trigger,
+	body.search .header-search__categories-trigger,
+	body.search .header-search__artist-trigger {
+		flex-direction: row;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 10px;
+		width: 100%;
+		min-width: 0;
+	}
+
 	body.search .header-search__icon {
-		width: 24px;
-		height: 24px;
+		width: 20px;
+		height: 20px;
+		flex-shrink: 0;
+	}
+
+	body.search .header-search__field--categories .header-search__icon {
+		width: 18px;
+		height: 18px;
+	}
+
+	body.search .header-search__label {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		flex: 0 1 auto;
+		width: auto;
+		min-width: 0;
+		max-width: 100%;
 	}
 
 	body.search .header-search__title {
-		font-size: 24px;
+		font-size: 16px;
 		font-weight: 600;
 		letter-spacing: 1px;
-		text-transform: uppercase;
+		line-height: 1;
+		text-transform: none;
+		white-space: nowrap;
+		overflow: visible;
+		text-overflow: unset;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
+	}
+
+	body.search .header-search__meta {
+		font-size: 12px;
+		font-weight: 300;
+		letter-spacing: 0;
+		line-height: 1;
+		color: rgba(255, 255, 255, 0.8);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
+	}
+
+	body.search .header-search__field--date .header-search__meta {
+		letter-spacing: 1px;
+	}
+
+	body.search .header-search__field.is-filled .header-search__title {
+		font-size: 12px;
+		font-weight: 300;
+		letter-spacing: 0;
+		font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 100;
+		white-space: nowrap;
+		text-transform: none;
+	}
+
+	body.search .header-search__field.is-filled .header-search__meta {
+		font-size: 16px;
+		font-weight: 600;
+		letter-spacing: 1px;
+		font-family: var(--ee-font-condensed);
+		font-variation-settings: "wdth" 75;
+		color: #fff;
+		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
-	body.search .header-search__meta {
-		font-size: 18px;
-	}
-
-	body.search .header-search__field.is-filled .header-search__title {
-		font-size: 18px;
-	}
-
-	body.search .header-search__field.is-filled .header-search__meta {
-		font-size: 24px;
-	}
-
 	body.search .header-search__submit {
-		width: 74px;
-		height: 74px;
-		padding: 20px;
-		border-radius: 50px;
+		width: 34px;
+		height: 34px;
+		margin-left: 20px;
+		padding: 0;
+		border-radius: 50%;
 		flex-shrink: 0;
 	}
 
-	body.search .header-search__submit img {
-		width: 34px;
-		height: 34px;
+	body.search .header-search__submit-icon--arrow {
+		display: none;
+	}
+
+	body.search .header-search__submit .header-search__submit-icon--search {
+		display: block;
+		width: 14px;
+		height: 14px;
 	}
 
 	body.search .header-search-mobile {
 		display: none !important;
 	}
 
+	@media (max-width: 1023px) {
+		body.search .site-header__inner,
+		body.search .site-header.is-scrolled .site-header__inner {
+			padding: 0 16px 30px;
+		}
+
+		body.search .header-search {
+			height: auto;
+			min-height: 74px;
+		}
+
+		body.search .header-search__field--categories {
+			flex: 1 1 0;
+			width: auto;
+			max-width: none;
+			padding: 0 10px;
+		}
+
+		body.search .header-search__title,
+		body.search .header-search__meta,
+		body.search .header-search__field.is-filled .header-search__title,
+		body.search .header-search__field.is-filled .header-search__meta {
+			white-space: normal;
+		}
+	}
+
 	body.search #primary {
 		--ee-search-sticky-offset: 0px;
 		padding-top: var(--ee-search-sticky-offset);
+	}
+
+	body.search .site-header.is-scrolled:not(.is-nav-open) {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		z-index: 50;
+		background: #000;
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+	}
+
+	body.search .site-header.is-scrolled .site-header__inner {
+		padding: 0 40px 30px;
+		gap: 0;
+	}
+
+	body.search .site-header.is-scrolled .header-search,
+	body.search .site-header.is-scrolled .header-search-mobile {
+		display: none !important;
+	}
+
+	body.search .site-header.is-scrolled .header-search-icon {
+		display: inline-flex !important;
+		order: 2;
+		width: 50px;
+		height: 50px;
+		min-width: 50px;
+		padding: 0;
+		border: 1px solid #fff;
+		border-radius: 30px;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(15px);
+		-webkit-backdrop-filter: blur(15px);
+		box-sizing: border-box;
+	}
+
+	body.search .site-header.is-scrolled .header-search-icon img {
+		width: 18px;
+		height: 18px;
+	}
+
+	body.search .site-header.is-scrolled.is-search-open .header-search {
+		display: flex !important;
+	}
+
+	body.search .site-header.is-scrolled.is-search-open .site-header__inner {
+		padding-bottom: 30px;
+		gap: 30px;
+	}
+
+	body.search .site-header.is-scrolled.is-search-open .header-search-icon {
+		display: none !important;
 	}
 
 	body.search .site-header.is-scrolled + #primary .search-page__chips-bar {

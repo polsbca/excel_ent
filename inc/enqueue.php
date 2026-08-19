@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function excel_ent_enqueue_assets() {
 	wp_enqueue_style(
 		'excel-ent-fonts',
-		'https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400&family=Nosifer&family=Open+Sans:ital,wdth,wght@0,75,300;0,75,400;0,75,600;0,75,700;0,75,800;0,100,300;0,100,400;0,100,600;0,100,700&display=swap',
+		'https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400&family=IBM+Plex+Mono:wght@400;700&family=Nosifer&family=Open+Sans:ital,wdth,wght@0,75,300;0,75,400;0,75,600;0,75,700;0,75,800;0,100,300;0,100,400;0,100,600;0,100,700&display=swap',
 		array(),
 		null
 	);

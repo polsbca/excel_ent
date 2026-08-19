@@ -21,8 +21,8 @@ $excel_ent_profile_filters = array(
 	array( 'id' => 'all', 'label' => __( 'All', 'excel-ent' ), 'active' => true ),
 	array( 'id' => 'male-solo', 'label' => __( 'Male Solo', 'excel-ent' ), 'active' => false ),
 	array( 'id' => 'female-solo', 'label' => __( 'Female Solo', 'excel-ent' ), 'active' => false ),
-	array( 'id' => 'duos', 'label' => __( 'Duos', 'excel-ent' ), 'active' => false ),
-	array( 'id' => 'tribute', 'label' => __( 'Tribute', 'excel-ent' ), 'active' => false ),
+	array( 'id' => 'duos', 'label' => __( 'Duos', 'excel-ent' ), 'active' => false, 'mobile_hidden' => true ),
+	array( 'id' => 'tribute', 'label' => __( 'Tribute', 'excel-ent' ), 'active' => false, 'mobile_hidden' => true ),
 );
 
 $excel_ent_occasion_cards = array(
@@ -264,7 +264,7 @@ $excel_ent_profile_cards = array(
 				<?php foreach ( $excel_ent_profile_filters as $excel_ent_filter ) : ?>
 					<button
 						type="button"
-						class="artists-filter magnetic<?php echo ! empty( $excel_ent_filter['active'] ) ? ' artists-filter--active' : ''; ?>"
+						class="artists-filter magnetic<?php echo ! empty( $excel_ent_filter['active'] ) ? ' artists-filter--active' : ''; ?><?php echo ! empty( $excel_ent_filter['mobile_hidden'] ) ? ' artists-filter--mobile-hidden' : ''; ?>"
 						data-artists-filter="<?php echo esc_attr( $excel_ent_filter['id'] ); ?>"
 						aria-selected="<?php echo ! empty( $excel_ent_filter['active'] ) ? 'true' : 'false'; ?>"
 					>
@@ -272,7 +272,8 @@ $excel_ent_profile_cards = array(
 					</button>
 				<?php endforeach; ?>
 				<a class="artists-filter artists-filter--link artists-filter--link-artist-types magnetic" href="<?php echo esc_url( excel_ent_get_explore_artists_url( array( 'categories' => array( 'artist-type', 'tribute' ) ) ) ); ?>">
-					<span><?php esc_html_e( 'View All artist types', 'excel-ent' ); ?></span>
+					<span class="artists-filter__label-desktop"><?php esc_html_e( 'View All artist types', 'excel-ent' ); ?></span>
+					<span class="artists-filter__label-mobile"><?php esc_html_e( 'VIEW ALL CATEGORIES', 'excel-ent' ); ?></span>
 					<img src="<?php echo esc_url( $excel_ent_artist_uri . '/arrow-pill.svg' ); ?>" alt="" width="16" height="16" decoding="async">
 				</a>
 			</div>

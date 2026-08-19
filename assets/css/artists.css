@@ -195,8 +195,8 @@
 	display: block;
 }
 
-.artists-filter--link-artist-types span {
-	text-transform: capitalize;
+.artists-filter__label-mobile {
+	display: none;
 }
 
 @media (min-width: 1200px) {
@@ -220,12 +220,8 @@
 		justify-content: flex-end;
 	}
 
-	.artists-filter--link-artist-types {
-		height: 51px;
-		min-height: 51px;
-		padding-top: 0;
-		padding-bottom: 0;
-		box-sizing: border-box;
+	.artists-filter--link-artist-types .artists-filter__label-desktop {
+		text-transform: capitalize;
 	}
 }
 
@@ -803,20 +799,20 @@
 /* Phone — Figma 1037:904 */
 @media (max-width: 767px) {
 	.artists-section {
-		padding: 40px 0;
+		padding: 50px 0;
 		gap: 40px;
 		overflow-x: hidden;
 	}
 
 	.artists-section__header {
 		padding: 0;
-		gap: 24px;
+		gap: 40px;
 	}
 
 	.artists-section__intro {
 		flex-direction: column;
 		align-items: stretch;
-		gap: 0;
+		gap: 20px;
 		padding: 0 24px;
 	}
 
@@ -825,7 +821,7 @@
 		line-height: 30px;
 		letter-spacing: 1px;
 		max-width: none;
-		margin: 0 0 20px;
+		margin: 0;
 	}
 
 	.artists-section__browse {
@@ -836,6 +832,7 @@
 	}
 
 	.artists-section__toolbar {
+		flex-direction: column-reverse;
 		gap: 24px;
 	}
 
@@ -864,24 +861,33 @@
 
 	.artists-section__mode {
 		gap: 16px;
-		width: min(247px, 100%);
+		width: 100%;
+		padding: 0 24px;
+		box-sizing: border-box;
+		justify-content: flex-start;
 	}
 
 	.artists-mode {
 		width: auto;
 		max-width: none;
-		flex: 1 1 0;
 		height: 51px;
 		min-height: 51px;
-		padding: 0 12px;
+		padding: 0 20px;
 		box-sizing: border-box;
 		font-size: 16px;
-		text-transform: uppercase;
+	}
+
+	.artists-mode[data-artists-mode="occasion"] {
+		flex: 0 0 auto;
+		width: auto;
+		text-transform: none;
 	}
 
 	.artists-mode[data-artists-mode="artist"] {
+		flex: 1 1 auto;
 		width: auto;
-		flex: 1 1 0;
+		min-width: 0;
+		text-transform: uppercase;
 	}
 
 	.artists-mode--active {
@@ -924,7 +930,7 @@
 		line-height: 1;
 		letter-spacing: 1px;
 		color: #000;
-		text-transform: uppercase;
+		text-transform: none;
 	}
 
 	.artists-filter--active {
@@ -934,10 +940,32 @@
 		font-weight: 700;
 		color: #fff;
 		-webkit-text-fill-color: #fff;
+		text-transform: uppercase;
 	}
 
-	.artists-filter--link {
-		gap: 10px;
+	.artists-section[data-active-mode="artist"] .artists-section__filters,
+	.artists-section[data-active-mode="artist"] .artists-filter {
+		height: 51px;
+		min-height: 51px;
+	}
+		height: 51px;
+		min-height: 51px;
+	}
+
+	.artists-filter--mobile-hidden {
+		display: none !important;
+	}
+
+	.artists-filter__label-desktop {
+		display: none;
+	}
+
+	.artists-filter__label-mobile {
+		display: inline;
+	}
+
+	.artists-filter--link-artist-types {
+		text-transform: none;
 	}
 
 	.artists-filter--link img {
@@ -1055,9 +1083,82 @@
 		width: min(230px, 100%);
 	}
 
+	.artist-card--occasion .artist-card__bullets li::before {
+		content: "-";
+	}
+
 	.artist-card--occasion:hover .artist-card__image,
 	.artist-card--occasion:focus-within .artist-card__image {
 		transform: none;
+	}
+
+	.artist-card--profile .artist-card__orb {
+		display: none;
+	}
+
+	.artist-card--profile .artist-card__profile {
+		padding: 16px 30px 40px;
+	}
+
+	.artist-card--profile .artist-card__era {
+		width: auto;
+		height: auto;
+		padding: 8px;
+		font-size: 8px;
+	}
+
+	.artist-card--profile .artist-card__mute {
+		top: 16px;
+		right: 30px;
+		width: 24px;
+		height: 24px;
+	}
+
+	.artist-card--profile .artist-card__mute img,
+	.artist-card--profile .artist-card__mute-icon {
+		width: 24px;
+		height: 24px;
+	}
+
+	.artist-card--profile .artist-card__bottom {
+		gap: 12px;
+	}
+
+	.artist-card--profile .artist-card__profile-name {
+		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 75;
+		font-weight: 700;
+		font-size: 24px;
+		letter-spacing: 1px;
+		line-height: normal;
+	}
+
+	.artist-card--profile .artist-card__meta-row {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.artist-card--profile .artist-card__price {
+		flex-direction: row-reverse;
+		align-items: flex-end;
+		gap: 10px;
+	}
+
+	.artist-card--profile .artist-card__price-label {
+		font-size: 10px;
+		font-weight: 400;
+		letter-spacing: 1px;
+	}
+
+	.artist-card--profile .artist-card__price-value {
+		font-size: 16px;
+		line-height: 1.6;
+	}
+
+	.artist-card--profile .artist-card__type {
+		font-size: 12px;
+		letter-spacing: 2px;
 	}
 
 	.artists-section__nav {

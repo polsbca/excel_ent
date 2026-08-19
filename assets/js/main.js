@@ -193,6 +193,9 @@
 			navigation.classList.toggle("is-open", next);
 			siteHeader?.classList.toggle("is-nav-open", next);
 			document.body.classList.toggle("nav-open", next);
+			if (next) {
+				siteHeader?.classList.remove("is-search-open");
+			}
 		});
 
 		document.addEventListener("keydown", (e) => {
@@ -205,18 +208,21 @@
 				if (!siteHeader?.classList.contains("is-nav-open")) {
 					return;
 				}
-				if (!window.matchMedia("(max-width: 767px)").matches) {
+				if (!window.matchMedia("(max-width: 1199px)").matches) {
 					return;
 				}
-				const mobileOpen = document.querySelector("[data-mobile-search-open]");
-				if (mobileOpen) {
-					e.preventDefault();
-					e.stopImmediatePropagation();
-					closeMobileNav();
-					window.setTimeout(() => mobileOpen.click(), 0);
-					return;
-				}
+				e.preventDefault();
+				e.stopImmediatePropagation();
 				closeMobileNav();
+				if (window.matchMedia("(max-width: 767px)").matches) {
+					const mobileOpen = document.querySelector("[data-mobile-search-open]");
+					if (mobileOpen) {
+						window.setTimeout(() => mobileOpen.click(), 0);
+					}
+					return;
+				}
+				siteHeader.classList.add("is-search-open");
+				btn.setAttribute("aria-expanded", "true");
 			});
 		});
 	}
@@ -227,6 +233,8 @@
 		let scrolled = false;
 		const isSearchPage = document.body.classList.contains("search");
 		const isExplorePage = document.body.classList.contains("page-template-page-explore-artists");
+		const isHomePage =
+			document.body.classList.contains("home") || document.body.classList.contains("front-page");
 		const primary = document.getElementById("primary");
 
 		const stickySearch = document.querySelector("[data-header-sticky-search]");
@@ -273,7 +281,8 @@
 		const onScroll = (scrollY) => {
 			const y = typeof scrollY === "number" ? scrollY : window.scrollY;
 			const panelOpen = hasOpenHeaderPanel();
-			const next = stickyMq.matches ? (scrolled ? y > 40 : y > 80) : false;
+			const stickyOn = stickyMq.matches || isExplorePage || isHomePage || (isSearchPage && window.matchMedia("(min-width: 768px)").matches);
+			const next = stickyOn ? (scrolled ? y > 40 : y > 80) : false;
 
 			header.classList.toggle("is-panel-open", panelOpen);
 
@@ -324,7 +333,28 @@
 		window.addEventListener("resize", syncStickyOffset);
 
 		stickySearch?.setAttribute("aria-expanded", "false");
-		stickySearch?.addEventListener("click", () => {
+		stickySearch?.addEventListener("click", (e) => {
+			const isPhone = window.matchMedia("(max-width: 767px)").matches;
+
+			if (isExplorePage && !stickyMq.matches) {
+				if (!isPhone) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+				}
+				setStickySearchOpen(!header.classList.contains("is-search-open"));
+				return;
+			}
+			if ((isHomePage || isSearchPage) && !stickyMq.matches) {
+				if (isPhone) {
+					document.querySelector("[data-mobile-search-open]")?.click();
+					return;
+				}
+				if (!header.classList.contains("is-scrolled")) {
+					return;
+				}
+				setStickySearchOpen(!header.classList.contains("is-search-open"));
+				return;
+			}
 			if (!stickyMq.matches) {
 				return;
 			}
@@ -958,7 +988,7 @@
 		const totalEl = blogSection.querySelector("[data-blog-total]");
 		const prevBtn = blogSection.querySelector("[data-blog-prev]");
 		const nextBtn = blogSection.querySelector("[data-blog-next]");
-		let index = cards.length > 2 ? 1 : 0;
+		let index = window.innerWidth <= 1199 ? 0 : cards.length > 2 ? 1 : 0;
 
 		const isBlogMobile = () => window.innerWidth <= 767;
 		const isBlogSwipe = () => window.innerWidth <= 1199;
@@ -1268,6 +1298,9 @@
 				return;
 			}
 			const rect = trigger.getBoundingClientRect();
+			if (rect.width < 1 && rect.height < 1) {
+				return;
+			}
 			const margin = 16;
 			const available = Math.max(240, Math.floor(window.innerHeight - rect.bottom - margin));
 			const group = wrap?.getAttribute("data-explore-filter");
@@ -1298,8 +1331,11 @@
 
 		const dockFilterPanel = (panel, wrap, open) => {
 			if (!panel || !wrap) return;
-			if (open && !isExploreMobile()) {
+			if (open) {
 				document.body.appendChild(panel);
+				if (isExploreMobile()) {
+					clearFilterPanelPosition(panel);
+				}
 				return;
 			}
 			clearFilterPanelPosition(panel);
@@ -1326,7 +1362,7 @@
 		};
 
 		const setExploreFilterPinned = (open) => {
-			const on = Boolean(open) && !isExploreCompact();
+			const on = Boolean(open) && !isExploreMobile();
 			header?.classList.toggle("is-explore-filter-open", on);
 			document.body.classList.toggle("is-explore-filter-open", on);
 			window.requestAnimationFrame(() => {
@@ -1766,7 +1802,7 @@
 
 		document.querySelectorAll("[data-explore-header-search]").forEach((btn) => {
 			btn.addEventListener("click", (e) => {
-				if (window.matchMedia("(min-width: 1200px)").matches) {
+				if (window.matchMedia("(min-width: 768px)").matches) {
 					return;
 				}
 				e.preventDefault();
@@ -2177,7 +2213,10 @@
 			});
 		};
 
-		const goTo = (next) => {
+		const getTrackPad = () =>
+			track ? parseFloat(window.getComputedStyle(track).paddingLeft) || 0 : 0;
+
+		const goTo = (next, instant) => {
 			if (!track || !cards.length) {
 				return;
 			}
@@ -2188,10 +2227,9 @@
 			if (scrollCarouselMq.matches && viewport) {
 				const card = cards[target * getPerPage()];
 				if (card) {
-					const pad = track ? parseFloat(window.getComputedStyle(track).paddingLeft) || 0 : 0;
 					viewport.scrollTo({
-						left: Math.max(0, card.offsetLeft - pad),
-						behavior: "smooth",
+						left: Math.max(0, card.offsetLeft - getTrackPad()),
+						behavior: instant ? "auto" : "smooth",
 					});
 				}
 				syncPager(target);
@@ -2246,7 +2284,7 @@
 				return;
 			}
 			const left = viewport.scrollLeft;
-			const pad = track ? parseFloat(window.getComputedStyle(track).paddingLeft) || 0 : 0;
+			const pad = getTrackPad();
 			let closest = 0;
 			let closestDist = Infinity;
 			cards.forEach((card, i) => {
@@ -2277,7 +2315,7 @@
 		};
 		scrollCarouselMq.addEventListener("change", onResize);
 
-		goTo(0);
+		goTo(0, true);
 	}
 
 	/* ---------- Package tabs ---------- */
@@ -4423,7 +4461,10 @@
 			}, 0);
 		};
 
+		const overlayHome = panel.parentNode;
+
 		const open = () => {
+			document.body.appendChild(panel);
 			panel.hidden = false;
 			openBtn.setAttribute("aria-expanded", "true");
 			document.body.classList.add("mobile-search-open");
@@ -4436,6 +4477,9 @@
 			openBtn.setAttribute("aria-expanded", "false");
 			document.body.classList.remove("mobile-search-open");
 			collapseCards();
+			if (overlayHome && panel.parentNode !== overlayHome) {
+				overlayHome.appendChild(panel);
+			}
 		};
 
 		openBtn.addEventListener("click", (e) => {

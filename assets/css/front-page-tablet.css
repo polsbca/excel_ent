@@ -377,10 +377,12 @@
 	}
 
 	.excel-way__bg {
-		left: -29.28%;
-		top: -9.48%;
-		width: 158.56%;
-		height: 107.9%;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		max-width: none;
+		object-fit: cover;
 		object-position: center;
 	}
 
@@ -1130,7 +1132,7 @@
 		line-height: 1.09;
 	}
 
-	/* Blog — Figma 1083:896 */
+	/* Blog — Figma 1728:3561 */
 	.blog-section {
 		padding: 80px 0;
 		gap: 64px;
@@ -1145,10 +1147,14 @@
 	}
 
 	.blog-section__title {
+		width: 100%;
 		font-size: 54px;
+		font-weight: 700;
 		line-height: 30px;
 		letter-spacing: 1px;
 		white-space: normal;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
 	}
 
 	.blog-section__eyebrow {
@@ -1163,6 +1169,8 @@
 		flex-shrink: 0;
 		font-size: 16px;
 		font-weight: 800;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
 	}
 
 	.blog-section__eyebrow img {
@@ -1192,22 +1200,26 @@
 	}
 
 	.blog-card,
-	.blog-card.is-active,
 	.blog-card:hover,
 	.blog-card:focus-within {
-		width: 333px;
-		height: 651px;
-		min-height: 651px;
-		padding: 10px;
+		width: 368px;
+		height: auto;
+		min-height: 0;
+		padding: 20px;
 		gap: 26px;
 		border: 1px solid #fff;
-		background: linear-gradient(
-			180deg,
-			rgba(248, 154, 66, 0.62) 0%,
-			rgba(237, 49, 83, 0.62) 100%
-		);
+		background: transparent;
 		box-shadow: 4px 4px 4px rgba(155, 77, 255, 0.5);
 		color: #fff;
+	}
+
+	.blog-card.is-active,
+	.blog-card.is-active:hover,
+	.blog-card.is-active:focus-within {
+		background: #fff;
+		border-color: #000;
+		box-shadow: 4px 4px 2px rgba(155, 77, 255, 0.5);
+		color: #000;
 	}
 
 	.blog-card__media {
@@ -1219,15 +1231,17 @@
 		border: 1px solid #fff;
 	}
 
+	.blog-card.is-active .blog-card__media {
+		border-color: #000;
+	}
+
+	.blog-card:hover .blog-card__image,
+	.blog-card:focus-within .blog-card__image {
+		transform: none;
+	}
+
 	.blog-card__badge {
-		top: 35px;
-		left: 31px;
-		padding: 10px;
-		border: 2px solid #eb2055;
-		border-radius: 100px;
-		font-size: 14px;
-		font-weight: 600;
-		text-transform: uppercase;
+		display: none;
 	}
 
 	.blog-card__meta {
@@ -1236,17 +1250,22 @@
 
 	.blog-card__meta-item {
 		gap: 14px;
-		font-size: 10px;
+		font-size: 8px;
 		line-height: 1.6;
-		color: #fff;
+		letter-spacing: 1px;
+		color: inherit;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
 	}
 
+	.blog-card .blog-card__icon--light,
 	.blog-card.is-active .blog-card__icon--light,
 	.blog-card:hover .blog-card__icon--light,
 	.blog-card:focus-within .blog-card__icon--light {
 		display: block;
 	}
 
+	.blog-card .blog-card__icon--dark,
 	.blog-card.is-active .blog-card__icon--dark,
 	.blog-card:hover .blog-card__icon--dark,
 	.blog-card:focus-within .blog-card__icon--dark {
@@ -1263,20 +1282,28 @@
 		font-size: 18px;
 		font-weight: 600;
 		line-height: normal;
-		color: #fff;
+		color: inherit;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
 	}
 
 	.blog-card__excerpt {
 		font-size: 12px;
 		line-height: 1.6;
 		letter-spacing: 1px;
-		color: #fff;
+		color: inherit;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
 	}
 
 	.blog-card__cta,
 	.blog-card.is-active .blog-card__cta,
 	.blog-card:hover .blog-card__cta,
-	.blog-card:focus-within .blog-card__cta {
+	.blog-card:focus-within .blog-card__cta,
+	.blog-card.is-active:hover .blog-card__cta,
+	.blog-card.is-active:focus-within .blog-card__cta,
+	.blog-card:hover .blog-card__cta:hover,
+	.blog-card:focus-within .blog-card__cta:focus-visible {
 		height: 51px;
 		min-height: 51px;
 		margin-top: auto;
@@ -1284,11 +1311,22 @@
 		border: 1px solid #fff;
 		border-bottom: 1px solid #fff;
 		background: transparent;
-		background-image: none;
-		box-shadow: none;
+		background-image: none !important;
+		background-color: transparent;
+		box-shadow: none !important;
+		transform: none;
 		font-size: 16px;
 		font-weight: 400;
 		color: #fff;
+	}
+
+	.blog-card.is-active .blog-card__cta,
+	.blog-card.is-active:hover .blog-card__cta,
+	.blog-card.is-active:focus-within .blog-card__cta,
+	.blog-card.is-active .blog-card__cta:hover,
+	.blog-card.is-active .blog-card__cta:focus-visible {
+		border-color: #000;
+		color: #000;
 	}
 
 	.blog-section__footer {
@@ -1312,6 +1350,8 @@
 		font-weight: 600;
 		min-width: 0;
 		letter-spacing: 1px;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
 	}
 
 	.blog-pager__btn {
