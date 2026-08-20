@@ -451,7 +451,28 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 			<span aria-hidden="true">&times;</span>
 		</button>
 
-		<form class="package-enquiry__form" method="post" action="<?php echo esc_url( home_url( '/' ) ); ?>" data-package-enquiry-form novalidate>
+		<form
+			class="package-enquiry__form"
+			method="post"
+			action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"
+			data-package-enquiry-form
+			novalidate
+		>
+			<input type="hidden" name="action" value="excel_ent_package_enquiry">
+			<?php wp_nonce_field( 'excel_ent_package_enquiry', 'nonce' ); ?>
+
+			<div class="package-enquiry__hp" aria-hidden="true">
+				<label for="package-enquiry-website"><?php esc_html_e( 'Website', 'excel-ent' ); ?></label>
+				<input
+					type="text"
+					id="package-enquiry-website"
+					name="excel_ent_website"
+					value=""
+					tabindex="-1"
+					autocomplete="off"
+				>
+			</div>
+
 			<header class="package-enquiry__header">
 				<h2 id="package-enquiry-title" class="package-enquiry__title">
 					<?php esc_html_e( 'Start your enquiry.', 'excel-ent' ); ?>
@@ -472,6 +493,7 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 							placeholder="<?php esc_attr_e( 'Name', 'excel-ent' ); ?>"
 							autocomplete="name"
 							required
+							aria-invalid="false"
 							data-package-enquiry-name
 						>
 					</label>
@@ -484,6 +506,7 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 							placeholder="<?php esc_attr_e( 'you@email.com', 'excel-ent' ); ?>"
 							autocomplete="email"
 							required
+							aria-invalid="false"
 							data-package-enquiry-email
 						>
 					</label>
@@ -496,6 +519,7 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 							placeholder="<?php esc_attr_e( '+44 7700 900000', 'excel-ent' ); ?>"
 							autocomplete="tel"
 							inputmode="tel"
+							aria-invalid="false"
 							data-package-enquiry-phone
 						>
 					</label>
@@ -525,8 +549,17 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 				</label>
 			</div>
 
-			<button class="package-enquiry__submit magnetic" type="submit">
-				<?php esc_html_e( 'Send enquiry', 'excel-ent' ); ?>
+			<p
+				id="package-enquiry-status"
+				class="package-enquiry__status"
+				role="status"
+				aria-live="polite"
+				hidden
+				data-package-enquiry-status
+			></p>
+
+			<button class="package-enquiry__submit magnetic" type="submit" data-package-enquiry-submit>
+				<span data-package-enquiry-submit-label><?php esc_html_e( 'Send enquiry', 'excel-ent' ); ?></span>
 			</button>
 		</form>
 	</div>

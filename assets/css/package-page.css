@@ -877,6 +877,50 @@
 	border-bottom-color: #000;
 }
 
+.package-enquiry__input.is-invalid {
+	border-bottom-color: #eb2055;
+}
+
+.package-enquiry__hp {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.package-enquiry__status {
+	margin: 0;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-size: 14px;
+	line-height: 1.35;
+	letter-spacing: 0.5px;
+	color: #444;
+}
+
+.package-enquiry__status.is-success {
+	color: #1f7a4d;
+}
+
+.package-enquiry__status.is-error {
+	color: #eb2055;
+}
+
+.package-enquiry__form.is-loading .package-enquiry__submit {
+	opacity: 0.75;
+	cursor: progress;
+}
+
+.package-enquiry__submit:disabled {
+	opacity: 0.75;
+	cursor: progress;
+}
+
 .package-enquiry__package {
 	display: flex;
 	flex-direction: column;

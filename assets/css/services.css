@@ -890,18 +890,21 @@
 @media (prefers-reduced-motion: reduce) {
 	.service-card__image,
 	.service-featured__image,
-	.service-swap-flyer,
-	.service-card.is-swap-in .service-card__content,
-	.service-featured.is-swap-in .service-featured__inner {
+	.service-swap-ghost {
 		transition: none !important;
 		animation: none !important;
 	}
 }
 
-/* Shared swap animation (desktop hover + mobile/tablet tap) */
+/* Shared swap animation (click morph — services-showcase.html) */
 .services-section.is-swapping .service-card,
 .services-section.is-swapping .service-featured {
 	pointer-events: none;
+}
+
+.service-card.is-active-small {
+	box-shadow: 0 0 0 2px rgba(235, 32, 85, 0.55);
+	z-index: 1;
 }
 
 .service-card.is-swap-ghost .service-card__image,
@@ -911,52 +914,51 @@
 .service-featured.is-swap-ghost .service-featured__overlay,
 .service-featured.is-swap-ghost .service-featured__inner {
 	opacity: 0 !important;
+	visibility: hidden !important;
 	transition: none !important;
 }
 
-.service-card.is-swap-in .service-card__content,
-.service-featured.is-swap-in .service-featured__inner {
-	animation: service-swap-fade-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+.services-section.is-swapping {
+	cursor: progress;
 }
 
-.service-card.is-swap-in .service-card__image,
-.service-featured.is-swap-in .service-featured__image {
-	animation: service-swap-fade-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+.service-swap-ghost {
+	overflow: hidden !important;
+	box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+	filter: none !important;
+	opacity: 1 !important;
+	border-radius: 0;
+	backface-visibility: hidden;
 }
 
-@media (min-width: 1200px) {
-	.services-section.is-swapping {
-		cursor: progress;
-	}
-}
-
-.service-swap-flyer {
-	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-}
-
-.service-swap-flyer__img {
+.service-swap-ghost__img {
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 0;
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 	object-position: center;
-	display: block;
 	transform: none !important;
-}
-
-.service-swap-flyer__shade {
-	position: absolute;
-	inset: 0;
-	background: rgba(0, 0, 0, 0.35);
 	pointer-events: none;
 }
 
-@keyframes service-swap-fade-in {
-	from {
-		opacity: 0;
-		transform: translateY(8px);
-	}
-	to {
-		opacity: 1;
-		transform: none;
-	}
+/* Match real featured framing so handoff does not jump */
+.service-swap-ghost--featured .service-swap-ghost__img {
+	top: -0.06%;
+	height: 144.7%;
+	object-position: center top;
+}
+
+.service-swap-ghost__shade {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.28);
+	pointer-events: none;
+	z-index: 1;
+}
+
+.service-swap-ghost--featured .service-swap-ghost__shade {
+	background: rgba(0, 0, 0, 0.2);
 }

@@ -1,97 +1,17 @@
 <?php
 /**
  * Partner logo marquee strip (Figma 1023:21081).
+ * Logos come from Brand Logos CPT in WP admin; static defaults if none published.
  *
  * @package Excel_Ent
  */
 
-$excel_ent_awards_uri = EXCEL_ENT_URI . '/assets/images/awards';
+$excel_ent_partner_logos = function_exists( 'excel_ent_get_brand_logos' )
+	? excel_ent_get_brand_logos()
+	: array();
 
-$excel_ent_partner_logos = array(
-	array(
-		'slug'   => 'craft-union',
-		'src'    => $excel_ent_awards_uri . '/craft-union.svg',
-		'alt'    => __( 'Craft Union', 'excel-ent' ),
-		'width'  => 100,
-		'height' => 103,
-		'object' => true,
-	),
-	array(
-		'slug'   => 'urban-village',
-		'src'    => $excel_ent_awards_uri . '/urban-village.svg',
-		'alt'    => __( 'Urban Village Pub Company', 'excel-ent' ),
-		'width'  => 109,
-		'height' => 76,
-	),
-	array(
-		'slug'   => 'gig-realm',
-		'src'    => $excel_ent_awards_uri . '/gig-realm.svg',
-		'alt'    => __( 'GigRealm', 'excel-ent' ),
-		'width'  => 156,
-		'height' => 33,
-	),
-	array(
-		'slug'   => 'stonegate',
-		'src'    => $excel_ent_awards_uri . '/stonegate.svg',
-		'alt'    => __( 'Stonegate Pub Company', 'excel-ent' ),
-		'width'  => 155,
-		'height' => 35,
-		'object' => true,
-	),
-	array(
-		'slug'   => 'greene-king',
-		'src'    => $excel_ent_awards_uri . '/greene-king.svg',
-		'alt'    => __( 'Greene King Brewery', 'excel-ent' ),
-		'width'  => 68,
-		'height' => 103,
-		'object' => true,
-		'panel'  => true,
-	),
-);
-
-/* About page tablet — Figma 1099:5349 logo order (GigRealm → Stonegate → Urban Village → Craft Union) */
-if ( function_exists( 'excel_ent_is_about_page' ) && excel_ent_is_about_page() ) {
-	$excel_ent_partner_logos = array(
-		array(
-			'slug'   => 'gig-realm',
-			'src'    => $excel_ent_awards_uri . '/gig-realm.svg',
-			'alt'    => __( 'GigRealm', 'excel-ent' ),
-			'width'  => 156,
-			'height' => 33,
-		),
-		array(
-			'slug'   => 'stonegate',
-			'src'    => $excel_ent_awards_uri . '/stonegate.svg',
-			'alt'    => __( 'Stonegate Pub Company', 'excel-ent' ),
-			'width'  => 155,
-			'height' => 35,
-			'object' => true,
-		),
-		array(
-			'slug'   => 'urban-village',
-			'src'    => $excel_ent_awards_uri . '/urban-village.svg',
-			'alt'    => __( 'Urban Village Pub Company', 'excel-ent' ),
-			'width'  => 109,
-			'height' => 76,
-		),
-		array(
-			'slug'   => 'craft-union',
-			'src'    => $excel_ent_awards_uri . '/craft-union.svg',
-			'alt'    => __( 'Craft Union', 'excel-ent' ),
-			'width'  => 100,
-			'height' => 103,
-			'object' => true,
-		),
-		array(
-			'slug'   => 'greene-king',
-			'src'    => $excel_ent_awards_uri . '/greene-king.svg',
-			'alt'    => __( 'Greene King Brewery', 'excel-ent' ),
-			'width'  => 68,
-			'height' => 103,
-			'object' => true,
-			'panel'  => true,
-		),
-	);
+if ( empty( $excel_ent_partner_logos ) ) {
+	return;
 }
 ?>
 <section class="awards-marquee" aria-label="<?php esc_attr_e( 'Trusted partners', 'excel-ent' ); ?>">

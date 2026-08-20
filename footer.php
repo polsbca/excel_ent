@@ -48,15 +48,59 @@
 						?>
 					</div>
 
-					<div class="site-footer__subscribe">
-						<div class="site-footer__subscribe-copy">
-							<p class="site-footer__subscribe-label"><?php esc_html_e( 'Get to know our updates:', 'excel-ent' ); ?></p>
-							<span class="site-footer__subscribe-line" aria-hidden="true"></span>
+					<form
+						class="site-footer__subscribe"
+						method="post"
+						action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"
+						novalidate
+						data-newsletter-form
+					>
+						<input type="hidden" name="action" value="excel_ent_newsletter_subscribe">
+						<?php wp_nonce_field( 'excel_ent_newsletter', 'nonce' ); ?>
+
+						<div class="site-footer__subscribe-hp" aria-hidden="true">
+							<label for="footer-newsletter-website"><?php esc_html_e( 'Website', 'excel-ent' ); ?></label>
+							<input
+								type="text"
+								id="footer-newsletter-website"
+								name="excel_ent_website"
+								value=""
+								tabindex="-1"
+								autocomplete="off"
+							>
 						</div>
-						<a class="site-footer__subscribe-btn magnetic" href="<?php echo esc_url( home_url( '/#newsletter' ) ); ?>">
-							<?php esc_html_e( 'Subscribe', 'excel-ent' ); ?>
-						</a>
-					</div>
+
+						<div class="site-footer__subscribe-copy">
+							<label class="site-footer__subscribe-label" for="footer-newsletter-email">
+								<?php esc_html_e( 'Get to know our updates:', 'excel-ent' ); ?>
+							</label>
+							<input
+								id="footer-newsletter-email"
+								class="site-footer__subscribe-input"
+								type="email"
+								name="email"
+								placeholder="<?php esc_attr_e( 'Enter your email', 'excel-ent' ); ?>"
+								autocomplete="email"
+								inputmode="email"
+								required
+								aria-describedby="footer-newsletter-status"
+								aria-invalid="false"
+							>
+						</div>
+
+						<button class="site-footer__subscribe-btn magnetic" type="submit" data-newsletter-submit>
+							<span data-newsletter-submit-label><?php esc_html_e( 'Subscribe', 'excel-ent' ); ?></span>
+						</button>
+
+						<p
+							id="footer-newsletter-status"
+							class="site-footer__subscribe-status"
+							role="status"
+							aria-live="polite"
+							hidden
+							data-newsletter-status
+						></p>
+					</form>
 				</div>
 			</div>
 

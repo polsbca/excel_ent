@@ -111,6 +111,52 @@
 	border-color: #fff;
 }
 
+.newsletter-cta__input.is-invalid {
+	border-color: #eb2055;
+	box-shadow: 0 0 0 1px rgba(235, 32, 85, 0.45);
+}
+
+.newsletter-cta__hp {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.newsletter-cta__form {
+	position: relative;
+	flex-wrap: wrap;
+}
+
+.newsletter-cta__status {
+	flex: 1 0 100%;
+	margin: 12px 0 0;
+	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
+	font-size: 16px;
+	line-height: 1.4;
+	letter-spacing: 0.5px;
+}
+
+.newsletter-cta__status.is-error {
+	color: #ff6b8a;
+}
+
+.newsletter-cta__status.is-success {
+	color: #f89a42;
+}
+
+.newsletter-cta__form.is-loading .newsletter-cta__submit {
+	opacity: 0.72;
+	cursor: wait;
+}
+
+.newsletter-cta__submit:disabled {
+	cursor: wait;
+}
+
 .newsletter-cta__submit {
 	display: inline-flex;
 	align-items: center;

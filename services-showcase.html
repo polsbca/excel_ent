@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Most Popular Services</title>
+<style>
+  :root{
+    --ink:#0b0b0c;
+    --muted:#7a7a80;
+    --muted-2:#c9c9cc;
+    --paper:#ffffff;
+    --grad-a:#ff3d68;
+    --grad-b:#ff9142;
+    --gap:8px;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--paper);
+    font-family:'Helvetica Neue',Arial,'Segoe UI',sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:56px 24px 80px;
+  }
+  .header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  .header h1{
+    margin:0;
+    font-size:clamp(30px,4vw,44px);
+    font-weight:800;
+    letter-spacing:-0.02em;
+    line-height:1;
+  }
+  .view-all{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-decoration:none;
+    cursor:pointer;
+    background:none;
+    border:none;
+    padding:0;
+  }
+  .view-all .line{
+    width:64px;
+    height:2px;
+    background:linear-gradient(90deg,var(--grad-a),var(--grad-b));
+    border-radius:2px;
+  }
+  .view-all .label{
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.03em;
+    background:linear-gradient(90deg,var(--grad-a),var(--grad-b));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    white-space:nowrap;
+  }
+
+  .stage{
+    position:relative;
+    width:100%;
+    height:560px;
+  }
+
+  .card{
+    position:absolute;
+    overflow:hidden;
+    border-radius:var(--radius);
+    cursor:pointer;
+    background:#111;
+    box-shadow:0 1px 2px rgba(0,0,0,.05);
+    transition: box-shadow .3s ease, transform .3s ease;
+  }
+  .card.ghost{
+    position:fixed;
+    z-index:60;
+    cursor:default;
+    pointer-events:none;
+    transition:
+      left .68s cubic-bezier(.16,.84,.28,1),
+      top .68s cubic-bezier(.16,.84,.28,1),
+      width .68s cubic-bezier(.16,.84,.28,1),
+      height .68s cubic-bezier(.16,.84,.28,1),
+      border-radius .68s cubic-bezier(.16,.84,.28,1),
+      box-shadow .68s ease;
+    will-change:left,top,width,height;
+    box-shadow:0 30px 60px rgba(0,0,0,.35);
+  }
+  .card:focus-visible{
+    outline:3px solid #fff;
+    box-shadow:0 0 0 5px var(--grad-a);
+  }
+  .card.is-active-small{
+    box-shadow:0 0 0 2px rgba(255,80,110,.55);
+  }
+  .card:not(.is-big):not(.ghost):hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 22px rgba(0,0,0,.22);
+  }
+  .card:not(.is-big):not(.ghost):hover .glow{ opacity:.85; }
+
+  .bg{
+    position:absolute; inset:0;
+  }
+  .glow{
+    position:absolute; inset:0;
+    opacity:.6;
+    transition:opacity .35s ease;
+  }
+  .shade{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,.55) 100%);
+  }
+
+  .theme-dj    { background:linear-gradient(135deg,#1c1c20,#050505); }
+  .theme-dj .glow{ background:radial-gradient(circle at 70% 100%, rgba(255,150,70,.45), transparent 60%); }
+
+  .theme-band  { background:linear-gradient(135deg,#0e1a13,#020503); }
+  .theme-band .glow{ background:radial-gradient(circle at 30% 20%, rgba(130,255,150,.32), transparent 55%),
+                              radial-gradient(circle at 80% 70%, rgba(255,255,255,.12), transparent 40%); }
+
+  .theme-acoustic{ background:linear-gradient(135deg,#26190f,#0a0603); }
+  .theme-acoustic .glow{ background:radial-gradient(circle at 65% 85%, rgba(255,196,120,.4), transparent 60%); }
+
+  .theme-tribute{ background:linear-gradient(135deg,#111527,#030308); }
+  .theme-tribute .glow{ background:radial-gradient(circle at 25% 80%, rgba(130,150,255,.35), transparent 55%); }
+
+  /* ---- content layers ---- */
+  .small-content, .big-content{
+    position:absolute; inset:0;
+    color:#fff;
+    transition:opacity .5s ease;
+  }
+  .small-content{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:18px 20px;
+    opacity:1;
+  }
+  .card.is-big .small-content{
+    opacity:0;
+    pointer-events:none;
+  }
+  .small-content .s-title{
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .small-content .s-price{
+    font-size:24px;
+    font-weight:800;
+    letter-spacing:-0.02em;
+  }
+  .small-content .s-sub{
+    font-size:12px;
+    color:rgba(255,255,255,.65);
+    margin-top:2px;
+    font-weight:500;
+  }
+
+  .big-content{
+    opacity:0;
+    pointer-events:none;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:28px 28px;
+  }
+  .card.is-big .big-content{
+    opacity:1;
+    pointer-events:auto;
+    transition-delay:.08s;
+  }
+  .big-top, .big-bottom{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .big-bottom{ align-items:flex-end; }
+  .big-price-label{
+    font-size:13px;
+    color:rgba(255,255,255,.75);
+    font-weight:500;
+    margin-bottom:6px;
+  }
+  .big-price{
+    font-size:clamp(26px,3vw,38px);
+    font-weight:800;
+    letter-spacing:-0.02em;
+  }
+  .view-btn{
+    background:linear-gradient(90deg,var(--grad-a),var(--grad-b));
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.04em;
+    padding:14px 28px;
+    border-radius:6px;
+    white-space:nowrap;
+    box-shadow:0 10px 24px rgba(255,70,90,.35);
+    text-transform:uppercase;
+  }
+  .loc{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:rgba(255,255,255,.85);
+    font-weight:500;
+    margin-bottom:8px;
+  }
+  .loc svg{ flex-shrink:0; }
+  .big-title{
+    font-size:clamp(24px,3vw,34px);
+    font-weight:800;
+    letter-spacing:-0.02em;
+  }
+  .duration{
+    font-size:13px;
+    color:rgba(255,255,255,.75);
+    font-weight:500;
+    white-space:nowrap;
+  }
+
+  @media (max-width:820px){
+    .stage{ height:auto; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .card, .small-content, .big-content, .glow{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <h1>Most Popular&nbsp; Services</h1>
+    <a class="view-all" href="#" onclick="return false;">
+      <span class="line"></span>
+      <span class="label">View All Services</span>
+    </a>
+  </div>
+
+  <div class="stage" id="stage"></div>
+</div>
+
+<script>
+  const services = [
+    { id:'dj',       title:'Wedding DJs',       theme:'theme-dj',       duration:'Duration: 3\u20134 Hours' },
+    { id:'band',     title:'Live party bands',  theme:'theme-band',     duration:'Duration: 2\u20133 Hours' },
+    { id:'acoustic', title:'Solo acoustic acts', theme:'theme-acoustic', duration:'Duration: 1\u20132 Hours' },
+    { id:'tribute',  title:'Tribute acts',      theme:'theme-tribute',  duration:'Duration: 2 Hours' },
+  ];
+
+  let activeId = services[0].id;
+  let animating = false;
+
+  const stage = document.getElementById('stage');
+
+  const locIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 22s7-7.58 7-12.5A7 7 0 0 0 5 9.5C5 14.42 12 22 12 22z" stroke="white" stroke-width="1.6"/>
+    <circle cx="12" cy="9.5" r="2.3" stroke="white" stroke-width="1.6"/>
+  </svg>`;
+
+  function buildCard(service){
+    const el = document.createElement('div');
+    el.className = 'card ' + service.theme;
+    el.dataset.id = service.id;
+    el.tabIndex = 0;
+    el.setAttribute('role','button');
+    el.setAttribute('aria-label', service.title);
+
+    el.innerHTML = `
+      <div class="bg">
+        <div class="glow"></div>
+        <div class="shade"></div>
+      </div>
+      <div class="small-content">
+        <div class="s-title">${service.title}</div>
+        <div>
+          <div class="s-price">\u00a31,200</div>
+          <div class="s-sub">Starting from</div>
+        </div>
+      </div>
+      <div class="big-content">
+        <div class="big-top">
+          <div>
+            <div class="big-price-label">Starting From:</div>
+            <div class="big-price">\u00a31,200</div>
+          </div>
+          <div class="view-btn">View All</div>
+        </div>
+        <div class="big-bottom">
+          <div>
+            <div class="loc">${locIcon} Available Across the UK</div>
+            <div class="big-title">${service.title}</div>
+          </div>
+          <div class="duration">${service.duration}</div>
+        </div>
+      </div>
+    `;
+
+    el.addEventListener('click', () => setActive(service.id));
+    el.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        setActive(service.id);
+      }
+    });
+
+    return el;
+  }
+
+  // build once: 4 permanent small cards (2x2, fixed slots) + 1 permanent big panel
+  services.forEach(s => stage.appendChild(buildCard(s)));
+  const bigPanel = buildCard(services.find(s => s.id === activeId));
+  bigPanel.classList.add('is-big');
+  bigPanel.dataset.id = '__big__';
+  bigPanel.tabIndex = -1;
+  bigPanel.removeAttribute('role');
+  bigPanel.style.cursor = 'default';
+  stage.appendChild(bigPanel);
+
+  function layout(){
+    const w = stage.clientWidth;
+    const h = stage.clientHeight;
+    const gap = 8;
+    const bigW = w * 0.56;
+    const colW = (w - bigW - gap * 2) / 2;
+    const rowH = (h - gap) / 2;
+
+    return {
+      big: { left: colW * 2 + gap * 2, top: 0, width: bigW, height: h },
+      slots: {
+        [services[0].id]: { left: 0,          top: 0,          width: colW, height: rowH },
+        [services[1].id]: { left: colW + gap, top: 0,          width: colW, height: rowH },
+        [services[2].id]: { left: 0,          top: rowH + gap, width: colW, height: rowH },
+        [services[3].id]: { left: colW + gap, top: rowH + gap, width: colW, height: rowH },
+      }
+    };
+  }
+
+  function applyRect(el, rect){
+    el.style.left = rect.left + 'px';
+    el.style.top = rect.top + 'px';
+    el.style.width = rect.width + 'px';
+    el.style.height = rect.height + 'px';
+  }
+
+  function applyLayout(){
+    const L = layout();
+    services.forEach(s => {
+      const el = stage.querySelector(`.card[data-id="${s.id}"]`);
+      applyRect(el, L.slots[s.id]);
+    });
+    applyRect(bigPanel, L.big);
+  }
+
+  function toViewportRect(el){
+    const r = el.getBoundingClientRect();
+    return { left: r.left, top: r.top, width: r.width, height: r.height };
+  }
+
+  function makeGhost(sourceEl, startRect, startBig){
+    const ghost = sourceEl.cloneNode(true);
+    ghost.classList.add('ghost');
+    ghost.classList.toggle('is-big', startBig);
+    ghost.removeAttribute('id');
+    ghost.style.margin = '0';
+    ghost.style.transition = 'none';
+    applyRect(ghost, startRect);
+    document.body.appendChild(ghost);
+    // force layout so the browser registers the start position before we animate
+    // eslint-disable-next-line no-unused-expressions
+    ghost.getBoundingClientRect();
+    ghost.style.transition = '';
+    return ghost;
+  }
+
+  function setActive(newId){
+    if(newId === activeId || animating) return;
+    animating = true;
+
+    const oldId = activeId;
+    const clickedSmallEl = stage.querySelector(`.card[data-id="${newId}"]`);
+    const oldSmallEl = stage.querySelector(`.card[data-id="${oldId}"]`);
+
+    const smallRect = toViewportRect(clickedSmallEl);
+    const bigRect = toViewportRect(bigPanel);
+    const oldSlotRect = toViewportRect(oldSmallEl);
+
+    // highlight the incoming card right away
+    stage.querySelectorAll('.card').forEach(c => c.classList.remove('is-active-small'));
+    clickedSmallEl.classList.add('is-active-small');
+
+    // ghost flying UP: small card -> big panel, morphing to the big layout
+    const ghostIn = makeGhost(clickedSmallEl, smallRect, false);
+    // ghost flying DOWN: big panel -> the old active card's slot, morphing to small layout
+    const ghostOut = makeGhost(bigPanel, bigRect, true);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        applyRect(ghostIn, bigRect);
+        ghostIn.classList.add('is-big');
+
+        applyRect(ghostOut, oldSlotRect);
+        ghostOut.classList.remove('is-big');
+      });
+    });
+
+    let done = false;
+    const cleanup = () => {
+      if(done) return;
+      done = true;
+
+      activeId = newId;
+      // swap the real big panel's content to the newly active service
+      const svc = services.find(s => s.id === newId);
+      bigPanel.querySelector('.big-price-label').textContent = 'Starting From:';
+      bigPanel.querySelector('.loc').innerHTML = `${locIcon} Available Across the UK`;
+      bigPanel.querySelector('.big-title').textContent = svc.title;
+      bigPanel.querySelector('.duration').textContent = svc.duration;
+      bigPanel.querySelector('.small-content .s-title').textContent = svc.title;
+      bigPanel.className = 'card is-big ' + svc.theme;
+
+      ghostIn.remove();
+      ghostOut.remove();
+      animating = false;
+    };
+
+    ghostIn.addEventListener('transitionend', function handler(e){
+      if(e.propertyName !== 'left') return;
+      ghostIn.removeEventListener('transitionend', handler);
+      cleanup();
+    });
+    // safety net in case transitionend doesn't fire
+    setTimeout(cleanup, 760);
+  }
+
+  applyLayout();
+  window.addEventListener('resize', applyLayout);
+</script>
+
+</body>
+</html>

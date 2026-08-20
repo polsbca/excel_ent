@@ -493,7 +493,9 @@
 					return;
 				}
 
-				const duration = 1400;
+				el.textContent = formatValue(0);
+
+				const duration = 1600;
 				const start = performance.now();
 
 				const tick = (now) => {
@@ -511,20 +513,53 @@
 			});
 		};
 
+		/**
+		 * Wait until the hero entrance finishes (is-loaded).
+		 * Otherwise counters finish behind the loader and look static.
+		 */
+		const scheduleCounters = () => {
+			const kickoff = () => {
+				window.setTimeout(runCounters, reduced ? 0 : 280);
+			};
+
+			if (hero.classList.contains("is-loaded")) {
+				kickoff();
+				return;
+			}
+
+			const mo = new MutationObserver(() => {
+				if (hero.classList.contains("is-loaded")) {
+					mo.disconnect();
+					kickoff();
+				}
+			});
+			mo.observe(hero, { attributes: true, attributeFilter: ["class"] });
+
+			/* Safety: never leave counters stuck at 0 */
+			window.setTimeout(() => {
+				if (!counted) {
+					mo.disconnect();
+					kickoff();
+				}
+			}, 4000);
+		};
+
 		const stats = document.querySelector(".hero__stats");
 		if (stats) {
 			const statsObserver = new IntersectionObserver(
 				(entries) => {
 					entries.forEach((entry) => {
 						if (entry.isIntersecting) {
-							runCounters();
 							statsObserver.disconnect();
+							scheduleCounters();
 						}
 					});
 				},
-				{ threshold: 0.35 }
+				{ threshold: 0.2 }
 			);
 			statsObserver.observe(stats);
+		} else {
+			scheduleCounters();
 		}
 	}
 
@@ -2718,11 +2753,21 @@
 		const emailInput = enquiryModal.querySelector("[data-package-enquiry-email]");
 		const phoneInput = enquiryModal.querySelector("[data-package-enquiry-phone]");
 		const notesInput = enquiryModal.querySelector("[data-package-enquiry-notes]");
+		const statusEl = enquiryModal.querySelector("[data-package-enquiry-status]");
+		const submitBtn = enquiryModal.querySelector("[data-package-enquiry-submit]");
+		const submitLabel = enquiryModal.querySelector("[data-package-enquiry-submit-label]");
 		const triggers = Array.from(document.querySelectorAll("[data-package-enquiry]"));
+		const cfg = window.excelEnt?.packageEnquiry || {};
+		const ajaxUrl = window.excelEnt?.ajaxUrl || "";
+		const defaultSubmitLabel = submitLabel?.textContent || cfg.submitLabel || "Send enquiry";
 		let lastFocus = null;
+		let busy = false;
 
 		const isEnquiryMobile = () =>
 			window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
+
+		const isValidEmail = (value) =>
+			/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
 
 		const syncEnquiryPlaceholders = () => {
 			if (!notesInput) {
@@ -2735,14 +2780,61 @@
 			}
 		};
 
+		const setStatus = (message, type) => {
+			if (!statusEl) {
+				return;
+			}
+			statusEl.hidden = !message;
+			statusEl.textContent = message || "";
+			statusEl.classList.remove("is-error", "is-success");
+			if (type) {
+				statusEl.classList.add(`is-${type}`);
+			}
+		};
+
+		const clearInvalid = () => {
+			[nameInput, emailInput, phoneInput].forEach((el) => {
+				if (!el) {
+					return;
+				}
+				el.classList.remove("is-invalid");
+				el.setAttribute("aria-invalid", "false");
+			});
+		};
+
+		const markInvalid = (el) => {
+			if (!el) {
+				return;
+			}
+			el.classList.add("is-invalid");
+			el.setAttribute("aria-invalid", "true");
+			el.focus();
+		};
+
+		const setBusy = (nextBusy) => {
+			busy = nextBusy;
+			form?.classList.toggle("is-loading", nextBusy);
+			if (submitBtn) {
+				submitBtn.disabled = nextBusy;
+			}
+			if (submitLabel) {
+				submitLabel.textContent = nextBusy
+					? cfg.sending || "Sending…"
+					: defaultSubmitLabel;
+			}
+		};
+
 		const open = (label, name) => {
 			lastFocus = document.activeElement;
 			if (selected) {
 				selected.textContent = label || name || "";
 			}
 			if (packageInput) {
-				packageInput.value = name || label || "";
+				packageInput.value = label || name || "";
 			}
+			clearInvalid();
+			setStatus("", "");
+			form?.classList.remove("is-success");
 			syncEnquiryPlaceholders();
 			enquiryModal.hidden = false;
 			document.body.classList.add("package-enquiry-open");
@@ -2769,34 +2861,125 @@
 		});
 
 		enquiryModal.querySelectorAll("[data-package-enquiry-close]").forEach((el) => {
-			el.addEventListener("click", close);
+			el.addEventListener("click", () => {
+				if (!busy) {
+					close();
+				}
+			});
 		});
 
 		window.addEventListener("keydown", (e) => {
-			if (e.key === "Escape" && !enquiryModal.hidden) {
+			if (e.key === "Escape" && !enquiryModal.hidden && !busy) {
 				close();
 			}
 		});
 
-		form?.addEventListener("submit", (e) => {
+		[nameInput, emailInput, phoneInput].forEach((el) => {
+			el?.addEventListener("input", () => {
+				if (el.classList.contains("is-invalid")) {
+					el.classList.remove("is-invalid");
+					el.setAttribute("aria-invalid", "false");
+					setStatus("", "");
+				}
+			});
+		});
+
+		form?.addEventListener("submit", async (e) => {
 			e.preventDefault();
-			const name = nameInput?.value?.trim();
-			if (!name) {
-				nameInput?.focus();
+			if (busy) {
 				return;
 			}
+
+			clearInvalid();
+			setStatus("", "");
+
+			const name = nameInput?.value?.trim() || "";
+			const email = emailInput?.value?.trim() || "";
+			const phone = phoneInput?.value?.trim() || "";
+
+			if (!name) {
+				setStatus(cfg.nameRequired || "Please enter your full name.", "error");
+				markInvalid(nameInput);
+				return;
+			}
+
 			if (isEnquiryMobile()) {
-				if (!phoneInput?.value?.trim()) {
-					phoneInput?.focus();
+				if (!phone) {
+					setStatus(cfg.phoneRequired || "Please enter your phone number.", "error");
+					markInvalid(phoneInput);
 					return;
 				}
-			} else if (!emailInput?.value?.trim()) {
-				emailInput?.focus();
+			} else if (!email) {
+				setStatus(cfg.contactRequired || "Please enter your email address or phone number.", "error");
+				markInvalid(emailInput);
 				return;
 			}
-			form.reset();
-			syncEnquiryPlaceholders();
-			close();
+
+			if (email && !isValidEmail(email)) {
+				setStatus(cfg.emailInvalid || "Please enter a valid email address.", "error");
+				markInvalid(emailInput);
+				return;
+			}
+
+			if (!ajaxUrl) {
+				setStatus(cfg.genericError || "Something went wrong. Please try again.", "error");
+				return;
+			}
+
+			setBusy(true);
+
+			try {
+				const body = new FormData(form);
+				if (!body.get("nonce") && cfg.nonce) {
+					body.set("nonce", cfg.nonce);
+				}
+				if (!body.get("action")) {
+					body.set("action", "excel_ent_package_enquiry");
+				}
+
+				const response = await fetch(ajaxUrl, {
+					method: "POST",
+					credentials: "same-origin",
+					body,
+				});
+
+				const payload = await response.json().catch(() => null);
+				const ok = Boolean(payload?.success);
+				const message =
+					payload?.data?.message ||
+					(ok
+						? "Thanks — we’ve received your enquiry and will be in touch shortly."
+						: cfg.genericError || "Something went wrong. Please try again.");
+
+				if (ok) {
+					form.classList.add("is-success");
+					setStatus(message, "success");
+					form.reset();
+					syncEnquiryPlaceholders();
+					if (packageInput && selected) {
+						packageInput.value = selected.textContent || "";
+					}
+					window.setTimeout(() => {
+						if (!enquiryModal.hidden) {
+							close();
+						}
+					}, 1600);
+				} else {
+					const field = payload?.data?.field;
+					if (field === "name") {
+						markInvalid(nameInput);
+					} else if (field === "email") {
+						markInvalid(emailInput);
+					} else if (field === "phone") {
+						markInvalid(phoneInput);
+					}
+					setStatus(message, "error");
+				}
+			} catch (err) {
+				setStatus(cfg.genericError || "Something went wrong. Please try again.", "error");
+			} finally {
+				setBusy(false);
+			}
 		});
 
 		dialog?.addEventListener("click", (e) => e.stopPropagation());
@@ -4696,22 +4879,15 @@
 		});
 	});
 
-	/* ---------- Services swap (desktop hover / mobile tap) ---------- */
+	/* ---------- Services swap (click morph — services-showcase.html) ---------- */
 	const servicesSwap = document.querySelector("[data-services-swap]");
 	if (servicesSwap) {
 		const featured = servicesSwap.querySelector("[data-service-featured]");
 		const cards = Array.from(servicesSwap.querySelectorAll("[data-service-card]"));
-		const desktopMq = window.matchMedia("(min-width: 1200px)");
-		const mobileMq = window.matchMedia("(max-width: 1199px)");
-		const swapMsDesktop = reduced ? 0 : 680;
-		const swapMsMobile = reduced ? 0 : 520;
+		const swapMs = reduced ? 0 : 680;
 		let busy = false;
 		let pending = null;
-		let lockedCard = null;
-
-		const isDesktop = () => desktopMq.matches;
-		const isMobile = () => mobileMq.matches;
-		const swapMs = () => (isMobile() ? swapMsMobile : swapMsDesktop);
+		let activeId = featured?.getAttribute("data-service-id") || "";
 
 		const readData = (el) => ({
 			id: el.getAttribute("data-service-id") || "",
@@ -4776,159 +4952,146 @@
 
 		const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
-		const makeFlyer = (img, rect, zIndex, duration) => {
-			const flyer = document.createElement("div");
-			flyer.className = "service-swap-flyer";
-			flyer.setAttribute("aria-hidden", "true");
-			flyer.style.cssText = [
+		const toViewportRect = (el) => {
+			const r = el.getBoundingClientRect();
+			return { left: r.left, top: r.top, width: r.width, height: r.height };
+		};
+
+		/**
+		 * FLIP morph: ghost is sized to the DESTINATION so object-fit crop stays
+		 * fixed; only transform translate/scale animates (avoids image jerk).
+		 */
+		const makeGhost = (sourceEl, fromRect, toRect, zIndex, destKind) => {
+			const img = sourceEl.querySelector("[data-service-image-el]");
+			const ghost = document.createElement("div");
+			ghost.className = `service-swap-ghost service-swap-ghost--${destKind}`;
+			ghost.setAttribute("aria-hidden", "true");
+
+			const sx = fromRect.width / toRect.width;
+			const sy = fromRect.height / toRect.height;
+			const dx = fromRect.left - toRect.left;
+			const dy = fromRect.top - toRect.top;
+
+			ghost.style.cssText = [
 				"position:fixed",
-				`left:${rect.left}px`,
-				`top:${rect.top}px`,
-				`width:${rect.width}px`,
-				`height:${rect.height}px`,
 				`z-index:${zIndex}`,
 				"margin:0",
 				"padding:0",
 				"overflow:hidden",
 				"pointer-events:none",
-				"will-change:left, top, width, height",
-				`transition:left ${duration}ms cubic-bezier(0.22, 1, 0.36, 1), top ${duration}ms cubic-bezier(0.22, 1, 0.36, 1), width ${duration}ms cubic-bezier(0.22, 1, 0.36, 1), height ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`,
+				"box-sizing:border-box",
+				"transition:none",
+				"will-change:transform",
+				"background:#111",
+				`left:${toRect.left}px`,
+				`top:${toRect.top}px`,
+				`width:${toRect.width}px`,
+				`height:${toRect.height}px`,
+				"transform-origin:top left",
+				`transform:translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`,
 			].join(";");
 
-			const clone = img.cloneNode(true);
-			clone.removeAttribute("data-service-image-el");
-			clone.className = "service-swap-flyer__img";
-			clone.style.cssText =
-				"width:100%;height:100%;object-fit:cover;object-position:center;display:block;transform:none;";
-			flyer.appendChild(clone);
+			if (img) {
+				const clone = img.cloneNode(true);
+				clone.removeAttribute("data-service-image-el");
+				clone.className = "service-swap-ghost__img";
+				clone.style.transform = "none";
+				ghost.appendChild(clone);
+			}
 
 			const shade = document.createElement("span");
-			shade.className = "service-swap-flyer__shade";
-			flyer.appendChild(shade);
+			shade.className = "service-swap-ghost__shade";
+			ghost.appendChild(shade);
 
-			document.body.appendChild(flyer);
-			return flyer;
+			document.body.appendChild(ghost);
+			void ghost.getBoundingClientRect();
+			ghost.style.transition = `transform ${swapMs}ms cubic-bezier(0.16, 0.84, 0.28, 1)`;
+			return ghost;
 		};
 
-		const moveFlyer = (flyer, rect) => {
-			flyer.style.left = `${rect.left}px`;
-			flyer.style.top = `${rect.top}px`;
-			flyer.style.width = `${rect.width}px`;
-			flyer.style.height = `${rect.height}px`;
+		const markActive = (card) => {
+			cards.forEach((c) => c.classList.remove("is-active-small"));
+			card?.classList.add("is-active-small");
 		};
 
 		const swap = async (card) => {
-			if (!featured || !card) {
+			if (!featured || !card || busy) {
+				if (busy && card) {
+					pending = card;
+				}
 				return;
 			}
 
 			const cardData = readData(card);
 			const featData = readData(featured);
 			if (cardData.id && featData.id && cardData.id === featData.id) {
-				lockedCard = card;
+				markActive(card);
 				return;
 			}
 
-			const duration = swapMs();
 			busy = true;
 			pending = null;
 			servicesSwap.classList.add("is-swapping");
-			card.classList.add("is-swap-source");
-			featured.classList.add("is-swap-target");
+			markActive(card);
 
-			const cardImg = card.querySelector("[data-service-image-el]");
-			const featImg = featured.querySelector("[data-service-image-el]");
+			const cardRect = toViewportRect(card);
+			const featRect = toViewportRect(featured);
 
-			if (!reduced && cardImg && featImg) {
-				const cardRect = card.getBoundingClientRect();
-				const featRect = featured.getBoundingClientRect();
-				const cardFlyer = makeFlyer(cardImg, cardRect, 80, duration);
-				const featFlyer = makeFlyer(featImg, featRect, 79, duration);
+			if (!reduced) {
+				const ghostIn = makeGhost(card, cardRect, featRect, 92, "featured");
+				const ghostOut = makeGhost(featured, featRect, cardRect, 91, "card");
 
 				card.classList.add("is-swap-ghost");
 				featured.classList.add("is-swap-ghost");
 
-				void cardFlyer.offsetWidth;
-				moveFlyer(cardFlyer, featRect);
-				moveFlyer(featFlyer, cardRect);
+				await wait(16);
+				requestAnimationFrame(() => {
+					ghostIn.style.transform = "translate(0px, 0px) scale(1, 1)";
+					ghostOut.style.transform = "translate(0px, 0px) scale(1, 1)";
+				});
 
-				await wait(duration);
+				await wait(swapMs);
 
 				applyCard(card, featData);
 				applyFeatured(cardData);
+				activeId = cardData.id;
 
-				cardFlyer.remove();
-				featFlyer.remove();
+				await wait(32);
 				card.classList.remove("is-swap-ghost");
 				featured.classList.remove("is-swap-ghost");
+				await wait(32);
+				ghostIn.remove();
+				ghostOut.remove();
 			} else {
 				applyCard(card, featData);
 				applyFeatured(cardData);
+				activeId = cardData.id;
 			}
 
-			card.classList.add("is-swap-in");
-			featured.classList.add("is-swap-in");
-
-			await wait(reduced ? 0 : 280);
-
-			card.classList.remove("is-swap-source", "is-swap-in");
-			featured.classList.remove("is-swap-target", "is-swap-in");
 			servicesSwap.classList.remove("is-swapping");
-
-			/* Keep lock on the card still under the cursor so restoring
-			   pointer-events does not immediately re-trigger mouseenter. */
-			lockedCard = isDesktop() ? card : null;
 			busy = false;
 
-			if (pending && pending !== card && pending !== lockedCard) {
+			if (pending && pending !== card) {
 				const next = pending;
 				pending = null;
-				lockedCard = null;
 				swap(next);
 			} else {
 				pending = null;
 			}
 		};
 
-		const onEnter = (card) => {
-			if (!isDesktop()) {
-				return;
-			}
-			if (lockedCard === card) {
-				return;
-			}
-			if (busy) {
-				pending = card;
-				return;
-			}
-			swap(card);
-		};
-
-		const onLeave = (card) => {
-			if (lockedCard === card) {
-				lockedCard = null;
-			}
-			if (pending === card) {
-				pending = null;
-			}
-		};
-
-		const onTap = (event, card) => {
-			if (!isMobile()) {
-				return;
-			}
-			event.preventDefault();
-			if (busy) {
-				pending = card;
-				return;
-			}
-			swap(card);
-		};
-
 		cards.forEach((card) => {
-			card.addEventListener("mouseenter", () => onEnter(card));
-			card.addEventListener("mouseleave", () => onLeave(card));
-			card.addEventListener("click", (event) => onTap(event, card));
+			card.addEventListener("click", (event) => {
+				event.preventDefault();
+				swap(card);
+			});
+
+			card.addEventListener("keydown", (event) => {
+				if (event.key === "Enter" || event.key === " ") {
+					event.preventDefault();
+					swap(card);
+				}
+			});
 		});
 	}
 })();
@@ -4976,5 +5139,133 @@
 		removeUrlParam(chip.getAttribute("data-chip-key"));
 		chip.remove();
 		syncChipBar();
+	});
+})();
+
+(() => {
+	/* ---------- Newsletter AJAX signup ---------- */
+	const newsletterForms = document.querySelectorAll("[data-newsletter-form]");
+	if (!newsletterForms.length) {
+		return;
+	}
+
+	const cfg = window.excelEnt?.newsletter || {};
+	const ajaxUrl = window.excelEnt?.ajaxUrl || "";
+
+	const isValidEmail = (value) =>
+		/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+
+	newsletterForms.forEach((form) => {
+		const input = form.querySelector('input[type="email"]');
+		const submit = form.querySelector("[data-newsletter-submit]");
+		const label =
+			submit?.querySelector("[data-newsletter-submit-label], .newsletter-cta__submit-label") ||
+			null;
+		const status = form.querySelector("[data-newsletter-status]");
+		const defaultLabel = label?.textContent || cfg.submitLabel || "Subscribe";
+
+		const setStatus = (message, type) => {
+			if (!status) {
+				return;
+			}
+			status.hidden = !message;
+			status.textContent = message || "";
+			status.classList.remove("is-error", "is-success");
+			if (type) {
+				status.classList.add(`is-${type}`);
+			}
+		};
+
+		const setInvalid = (invalid) => {
+			if (!input) {
+				return;
+			}
+			input.setAttribute("aria-invalid", invalid ? "true" : "false");
+			input.classList.toggle("is-invalid", Boolean(invalid));
+			form.classList.toggle("is-invalid", Boolean(invalid));
+		};
+
+		const setBusy = (busy) => {
+			form.classList.toggle("is-loading", busy);
+			if (submit) {
+				submit.disabled = busy;
+			}
+			if (label) {
+				label.textContent = busy ? cfg.sending || "Subscribing…" : defaultLabel;
+			}
+		};
+
+		input?.addEventListener("input", () => {
+			if (input.classList.contains("is-invalid")) {
+				setInvalid(false);
+				setStatus("", "");
+			}
+		});
+
+		form.addEventListener("submit", async (event) => {
+			event.preventDefault();
+
+			const email = (input?.value || "").trim();
+			setInvalid(false);
+			setStatus("", "");
+
+			if (!email) {
+				setInvalid(true);
+				setStatus(cfg.empty || "Please enter your email address.", "error");
+				input?.focus();
+				return;
+			}
+
+			if (!isValidEmail(email)) {
+				setInvalid(true);
+				setStatus(cfg.invalid || "Please enter a valid email address.", "error");
+				input?.focus();
+				return;
+			}
+
+			if (!ajaxUrl) {
+				setStatus(cfg.genericError || "Something went wrong. Please try again.", "error");
+				return;
+			}
+
+			setBusy(true);
+
+			try {
+				const body = new FormData(form);
+				body.set("email", email);
+				if (!body.get("nonce") && cfg.nonce) {
+					body.set("nonce", cfg.nonce);
+				}
+
+				const response = await fetch(ajaxUrl, {
+					method: "POST",
+					credentials: "same-origin",
+					body,
+				});
+
+				const payload = await response.json().catch(() => null);
+				const ok = Boolean(payload?.success);
+				const message =
+					payload?.data?.message ||
+					(ok
+						? "Thanks — you’re subscribed."
+						: cfg.genericError || "Something went wrong. Please try again.");
+
+				if (ok) {
+					setInvalid(false);
+					setStatus(message, "success");
+					form.reset();
+					form.classList.add("is-success");
+				} else {
+					setInvalid(true);
+					setStatus(message, "error");
+					input?.focus();
+				}
+			} catch (err) {
+				setStatus(cfg.genericError || "Something went wrong. Please try again.", "error");
+			} finally {
+				setBusy(false);
+			}
+		});
 	});
 })();

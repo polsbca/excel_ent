@@ -229,7 +229,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	justify-content: space-between;
+	justify-content: flex-start;
 	gap: max(24px, 3.125vw);
 	box-sizing: border-box;
 	width: 100%;
@@ -679,7 +679,7 @@
 		min-height: 0;
 		gap: max(24px, 3.125vw);
 		padding: max(40px, 5.21vw) max(16px, 2.08vw) max(32px, 4.84vw);
-		justify-content: space-between;
+		justify-content: flex-start;
 	}
 
 	.excel-way__steps--cancel .excel-way-step__inner {
@@ -694,14 +694,22 @@
 
 	.excel-way-step__copy {
 		gap: max(16px, 2.08vw);
+		width: 100%;
+		flex: 1 1 auto;
+		min-height: 0;
 	}
 
 	.excel-way-step__title {
 		font-size: max(18px, 1.46vw);
 	}
 
+	/* Keep 1-line and 2-line titles on the same baseline across cards */
+	.excel-way__steps--how .excel-way-step__title {
+		min-height: calc(1.15em * 2);
+	}
+
 	.excel-way__steps--how .excel-way-step:last-child .excel-way-step__title {
-		font-size: max(20px, 1.67vw);
+		font-size: max(18px, 1.46vw);
 	}
 
 	.excel-way__steps--cancel .excel-way-step__title {

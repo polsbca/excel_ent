@@ -226,6 +226,32 @@ function excel_ent_enqueue_assets() {
 		true
 	);
 
+	wp_localize_script(
+		'excel-ent-main',
+		'excelEnt',
+		array(
+			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'newsletter' => array(
+				'nonce'           => wp_create_nonce( 'excel_ent_newsletter' ),
+				'empty'           => __( 'Please enter your email address.', 'excel-ent' ),
+				'invalid'         => __( 'Please enter a valid email address.', 'excel-ent' ),
+				'sending'         => __( 'Subscribing…', 'excel-ent' ),
+				'genericError'    => __( 'Something went wrong. Please try again.', 'excel-ent' ),
+				'submitLabel'     => __( 'Subscribe', 'excel-ent' ),
+			),
+			'packageEnquiry' => array(
+				'nonce'        => wp_create_nonce( 'excel_ent_package_enquiry' ),
+				'nameRequired' => __( 'Please enter your full name.', 'excel-ent' ),
+				'contactRequired' => __( 'Please enter your email address or phone number.', 'excel-ent' ),
+				'emailInvalid' => __( 'Please enter a valid email address.', 'excel-ent' ),
+				'phoneRequired'=> __( 'Please enter your phone number.', 'excel-ent' ),
+				'sending'      => __( 'Sending…', 'excel-ent' ),
+				'genericError' => __( 'Something went wrong. Please try again.', 'excel-ent' ),
+				'submitLabel'  => __( 'Send enquiry', 'excel-ent' ),
+			),
+		)
+	);
+
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
