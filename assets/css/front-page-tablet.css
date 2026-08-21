@@ -81,15 +81,15 @@
 		background: #fff;
 	}
 
-	/* Artists — Figma 1083:700 */
+	/* Artists — Figma 1090:1897 (tablet Browse Artist) */
 	.artists-section {
-		padding: 64px 0;
+		padding: 64px 0 80px;
 		gap: 64px;
 	}
 
 	.artists-section__header {
 		padding: 0;
-		gap: 40px;
+		gap: 48px;
 	}
 
 	.artists-section__intro {
@@ -101,10 +101,11 @@
 
 	.artists-section__title {
 		font-size: 54px;
-		line-height: 30px;
+		line-height: 1;
 		letter-spacing: 1px;
 		max-width: none;
 		margin: 0;
+		white-space: nowrap;
 	}
 
 	.artists-section__browse {
@@ -113,6 +114,7 @@
 		align-items: flex-start;
 		width: 100%;
 		gap: 0;
+		margin-left: 0;
 	}
 
 	.artists-section__eyebrow {
@@ -143,15 +145,23 @@
 	.artists-section__toolbar {
 		display: flex;
 		flex-direction: column;
-		gap: 32px;
+		align-items: stretch;
+		gap: 40px;
 		width: 100%;
 	}
 
+	/* Mode tabs above filters (Figma order) */
 	.artists-section__mode {
+		order: -1;
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
 		gap: 23px;
 		width: auto;
+		max-width: 100%;
 		padding: 0 40px;
 		box-sizing: border-box;
+		flex-wrap: nowrap;
 	}
 
 	.artists-mode {
@@ -164,19 +174,27 @@
 		box-sizing: border-box;
 		font-size: 20px;
 		line-height: 1;
+		letter-spacing: 1px;
+		text-transform: uppercase;
 	}
 
-	.artists-mode[data-artists-mode="artist"] {
+	.artists-mode[data-artists-mode="artist"],
+	.artists-mode[data-artists-mode="occasion"]:not(.artists-mode--active) {
 		width: auto;
+		flex: 0 0 auto;
 	}
 
 	.artists-mode--active {
 		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
+		border: 0;
+		border-bottom: 2px solid #f89a42;
+		font-weight: 800;
 	}
 
 	.artists-section__filters {
+		display: flex;
 		flex-wrap: nowrap;
-		align-items: center;
+		align-items: stretch;
 		overflow-x: auto;
 		overflow-y: hidden;
 		-webkit-overflow-scrolling: touch;
@@ -185,6 +203,11 @@
 		margin: 0;
 		padding: 0 40px;
 		touch-action: pan-x;
+		order: 0;
+	}
+
+	.artists-section__filters.is-hidden {
+		display: none !important;
 	}
 
 	.artists-section__filters::-webkit-scrollbar {
@@ -192,8 +215,14 @@
 	}
 
 	.artists-filter {
+		appearance: none;
+		-webkit-appearance: none;
 		flex-shrink: 0;
-		align-self: auto;
+		align-self: stretch;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
 		padding: 14px 25px;
 		border: 1px solid #000;
 		border-radius: 30px;
@@ -201,8 +230,11 @@
 		font-size: 16px;
 		font-weight: 400;
 		line-height: 1;
+		letter-spacing: 1px;
+		text-transform: uppercase;
 		color: #000;
 		-webkit-text-fill-color: currentColor;
+		box-sizing: border-box;
 	}
 
 	.artists-filter--active {
@@ -220,17 +252,23 @@
 		-webkit-text-fill-color: #fff;
 	}
 
+	.artists-filter--link img {
+		width: 16px;
+		height: 16px;
+	}
+
 	.artists-section__carousel {
 		padding-left: 40px;
 		padding-right: 0;
-		touch-action: pan-x;
-		overscroll-behavior: contain;
+		touch-action: pan-y pinch-zoom;
+		overscroll-behavior-x: contain;
 		cursor: grab;
 		user-select: none;
 		-webkit-user-select: none;
 	}
 
-	.artists-section__carousel:active {
+	.artists-section__carousel:active,
+	.artists-section__carousel.is-dragging {
 		cursor: grabbing;
 	}
 
@@ -240,13 +278,15 @@
 
 	.artist-card {
 		width: 400px;
-		height: 560px;
-		touch-action: pan-x;
+		height: 550px;
+		touch-action: pan-y pinch-zoom;
 	}
 
+	/* Occasion cards — always-visible bottom stack (Figma 1090:1964) */
 	.artist-card--occasion {
-		height: 480px;
+		height: 550px;
 	}
+
 	.artist-card--occasion .artist-card__link {
 		display: flex;
 		flex-direction: column;
@@ -281,9 +321,14 @@
 	.artist-card--occasion .artist-card__name {
 		font-size: 28px;
 		line-height: normal;
+		font-weight: 700;
+		letter-spacing: 1px;
+		color: #fff;
+		-webkit-text-fill-color: #fff;
 	}
 
-	.artist-card--occasion:hover .artist-card__name {
+	.artist-card--occasion:hover .artist-card__name,
+	.artist-card--occasion.is-hover .artist-card__name {
 		transform: none;
 	}
 
@@ -293,7 +338,9 @@
 		font-weight: 700;
 		font-size: 16px;
 		letter-spacing: 1px;
-		text-transform: none;
+		text-transform: uppercase;
+		color: #fff;
+		-webkit-text-fill-color: #fff;
 	}
 
 	.artist-card--occasion .artist-card__detail {
@@ -304,7 +351,9 @@
 		left: auto;
 		width: 100%;
 		min-height: 0;
+		max-width: none;
 		opacity: 1;
+		visibility: visible;
 		transform: none;
 		pointer-events: auto;
 		border: 0;
@@ -328,23 +377,39 @@
 		line-height: 1.88;
 		letter-spacing: 1px;
 		width: min(230px, 100%);
+		color: #fff;
+		-webkit-text-fill-color: #fff;
 	}
 
 	.artist-card--occasion:hover .artist-card__image,
-	.artist-card--occasion:focus-within .artist-card__image {
+	.artist-card--occasion:focus-within .artist-card__image,
+	.artist-card--occasion.is-hover .artist-card__image {
 		transform: none;
 	}
 
+	.artist-card--occasion:hover .artist-card__detail,
+	.artist-card--occasion:focus-within .artist-card__detail,
+	.artist-card--occasion.is-hover .artist-card__detail {
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+	}
+
+	/* Progress + count only (no arrow buttons) */
 	.artists-section__nav {
 		flex-direction: row;
 		align-items: flex-end;
 		gap: 10px;
 		padding: 0 40px;
+		margin-top: -40px; /* section gap 64 → effective 24 under cards */
 	}
 
 	.artists-section__progress {
+		flex: 1 1 auto;
 		height: 6px;
 		border-radius: 0;
+		background: #eaeaea;
+		overflow: hidden;
 	}
 
 	.artists-section__progress-fill {
@@ -359,6 +424,7 @@
 
 	.artists-section__pager {
 		flex-shrink: 0;
+		gap: 0;
 	}
 
 	.artists-pager__count {
@@ -366,6 +432,8 @@
 		font-weight: 600;
 		min-width: 0;
 		letter-spacing: 1px;
+		text-align: center;
+		color: #000;
 	}
 
 	/* Excel Way — Figma 1083:744 */

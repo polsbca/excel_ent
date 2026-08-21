@@ -409,28 +409,49 @@
 		height: 42.24vw;
 	}
 
-	.artist-card__name {
+	.artist-card--occasion {
+		width: 26.98vw;
+		height: 42.24vw;
+	}
+
+	.artist-card__name,
+	.artist-card--occasion .artist-card__name {
 		font-size: 2.08vw;
 	}
 
-	.artist-card__meta {
+	.artist-card__meta,
+	.artist-card--occasion .artist-card__meta {
 		font-size: 0.94vw;
 	}
 
-	.artist-card__footer {
+	.artist-card__footer,
+	.artist-card--occasion .artist-card__footer {
 		gap: 1.41vw;
 		padding: 2.08vw 1.56vw;
 	}
 
-	.artist-card__detail {
+	.artist-card__detail,
+	.artist-card--occasion .artist-card__detail {
 		width: 13.49vw;
 		left: 1.77vw;
 		top: 2.81vw;
 		min-height: 12.55vw;
+		padding: 1.15vw 0.73vw;
+		gap: 1.25vw;
+	}
+
+	.artist-card--occasion .artist-card__detail-title {
+		font-size: 1.25vw;
+	}
+
+	.artist-card--occasion .artist-card__bullets,
+	.artist-card--occasion .artist-card__cta {
+		font-size: 0.83vw;
 	}
 
 	.artist-card__orb,
-	.artist-card--profile .artist-card__orb {
+	.artist-card--profile .artist-card__orb,
+	.artist-card--occasion .artist-card__orb {
 		width: 3.28vw;
 		height: 3.28vw;
 	}

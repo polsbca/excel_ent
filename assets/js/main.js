@@ -680,6 +680,16 @@
 			});
 		};
 
+		/* Music tab hover panel — class fallback when CSS :hover is flaky with drag */
+		artistsSection.querySelectorAll(".artist-card--occasion").forEach((card) => {
+			card.addEventListener("pointerenter", () => {
+				card.classList.add("is-hover");
+			});
+			card.addEventListener("pointerleave", () => {
+				card.classList.remove("is-hover");
+			});
+		});
+
 		const stopArtistPreview = (card) => {
 			const video = card.querySelector("[data-artist-video]");
 			if (!video) {
@@ -859,7 +869,7 @@
 					(card) => !card.classList.contains("is-hidden")
 				);
 
-			let pointerId = null;
+			let active = false;
 			let startX = 0;
 			let startY = 0;
 			let deltaX = 0;
@@ -870,12 +880,17 @@
 			let maxOffset = 0;
 			let wheelAccum = 0;
 			let wheelLock = false;
+			let lastX = 0;
+			let lastT = 0;
+			let velocity = 0;
+			let lenisPaused = false;
+			let pointerId = null;
 
 			const measure = () => {
 				const visible = getPanelVisible();
 				const track = getPanelTrack();
 				const gap = track ? parseFloat(getComputedStyle(track).gap) || 50 : 50;
-				const cardWidth = visible[0]?.getBoundingClientRect().width || 518;
+				const cardWidth = visible[0]?.getBoundingClientRect().width || 280;
 				step = cardWidth + gap;
 				maxOffset = Math.max(visible.length - 1, 0) * step;
 				return index * step;
@@ -891,46 +906,95 @@
 				return offset;
 			};
 
-			const onDown = (e) => {
+			const pauseLenis = () => {
+				if (!lenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.stop();
+					lenisPaused = true;
+				}
+			};
+
+			const resumeLenis = () => {
+				if (lenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.start();
+					lenisPaused = false;
+				}
+			};
+
+			const clearCardHover = () => {
+				panel.querySelectorAll(".artist-card.is-hover").forEach((card) => {
+					card.classList.remove("is-hover");
+				});
+			};
+
+			const applyDrag = (dx) => {
+				deltaX = dx;
+				const track = getPanelTrack();
+				if (track) {
+					track.style.transition = "none";
+					track.style.transform = `translateX(${-rubber(baseOffset - deltaX)}px)`;
+				}
+			};
+
+			const beginGesture = (clientX, clientY, id) => {
 				if (!isPanelActive(panel)) {
-					return;
+					return false;
 				}
-				if (e.target.closest("button, input, textarea, select, a.artists-filter")) {
-					return;
-				}
-				if (e.pointerType === "mouse" && e.button !== 0) {
-					return;
-				}
-				pointerId = e.pointerId;
-				startX = e.clientX;
-				startY = e.clientY;
+				active = true;
+				pointerId = id;
+				startX = clientX;
+				startY = clientY;
+				lastX = clientX;
+				lastT = performance.now();
+				velocity = 0;
 				deltaX = 0;
 				axis = null;
 				swiping = false;
 				baseOffset = measure();
+				/* Pause early so Lenis does not steal the touch gesture */
+				pauseLenis();
+				return true;
 			};
 
-			const onMove = (e) => {
-				if (pointerId !== e.pointerId) {
+			const moveGesture = (clientX, clientY, event) => {
+				if (!active) {
 					return;
 				}
-				const dx = e.clientX - startX;
-				const dy = e.clientY - startY;
+				const dx = clientX - startX;
+				const dy = clientY - startY;
+				const now = performance.now();
+				const dt = Math.max(now - lastT, 1);
+				velocity = (clientX - lastX) / dt;
+				lastX = clientX;
+				lastT = now;
 
 				if (!axis) {
-					if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+					const absX = Math.abs(dx);
+					const absY = Math.abs(dy);
+					if (absX < 8 && absY < 8) {
 						return;
 					}
-					axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
-					if (axis === "y") {
+					/* Prefer horizontal when clearly sideways; otherwise yield to page scroll */
+					if (absY > absX && absY > 12) {
+						axis = "y";
+						active = false;
 						pointerId = null;
-						axis = null;
+						resumeLenis();
 						return;
 					}
-					try {
-						panel.setPointerCapture(e.pointerId);
-					} catch (err) {
-						/* ignore */
+					if (absX >= absY) {
+						axis = "x";
+						swiping = true;
+						clearCardHover();
+						panel.classList.add("is-dragging");
+						if (pointerId != null && event && typeof event.pointerId === "number") {
+							try {
+								panel.setPointerCapture(event.pointerId);
+							} catch (err) {
+								/* ignore */
+							}
+						}
+					} else {
+						return;
 					}
 				}
 
@@ -938,27 +1002,37 @@
 					return;
 				}
 
-				swiping = true;
-				deltaX = dx;
-				const track = getPanelTrack();
-				if (track) {
-					track.style.transition = "none";
-					track.style.transform = `translateX(${-rubber(baseOffset - deltaX)}px)`;
+				applyDrag(dx);
+				if (event && event.cancelable) {
+					event.preventDefault();
 				}
-				e.preventDefault();
 			};
 
-			const finishSwipe = () => {
+			const finishGesture = () => {
+				if (!active && !swiping) {
+					resumeLenis();
+					panel.classList.remove("is-dragging");
+					return;
+				}
+				active = false;
+				pointerId = null;
+
 				const track = getPanelTrack();
 				if (track) {
 					track.style.transition = "";
 				}
+				panel.classList.remove("is-dragging");
+				resumeLenis();
 
 				if (swiping) {
 					const visible = getPanelVisible();
 					const max = Math.max(visible.length - 1, 0);
-					if (Math.abs(deltaX) > 40 && step) {
-						index = Math.round((baseOffset - deltaX) / step);
+					const projected = baseOffset - deltaX - velocity * 160;
+					const threshold = Math.min(40, Math.max(24, step * 0.12));
+					if (Math.abs(deltaX) > threshold || Math.abs(velocity) > 0.35) {
+						index = Math.round(projected / step);
+					} else {
+						index = Math.round(baseOffset / step);
 					}
 					index = Math.max(0, Math.min(max, index));
 					update();
@@ -971,53 +1045,152 @@
 					panel.addEventListener("click", suppressClick, true);
 					window.setTimeout(() => {
 						panel.removeEventListener("click", suppressClick, true);
-					}, 400);
+					}, 500);
 				}
 
 				swiping = false;
 				deltaX = 0;
 				axis = null;
+				velocity = 0;
 			};
 
-			const onUp = (e) => {
-				if (pointerId === null || pointerId !== e.pointerId) {
+			const shouldIgnoreTarget = (target) =>
+				Boolean(target?.closest?.("button, input, textarea, select, a.artists-filter"));
+
+			/* ---- Touch (tablet / phone) — non-passive move so preventDefault works ---- */
+			panel.addEventListener(
+				"touchstart",
+				(e) => {
+					if (shouldIgnoreTarget(e.target) || e.touches.length !== 1) {
+						return;
+					}
+					const t = e.touches[0];
+					beginGesture(t.clientX, t.clientY, t.identifier);
+				},
+				{ passive: true }
+			);
+
+			panel.addEventListener(
+				"touchmove",
+				(e) => {
+					if (!active || e.touches.length !== 1) {
+						return;
+					}
+					const t = e.touches[0];
+					if (pointerId !== null && t.identifier !== pointerId) {
+						return;
+					}
+					moveGesture(t.clientX, t.clientY, e);
+				},
+				{ passive: false }
+			);
+
+			const onTouchEnd = (e) => {
+				if (!active && !swiping) {
 					return;
 				}
-				pointerId = null;
-				finishSwipe();
+				if (e.changedTouches?.[0] && pointerId !== null) {
+					const ended = Array.from(e.changedTouches).some(
+						(t) => t.identifier === pointerId
+					);
+					if (!ended) {
+						return;
+					}
+				}
+				finishGesture();
 			};
 
-			const onWheel = (e) => {
-				if (!isPanelActive(panel)) {
+			panel.addEventListener("touchend", onTouchEnd);
+			panel.addEventListener("touchcancel", onTouchEnd);
+
+			/* ---- Pointer (mouse / pen) ---- */
+			panel.addEventListener(
+				"pointerdown",
+				(e) => {
+					if (e.pointerType === "touch") {
+						/* Handled by touch listeners */
+						return;
+					}
+					if (shouldIgnoreTarget(e.target)) {
+						return;
+					}
+					if (e.pointerType === "mouse" && e.button !== 0) {
+						return;
+					}
+					beginGesture(e.clientX, e.clientY, e.pointerId);
+				},
+				{ passive: true }
+			);
+
+			panel.addEventListener(
+				"pointermove",
+				(e) => {
+					if (e.pointerType === "touch") {
+						return;
+					}
+					if (!active || pointerId !== e.pointerId) {
+						return;
+					}
+					moveGesture(e.clientX, e.clientY, e);
+				},
+				{ passive: false }
+			);
+
+			const onPointerUp = (e) => {
+				if (e.pointerType === "touch") {
 					return;
 				}
-				const absX = Math.abs(e.deltaX);
-				const absY = Math.abs(e.deltaY);
-				if (!e.shiftKey && absX < 8 && absY >= absX) {
+				if (!active && !swiping) {
 					return;
 				}
-				e.preventDefault();
-				if (wheelLock) {
+				if (pointerId !== null && e.pointerId !== pointerId) {
 					return;
 				}
-				wheelAccum += e.shiftKey && absX < absY ? e.deltaY : e.deltaX || e.deltaY;
-				if (Math.abs(wheelAccum) < 60) {
-					return;
-				}
-				go(wheelAccum > 0 ? 1 : -1);
-				wheelAccum = 0;
-				wheelLock = true;
-				window.setTimeout(() => {
-					wheelLock = false;
-				}, 420);
+				finishGesture();
 			};
 
-			panel.addEventListener("pointerdown", onDown, { passive: true });
-			panel.addEventListener("pointermove", onMove, { passive: false });
-			panel.addEventListener("pointerup", onUp);
-			panel.addEventListener("pointercancel", onUp);
-			panel.addEventListener("lostpointercapture", onUp);
-			panel.addEventListener("wheel", onWheel, { passive: false });
+			panel.addEventListener("pointerup", onPointerUp);
+			panel.addEventListener("pointercancel", onPointerUp);
+			panel.addEventListener("lostpointercapture", (e) => {
+				if (e.pointerType === "touch") {
+					return;
+				}
+				if (active || swiping) {
+					finishGesture();
+				}
+			});
+
+			panel.addEventListener("dragstart", (e) => e.preventDefault());
+
+			panel.addEventListener(
+				"wheel",
+				(e) => {
+					if (!isPanelActive(panel)) {
+						return;
+					}
+					const absX = Math.abs(e.deltaX);
+					const absY = Math.abs(e.deltaY);
+					if (!e.shiftKey && absX < 8 && absY >= absX) {
+						return;
+					}
+					e.preventDefault();
+					if (wheelLock) {
+						return;
+					}
+					wheelAccum +=
+						e.shiftKey && absX < absY ? e.deltaY : e.deltaX || e.deltaY;
+					if (Math.abs(wheelAccum) < 60) {
+						return;
+					}
+					go(wheelAccum > 0 ? 1 : -1);
+					wheelAccum = 0;
+					wheelLock = true;
+					window.setTimeout(() => {
+						wheelLock = false;
+					}, 420);
+				},
+				{ passive: false }
+			);
 		};
 
 		artistsSection.querySelectorAll("[data-artists-carousel]").forEach(bindArtistsSwipe);
