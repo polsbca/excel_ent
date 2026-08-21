@@ -200,19 +200,6 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 };
 ?>
 <section class="excel-way" id="excel-way" data-excel-way aria-label="<?php esc_attr_e( 'The Excel Way', 'excel-ent' ); ?>">
-	<div class="excel-way__media" aria-hidden="true">
-		<img
-			class="excel-way__bg"
-			src="<?php echo esc_url( $excel_ent_way_uri . '/bg.jpg' ); ?>"
-			alt=""
-			width="1920"
-			height="1080"
-			loading="lazy"
-			decoding="async"
-		>
-		<span class="excel-way__overlay"></span>
-	</div>
-
 	<div class="excel-way__inner">
 		<header class="excel-way__header reveal" data-reveal>
 			<h2 class="excel-way__title"><?php esc_html_e( 'THE EXCEL WAY', 'excel-ent' ); ?></h2>
