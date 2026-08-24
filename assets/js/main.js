@@ -255,6 +255,21 @@
 			);
 		};
 
+		const syncArtistsStickyTop = () => {
+			const pin = document.querySelector("[data-artists-pin]");
+			const artists = document.querySelector("[data-artists-section]");
+			if (!artists) {
+				return;
+			}
+			const top = header.classList.contains("is-scrolled")
+				? Math.ceil(header.getBoundingClientRect().height)
+				: 0;
+			artists.style.setProperty("--ee-artists-sticky-top", `${top}px`);
+			if (pin) {
+				pin.style.setProperty("--ee-artists-sticky-top", `${top}px`);
+			}
+		};
+
 		const setStickySearchOpen = (open) => {
 			header.classList.toggle("is-search-open", open);
 			stickySearch?.setAttribute("aria-expanded", String(open));
@@ -316,6 +331,7 @@
 				if (isExplorePage && header.classList.contains("is-explore-filter-open")) {
 					syncStickyOffset();
 				}
+				syncArtistsStickyTop();
 				return;
 			}
 			scrolled = next;
@@ -324,6 +340,7 @@
 				setStickySearchOpen(false);
 			}
 			syncStickyOffset();
+			syncArtistsStickyTop();
 			if (isExplorePage && header.classList.contains("is-explore-filter-open")) {
 				window.dispatchEvent(new CustomEvent("ee-explore-filter-refit"));
 			}
@@ -340,7 +357,11 @@
 		} else if (typeof stickyMq.addListener === "function") {
 			stickyMq.addListener(() => onScroll(window.scrollY));
 		}
-		window.addEventListener("resize", syncStickyOffset);
+		window.addEventListener("resize", () => {
+			syncStickyOffset();
+			syncArtistsStickyTop();
+		});
+		syncArtistsStickyTop();
 
 		stickySearch?.setAttribute("aria-expanded", "false");
 		stickySearch?.addEventListener("click", (e) => {
@@ -653,12 +674,81 @@
 	/* ---------- Artists section carousel / filters ---------- */
 	const artistsSection = document.querySelector("[data-artists-section]");
 	if (artistsSection) {
+		const artistsPin = document.querySelector("[data-artists-pin]");
 		const progress = artistsSection.querySelector("[data-artists-progress]");
 		const currentEl = artistsSection.querySelector("[data-artists-current]");
 		const totalEl = artistsSection.querySelector("[data-artists-total]");
 		const prevBtn = artistsSection.querySelector("[data-artists-prev]");
 		const nextBtn = artistsSection.querySelector("[data-artists-next]");
 		const modeBtns = artistsSection.querySelectorAll("[data-artists-mode]");
+		const pinMq = window.matchMedia("(min-width: 768px)");
+
+		const syncArtistsPin = () => {
+			if (!artistsPin) {
+				return;
+			}
+			if (!pinMq.matches) {
+				artistsPin.style.height = "";
+				artistsSection.classList.remove("is-pinned");
+				return;
+			}
+			/* Height = scroll-pad + sticky section + hold runway */
+			artistsPin.style.height = "auto";
+			const pad = artistsPin.querySelector(".artists-section__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionH = Math.ceil(artistsSection.getBoundingClientRect().height);
+			const holdPx = Math.round(window.innerHeight * 1);
+			artistsPin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncArtistsPinnedState = () => {
+			if (!artistsPin || !pinMq.matches) {
+				artistsSection.classList.remove("is-pinned");
+				return;
+			}
+			const stickyTop =
+				parseFloat(getComputedStyle(artistsSection).getPropertyValue("--ee-artists-sticky-top")) || 0;
+			const rect = artistsSection.getBoundingClientRect();
+			const pinRect = artistsPin.getBoundingClientRect();
+			/* Pinned while section top is locked under the header and pin still has runway left */
+			const pinned =
+				rect.top <= stickyTop + 1.5 &&
+				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+			artistsSection.classList.toggle("is-pinned", pinned);
+		};
+
+		const onArtistsPinScroll = () => {
+			syncArtistsPinnedState();
+		};
+
+		if (lenis) {
+			lenis.on("scroll", onArtistsPinScroll);
+		} else {
+			window.addEventListener("scroll", onArtistsPinScroll, { passive: true });
+		}
+		window.addEventListener("resize", () => {
+			syncArtistsPin();
+			syncArtistsPinnedState();
+		});
+		if (typeof pinMq.addEventListener === "function") {
+			pinMq.addEventListener("change", () => {
+				syncArtistsPin();
+				syncArtistsPinnedState();
+			});
+		} else if (typeof pinMq.addListener === "function") {
+			pinMq.addListener(() => {
+				syncArtistsPin();
+				syncArtistsPinnedState();
+			});
+		}
+		window.requestAnimationFrame(() => {
+			syncArtistsPin();
+			syncArtistsPinnedState();
+		});
+		window.addEventListener("load", () => {
+			syncArtistsPin();
+			syncArtistsPinnedState();
+		});
 
 		let activeMode = artistsSection.getAttribute("data-active-mode") || "occasion";
 		let index = 0;
@@ -739,6 +829,8 @@
 			visible.forEach((card, i) => {
 				card.classList.toggle("is-active", i === index);
 			});
+
+			syncArtistsPin();
 		};
 
 		/* Music tab hover panel — class fallback when CSS :hover is flaky with drag */
@@ -872,6 +964,10 @@
 			index = 0;
 			applyFilter(true);
 			update();
+			window.requestAnimationFrame(() => {
+				syncArtistsPin();
+				syncArtistsPinnedState();
+			});
 		};
 
 		const go = (delta) => {

@@ -83,8 +83,13 @@
 
 	/* Artists — Figma 1090:1897 (tablet Browse Artist) */
 	.artists-section {
-		padding: 64px 0 80px;
+		padding-top: 20px;
+		padding-bottom: 80px;
 		gap: 64px;
+	}
+
+	.artists-section__scroll-pad {
+		height: 44px;
 	}
 
 	.artists-section__header {
@@ -148,6 +153,8 @@
 		align-items: stretch;
 		gap: 40px;
 		width: 100%;
+		padding: 0 40px;
+		box-sizing: border-box;
 	}
 
 	/* Mode tabs above filters (Figma order) */

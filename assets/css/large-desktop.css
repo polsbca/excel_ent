@@ -362,13 +362,22 @@
 	}
 
 	.artists-section {
-		padding: 8.33vw 0;
+		padding-top: 1.04vw;
+		padding-bottom: 8.33vw;
 		gap: 3.125vw;
+	}
+
+	.artists-section__scroll-pad {
+		height: 7.29vw;
 	}
 
 	.artists-section__header {
 		gap: 2.08vw;
-		padding: 1.04vw 4.17vw 0;
+		padding: 0;
+	}
+
+	.artists-section__intro {
+		padding: 1.04vw 4.17vw;
 	}
 
 	.artists-section__title {
@@ -402,6 +411,11 @@
 
 	.artists-section__carousel,
 	.artists-section__nav {
+		padding-left: 4.17vw;
+		padding-right: 4.17vw;
+	}
+
+	.artists-section__toolbar {
 		padding-left: 4.17vw;
 		padding-right: 4.17vw;
 	}

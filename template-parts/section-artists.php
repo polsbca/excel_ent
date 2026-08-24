@@ -240,6 +240,8 @@ foreach ( $excel_ent_profile_cards as &$excel_ent_profile ) {
 }
 unset( $excel_ent_profile );
 ?>
+<div class="artists-section-pin" data-artists-pin>
+	<div class="artists-section__scroll-pad" aria-hidden="true"></div>
 <section class="artists-section" id="artists" data-artists-section data-active-mode="occasion" aria-label="<?php esc_attr_e( 'Artists', 'excel-ent' ); ?>">
 	<div class="artists-section__header">
 		<div class="artists-section__intro">
@@ -411,3 +413,4 @@ unset( $excel_ent_profile );
 		</div>
 	</div>
 </section>
+</div>

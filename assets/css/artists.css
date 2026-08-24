@@ -1,5 +1,22 @@
 /* Excel Ent — Artists section (Figma 1668:1706 / 1673:8826) */
 
+/*
+ * Full section sticks as one unit under the site header.
+ * Scroll-pad carries the large top spacing so the title sits
+ * flush under the nav (sticky position), while filters + cards stay with it.
+ */
+.artists-section-pin {
+	--ee-artists-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.artists-section__scroll-pad {
+	display: none;
+	height: max(60px, 7.29vw);
+	pointer-events: none;
+}
+
 .artists-section {
 	background: #fff;
 	color: #000;
@@ -7,15 +24,35 @@
 	display: flex;
 	flex-direction: column;
 	gap: max(40px, 3.125vw);
-	overflow-x: clip;
-	overflow-y: visible;
+	overflow: visible;
+}
+
+@media (min-width: 768px) {
+	.artists-section__scroll-pad {
+		display: block;
+	}
+
+	.artists-section {
+		position: sticky;
+		top: var(--ee-artists-sticky-top);
+		z-index: 5;
+		width: 100%;
+		box-sizing: border-box;
+		/* Compact top so title lands under the black nav */
+		padding-top: max(20px, 1.04vw);
+		padding-bottom: max(80px, 8.33vw);
+	}
+
+	.artists-section.is-pinned {
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+	}
 }
 
 .artists-section__header {
 	display: flex;
 	flex-direction: column;
 	gap: max(40px, 2.08vw);
-	padding: max(20px, 1.04vw) max(48px, 4.17vw) 0;
+	padding: 0;
 	min-width: 0;
 }
 
@@ -26,6 +63,24 @@
 	justify-content: space-between;
 	gap: max(40px, 2.08vw);
 	width: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+	padding: 0 max(48px, 4.17vw);
+}
+
+.artists-section__toolbar {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: max(24px, 1.25vw);
+	width: 100%;
+	min-width: 0;
+	padding: 0 max(48px, 4.17vw);
+	box-sizing: border-box;
+}
+
+.artists-section__toolbar > .artists-section__filters {
+	flex: 1 1 auto;
 	min-width: 0;
 }
 
@@ -54,20 +109,6 @@
 	max-width: 100%;
 	flex: 0 0 auto;
 	margin-left: auto;
-}
-
-.artists-section__toolbar {
-	display: flex;
-	flex-direction: column;
-	align-items: stretch;
-	gap: max(24px, 1.25vw);
-	width: 100%;
-	min-width: 0;
-}
-
-.artists-section__toolbar > .artists-section__filters {
-	flex: 1 1 auto;
-	min-width: 0;
 }
 
 .artists-section__eyebrow {
@@ -316,7 +357,8 @@
 /* Carousel */
 .artists-section__carousel {
 	width: 100%;
-	overflow: hidden;
+	overflow-x: clip;
+	overflow-y: visible;
 	padding: 0 max(48px, 4.17vw);
 	/* Keep vertical page scroll; horizontal swipe handled in JS (touch + pointer) */
 	touch-action: pan-y pinch-zoom;
@@ -818,11 +860,9 @@
 @media (max-width: 1199px) {
 	/* Base ≤1199; front-page-tablet.css (768–1199) overrides artists on homepage */
 	.artists-section {
-		padding: 80px 0;
 		gap: 36px;
 	}
 
-	.artists-section__header,
 	.artists-section__carousel,
 	.artists-section__nav {
 		padding-left: 20px;
@@ -832,6 +872,8 @@
 	.artists-section__intro {
 		flex-direction: column;
 		gap: 28px;
+		padding-left: 20px;
+		padding-right: 20px;
 	}
 
 	.artists-section__browse {
@@ -842,6 +884,8 @@
 
 	.artists-section__toolbar {
 		gap: 28px;
+		padding-left: 20px;
+		padding-right: 20px;
 	}
 
 	.artists-section__mode {
@@ -918,12 +962,12 @@
 	}
 
 	.artists-section__title {
-		font-size: clamp(20px, 7.2vw, 32px);
-		line-height: 1;
+		font-size: 32px;
+		line-height: 30px;
 		letter-spacing: 1px;
 		max-width: none;
 		margin: 0;
-		white-space: nowrap;
+		white-space: normal;
 	}
 
 	.artists-section__browse {
@@ -966,15 +1010,17 @@
 		align-items: stretch;
 		gap: 24px;
 		width: 100%;
+		padding: 0;
+		box-sizing: border-box;
 	}
 
-	/* Mode tabs above filters (Figma order) */
+	/* Mode tabs above filters — Figma 1706:23555 */
 	.artists-section__mode {
 		order: -1;
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
-		gap: 10px;
+		gap: 16px;
 		width: 100%;
 		max-width: 100%;
 		padding: 0 24px;
@@ -984,34 +1030,37 @@
 	}
 
 	.artists-mode {
-		flex: 0 1 auto;
-		width: auto !important;
-		min-width: min-content;
-		max-width: none;
+		appearance: none;
+		-webkit-appearance: none;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 		height: 51px;
 		min-height: 51px;
-		padding: 0 12px;
+		padding: 20px;
 		box-sizing: border-box;
-		font-size: 14px;
+		border-radius: 0;
+		font-size: 16px;
 		line-height: 1;
-		letter-spacing: 0.5px;
+		letter-spacing: 1px;
 		text-transform: uppercase;
 		white-space: nowrap;
 		overflow: visible;
 		text-overflow: clip;
 	}
 
+	/* Music = content width; Artist fills the rest (Figma 1706:23556 / 23558) */
 	.artists-mode[data-artists-mode="occasion"],
 	.artists-mode[data-artists-mode="occasion"]:not(.artists-mode--active) {
-		flex: 1 1 auto;
+		flex: 0 0 auto;
 		width: auto !important;
-		min-width: min-content;
+		min-width: 0;
 	}
 
 	.artists-mode[data-artists-mode="artist"] {
-		flex: 0 0 auto;
+		flex: 1 1 0;
 		width: auto !important;
-		min-width: min-content;
+		min-width: 0;
 	}
 
 	.artists-mode--active {
@@ -1019,6 +1068,7 @@
 		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
 		border: 0;
 		border-bottom: 2px solid #f89a42;
+		border-radius: 0;
 	}
 
 	.artists-section__filters {
@@ -1031,9 +1081,9 @@
 		scrollbar-width: none;
 		gap: 12px;
 		margin: 0;
-		padding: 4px 24px;
-		min-height: 0;
-		height: auto;
+		padding: 0 24px;
+		min-height: 40px;
+		height: 40px;
 		touch-action: pan-x;
 		order: 0;
 	}
@@ -1383,19 +1433,25 @@
 /* Desktop / 5K scale — last so it wins over later fixed px in this file */
 @media (min-width: 1200px) {
 	.artists-section {
-		padding: max(80px, 8.33vw) 0;
+		padding-top: max(20px, 1.04vw);
+		padding-bottom: max(80px, 8.33vw);
 		gap: max(40px, 3.125vw);
+	}
+
+	.artists-section__scroll-pad {
+		height: max(60px, 7.29vw);
 	}
 
 	.artists-section__header {
 		gap: max(40px, 2.08vw);
-		padding: max(20px, 1.04vw) max(48px, 4.17vw) 0;
+		padding: 0;
 	}
 
 	.artists-section__intro {
 		flex-wrap: nowrap;
 		align-items: center;
 		gap: max(40px, 2.08vw);
+		padding: 0 max(48px, 4.17vw);
 	}
 
 	.artists-section__title {
@@ -1422,6 +1478,7 @@
 		flex-direction: row;
 		align-items: flex-end;
 		gap: max(24px, 1.25vw);
+		padding: 0 max(48px, 4.17vw);
 	}
 
 	.artists-mode {

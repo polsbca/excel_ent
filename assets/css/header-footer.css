@@ -4068,7 +4068,8 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	body.front-page .site,
 	body.home .site-main,
 	body.front-page .site-main {
-		overflow-x: hidden;
+		/* clip keeps sticky working; hidden would create a scrollport and break it */
+		overflow-x: clip;
 		max-width: 100%;
 	}
 
