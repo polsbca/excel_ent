@@ -44,8 +44,15 @@ $excel_ent_service_cards = array(
 	),
 );
 
+foreach ( $excel_ent_service_cards as &$excel_ent_card ) {
+	$excel_ent_card['explore_link'] = excel_ent_get_explore_artists_url(
+		excel_ent_services_section_explore_args( $excel_ent_card['id'] )
+	);
+}
+unset( $excel_ent_card );
+
 $excel_ent_featured = array(
-	'id'            => 'featured-wedding-djs',
+	'id'            => 'wedding-djs',
 	'title'         => __( 'Wedding DJs', 'excel-ent' ),
 	'title_mobile'  => __( 'Roxy Rockz', 'excel-ent' ),
 	'subtitle'      => __( 'Live Party Band', 'excel-ent' ),
@@ -58,6 +65,9 @@ $excel_ent_featured = array(
 	'image'         => $excel_ent_services_uri . '/featured.jpg',
 	'link'          => home_url( '/services/wedding-djs/' ),
 	'profile_link'  => home_url( '/services/live-party-bands/' ),
+	'explore_link'  => excel_ent_get_explore_artists_url(
+		excel_ent_services_section_explore_args( 'wedding-djs' )
+	),
 );
 ?>
 <section class="services-section" id="services" data-services-swap aria-label="<?php esc_attr_e( 'Most Popular Services', 'excel-ent' ); ?>">
@@ -92,6 +102,7 @@ $excel_ent_featured = array(
 					data-service-price="<?php echo esc_attr( $excel_ent_card['price'] ); ?>"
 					data-service-image="<?php echo esc_url( $excel_ent_card['image'] ); ?>"
 					data-service-link="<?php echo esc_url( $excel_ent_card['link'] ); ?>"
+					data-service-explore-link="<?php echo esc_url( $excel_ent_card['explore_link'] ); ?>"
 					data-service-location="<?php echo esc_attr( $excel_ent_service_meta['location'] ); ?>"
 					data-service-duration="<?php echo esc_attr( $excel_ent_service_meta['duration'] ); ?>"
 				>
@@ -125,6 +136,7 @@ $excel_ent_featured = array(
 			data-service-price="<?php echo esc_attr( $excel_ent_featured['price'] ); ?>"
 			data-service-image="<?php echo esc_url( $excel_ent_featured['image'] ); ?>"
 			data-service-link="<?php echo esc_url( $excel_ent_featured['link'] ); ?>"
+			data-service-explore-link="<?php echo esc_url( $excel_ent_featured['explore_link'] ); ?>"
 			data-service-location="<?php echo esc_attr( $excel_ent_featured['location'] ); ?>"
 			data-service-duration="<?php echo esc_attr( $excel_ent_featured['duration'] ); ?>"
 		>
@@ -157,7 +169,7 @@ $excel_ent_featured = array(
 						</div>
 					</div>
 
-					<a class="service-featured__cta service-featured__cta--desktop magnetic" href="<?php echo esc_url( $excel_ent_services_url ); ?>" data-service-cta-desktop>
+					<a class="service-featured__cta service-featured__cta--desktop magnetic" href="<?php echo esc_url( $excel_ent_featured['explore_link'] ); ?>" data-service-cta-desktop>
 						<?php esc_html_e( 'View All', 'excel-ent' ); ?>
 					</a>
 					<a class="service-featured__cta service-featured__cta--mobile magnetic" href="<?php echo esc_url( $excel_ent_featured['profile_link'] ); ?>" data-service-cta-mobile>

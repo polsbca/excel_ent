@@ -169,6 +169,49 @@ function excel_ent_is_contact_page() {
 }
 
 /**
+ * Contact Us page URL, optionally with a fragment (e.g. quick-contacts, talent).
+ *
+ * @param string $fragment Optional hash target without "#".
+ * @return string
+ */
+function excel_ent_get_contact_url( $fragment = '' ) {
+	$pages = get_posts(
+		array(
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'meta_key'       => '_wp_page_template',
+			'meta_value'     => 'page-contactus.php',
+			'no_found_rows'  => true,
+		)
+	);
+
+	if ( ! empty( $pages[0] ) ) {
+		$url = get_permalink( $pages[0] );
+	} else {
+		$url = '';
+		foreach ( array( 'contact-us', 'contact', 'contactus' ) as $path ) {
+			$page = get_page_by_path( $path );
+			if ( $page ) {
+				$url = get_permalink( $page );
+				break;
+			}
+		}
+		if ( ! $url ) {
+			$url = home_url( '/contact-us/' );
+		}
+	}
+
+	$fragment = sanitize_title( (string) $fragment );
+	if ( $fragment ) {
+		$url = trailingslashit( $url ) . '#' . $fragment;
+	}
+
+	return $url;
+}
+
+/**
  * Artist profile page URL (Template: Artist).
  *
  * @return string
@@ -207,6 +250,7 @@ function excel_ent_get_artist_page_url() {
  *     Optional query arguments.
  *
  *     @type string[] $categories Category pill ids (e.g. artist-type, tribute).
+ *     @type string[] $tags       Filter tag ids (e.g. irish-music, male-solo).
  * }
  * @return string
  */
@@ -239,11 +283,110 @@ function excel_ent_get_explore_artists_url( $args = array() ) {
 			}
 		}
 		if ( $categories ) {
-			$url = add_query_arg( 'categories', implode( ',', $categories ), $url );
+			$url = add_query_arg( 'categories', implode( ',', array_unique( $categories ) ), $url );
+		}
+	}
+
+	if ( ! empty( $args['tags'] ) && is_array( $args['tags'] ) ) {
+		$tags = array();
+		foreach ( $args['tags'] as $tag ) {
+			$tag = sanitize_key( (string) $tag );
+			if ( '' !== $tag ) {
+				$tags[] = $tag;
+			}
+		}
+		if ( $tags ) {
+			$url = add_query_arg( 'tags', implode( ',', array_unique( $tags ) ), $url );
 		}
 	}
 
 	return $url;
+}
+
+/**
+ * Build Explore Artists URL args from homepage artists-section card data.
+ *
+ * @param string $mode     Occasion/artist mode (`occasion`|`artist`).
+ * @param string $category Card/filter category id.
+ * @param string $tag      Optional explore tag id (child).
+ * @return array{categories: string[], tags: string[]}
+ */
+function excel_ent_artists_section_explore_args( $mode, $category, $tag = '' ) {
+	$mode     = sanitize_key( (string) $mode );
+	$category = sanitize_key( (string) $category );
+	$tag      = sanitize_key( (string) $tag );
+
+	$occasion_map = array(
+		'decades'              => 'era',
+		'entertainment-events' => 'event',
+		'genres-music'         => 'genre',
+	);
+
+	$categories = array();
+	$tags       = array();
+
+	if ( 'artist' === $mode ) {
+		if ( 'tribute' === $category ) {
+			$categories[] = 'tribute';
+		} elseif ( in_array( $category, array( 'male-solo', 'female-solo', 'duos' ), true ) ) {
+			$categories[] = 'artist-type';
+			$tags[]       = $category;
+		} else {
+			$categories[] = 'artist-type';
+			$categories[] = 'tribute';
+		}
+	} else {
+		if ( isset( $occasion_map[ $category ] ) ) {
+			$categories[] = $occasion_map[ $category ];
+		}
+		if ( $tag ) {
+			$tags[] = $tag;
+		}
+	}
+
+	return array(
+		'categories' => array_values( array_unique( $categories ) ),
+		'tags'       => array_values( array_unique( $tags ) ),
+	);
+}
+
+/**
+ * Build Explore Artists URL args from a Most Popular Services card id.
+ *
+ * @param string $service_id Service card id (e.g. wedding-djs).
+ * @return array{categories: string[], tags: string[]}
+ */
+function excel_ent_services_section_explore_args( $service_id ) {
+	$service_id = sanitize_key( (string) $service_id );
+	$service_id = preg_replace( '/^featured-/', '', $service_id );
+
+	$map = array(
+		'wedding-djs'       => array(
+			'categories' => array( 'artist-type' ),
+			'tags'       => array( 'djs' ),
+		),
+		'live-party-bands'  => array(
+			'categories' => array( 'artist-type' ),
+			'tags'       => array( 'bands' ),
+		),
+		'solo-acoustic-acts' => array(
+			'categories' => array( 'artist-type' ),
+			'tags'       => array( 'male-solo', 'female-solo' ),
+		),
+		'tribute-acts'      => array(
+			'categories' => array( 'tribute' ),
+			'tags'       => array(),
+		),
+	);
+
+	if ( isset( $map[ $service_id ] ) ) {
+		return $map[ $service_id ];
+	}
+
+	return array(
+		'categories' => array(),
+		'tags'       => array(),
+	);
 }
 
 /**
@@ -431,12 +574,26 @@ add_filter( 'wp_nav_menu_objects', 'excel_ent_primary_menu_objects', 10, 2 );
  */
 function excel_ent_default_entertainment_links() {
 	return array(
-		__( 'Solo Artists', 'excel-ent' )   => home_url( '/solo-artists/' ),
-		__( 'Duos', 'excel-ent' )           => home_url( '/duos/' ),
-		__( 'Bands', 'excel-ent' )          => home_url( '/bands/' ),
-		__( 'Tribute Acts', 'excel-ent' )   => home_url( '/tribute-acts/' ),
-		__( 'DJ Nights', 'excel-ent' )      => home_url( '/dj-nights/' ),
-		__( 'Celebrity Acts', 'excel-ent' ) => home_url( '/celebrity-acts/' ),
+		__( 'Artists & Tributes', 'excel-ent' )     => excel_ent_get_explore_artists_url(
+			array(
+				'categories' => array( 'artist-type', 'tribute' ),
+			)
+		),
+		__( 'Decades', 'excel-ent' )                => excel_ent_get_explore_artists_url(
+			array(
+				'categories' => array( 'era' ),
+			)
+		),
+		__( 'Entertainment & Events', 'excel-ent' ) => excel_ent_get_explore_artists_url(
+			array(
+				'categories' => array( 'event' ),
+			)
+		),
+		__( 'Music Genre', 'excel-ent' )         => excel_ent_get_explore_artists_url(
+			array(
+				'categories' => array( 'genre' ),
+			)
+		),
 	);
 }
 
@@ -447,12 +604,24 @@ function excel_ent_default_entertainment_links() {
  */
 function excel_ent_default_services_links() {
 	return array(
-		__( 'Wedding Packages', 'excel-ent' )    => home_url( '/wedding-packages/' ),
-		__( 'Corporate Events', 'excel-ent' )    => home_url( '/corporate-events/' ),
-		__( 'Pub Nights', 'excel-ent' )          => home_url( '/pub-nights/' ),
-		__( 'Themed Nights', 'excel-ent' )       => home_url( '/themed-nights/' ),
-		__( 'Artist Registration', 'excel-ent' ) => home_url( '/artist-registration/' ),
-		__( 'Venue Registration', 'excel-ent' )  => home_url( '/venue-registration/' ),
+		__( 'Wedding', 'excel-ent' )    => excel_ent_get_explore_artists_url(
+			array(
+				'categories' => array( 'event' ),
+				'tags'       => array( 'wedding' ),
+			)
+		),
+		__( 'Tribute', 'excel-ent' )    => excel_ent_get_explore_artists_url(
+			array(
+				'categories' => array( 'tribute' ),
+			)
+		),
+		__( 'Pub Nights', 'excel-ent' ) => home_url( '/pub-nights/' ),
+		__( 'Bands', 'excel-ent' )      => excel_ent_get_explore_artists_url(
+			array(
+				'categories' => array( 'artist-type' ),
+				'tags'       => array( 'bands' ),
+			)
+		),
 	);
 }
 
@@ -463,12 +632,11 @@ function excel_ent_default_services_links() {
  */
 function excel_ent_default_company_links() {
 	return array(
-		__( 'About Us', 'excel-ent' )            => home_url( '/about-us/' ),
-		__( 'Contact Us', 'excel-ent' )          => home_url( '/contact/' ),
-		__( 'Ideas & Advice', 'excel-ent' )      => home_url( '/ideas-advice/' ),
-		__( 'Terms & Conditions', 'excel-ent' )  => home_url( '/terms-conditions/' ),
-		__( 'Privacy Policy', 'excel-ent' )      => home_url( '/privacy-policy/' ),
-		__( 'Celebrity Acts', 'excel-ent' )      => home_url( '/celebrity-acts/' ),
+		__( 'About Us', 'excel-ent' )                 => home_url( '/about-us/' ),
+		__( 'Contact Us', 'excel-ent' )               => excel_ent_get_contact_url(),
+		__( 'Event Packages', 'excel-ent' )           => home_url( '/packages/' ),
+		__( 'Cancellation Protection', 'excel-ent' )  => home_url( '/#cancellation-protection' ),
+		__( 'Terms & Conditions', 'excel-ent' )       => home_url( '/terms-conditions/' ),
 	);
 }
 

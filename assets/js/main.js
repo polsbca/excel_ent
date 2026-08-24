@@ -18,7 +18,8 @@
 				document.body.classList.contains("nav-open") ||
 				document.body.classList.contains("mobile-search-open") ||
 				document.body.classList.contains("blog-modal-open") ||
-				document.body.classList.contains("package-enquiry-open");
+				document.body.classList.contains("package-enquiry-open") ||
+				document.body.classList.contains("subscribe-popup-open");
 			if (locked) {
 				lenis.stop();
 			} else {
@@ -72,6 +73,7 @@
 		document.querySelector(".package-intro")?.classList.add("is-loaded");
 		document.querySelector(".contact-intro")?.classList.add("is-loaded");
 		document.body.classList.add("ee-ready");
+		document.dispatchEvent(new CustomEvent("excel-ent:ready"));
 	};
 
 	window.addEventListener("load", () => {
@@ -567,6 +569,7 @@
 	const carousel = document.querySelector("[data-hero-carousel]");
 	if (carousel) {
 		const slidesNode = carousel.querySelector("[data-carousel-slides]");
+		const heroBgs = Array.from(document.querySelectorAll("[data-hero-bg]"));
 		let slides = [];
 
 		try {
@@ -577,11 +580,14 @@
 
 		if (slides.length) {
 			let index = 0;
+			let timer = null;
+			const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 			const image = carousel.querySelector("[data-carousel-image]");
 			const label = carousel.querySelector("[data-carousel-label]");
 			const fill = carousel.querySelector("[data-carousel-fill]");
 			const prev = carousel.querySelector("[data-carousel-prev]");
 			const next = carousel.querySelector("[data-carousel-next]");
+			const AUTO_MS = 6000;
 
 			const render = () => {
 				const slide = slides[index];
@@ -589,7 +595,7 @@
 					return;
 				}
 				if (image) {
-					image.src = slide.image;
+					image.src = slide.image || slide.bg || "";
 					image.alt = slide.label || "";
 				}
 				if (label) {
@@ -600,6 +606,11 @@
 					fill.style.width = `${Math.max(segment, 28)}%`;
 					fill.style.left = `${index * segment}%`;
 				}
+				if (heroBgs.length) {
+					heroBgs.forEach((bg, i) => {
+						bg.classList.toggle("is-active", i === index);
+					});
+				}
 			};
 
 			const go = (delta) => {
@@ -607,9 +618,35 @@
 				render();
 			};
 
-			prev?.addEventListener("click", () => go(-1));
-			next?.addEventListener("click", () => go(1));
+			const stopAuto = () => {
+				if (timer) {
+					window.clearInterval(timer);
+					timer = null;
+				}
+			};
+
+			const startAuto = () => {
+				stopAuto();
+				if (reducedMotion || slides.length < 2) {
+					return;
+				}
+				timer = window.setInterval(() => go(1), AUTO_MS);
+			};
+
+			prev?.addEventListener("click", () => {
+				go(-1);
+				startAuto();
+			});
+			next?.addEventListener("click", () => {
+				go(1);
+				startAuto();
+			});
+
+			carousel.addEventListener("pointerenter", stopAuto);
+			carousel.addEventListener("pointerleave", startAuto);
+
 			render();
+			startAuto();
 		}
 	}
 
@@ -641,12 +678,36 @@
 		const visibleCards = () =>
 			getCards().filter((card) => !card.classList.contains("is-hidden"));
 
-		const applyFilter = () => {
+		const applyFilter = (animate = false) => {
 			const activeFilter = filtersByMode[activeMode] || "all";
-			getCards().forEach((card) => {
+			const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+			const cards = getCards();
+			let visibleIndex = 0;
+
+			cards.forEach((card) => {
 				const category = card.getAttribute("data-category") || "";
 				const show = activeFilter === "all" || category === activeFilter;
+				card.classList.remove("is-appearing");
 				card.classList.toggle("is-hidden", !show);
+				if (show) {
+					card.style.setProperty("--appear-i", String(visibleIndex));
+					visibleIndex += 1;
+				}
+			});
+
+			if (!animate || reduced || !visibleIndex) {
+				return;
+			}
+
+			const panel = getPanel();
+			if (panel) {
+				void panel.offsetWidth;
+			}
+
+			visibleCards().forEach((card) => {
+				card.classList.add("is-appearing");
+				const clear = () => card.classList.remove("is-appearing");
+				card.addEventListener("animationend", clear, { once: true });
 			});
 		};
 
@@ -809,7 +870,7 @@
 			});
 
 			index = 0;
-			applyFilter();
+			applyFilter(true);
 			update();
 		};
 
@@ -837,7 +898,7 @@
 					});
 					if (mode === activeMode) {
 						index = 0;
-						applyFilter();
+						applyFilter(true);
 						update();
 					}
 				});
@@ -1228,6 +1289,42 @@
 				setTab(tab.getAttribute("data-excel-way-tab") || "how-it-works");
 			});
 		});
+
+		const excelWayFromHash = () => {
+			const raw = (window.location.hash || "").replace(/^#/, "").toLowerCase();
+			if (
+				raw === "cancellation" ||
+				raw === "cancellation-protection" ||
+				raw === "excel-way-cancellation"
+			) {
+				return "cancellation";
+			}
+			if (raw === "who-we-are" || raw === "excel-way-who-we-are") {
+				return "who-we-are";
+			}
+			if (raw === "how-it-works" || raw === "excel-way") {
+				return "how-it-works";
+			}
+			return "";
+		};
+
+		const applyExcelWayHash = () => {
+			const id = excelWayFromHash();
+			if (!id) {
+				return;
+			}
+			setTab(id);
+			const offset = -100;
+			if (window.excelEntLenis) {
+				window.excelEntLenis.scrollTo(excelWay, { offset, duration: 1.1 });
+			} else {
+				const top = excelWay.getBoundingClientRect().top + window.scrollY + offset;
+				window.scrollTo({ top, behavior: "smooth" });
+			}
+		};
+
+		window.setTimeout(applyExcelWayHash, 80);
+		window.addEventListener("hashchange", applyExcelWayHash);
 	}
 
 	/* ---------- Blog carousel ---------- */
@@ -1465,7 +1562,7 @@
 			"artists-tributes": "Artists & Tributes",
 			era: "Decades",
 			event: "Entertainment & Events",
-			genre: "Genres & Music",
+			genre: "Music Genre",
 		};
 
 		const syncExploreResultsLabel = () => {
@@ -1999,13 +2096,18 @@
 		const applyExploreCategoriesFromUrl = () => {
 			const params = new URLSearchParams(window.location.search);
 			const raw = params.get("categories") || params.get("category") || "";
-			if (!raw) return;
+			const rawTags = params.get("tags") || params.get("tag") || "";
 
 			const requested = raw
 				.split(",")
 				.map((item) => item.trim())
 				.filter(Boolean);
-			if (!requested.length) return;
+			const requestedTags = rawTags
+				.split(",")
+				.map((item) => item.trim())
+				.filter(Boolean);
+
+			if (!requested.length && !requestedTags.length) return;
 
 			const wantsArtistType = requested.includes("artist-type");
 			const wantsTribute = requested.includes("tribute");
@@ -2035,6 +2137,26 @@
 					return;
 				}
 				activateExploreCategoryScope(category);
+			});
+
+			requestedTags.forEach((tagValue) => {
+				const matches = Array.from(
+					document.querySelectorAll(`[data-explore-filter-tag][data-value="${CSS.escape(tagValue)}"]`)
+				);
+				if (!matches.length) return;
+
+				const preferred = matches.find((tag) => {
+					const group = tag.closest("[data-explore-filter-panel]")?.getAttribute("data-explore-filter-group")
+						|| tag.closest("[data-explore-filter]")?.getAttribute("data-explore-filter");
+					return group && (scopedGroups.has(group) || requested.includes(group));
+				});
+				const tag = preferred || matches[0];
+				const group = tag.closest("[data-explore-filter-panel]")?.getAttribute("data-explore-filter-group")
+					|| tag.closest("[data-explore-filter]")?.getAttribute("data-explore-filter");
+				if (!group || group === "sort") return;
+
+				setTagSelected(tag, true);
+				upsertChip(group, tagValue, tagLabel(tag));
 			});
 
 			exploreSearch?.classList.remove("is-showing-all-cats");
@@ -3251,6 +3373,64 @@
 			tab.addEventListener("click", () => {
 				activateTab(tab.getAttribute("data-contact-tab") || "booking");
 			});
+		});
+
+		const tabFromHash = () => {
+			const raw = (window.location.hash || "").replace(/^#/, "").toLowerCase();
+			if (!raw) {
+				return "";
+			}
+			if (raw === "talent" || raw === "contact-tab-talent" || raw === "register" || raw === "artist") {
+				return "talent";
+			}
+			if (raw === "booking" || raw === "contact-tab-booking" || raw === "quote") {
+				return "booking";
+			}
+			return "";
+		};
+
+		const hashTab = tabFromHash();
+		if (hashTab) {
+			activateTab(hashTab);
+		}
+
+		const scrollToContactHash = () => {
+			const raw = (window.location.hash || "").replace(/^#/, "").toLowerCase();
+			let target = null;
+			if (raw === "quick-contacts" || raw === "contact-quick") {
+				target = document.getElementById("quick-contacts");
+			} else if (
+				raw === "talent" ||
+				raw === "contact-tab-talent" ||
+				raw === "register" ||
+				raw === "artist"
+			) {
+				target = document.getElementById("contact-tab-talent") || contactTabsRoot;
+			} else if (
+				raw === "booking" ||
+				raw === "contact-tab-booking" ||
+				raw === "quote"
+			) {
+				target = document.getElementById("contact-tab-booking") || contactTabsRoot;
+			}
+			if (!target) {
+				return;
+			}
+			const offset = -100;
+			if (window.excelEntLenis) {
+				window.excelEntLenis.scrollTo(target, { offset, duration: 1.1 });
+			} else {
+				const top = target.getBoundingClientRect().top + window.scrollY + offset;
+				window.scrollTo({ top, behavior: "smooth" });
+			}
+		};
+		window.setTimeout(scrollToContactHash, 80);
+		window.addEventListener("hashchange", () => {
+			const next = tabFromHash();
+			if (next) {
+				activateTab(next);
+			}
+			scrollToContactHash();
 		});
 
 		contactTabsRoot.querySelectorAll("[data-contact-accordion]").forEach((accordion) => {
@@ -5068,6 +5248,7 @@
 			price: el.getAttribute("data-service-price") || "",
 			image: el.getAttribute("data-service-image") || "",
 			link: el.getAttribute("data-service-link") || el.getAttribute("href") || "",
+			exploreLink: el.getAttribute("data-service-explore-link") || "",
 			location: el.getAttribute("data-service-location") || "",
 			duration: el.getAttribute("data-service-duration") || "",
 			subtitle: el.getAttribute("data-service-subtitle") || "",
@@ -5079,6 +5260,9 @@
 			el.setAttribute("data-service-price", data.price);
 			el.setAttribute("data-service-image", data.image);
 			el.setAttribute("data-service-link", data.link);
+			if (data.exploreLink) {
+				el.setAttribute("data-service-explore-link", data.exploreLink);
+			}
 			el.setAttribute("data-service-location", data.location);
 			el.setAttribute("data-service-duration", data.duration);
 			if (data.subtitle) {
@@ -5120,6 +5304,10 @@
 			const ctaMobile = featured.querySelector("[data-service-cta-mobile]");
 			if (ctaMobile && data.link) {
 				ctaMobile.setAttribute("href", data.link);
+			}
+			const ctaDesktop = featured.querySelector("[data-service-cta-desktop]");
+			if (ctaDesktop && data.exploreLink) {
+				ctaDesktop.setAttribute("href", data.exploreLink);
 			}
 		};
 
@@ -5429,6 +5617,9 @@
 					setStatus(message, "success");
 					form.reset();
 					form.classList.add("is-success");
+					if (form.closest("[data-subscribe-popup]")) {
+						document.dispatchEvent(new CustomEvent("excel-ent:subscribe-popup-success"));
+					}
 				} else {
 					setInvalid(true);
 					setStatus(message, "error");
@@ -5441,4 +5632,92 @@
 			}
 		});
 	});
+})();
+
+(() => {
+	/* ---------- Subscribe popup (after hero load, once per session) ---------- */
+	const popup = document.querySelector("[data-subscribe-popup]");
+	if (!popup) {
+		return;
+	}
+
+	const STORAGE_KEY = "excel_ent_subscribe_popup_dismissed";
+	const dialog = popup.querySelector("[data-subscribe-popup-dialog]");
+	const emailInput = popup.querySelector('input[type="email"]');
+	let lastFocus = null;
+	let opened = false;
+
+	const wasDismissed = () => {
+		try {
+			return window.sessionStorage.getItem(STORAGE_KEY) === "1";
+		} catch (err) {
+			return false;
+		}
+	};
+
+	const markDismissed = () => {
+		try {
+			window.sessionStorage.setItem(STORAGE_KEY, "1");
+		} catch (err) {
+			/* ignore */
+		}
+	};
+
+	const open = () => {
+		if (opened || wasDismissed() || !popup.hidden) {
+			return;
+		}
+		opened = true;
+		lastFocus = document.activeElement;
+		popup.hidden = false;
+		document.body.classList.add("subscribe-popup-open");
+		window.setTimeout(() => {
+			(emailInput || dialog)?.focus();
+		}, 40);
+	};
+
+	const close = () => {
+		if (popup.hidden) {
+			return;
+		}
+		popup.hidden = true;
+		document.body.classList.remove("subscribe-popup-open");
+		markDismissed();
+		if (lastFocus && typeof lastFocus.focus === "function") {
+			lastFocus.focus();
+		}
+	};
+
+	const tryOpenAfterHero = () => {
+		if (wasDismissed()) {
+			return;
+		}
+		const hero = document.querySelector(".hero");
+		if (hero && !hero.classList.contains("is-loaded")) {
+			return;
+		}
+		window.setTimeout(open, 450);
+	};
+
+	popup.querySelectorAll("[data-subscribe-popup-close]").forEach((el) => {
+		el.addEventListener("click", close);
+	});
+
+	window.addEventListener("keydown", (e) => {
+		if (e.key === "Escape" && !popup.hidden) {
+			close();
+		}
+	});
+
+	dialog?.addEventListener("click", (e) => e.stopPropagation());
+
+	document.addEventListener("excel-ent:subscribe-popup-success", () => {
+		window.setTimeout(close, 900);
+	});
+
+	if (document.body.classList.contains("ee-ready")) {
+		tryOpenAfterHero();
+	} else {
+		document.addEventListener("excel-ent:ready", tryOpenAfterHero, { once: true });
+	}
 })();

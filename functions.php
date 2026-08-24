@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'EXCEL_ENT_VERSION', '1.9.287' );
+define( 'EXCEL_ENT_VERSION', '1.9.328' );
 define( 'EXCEL_ENT_DIR', get_template_directory() );
 define( 'EXCEL_ENT_URI', get_template_directory_uri() );
 

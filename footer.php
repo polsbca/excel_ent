@@ -123,6 +123,8 @@
 	</footer>
 </div><!-- #page -->
 
+<?php get_template_part( 'template-parts/subscribe', 'popup' ); ?>
+
 <?php wp_footer(); ?>
 </body>
 </html>

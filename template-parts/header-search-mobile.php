@@ -68,7 +68,7 @@ $excel_ent_category_groups = array(
 		),
 	),
 	'genres-music'         => array(
-		'label' => __( 'Genres & Music', 'excel-ent' ),
+		'label' => __( 'Music Genre', 'excel-ent' ),
 		'tags'  => array(
 			'pop'    => __( 'Pop', 'excel-ent' ),
 			'rock'   => __( 'Rock', 'excel-ent' ),
@@ -107,7 +107,7 @@ foreach ( $excel_ent_category_groups as $excel_ent_group ) {
 	}
 }
 
-$excel_ent_occasion_meta = __( 'Any occasions or categories', 'excel-ent' );
+$excel_ent_occasion_meta = __( 'Any categories', 'excel-ent' );
 $excel_ent_occasion_filled = false;
 if ( $excel_ent_selected_occasions ) {
 	$excel_ent_occasion_names = array();
@@ -139,7 +139,7 @@ if ( isset( $excel_ent_budget_options[ $excel_ent_budget ] ) ) {
 	$excel_ent_budget_filled = true;
 }
 
-$excel_ent_location_meta   = __( 'Add Postalcode', 'excel-ent' );
+$excel_ent_location_meta   = __( 'Add Post Code', 'excel-ent' );
 $excel_ent_location_filled = false;
 if ( $excel_ent_location ) {
 	$excel_ent_location_meta   = $excel_ent_location;
@@ -286,7 +286,7 @@ $excel_ent_trigger_has_filters = (
 							<img class="header-search-mobile__card-icon header-search-mobile__card-icon--sm" src="<?php echo esc_url( $excel_ent_icons . '/browse-categories.svg' ); ?>" alt="" width="18" height="18" decoding="async">
 							<span class="header-search-mobile__card-copy">
 								<span class="header-search-mobile__card-title"><?php esc_html_e( 'Browse Categories', 'excel-ent' ); ?></span>
-								<span class="header-search-mobile__card-meta" data-msm-summary-meta data-placeholder="<?php esc_attr_e( 'Any occasions or categories', 'excel-ent' ); ?>"><?php echo esc_html( $excel_ent_occasion_meta ); ?></span>
+								<span class="header-search-mobile__card-meta" data-msm-summary-meta data-placeholder="<?php esc_attr_e( 'Any categories', 'excel-ent' ); ?>"><?php echo esc_html( $excel_ent_occasion_meta ); ?></span>
 							</span>
 						</button>
 						<div class="header-search-mobile__card-panel" data-msm-panel hidden>
@@ -362,7 +362,7 @@ $excel_ent_trigger_has_filters = (
 							<img class="header-search-mobile__card-icon header-search-mobile__card-icon--sm" src="<?php echo esc_url( $excel_ent_icons . '/map-pin-fill.svg' ); ?>" alt="" width="18" height="18" decoding="async">
 							<span class="header-search-mobile__card-copy">
 								<span class="header-search-mobile__card-title"><?php esc_html_e( 'Location', 'excel-ent' ); ?></span>
-								<span class="header-search-mobile__card-meta" data-msm-summary-meta data-placeholder="<?php esc_attr_e( 'Add Postalcode', 'excel-ent' ); ?>"><?php echo esc_html( $excel_ent_location_meta ); ?></span>
+								<span class="header-search-mobile__card-meta" data-msm-summary-meta data-placeholder="<?php esc_attr_e( 'Add Post Code', 'excel-ent' ); ?>"><?php echo esc_html( $excel_ent_location_meta ); ?></span>
 							</span>
 						</button>
 						<div class="header-search-mobile__card-panel" data-msm-panel hidden>
@@ -458,7 +458,7 @@ $excel_ent_trigger_has_filters = (
 							</button>
 							<input type="hidden" name="budget" value="<?php echo esc_attr( $excel_ent_budget ); ?>" data-msm-budget-input>
 							<div class="header-search-mobile__budget">
-								<p class="header-search-mobile__budget-title"><?php esc_html_e( 'Select your desired budget', 'excel-ent' ); ?></p>
+								<p class="header-search-mobile__budget-title"><?php esc_html_e( 'Select your budget', 'excel-ent' ); ?></p>
 								<div class="header-search-mobile__budget-list">
 									<?php foreach ( $excel_ent_budget_options as $excel_ent_value => $excel_ent_label ) : ?>
 										<button

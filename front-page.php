@@ -7,36 +7,27 @@
 
 get_header();
 
-$excel_ent_quote = excel_ent_get_quote_url();
-$excel_ent_join  = home_url( '/artist-registration/' );
-
-$excel_ent_hero_slides = array(
-	array(
-		'label' => __( 'Corporate event', 'excel-ent' ),
-		'image' => EXCEL_ENT_URI . '/assets/images/hero/slide-corporate.png',
-	),
-	array(
-		'label' => __( 'Wedding celebration', 'excel-ent' ),
-		'image' => EXCEL_ENT_URI . '/assets/images/hero/slide-corporate.png',
-	),
-	array(
-		'label' => __( 'Pub night', 'excel-ent' ),
-		'image' => EXCEL_ENT_URI . '/assets/images/hero/slide-corporate.png',
-	),
-);
+$excel_ent_contact     = home_url( '/contact-us/' );
+$excel_ent_join        = home_url( '/contact-us/#talent' );
+$excel_ent_hero_slides = excel_ent_get_hero_slides();
+$excel_ent_hero_first  = $excel_ent_hero_slides[0] ?? null;
 ?>
 
-<section class="hero" id="hero" aria-label="<?php esc_attr_e( 'Hero', 'excel-ent' ); ?>">
-	<div class="hero__media" aria-hidden="true">
-		<img
-			class="hero__bg"
-			src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/hero/hero-bg-desktop.jpg' ); ?>"
-			alt=""
-			width="1920"
-			height="1080"
-			decoding="async"
-			fetchpriority="high"
-		>
+<section class="hero" id="hero" aria-label="<?php esc_attr_e( 'Hero', 'excel-ent' ); ?>" data-hero>
+	<div class="hero__media" aria-hidden="true" data-hero-media>
+		<?php foreach ( $excel_ent_hero_slides as $excel_ent_i => $excel_ent_slide ) : ?>
+			<img
+				class="hero__bg<?php echo 0 === (int) $excel_ent_i ? ' is-active' : ''; ?>"
+				src="<?php echo esc_url( $excel_ent_slide['bg'] ); ?>"
+				alt=""
+				width="1920"
+				height="1080"
+				decoding="async"
+				<?php echo 0 === (int) $excel_ent_i ? 'fetchpriority="high"' : 'loading="lazy"'; ?>
+				data-hero-bg
+				data-hero-index="<?php echo esc_attr( (string) $excel_ent_i ); ?>"
+			>
+		<?php endforeach; ?>
 		<span class="hero__overlay"></span>
 	</div>
 
@@ -55,11 +46,11 @@ $excel_ent_hero_slides = array(
 				</div>
 
 				<div class="hero__actions">
-					<a class="btn-hero btn-hero--primary magnetic" href="<?php echo esc_url( $excel_ent_quote ); ?>">
+					<a class="btn-hero btn-hero--primary magnetic" href="<?php echo esc_url( $excel_ent_contact ); ?>">
 						<?php esc_html_e( 'Book an Artist', 'excel-ent' ); ?>
 					</a>
 					<a class="btn-hero btn-hero--outline magnetic" href="<?php echo esc_url( $excel_ent_join ); ?>">
-						<?php esc_html_e( 'Join as an Artist', 'excel-ent' ); ?>
+						<?php esc_html_e( 'Register as an Artist', 'excel-ent' ); ?>
 					</a>
 				</div>
 			</div>
@@ -113,7 +104,7 @@ $excel_ent_hero_slides = array(
 					<img
 						class="hero-carousel__thumb"
 						data-carousel-image
-						src="<?php echo esc_url( $excel_ent_hero_slides[0]['image'] ); ?>"
+						src="<?php echo esc_url( $excel_ent_hero_first['image'] ?? '' ); ?>"
 						alt=""
 						width="91"
 						height="91"
@@ -137,7 +128,7 @@ $excel_ent_hero_slides = array(
 				</button>
 			</div>
 
-			<p class="hero-carousel__label" data-carousel-label><?php echo esc_html( $excel_ent_hero_slides[0]['label'] ); ?></p>
+			<p class="hero-carousel__label" data-carousel-label><?php echo esc_html( $excel_ent_hero_first['label'] ?? '' ); ?></p>
 
 			<div class="hero-carousel__progress" aria-hidden="true">
 				<span class="hero-carousel__track"></span>
@@ -171,9 +162,9 @@ get_template_part(
 	'cta-neon',
 	array(
 		'primary_label'   => __( 'Contact Us', 'excel-ent' ),
-		'primary_url'     => home_url( '/contact/' ),
-		'secondary_label' => __( 'Book As an Artist', 'excel-ent' ),
-		'secondary_url'   => home_url( '/artist-registration/' ),
+		'primary_url'     => excel_ent_get_contact_url( 'quick-contacts' ),
+		'secondary_label' => __( 'Register as an Artist', 'excel-ent' ),
+		'secondary_url'   => excel_ent_get_contact_url( 'talent' ),
 	)
 );
 ?>

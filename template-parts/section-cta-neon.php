@@ -6,32 +6,35 @@
  */
 
 $excel_ent_cta_uri = EXCEL_ENT_URI . '/assets/images/cta';
-$excel_ent_contact = home_url( '/contact/' );
 
 $excel_ent_cta_args = wp_parse_args(
 	isset( $args ) && is_array( $args ) ? $args : array(),
 	array(
 		'primary_label'   => __( 'Contact Us', 'excel-ent' ),
-		'primary_url'     => $excel_ent_contact,
-		'secondary_label' => __( 'Book As an Artist', 'excel-ent' ),
-		'secondary_url'   => home_url( '/artist-registration/' ),
+		'primary_url'     => excel_ent_get_contact_url( 'quick-contacts' ),
+		'secondary_label' => __( 'Register as an Artist', 'excel-ent' ),
+		'secondary_url'   => excel_ent_get_contact_url( 'talent' ),
 	)
 );
 
 $excel_ent_cta_socials = array(
 	array(
-		'label' => __( 'Instagram', 'excel-ent' ),
-		'icon'  => 'instagram.svg',
-		'url'   => 'https://www.instagram.com/',
+		'label'       => __( 'Instagram', 'excel-ent' ),
+		'icon'        => 'instagram.svg',
+		'icon_hover'  => 'instagram-hover.svg',
+		'mod'         => 'instagram',
+		'url'         => 'https://www.instagram.com/',
 	),
 	array(
 		'label' => __( 'Facebook', 'excel-ent' ),
 		'icon'  => 'facebook.svg',
+		'mod'   => 'facebook',
 		'url'   => 'https://www.facebook.com/',
 	),
 	array(
 		'label' => __( 'LinkedIn', 'excel-ent' ),
 		'icon'  => 'linkedin.svg',
+		'mod'   => 'linkedin',
 		'url'   => 'https://www.linkedin.com/',
 	),
 );
@@ -62,19 +65,30 @@ $excel_ent_cta_socials = array(
 			<div class="cta-neon__socials">
 				<?php foreach ( $excel_ent_cta_socials as $excel_ent_social ) : ?>
 					<a
-						class="cta-neon__social magnetic"
+						class="cta-neon__social cta-neon__social--<?php echo esc_attr( $excel_ent_social['mod'] ); ?> magnetic"
 						href="<?php echo esc_url( $excel_ent_social['url'] ); ?>"
 						target="_blank"
 						rel="noopener noreferrer"
 						aria-label="<?php echo esc_attr( $excel_ent_social['label'] ); ?>"
 					>
 						<img
+							class="cta-neon__social-icon cta-neon__social-icon--default"
 							src="<?php echo esc_url( $excel_ent_cta_uri . '/' . $excel_ent_social['icon'] ); ?>"
 							alt=""
 							width="32"
 							height="32"
 							decoding="async"
 						>
+						<?php if ( ! empty( $excel_ent_social['icon_hover'] ) ) : ?>
+							<img
+								class="cta-neon__social-icon cta-neon__social-icon--hover"
+								src="<?php echo esc_url( $excel_ent_cta_uri . '/' . $excel_ent_social['icon_hover'] ); ?>"
+								alt=""
+								width="32"
+								height="32"
+								decoding="async"
+							>
+						<?php endif; ?>
 					</a>
 				<?php endforeach; ?>
 			</div>

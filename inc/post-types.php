@@ -327,3 +327,213 @@ function excel_ent_get_brand_logos() {
 
 	return $logos ? $logos : excel_ent_get_default_brand_logos();
 }
+
+/**
+ * Register Hero Slide CPT for the front-page hero background/carousel.
+ */
+function excel_ent_register_hero_slide_cpt() {
+	$labels = array(
+		'name'                  => __( 'Hero Slides', 'excel-ent' ),
+		'singular_name'         => __( 'Hero Slide', 'excel-ent' ),
+		'menu_name'             => __( 'Hero Slides', 'excel-ent' ),
+		'name_admin_bar'        => __( 'Hero Slide', 'excel-ent' ),
+		'add_new'               => __( 'Add New', 'excel-ent' ),
+		'add_new_item'          => __( 'Add New Hero Slide', 'excel-ent' ),
+		'new_item'              => __( 'New Hero Slide', 'excel-ent' ),
+		'edit_item'             => __( 'Edit Hero Slide', 'excel-ent' ),
+		'view_item'             => __( 'View Hero Slide', 'excel-ent' ),
+		'all_items'             => __( 'All Hero Slides', 'excel-ent' ),
+		'search_items'          => __( 'Search Hero Slides', 'excel-ent' ),
+		'not_found'             => __( 'No hero slides found.', 'excel-ent' ),
+		'not_found_in_trash'    => __( 'No hero slides found in Trash.', 'excel-ent' ),
+		'featured_image'        => __( 'Slide image', 'excel-ent' ),
+		'set_featured_image'    => __( 'Set slide image', 'excel-ent' ),
+		'remove_featured_image' => __( 'Remove slide image', 'excel-ent' ),
+		'use_featured_image'    => __( 'Use as slide image', 'excel-ent' ),
+	);
+
+	register_post_type(
+		'hero_slide',
+		array(
+			'labels'              => $labels,
+			'description'         => __( 'Images for the homepage hero background slider and carousel.', 'excel-ent' ),
+			'public'              => false,
+			'publicly_queryable'  => false,
+			'show_ui'             => true,
+			'show_in_menu'        => true,
+			'show_in_nav_menus'   => false,
+			'show_in_admin_bar'   => true,
+			'show_in_rest'        => true,
+			'menu_position'       => 21,
+			'menu_icon'           => 'dashicons-images-alt2',
+			'capability_type'     => 'post',
+			'hierarchical'        => false,
+			'supports'            => array( 'title', 'thumbnail', 'page-attributes' ),
+			'has_archive'         => false,
+			'rewrite'             => false,
+			'exclude_from_search' => true,
+		)
+	);
+}
+add_action( 'init', 'excel_ent_register_hero_slide_cpt' );
+
+/**
+ * Hero slide edit help meta box.
+ */
+function excel_ent_hero_slide_meta_boxes() {
+	add_meta_box(
+		'excel_ent_hero_slide_help',
+		__( 'Slide settings', 'excel-ent' ),
+		'excel_ent_hero_slide_help_render',
+		'hero_slide',
+		'side',
+		'default'
+	);
+}
+add_action( 'add_meta_boxes', 'excel_ent_hero_slide_meta_boxes' );
+
+/**
+ * Render hero slide help.
+ *
+ * @param WP_Post $post Post.
+ */
+function excel_ent_hero_slide_help_render( $post ) {
+	unset( $post );
+	?>
+	<p class="description">
+		<?php esc_html_e( 'Title is shown as the carousel label (e.g. “Corporate event”).', 'excel-ent' ); ?>
+	</p>
+	<p class="description">
+		<?php esc_html_e( 'Set the Featured Image to a wide hero photo (recommended ~1920×1080). It is used for the full-bleed background and the carousel thumbnail.', 'excel-ent' ); ?>
+	</p>
+	<p class="description">
+		<?php esc_html_e( 'Use Order under Page Attributes to control slide sequence.', 'excel-ent' ); ?>
+	</p>
+	<?php
+}
+
+/**
+ * Admin columns for hero slides.
+ *
+ * @param array $columns Columns.
+ * @return array
+ */
+function excel_ent_hero_slide_columns( $columns ) {
+	$new = array();
+	foreach ( $columns as $key => $label ) {
+		$new[ $key ] = $label;
+		if ( 'title' === $key ) {
+			$new['excel_ent_slide'] = __( 'Image', 'excel-ent' );
+			$new['excel_ent_order'] = __( 'Order', 'excel-ent' );
+		}
+	}
+	return $new;
+}
+add_filter( 'manage_hero_slide_posts_columns', 'excel_ent_hero_slide_columns' );
+
+/**
+ * Render hero slide admin columns.
+ *
+ * @param string $column  Column key.
+ * @param int    $post_id Post ID.
+ */
+function excel_ent_hero_slide_column_content( $column, $post_id ) {
+	if ( 'excel_ent_slide' === $column ) {
+		if ( has_post_thumbnail( $post_id ) ) {
+			echo get_the_post_thumbnail( $post_id, array( 120, 68 ) );
+		} else {
+			echo '&mdash;';
+		}
+		return;
+	}
+
+	if ( 'excel_ent_order' === $column ) {
+		$post = get_post( $post_id );
+		echo esc_html( (string) ( $post ? (int) $post->menu_order : 0 ) );
+	}
+}
+add_action( 'manage_hero_slide_posts_custom_column', 'excel_ent_hero_slide_column_content', 10, 2 );
+
+/**
+ * Default hero slides when no Hero Slide posts exist.
+ *
+ * @return array<int, array<string, string>>
+ */
+function excel_ent_get_default_hero_slides() {
+	$uri = EXCEL_ENT_URI . '/assets/images/hero';
+	$bg  = $uri . '/hero-bg-desktop.jpg';
+	$thumb = $uri . '/slide-corporate.png';
+
+	return array(
+		array(
+			'label' => __( 'Corporate event', 'excel-ent' ),
+			'image' => $thumb,
+			'bg'    => $bg,
+		),
+		array(
+			'label' => __( 'Wedding celebration', 'excel-ent' ),
+			'image' => $thumb,
+			'bg'    => $bg,
+		),
+		array(
+			'label' => __( 'Pub night', 'excel-ent' ),
+			'image' => $thumb,
+			'bg'    => $bg,
+		),
+	);
+}
+
+/**
+ * Hero slides for the front page — CPT posts, or defaults if none published.
+ *
+ * @return array<int, array<string, string>>
+ */
+function excel_ent_get_hero_slides() {
+	$query = new WP_Query(
+		array(
+			'post_type'              => 'hero_slide',
+			'post_status'            => 'publish',
+			'posts_per_page'         => 20,
+			'orderby'                => array(
+				'menu_order' => 'ASC',
+				'date'       => 'ASC',
+			),
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+		)
+	);
+
+	if ( ! $query->have_posts() ) {
+		return excel_ent_get_default_hero_slides();
+	}
+
+	$slides = array();
+
+	foreach ( $query->posts as $post ) {
+		$thumb_id = get_post_thumbnail_id( $post );
+		if ( ! $thumb_id ) {
+			continue;
+		}
+
+		$full = wp_get_attachment_image_url( $thumb_id, 'full' );
+		if ( ! $full ) {
+			continue;
+		}
+
+		$thumb = wp_get_attachment_image_url( $thumb_id, 'medium_large' );
+		if ( ! $thumb ) {
+			$thumb = $full;
+		}
+
+		$slides[] = array(
+			'label' => get_the_title( $post ) ? get_the_title( $post ) : __( 'Hero slide', 'excel-ent' ),
+			'image' => $thumb,
+			'bg'    => $full,
+		);
+	}
+
+	wp_reset_postdata();
+
+	return $slides ? $slides : excel_ent_get_default_hero_slides();
+}

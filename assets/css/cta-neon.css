@@ -134,16 +134,59 @@
 }
 
 .cta-neon__social {
+	position: relative;
 	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	width: 32px;
 	height: 32px;
 	line-height: 0;
+	background: transparent;
+	transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+.cta-neon__social-icon,
 .cta-neon__social img {
 	width: 32px;
 	height: 32px;
 	display: block;
+	transition: opacity 0.3s ease;
+}
+
+.cta-neon__social-icon--default {
+	opacity: 0.6;
+}
+
+.cta-neon__social-icon--hover {
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.cta-neon__social:hover,
+.cta-neon__social:focus-visible {
+	transform: translateY(-2px);
+}
+
+.cta-neon__social:hover .cta-neon__social-icon--default,
+.cta-neon__social:focus-visible .cta-neon__social-icon--default {
+	opacity: 0;
+}
+
+.cta-neon__social:hover .cta-neon__social-icon--hover,
+.cta-neon__social:focus-visible .cta-neon__social-icon--hover {
+	opacity: 1;
+}
+
+.cta-neon__social:not(:has(.cta-neon__social-icon--hover)):hover .cta-neon__social-icon--default,
+.cta-neon__social:not(:has(.cta-neon__social-icon--hover)):focus-visible .cta-neon__social-icon--default {
+	opacity: 1;
+}
+
+.cta-neon__social:active {
+	transform: scale(0.96);
 }
 
 @media (min-width: 1200px) {
@@ -251,8 +294,14 @@
 		gap: 24px;
 	}
 
-	.cta-neon__social,
-	.cta-neon__social img {
+	.cta-neon__social {
+		width: 20px;
+		height: 20px;
+		margin: 0;
+	}
+
+	.cta-neon__social img,
+	.cta-neon__social-icon {
 		width: 20px;
 		height: 20px;
 	}
@@ -338,8 +387,14 @@
 		padding-top: 0;
 	}
 
-	.cta-neon__social,
-	.cta-neon__social img {
+	.cta-neon__social {
+		width: 20px;
+		height: 20px;
+		margin: 0;
+	}
+
+	.cta-neon__social img,
+	.cta-neon__social-icon {
 		width: 20px;
 		height: 20px;
 	}

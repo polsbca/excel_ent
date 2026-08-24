@@ -105,7 +105,6 @@ $excel_ent_blog_total = count( $excel_ent_blog_posts );
 							loading="<?php echo $excel_ent_index < 3 ? 'eager' : 'lazy'; ?>"
 							decoding="async"
 						>
-						<span class="blog-card__badge"><?php echo esc_html( $excel_ent_post['category'] ); ?></span>
 					</div>
 
 					<div class="blog-card__meta">

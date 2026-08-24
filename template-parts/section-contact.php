@@ -172,7 +172,7 @@ $excel_ent_ent_type_groups = array(
 		),
 	),
 	'genre'            => array(
-		'label'   => __( 'Genres & Music', 'excel-ent' ),
+		'label'   => __( 'Music Genre', 'excel-ent' ),
 		'options' => array(
 			'blues'             => __( 'Blues', 'excel-ent' ),
 			'classical'         => __( 'Classical', 'excel-ent' ),
@@ -1503,7 +1503,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 	</div>
 </section>
 
-<section class="contact-quick" aria-label="<?php esc_attr_e( 'Quick contacts', 'excel-ent' ); ?>">
+<section class="contact-quick" id="quick-contacts" aria-label="<?php esc_attr_e( 'Quick contacts', 'excel-ent' ); ?>">
 	<div class="contact-quick__inner">
 		<h2 class="contact-quick__title"><?php esc_html_e( 'Quick contacts', 'excel-ent' ); ?></h2>
 		<div class="contact-quick__grid">

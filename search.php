@@ -196,9 +196,9 @@ get_template_part(
 	'cta-neon',
 	array(
 		'primary_label'   => __( 'Contact Us', 'excel-ent' ),
-		'primary_url'     => home_url( '/contact/' ),
-		'secondary_label' => __( 'Book As an Artist', 'excel-ent' ),
-		'secondary_url'   => home_url( '/artist-registration/' ),
+		'primary_url'     => excel_ent_get_contact_url( 'quick-contacts' ),
+		'secondary_label' => __( 'Register as an Artist', 'excel-ent' ),
+		'secondary_url'   => excel_ent_get_contact_url( 'talent' ),
 	)
 );
 ?>

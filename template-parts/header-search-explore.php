@@ -32,7 +32,7 @@ $excel_ent_ea_filters = array(
 		),
 	),
 	'genre'       => array(
-		'label' => __( 'Genres & Music', 'excel-ent' ),
+		'label' => __( 'Music Genre', 'excel-ent' ),
 		'mod'   => 'wide',
 		'tags'  => array(
 			'blues'             => __( 'Blues', 'excel-ent' ),
@@ -181,7 +181,7 @@ $excel_ent_search_categories = array(
 	),
 	array(
 		'id'           => 'genre',
-		'label'        => __( 'Genres & Music', 'excel-ent' ),
+		'label'        => __( 'Music Genre', 'excel-ent' ),
 		'count'        => '1200',
 		'active'       => false,
 		'icon'         => 'caret',
