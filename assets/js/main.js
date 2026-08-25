@@ -256,17 +256,54 @@
 		};
 
 		const syncArtistsStickyTop = () => {
-			const pin = document.querySelector("[data-artists-pin]");
-			const artists = document.querySelector("[data-artists-section]");
-			if (!artists) {
-				return;
-			}
 			const top = header.classList.contains("is-scrolled")
 				? Math.ceil(header.getBoundingClientRect().height)
 				: 0;
-			artists.style.setProperty("--ee-artists-sticky-top", `${top}px`);
-			if (pin) {
-				pin.style.setProperty("--ee-artists-sticky-top", `${top}px`);
+			const topPx = `${top}px`;
+
+			const artistsPin = document.querySelector("[data-artists-pin]");
+			const artists = document.querySelector("[data-artists-section]");
+			if (artists) {
+				artists.style.setProperty("--ee-artists-sticky-top", topPx);
+			}
+			if (artistsPin) {
+				artistsPin.style.setProperty("--ee-artists-sticky-top", topPx);
+			}
+
+			const excelWayPin = document.querySelector("[data-excel-way-pin]");
+			const excelWay = document.querySelector("[data-excel-way]");
+			if (excelWay) {
+				excelWay.style.setProperty("--ee-excel-way-sticky-top", topPx);
+			}
+			if (excelWayPin) {
+				excelWayPin.style.setProperty("--ee-excel-way-sticky-top", topPx);
+			}
+
+			const venuesPin = document.querySelector("[data-venues-pin]");
+			const venues = document.querySelector("[data-venues-section]");
+			if (venues) {
+				venues.style.setProperty("--ee-venues-sticky-top", topPx);
+			}
+			if (venuesPin) {
+				venuesPin.style.setProperty("--ee-venues-sticky-top", topPx);
+			}
+
+			const servicesPin = document.querySelector("[data-services-pin]");
+			const services = document.querySelector("[data-services-swap]");
+			if (services) {
+				services.style.setProperty("--ee-services-sticky-top", topPx);
+			}
+			if (servicesPin) {
+				servicesPin.style.setProperty("--ee-services-sticky-top", topPx);
+			}
+
+			const blogPin = document.querySelector("[data-blog-pin]");
+			const blog = document.querySelector("[data-blog-section]");
+			if (blog) {
+				blog.style.setProperty("--ee-blog-sticky-top", topPx);
+			}
+			if (blogPin) {
+				blogPin.style.setProperty("--ee-blog-sticky-top", topPx);
 			}
 		};
 
@@ -1360,11 +1397,45 @@
 		setMode(activeMode);
 	}
 
-	/* ---------- Excel Way tabs ---------- */
+	/* ---------- Excel Way tabs + sticky pin ---------- */
 	const excelWay = document.querySelector("[data-excel-way]");
 	if (excelWay) {
+		const excelWayPin = document.querySelector("[data-excel-way-pin]");
 		const tabs = Array.from(excelWay.querySelectorAll("[data-excel-way-tab]"));
 		const panels = Array.from(excelWay.querySelectorAll("[data-excel-way-panel]"));
+		const pinMq = window.matchMedia("(min-width: 768px)");
+
+		const syncExcelWayPin = () => {
+			if (!excelWayPin) {
+				return;
+			}
+			if (!pinMq.matches) {
+				excelWayPin.style.height = "";
+				excelWay.classList.remove("is-pinned");
+				return;
+			}
+			excelWayPin.style.height = "auto";
+			const pad = excelWayPin.querySelector(".excel-way__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionH = Math.ceil(excelWay.getBoundingClientRect().height);
+			const holdPx = Math.round(window.innerHeight * 1);
+			excelWayPin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncExcelWayPinnedState = () => {
+			if (!excelWayPin || !pinMq.matches) {
+				excelWay.classList.remove("is-pinned");
+				return;
+			}
+			const stickyTop =
+				parseFloat(getComputedStyle(excelWay).getPropertyValue("--ee-excel-way-sticky-top")) || 0;
+			const rect = excelWay.getBoundingClientRect();
+			const pinRect = excelWayPin.getBoundingClientRect();
+			const pinned =
+				rect.top <= stickyTop + 1.5 &&
+				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+			excelWay.classList.toggle("is-pinned", pinned);
+		};
 
 		const setTab = (id) => {
 			tabs.forEach((tab) => {
@@ -1377,6 +1448,11 @@
 				const on = panel.getAttribute("data-excel-way-panel") === id;
 				panel.classList.toggle("is-hidden", !on);
 				panel.hidden = !on;
+			});
+
+			window.requestAnimationFrame(() => {
+				syncExcelWayPin();
+				syncExcelWayPinnedState();
 			});
 		};
 
@@ -1419,13 +1495,43 @@
 			}
 		};
 
+		if (lenis) {
+			lenis.on("scroll", syncExcelWayPinnedState);
+		} else {
+			window.addEventListener("scroll", syncExcelWayPinnedState, { passive: true });
+		}
+		window.addEventListener("resize", () => {
+			syncExcelWayPin();
+			syncExcelWayPinnedState();
+		});
+		if (typeof pinMq.addEventListener === "function") {
+			pinMq.addEventListener("change", () => {
+				syncExcelWayPin();
+				syncExcelWayPinnedState();
+			});
+		} else if (typeof pinMq.addListener === "function") {
+			pinMq.addListener(() => {
+				syncExcelWayPin();
+				syncExcelWayPinnedState();
+			});
+		}
+		window.requestAnimationFrame(() => {
+			syncExcelWayPin();
+			syncExcelWayPinnedState();
+		});
+		window.addEventListener("load", () => {
+			syncExcelWayPin();
+			syncExcelWayPinnedState();
+		});
+
 		window.setTimeout(applyExcelWayHash, 80);
 		window.addEventListener("hashchange", applyExcelWayHash);
 	}
 
-	/* ---------- Blog carousel ---------- */
+	/* ---------- Blog carousel + sticky pin ---------- */
 	const blogSection = document.querySelector("[data-blog-section]");
 	if (blogSection) {
+		const blogPin = document.querySelector("[data-blog-pin]");
 		const viewport = blogSection.querySelector(".blog-section__viewport");
 		const track = blogSection.querySelector("[data-blog-track]");
 		const cards = Array.from(blogSection.querySelectorAll("[data-blog-card]"));
@@ -1434,11 +1540,43 @@
 		const totalEl = blogSection.querySelector("[data-blog-total]");
 		const prevBtn = blogSection.querySelector("[data-blog-prev]");
 		const nextBtn = blogSection.querySelector("[data-blog-next]");
+		const pinMq = window.matchMedia("(min-width: 768px)");
 		let index = window.innerWidth <= 1199 ? 0 : cards.length > 2 ? 1 : 0;
 
 		const isBlogMobile = () => window.innerWidth <= 767;
 		const isBlogSwipe = () => window.innerWidth <= 1199;
 
+		const syncBlogPin = () => {
+			if (!blogPin) {
+				return;
+			}
+			if (!pinMq.matches) {
+				blogPin.style.height = "";
+				blogSection.classList.remove("is-pinned");
+				return;
+			}
+			blogPin.style.height = "auto";
+			const pad = blogPin.querySelector(".blog-section__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionH = Math.ceil(blogSection.getBoundingClientRect().height);
+			const holdPx = Math.round(window.innerHeight * 1);
+			blogPin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncBlogPinnedState = () => {
+			if (!blogPin || !pinMq.matches) {
+				blogSection.classList.remove("is-pinned");
+				return;
+			}
+			const stickyTop =
+				parseFloat(getComputedStyle(blogSection).getPropertyValue("--ee-blog-sticky-top")) || 0;
+			const rect = blogSection.getBoundingClientRect();
+			const pinRect = blogPin.getBoundingClientRect();
+			const pinned =
+				rect.top <= stickyTop + 1.5 &&
+				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+			blogSection.classList.toggle("is-pinned", pinned);
+		};
 		const update = () => {
 			const total = cards.length;
 			const max = Math.max(total - 1, 0);
@@ -1599,14 +1737,153 @@
 			viewport.addEventListener("pointercancel", onUp);
 		}
 
-		window.addEventListener("resize", update, { passive: true });
+		window.addEventListener("resize", () => {
+			update();
+			syncBlogPin();
+			syncBlogPinnedState();
+		}, { passive: true });
 		update();
+
+		if (lenis) {
+			lenis.on("scroll", syncBlogPinnedState);
+		} else {
+			window.addEventListener("scroll", syncBlogPinnedState, { passive: true });
+		}
+		if (typeof pinMq.addEventListener === "function") {
+			pinMq.addEventListener("change", () => {
+				syncBlogPin();
+				syncBlogPinnedState();
+			});
+		} else if (typeof pinMq.addListener === "function") {
+			pinMq.addListener(() => {
+				syncBlogPin();
+				syncBlogPinnedState();
+			});
+		}
+		window.requestAnimationFrame(() => {
+			syncBlogPin();
+			syncBlogPinnedState();
+		});
+		window.addEventListener("load", () => {
+			syncBlogPin();
+			syncBlogPinnedState();
+		});
 	}
 
-	/* ---------- Venues accordion ---------- */
+	/* ---------- Venues accordion + sticky pin ---------- */
 	const venuesSection = document.querySelector("[data-venues-section]");
 	if (venuesSection) {
+		const venuesPin = document.querySelector("[data-venues-pin]");
 		const panels = Array.from(venuesSection.querySelectorAll("[data-venue-panel]"));
+		const pinMq = window.matchMedia("(min-width: 768px)");
+
+		const syncVenuesPin = () => {
+			if (!venuesPin) {
+				return;
+			}
+			if (!pinMq.matches) {
+				venuesPin.style.height = "";
+				venuesSection.classList.remove("is-pinned");
+				return;
+			}
+			venuesPin.style.height = "auto";
+			const pad = venuesPin.querySelector(".venues-section__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionH = Math.ceil(venuesSection.getBoundingClientRect().height);
+			const holdPx = Math.round(window.innerHeight * 1);
+			venuesPin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncVenuesPinnedState = () => {
+			if (!venuesPin || !pinMq.matches) {
+				venuesSection.classList.remove("is-pinned");
+				return;
+			}
+			const stickyTop =
+				parseFloat(getComputedStyle(venuesSection).getPropertyValue("--ee-venues-sticky-top")) || 0;
+			const rect = venuesSection.getBoundingClientRect();
+			const pinRect = venuesPin.getBoundingClientRect();
+			const pinned =
+				rect.top <= stickyTop + 1.5 &&
+				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+			venuesSection.classList.toggle("is-pinned", pinned);
+		};
+
+		const remountVenuesPin = () => {
+			window.requestAnimationFrame(() => {
+				syncVenuesPin();
+				syncVenuesPinnedState();
+			});
+			window.setTimeout(() => {
+				syncVenuesPin();
+				syncVenuesPinnedState();
+			}, 600);
+		};
+
+		/**
+		 * Place the expanded venue panel in the vertical center of the screen
+		 * (area below the sticky header). Temporarily unlocks section sticky
+		 * so the panel can actually travel to center.
+		 */
+		const centerVenuePanel = (panel) => {
+			const stickyTop =
+				parseFloat(getComputedStyle(venuesSection).getPropertyValue("--ee-venues-sticky-top")) || 0;
+			const viewHeight = window.innerHeight;
+			const viewMid = stickyTop + (viewHeight - stickyTop) / 2;
+			const currentScroll = lenis ? lenis.scroll : window.scrollY || window.pageYOffset || 0;
+
+			const sectionRect = venuesSection.getBoundingClientRect();
+			const wasStuck =
+				pinMq.matches &&
+				venuesPin &&
+				Math.abs(sectionRect.top - stickyTop) <= 2.5;
+
+			if (wasStuck) {
+				venuesSection.classList.add("is-centering");
+				void venuesSection.offsetHeight;
+				const unlockedTop = venuesSection.getBoundingClientRect().top;
+				const jump = unlockedTop - sectionRect.top;
+				if (Math.abs(jump) > 1) {
+					if (lenis) {
+						lenis.scrollTo(currentScroll + jump, { immediate: true });
+					} else {
+						window.scrollTo(0, currentScroll + jump);
+					}
+				}
+			}
+
+			const scrollNow = lenis ? lenis.scroll : window.scrollY || window.pageYOffset || 0;
+			const panelRect = panel.getBoundingClientRect();
+			const panelMidDoc = scrollNow + panelRect.top + panelRect.height / 2;
+			const target = Math.max(0, panelMidDoc - viewMid);
+
+			let restored = false;
+			const restoreSticky = () => {
+				if (restored) {
+					return;
+				}
+				restored = true;
+				venuesSection.classList.remove("is-centering");
+				syncVenuesPin();
+				syncVenuesPinnedState();
+			};
+
+			if (Math.abs(target - scrollNow) < 8) {
+				restoreSticky();
+				return;
+			}
+
+			if (lenis) {
+				lenis.scrollTo(target, {
+					duration: 1,
+					onComplete: restoreSticky,
+				});
+				window.setTimeout(restoreSticky, 1200);
+			} else {
+				window.scrollTo({ top: target, behavior: "smooth" });
+				window.setTimeout(restoreSticky, 1000);
+			}
+		};
 
 		const setActive = (panel) => {
 			panels.forEach((item) => {
@@ -1621,6 +1898,36 @@
 					body.hidden = !on;
 				}
 			});
+
+			let didCenter = false;
+			const runCenter = () => {
+				if (didCenter) {
+					return;
+				}
+				didCenter = true;
+				syncVenuesPin();
+				syncVenuesPinnedState();
+				centerVenuePanel(panel);
+			};
+
+			const onTransitionEnd = (event) => {
+				if (event.target !== panel) {
+					return;
+				}
+				if (event.propertyName !== "height" && event.propertyName !== "flex-basis") {
+					return;
+				}
+				panel.removeEventListener("transitionend", onTransitionEnd);
+				runCenter();
+			};
+
+			panel.addEventListener("transitionend", onTransitionEnd);
+			remountVenuesPin();
+
+			window.setTimeout(() => {
+				panel.removeEventListener("transitionend", onTransitionEnd);
+				runCenter();
+			}, 580);
 		};
 
 		panels.forEach((panel) => {
@@ -1630,6 +1937,35 @@
 					setActive(panel);
 				}
 			});
+		});
+
+		if (lenis) {
+			lenis.on("scroll", syncVenuesPinnedState);
+		} else {
+			window.addEventListener("scroll", syncVenuesPinnedState, { passive: true });
+		}
+		window.addEventListener("resize", () => {
+			syncVenuesPin();
+			syncVenuesPinnedState();
+		});
+		if (typeof pinMq.addEventListener === "function") {
+			pinMq.addEventListener("change", () => {
+				syncVenuesPin();
+				syncVenuesPinnedState();
+			});
+		} else if (typeof pinMq.addListener === "function") {
+			pinMq.addListener(() => {
+				syncVenuesPin();
+				syncVenuesPinnedState();
+			});
+		}
+		window.requestAnimationFrame(() => {
+			syncVenuesPin();
+			syncVenuesPinnedState();
+		});
+		window.addEventListener("load", () => {
+			syncVenuesPin();
+			syncVenuesPinnedState();
 		});
 	}
 
@@ -2452,10 +2788,12 @@
 		const panels = Array.from(artistMedia.querySelectorAll("[data-media-panel]"));
 		const thumbs = Array.from(artistMedia.querySelectorAll("[data-media-thumb]"));
 		const main = artistMedia.querySelector("[data-media-main]");
+		const stage = artistMedia.querySelector(".artist-media__stage");
 		const venue = artistMedia.querySelector("[data-media-venue]");
 		const location = artistMedia.querySelector("[data-media-location]");
 		const duration = artistMedia.querySelector("[data-media-duration]");
 		const guests = artistMedia.querySelector("[data-media-guests]");
+		let mediaBusy = false;
 
 		const setTab = (name) => {
 			tabs.forEach((item) => {
@@ -2476,24 +2814,85 @@
 			});
 		});
 
+		const updateMeta = (thumb) => {
+			if (venue) {
+				venue.textContent = thumb.getAttribute("data-venue") || "";
+			}
+			if (location) {
+				location.textContent = thumb.getAttribute("data-location") || "";
+			}
+			if (duration) {
+				duration.textContent = thumb.getAttribute("data-duration") || "";
+			}
+			if (guests) {
+				guests.textContent = thumb.getAttribute("data-guests") || "";
+			}
+		};
+
+		const swapMainImage = (src, thumb) => {
+			if (!main || !src) {
+				updateMeta(thumb);
+				return;
+			}
+
+			const currentSrc = main.getAttribute("src") || "";
+			if (currentSrc === src) {
+				updateMeta(thumb);
+				return;
+			}
+
+			if (reduced || !stage) {
+				main.src = src;
+				main.setAttribute("src", src);
+				updateMeta(thumb);
+				return;
+			}
+
+			if (mediaBusy) {
+				main.src = src;
+				main.setAttribute("src", src);
+				updateMeta(thumb);
+				return;
+			}
+
+			mediaBusy = true;
+			stage.classList.add("is-meta-fading");
+
+			const outgoing = main.cloneNode(true);
+			outgoing.removeAttribute("data-media-main");
+			outgoing.classList.add("is-outgoing");
+			stage.insertBefore(outgoing, main);
+
+			main.classList.add("is-enter");
+			main.src = src;
+			main.setAttribute("src", src);
+
+			const finish = () => {
+				outgoing.remove();
+				main.classList.remove("is-enter", "is-visible");
+				stage.classList.remove("is-meta-fading");
+				mediaBusy = false;
+			};
+
+			window.requestAnimationFrame(() => {
+				window.requestAnimationFrame(() => {
+					outgoing.classList.add("is-exit");
+					main.classList.add("is-visible");
+					updateMeta(thumb);
+					stage.classList.remove("is-meta-fading");
+				});
+			});
+
+			window.setTimeout(finish, 480);
+		};
+
 		thumbs.forEach((thumb) => {
 			thumb.addEventListener("click", () => {
+				if (thumb.classList.contains("is-selected")) {
+					return;
+				}
 				thumbs.forEach((item) => item.classList.toggle("is-selected", item === thumb));
-				if (main) {
-					main.src = thumb.getAttribute("data-image") || main.src;
-				}
-				if (venue) {
-					venue.textContent = thumb.getAttribute("data-venue") || "";
-				}
-				if (location) {
-					location.textContent = thumb.getAttribute("data-location") || "";
-				}
-				if (duration) {
-					duration.textContent = thumb.getAttribute("data-duration") || "";
-				}
-				if (guests) {
-					guests.textContent = thumb.getAttribute("data-guests") || "";
-				}
+				swapMainImage(thumb.getAttribute("data-image") || "", thumb);
 			});
 		});
 	}
@@ -5331,13 +5730,53 @@
 	/* ---------- Services swap (click morph — services-showcase.html) ---------- */
 	const servicesSwap = document.querySelector("[data-services-swap]");
 	if (servicesSwap) {
+		const servicesPin = document.querySelector("[data-services-pin]");
 		const featured = servicesSwap.querySelector("[data-service-featured]");
 		const cards = Array.from(servicesSwap.querySelectorAll("[data-service-card]"));
 		const swapMs = reduced ? 0 : 680;
+		const pinMq = window.matchMedia("(min-width: 768px)");
 		let busy = false;
 		let pending = null;
 		let activeId = featured?.getAttribute("data-service-id") || "";
 
+		const syncServicesPin = () => {
+			if (!servicesPin) {
+				return;
+			}
+			if (!pinMq.matches) {
+				servicesPin.style.height = "";
+				servicesSwap.classList.remove("is-pinned");
+				return;
+			}
+			servicesPin.style.height = "auto";
+			const pad = servicesPin.querySelector(".services-section__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionH = Math.ceil(servicesSwap.getBoundingClientRect().height);
+			const holdPx = Math.round(window.innerHeight * 1);
+			servicesPin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncServicesPinnedState = () => {
+			if (!servicesPin || !pinMq.matches) {
+				servicesSwap.classList.remove("is-pinned");
+				return;
+			}
+			const stickyTop =
+				parseFloat(getComputedStyle(servicesSwap).getPropertyValue("--ee-services-sticky-top")) || 0;
+			const rect = servicesSwap.getBoundingClientRect();
+			const pinRect = servicesPin.getBoundingClientRect();
+			const pinned =
+				rect.top <= stickyTop + 1.5 &&
+				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+			servicesSwap.classList.toggle("is-pinned", pinned);
+		};
+
+		const remountServicesPin = () => {
+			window.requestAnimationFrame(() => {
+				syncServicesPin();
+				syncServicesPinnedState();
+			});
+		};
 		const readData = (el) => ({
 			id: el.getAttribute("data-service-id") || "",
 			title: el.getAttribute("data-service-title") || "",
@@ -5527,6 +5966,7 @@
 
 			servicesSwap.classList.remove("is-swapping");
 			busy = false;
+			remountServicesPin();
 
 			if (pending && pending !== card) {
 				const next = pending;
@@ -5549,6 +5989,35 @@
 					swap(card);
 				}
 			});
+		});
+
+		if (lenis) {
+			lenis.on("scroll", syncServicesPinnedState);
+		} else {
+			window.addEventListener("scroll", syncServicesPinnedState, { passive: true });
+		}
+		window.addEventListener("resize", () => {
+			syncServicesPin();
+			syncServicesPinnedState();
+		});
+		if (typeof pinMq.addEventListener === "function") {
+			pinMq.addEventListener("change", () => {
+				syncServicesPin();
+				syncServicesPinnedState();
+			});
+		} else if (typeof pinMq.addListener === "function") {
+			pinMq.addListener(() => {
+				syncServicesPin();
+				syncServicesPinnedState();
+			});
+		}
+		window.requestAnimationFrame(() => {
+			syncServicesPin();
+			syncServicesPinnedState();
+		});
+		window.addEventListener("load", () => {
+			syncServicesPin();
+			syncServicesPinnedState();
 		});
 	}
 })();

@@ -1,6 +1,23 @@
 /* Excel Ent — Most Popular Services (Figma 1084:2263) */
 
+/*
+ * Full section sticks as one unit under the site header
+ * (same pin pattern as artists / Excel Way / venues).
+ */
+.services-section-pin {
+	--ee-services-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.services-section__scroll-pad {
+	display: none;
+	height: max(140px, 7.29vw);
+	pointer-events: none;
+}
+
 .services-section {
+	position: relative;
 	background: #fff;
 	color: #000;
 	display: flex;
@@ -8,6 +25,27 @@
 	gap: 60px;
 	padding: 160px 80px;
 	box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+	.services-section__scroll-pad {
+		display: block;
+	}
+
+	.services-section {
+		position: sticky;
+		top: var(--ee-services-sticky-top);
+		z-index: 2;
+		width: 100%;
+		padding-top: max(20px, 1.04vw);
+		padding-bottom: 160px;
+		padding-left: 80px;
+		padding-right: 80px;
+	}
+
+	.services-section.is-pinned {
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+	}
 }
 
 .services-section__header {
@@ -487,8 +525,15 @@
 
 @media (min-width: 1200px) and (max-width: 1599px) {
 	.services-section {
-		padding: 120px 48px;
+		padding-top: 20px;
+		padding-bottom: 120px;
+		padding-left: 48px;
+		padding-right: 48px;
 		gap: 48px;
+	}
+
+	.services-section__scroll-pad {
+		height: 100px;
 	}
 
 	.services-section__title {
@@ -542,6 +587,19 @@
 	.services-section {
 		gap: 64px;
 		padding: 80px 20px;
+	}
+
+	@media (min-width: 768px) {
+		.services-section {
+			padding-top: 20px;
+			padding-bottom: 80px;
+			padding-left: 20px;
+			padding-right: 20px;
+		}
+
+		.services-section__scroll-pad {
+			height: 60px;
+		}
 	}
 
 	.services-section__content {

@@ -45,6 +45,8 @@ $excel_ent_venues = array(
 	),
 );
 ?>
+<div class="venues-section-pin" data-venues-pin>
+	<div class="venues-section__scroll-pad" aria-hidden="true"></div>
 <section class="venues-section" id="venues" data-venues-section aria-label="<?php esc_attr_e( 'Venues', 'excel-ent' ); ?>">
 	<div class="venues-section__inner">
 		<header class="venues-section__header reveal" data-reveal>
@@ -106,15 +108,6 @@ $excel_ent_venues = array(
 						aria-labelledby="<?php echo esc_attr( $excel_ent_btn_id ); ?>"
 						<?php echo $excel_ent_is_active ? '' : ' hidden'; ?>
 					>
-						<img
-							class="venue-panel__orb"
-							src="<?php echo esc_url( $excel_ent_venues_uri . '/card-orb.svg' ); ?>"
-							alt=""
-							width="63"
-							height="63"
-							decoding="async"
-						>
-
 						<div class="venue-panel__content">
 							<div class="venue-panel__copy">
 								<h3 class="venue-panel__title"><?php echo esc_html( $excel_ent_venue['title'] ); ?></h3>
@@ -128,3 +121,4 @@ $excel_ent_venues = array(
 		</div>
 	</div>
 </section>
+</div>

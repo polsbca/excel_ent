@@ -224,14 +224,29 @@
 		font-size: 1.25vw;
 	}
 
-	.services-section,
-	.blog-section {
+	.services-section {
 		gap: 3.125vw;
-		padding: 8.33vw 4.17vw;
+		padding-top: 1.04vw;
+		padding-bottom: 8.33vw;
+		padding-left: 4.17vw;
+		padding-right: 4.17vw;
+	}
+
+	.services-section__scroll-pad {
+		height: 7.29vw;
 	}
 
 	.blog-section {
+		gap: 3.125vw;
+		padding-top: 1.04vw;
+		padding-bottom: 8.33vw;
+		padding-left: 4.17vw;
+		padding-right: 4.17vw;
 		border-bottom-width: 5.21vw;
+	}
+
+	.blog-section__scroll-pad {
+		height: 7.29vw;
 	}
 
 	.services-section__header,
@@ -310,14 +325,23 @@
 	}
 
 	.blog-card {
-		gap: 1.35vw;
+		gap: 1.56vw;
 		width: 30.42vw;
-		height: 42.76vw;
-		padding: 2.08vw;
+		height: auto;
+		padding: 1.04vw;
+	}
+
+	.blog-card__media {
+		height: 22.19vw;
+		min-height: 22.19vw;
+	}
+
+	.blog-card__copy {
+		gap: 1.04vw;
 	}
 
 	.blog-card__cta {
-		height: 3.85vw;
+		height: 4.01vw;
 		padding: 1.56vw 2.08vw;
 		font-size: 1.25vw;
 	}
@@ -347,6 +371,33 @@
 		height: 1.67vw;
 	}
 
+	.venue-panel:not(.is-active) {
+		height: 10.42vw;
+		flex: 0 0 10.42vw;
+	}
+
+	.venue-panel.is-active {
+		height: 28.75vw;
+		flex: 0 0 28.75vw;
+	}
+
+	.venue-panel__body {
+		padding: 5.21vw 4.17vw;
+	}
+
+	.venue-panel__collapsed-title {
+		left: 3.23vw;
+		font-size: 3.125vw;
+	}
+
+	.venue-panel__title {
+		font-size: 3.125vw;
+	}
+
+	.venue-panel__text {
+		font-size: 1.25vw;
+	}
+
 	.venue-panel__orb {
 		width: 3.28vw;
 		height: 3.28vw;
@@ -359,6 +410,26 @@
 	.venue-panel__copy {
 		width: min(47.4vw, 100%);
 		gap: 2.24vw;
+	}
+
+	.venues-section__title {
+		font-size: 4.17vw;
+	}
+
+	.venues-section__aside {
+		width: 40.36vw;
+	}
+
+	.venues-section__eyebrow img {
+		width: 11.77vw;
+	}
+
+	.venues-section__eyebrow span {
+		font-size: 0.94vw;
+	}
+
+	.venues-section__inner {
+		gap: 3.125vw;
 	}
 
 	.artists-section {

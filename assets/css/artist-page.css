@@ -100,6 +100,25 @@
 		transform: none !important;
 		transition: none !important;
 	}
+
+	.artist-media__stage > img,
+	.artist-media__meta,
+	.artist-media__thumb,
+	.artist-media__thumb img,
+	.artist-media__selected-label {
+		transition: none !important;
+	}
+
+	.artist-media__stage > img.is-outgoing,
+	.artist-media__stage > img.is-enter {
+		opacity: 1 !important;
+		transform: none !important;
+	}
+
+	.artist-media__stage.is-meta-fading .artist-media__meta {
+		opacity: 1 !important;
+		transform: none !important;
+	}
 }
 
 .artist-hero__badges {
@@ -1075,11 +1094,38 @@
 	height: 100%;
 	object-fit: cover;
 	object-position: bottom;
+	opacity: 1;
+	transform: scale(1);
+	transition:
+		opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+		transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+	will-change: opacity, transform;
+}
+
+.artist-media__stage > img.is-outgoing {
+	z-index: 0;
+	pointer-events: none;
+}
+
+.artist-media__stage > img.is-outgoing.is-exit {
+	opacity: 0;
+	transform: scale(1.04);
+}
+
+.artist-media__stage > img[data-media-main].is-enter {
+	z-index: 1;
+	opacity: 0;
+	transform: scale(1.06);
+}
+
+.artist-media__stage > img[data-media-main].is-enter.is-visible {
+	opacity: 1;
+	transform: scale(1);
 }
 
 .artist-media__meta {
 	position: relative;
-	z-index: 1;
+	z-index: 2;
 	display: flex;
 	flex: 1 1 auto;
 	flex-wrap: wrap;
@@ -1097,6 +1143,16 @@
 	letter-spacing: 1px;
 	line-height: 29px;
 	white-space: nowrap;
+	opacity: 1;
+	transform: translateY(0);
+	transition:
+		opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+		transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.artist-media__stage.is-meta-fading .artist-media__meta {
+	opacity: 0;
+	transform: translateY(8px);
 }
 
 .artist-media__meta span {
@@ -1242,6 +1298,12 @@
 	cursor: pointer;
 	overflow: hidden;
 	box-sizing: border-box;
+	transition: border-color 0.35s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.artist-media__thumb:hover,
+.artist-media__thumb:focus-visible {
+	transform: translateY(-2px);
 }
 
 .artist-media__thumb img {
@@ -1249,12 +1311,20 @@
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+	transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+	will-change: transform;
+}
+
+.artist-media__thumb:hover img,
+.artist-media__thumb:focus-visible img,
+.artist-media__thumb.is-selected img {
+	transform: scale(1.04);
 }
 
 .artist-media__selected-label {
 	position: absolute;
 	inset: 0;
-	display: none;
+	display: flex;
 	align-items: center;
 	justify-content: center;
 	background: rgba(0, 0, 0, 0.53);
@@ -1267,10 +1337,16 @@
 	text-transform: uppercase;
 	text-decoration: underline;
 	text-underline-offset: 6px;
+	opacity: 0;
+	visibility: hidden;
+	transition:
+		opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+		visibility 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .artist-media__thumb.is-selected .artist-media__selected-label {
-	display: flex;
+	opacity: 1;
+	visibility: visible;
 }
 
 /* ---------- Similar artists ---------- */

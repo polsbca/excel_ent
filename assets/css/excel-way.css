@@ -1,5 +1,22 @@
 /* Excel Ent — The Excel Way (Figma 1084:1901 / 1161:6104 / 1161:8250) */
 
+/*
+ * Full section sticks as one unit under the site header
+ * (same pin pattern as EVERY ARTIST. EVERY VIBE.).
+ */
+.excel-way-pin {
+	--ee-excel-way-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.excel-way__scroll-pad {
+	display: none;
+	height: max(60px, 7.29vw);
+	pointer-events: none;
+	background: #000;
+}
+
 .excel-way {
 	position: relative;
 	isolation: isolate;
@@ -7,6 +24,26 @@
 	background: #000;
 	overflow: hidden;
 	padding: max(80px, 8.33vw) 0;
+}
+
+@media (min-width: 768px) {
+	.excel-way__scroll-pad {
+		display: block;
+	}
+
+	.excel-way {
+		position: sticky;
+		top: var(--ee-excel-way-sticky-top);
+		z-index: 4;
+		width: 100%;
+		box-sizing: border-box;
+		padding-top: max(20px, 1.04vw);
+		padding-bottom: max(80px, 8.33vw);
+	}
+
+	.excel-way.is-pinned {
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+	}
 }
 
 .excel-way__inner {
@@ -570,7 +607,12 @@
 /* Desktop — Figma 1084:1901 (fluid 1200px+) */
 @media (min-width: 1200px) {
 	.excel-way {
-		padding: max(120px, 8.33vw) 0;
+		padding-top: max(20px, 1.04vw);
+		padding-bottom: max(80px, 8.33vw);
+	}
+
+	.excel-way__scroll-pad {
+		height: max(100px, 7.29vw);
 	}
 
 	.excel-way__inner {
@@ -783,7 +825,8 @@
 
 @media (min-width: 1200px) and (max-width: 1599px) {
 	.excel-way {
-		padding: 120px 0;
+		padding-top: 20px;
+		padding-bottom: 80px;
 	}
 
 	.excel-way__title {
@@ -800,6 +843,17 @@
 @media (max-width: 1199px) {
 	.excel-way {
 		padding: 64px 0 56px;
+	}
+
+	@media (min-width: 768px) {
+		.excel-way {
+			padding-top: 20px;
+			padding-bottom: 56px;
+		}
+
+		.excel-way__scroll-pad {
+			height: 44px;
+		}
 	}
 
 	.excel-way__inner {

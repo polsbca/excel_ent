@@ -1,6 +1,24 @@
-/* Excel Ent — Latest from the Blog (Figma 1173:70215 / gap 1084:2500) */
+/* Excel Ent — Latest from the Blog (Figma 1911:2228 desktop / gap 1084:2500) */
+
+/*
+ * Full section sticks as one unit under the site header
+ * (same pin pattern as artists / Excel Way / venues / services).
+ */
+.blog-section-pin {
+	--ee-blog-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.blog-section__scroll-pad {
+	display: none;
+	height: max(140px, 7.29vw);
+	pointer-events: none;
+	background: #000;
+}
 
 .blog-section {
+	position: relative;
 	background: #000;
 	color: #fff;
 	display: flex;
@@ -11,6 +29,27 @@
 	overflow: hidden;
 	/* Figma 1084:2500 — 100px white band below blog before CTA */
 	border-bottom: 100px solid #fff;
+}
+
+@media (min-width: 768px) {
+	.blog-section__scroll-pad {
+		display: block;
+	}
+
+	.blog-section {
+		position: sticky;
+		top: var(--ee-blog-sticky-top);
+		z-index: 1;
+		width: 100%;
+		padding-top: max(20px, 1.04vw);
+		padding-bottom: 160px;
+		padding-left: 80px;
+		padding-right: 80px;
+	}
+
+	.blog-section.is-pinned {
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+	}
 }
 
 .blog-section__header {
@@ -46,7 +85,7 @@
 
 .blog-section__eyebrow img {
 	width: 226px;
-	max-width: 40vw;
+	max-width: none;
 	height: auto;
 	display: block;
 }
@@ -89,10 +128,11 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 26px;
+	gap: 30px;
 	width: 584px;
-	height: 821px;
-	padding: 40px;
+	height: auto;
+	min-height: 0;
+	padding: 20px;
 	box-sizing: border-box;
 	background: rgba(255, 255, 255, 0.1);
 	color: #fff;
@@ -109,9 +149,10 @@
 
 .blog-card__media {
 	position: relative;
-	flex: 1 1 auto;
+	flex: 0 0 auto;
 	width: 100%;
-	min-height: 0;
+	height: 426px;
+	min-height: 426px;
 	border: 1px solid #fff;
 	overflow: hidden;
 }
@@ -196,7 +237,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	gap: 38px;
+	gap: 20px;
 	width: 100%;
 	flex-shrink: 0;
 }
@@ -219,6 +260,10 @@
 	line-height: 1.6;
 	letter-spacing: 1px;
 	color: inherit;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: 100%;
 }
 
 .blog-card__cta {
@@ -227,7 +272,7 @@
 	align-items: center;
 	justify-content: center;
 	width: 100%;
-	height: 74px;
+	height: 77px;
 	padding: 30px 40px;
 	box-sizing: border-box;
 	border: 1px solid #fff;
@@ -334,9 +379,16 @@
 
 @media (min-width: 1200px) and (max-width: 1599px) {
 	.blog-section {
-		padding: 120px 48px;
+		padding-top: 20px;
+		padding-bottom: 120px;
+		padding-left: 48px;
+		padding-right: 48px;
 		gap: 48px;
 		border-bottom-width: 80px;
+	}
+
+	.blog-section__scroll-pad {
+		height: 100px;
 	}
 
 	.blog-section__title {
@@ -350,8 +402,14 @@
 
 	.blog-card {
 		width: 460px;
-		height: 700px;
-		padding: 28px;
+		height: auto;
+		padding: 16px;
+		gap: 24px;
+	}
+
+	.blog-card__media {
+		height: 336px;
+		min-height: 336px;
 	}
 
 	.blog-card__title {
@@ -369,6 +427,19 @@
 		padding: 80px 20px;
 		gap: 40px;
 		border-bottom-width: 60px;
+	}
+
+	@media (min-width: 768px) {
+		.blog-section {
+			padding-top: 20px;
+			padding-bottom: 80px;
+			padding-left: 20px;
+			padding-right: 20px;
+		}
+
+		.blog-section__scroll-pad {
+			height: 60px;
+		}
 	}
 
 	.blog-section__header {
@@ -414,9 +485,19 @@
 	}
 
 	.blog-card__media {
+		height: auto;
 		min-height: 240px;
 		aspect-ratio: 504 / 360;
 		flex: 0 0 auto;
+	}
+
+	.blog-card__copy {
+		gap: 20px;
+	}
+
+	.blog-card__excerpt {
+		white-space: normal;
+		text-overflow: unset;
 	}
 
 	.blog-card__copy {
@@ -573,6 +654,8 @@
 		line-height: 1.6;
 		letter-spacing: 1px;
 		color: #000;
+		white-space: normal;
+		text-overflow: unset;
 	}
 
 	.blog-card__cta,

@@ -78,6 +78,8 @@ if ( empty( $excel_ent_blog_posts ) ) {
 
 $excel_ent_blog_total = count( $excel_ent_blog_posts );
 ?>
+<div class="blog-section-pin" data-blog-pin>
+	<div class="blog-section__scroll-pad" aria-hidden="true"></div>
 <section class="blog-section" id="blog" data-blog-section aria-label="<?php esc_attr_e( 'Latest from the Blog', 'excel-ent' ); ?>">
 	<header class="blog-section__header reveal" data-reveal>
 		<h2 class="blog-section__title"><?php esc_html_e( 'Latest from the Blog', 'excel-ent' ); ?></h2>
@@ -177,6 +179,7 @@ $excel_ent_blog_total = count( $excel_ent_blog_posts );
 		</div>
 	</div>
 </section>
+</div>
 
 <div class="blog-modal" data-blog-modal hidden>
 	<button type="button" class="blog-modal__backdrop" data-blog-modal-close aria-label="<?php esc_attr_e( 'Close article', 'excel-ent' ); ?>"></button>

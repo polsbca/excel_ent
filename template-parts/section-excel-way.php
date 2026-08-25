@@ -199,6 +199,8 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 	<?php
 };
 ?>
+<div class="excel-way-pin" data-excel-way-pin>
+	<div class="excel-way__scroll-pad" aria-hidden="true"></div>
 <section class="excel-way" id="excel-way" data-excel-way aria-label="<?php esc_attr_e( 'The Excel Way', 'excel-ent' ); ?>">
 	<div class="excel-way__inner">
 		<header class="excel-way__header reveal" data-reveal>
@@ -412,3 +414,4 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 		</div>
 	</div>
 </section>
+</div>

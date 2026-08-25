@@ -70,6 +70,8 @@ $excel_ent_featured = array(
 	),
 );
 ?>
+<div class="services-section-pin" data-services-pin>
+	<div class="services-section__scroll-pad" aria-hidden="true"></div>
 <section class="services-section" id="services" data-services-swap aria-label="<?php esc_attr_e( 'Most Popular Services', 'excel-ent' ); ?>">
 	<header class="services-section__header reveal" data-reveal>
 		<div class="services-section__heading">
@@ -197,3 +199,4 @@ $excel_ent_featured = array(
 		</div>
 	</div>
 </section>
+</div>

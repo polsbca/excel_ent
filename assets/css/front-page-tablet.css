@@ -445,7 +445,12 @@
 
 	/* Excel Way — Figma 1083:744 */
 	.excel-way {
-		padding: 80px 0;
+		padding-top: 20px;
+		padding-bottom: 80px;
+	}
+
+	.excel-way__scroll-pad {
+		height: 44px;
 	}
 
 	.excel-way__inner {
@@ -714,7 +719,14 @@
 
 	/* Venues — Figma 1083:806 */
 	.venues-section {
-		padding: 64px 40px;
+		padding-top: 20px;
+		padding-bottom: 64px;
+		padding-left: 40px;
+		padding-right: 40px;
+	}
+
+	.venues-section__scroll-pad {
+		height: 44px;
 	}
 
 	.venues-section__inner {
@@ -931,8 +943,15 @@
 
 	/* Services — Figma 1083:843 */
 	.services-section {
-		padding: 64px 40px;
+		padding-top: 20px;
+		padding-bottom: 64px;
+		padding-left: 40px;
+		padding-right: 40px;
 		gap: 64px;
+	}
+
+	.services-section__scroll-pad {
+		height: 44px;
 	}
 
 	.services-section__header {
@@ -1198,9 +1217,16 @@
 
 	/* Blog — Figma 1728:3561 */
 	.blog-section {
-		padding: 80px 0;
+		padding-top: 20px;
+		padding-bottom: 80px;
+		padding-left: 0;
+		padding-right: 0;
 		gap: 64px;
 		border-bottom-width: 60px;
+	}
+
+	.blog-section__scroll-pad {
+		height: 60px;
 	}
 
 	.blog-section__header {
@@ -1356,6 +1382,8 @@
 		line-height: 1.6;
 		letter-spacing: 1px;
 		color: inherit;
+		white-space: normal;
+		text-overflow: unset;
 		text-box-trim: trim-both;
 		text-box-edge: cap alphabetic;
 	}
