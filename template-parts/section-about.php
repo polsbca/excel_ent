@@ -173,7 +173,9 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 <?php get_template_part( 'template-parts/section', 'awards' ); ?>
 
 <!-- Value -->
-<section class="about-value" aria-label="<?php esc_attr_e( 'How we add value', 'excel-ent' ); ?>">
+<div class="about-value-pin" data-about-value-pin>
+	<div class="about-value__scroll-pad" aria-hidden="true"></div>
+<section class="about-value" aria-label="<?php esc_attr_e( 'How we add value', 'excel-ent' ); ?>" data-about-value>
 	<div class="about-value__row">
 		<div class="about-value__media reveal" data-reveal>
 			<img
@@ -218,6 +220,7 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 		</ul>
 	</div>
 </section>
+</div>
 
 <!-- Why choose -->
 <section class="about-why" aria-label="<?php esc_attr_e( 'Why venues choose Excel', 'excel-ent' ); ?>">
@@ -301,6 +304,8 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 <?php get_template_part( 'template-parts/section', 'newsletter' ); ?>
 
 <!-- Reviews -->
+<div class="about-reviews-pin" data-about-reviews-pin>
+	<div class="about-reviews__scroll-pad" aria-hidden="true"></div>
 <section class="about-reviews" aria-label="<?php esc_attr_e( 'Client reviews', 'excel-ent' ); ?>" data-about-reviews>
 	<div class="about-reviews__main">
 		<div class="about-reviews__heading reveal" data-reveal>
@@ -364,3 +369,4 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 		</div>
 	</div>
 </section>
+</div>

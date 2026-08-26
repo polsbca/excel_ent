@@ -578,7 +578,14 @@
 
 	.about-value {
 		gap: 5.21vw;
-		padding: 8.33vw 4.17vw;
+		padding-top: 1.04vw;
+		padding-bottom: 8.33vw;
+		padding-left: 4.17vw;
+		padding-right: 4.17vw;
+	}
+
+	.about-value__scroll-pad {
+		height: 7.29vw;
 	}
 
 	.about-value__row {

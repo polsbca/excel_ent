@@ -209,13 +209,52 @@
 
 /* ---------- Value ---------- */
 
+/*
+ * Full section sticks as one unit under the site header
+ * (same pin pattern as front-page sticky sections).
+ */
+.about-value-pin {
+	--ee-about-value-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.about-value__scroll-pad {
+	display: none;
+	height: max(140px, 7.29vw);
+	pointer-events: none;
+	background: #fff;
+}
+
 .about-value {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	gap: 100px;
 	padding: 160px 80px;
 	background: #fff;
 	box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+	.about-value__scroll-pad {
+		display: block;
+	}
+
+	.about-value {
+		position: sticky;
+		top: var(--ee-about-value-sticky-top);
+		z-index: 3;
+		width: 100%;
+		padding-top: max(20px, 1.04vw);
+		padding-bottom: 160px;
+		padding-left: 80px;
+		padding-right: 80px;
+	}
+
+	.about-value.is-pinned {
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+	}
 }
 
 .about-value__row {
@@ -597,12 +636,51 @@
 
 /* ---------- Reviews ---------- */
 
+/*
+ * Full section sticks as one unit under the site header
+ * (same pin pattern as front-page / about-value sticky sections).
+ */
+.about-reviews-pin {
+	--ee-about-reviews-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.about-reviews__scroll-pad {
+	display: none;
+	height: max(140px, 7.29vw);
+	pointer-events: none;
+	background: #fff;
+}
+
 .about-reviews {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	padding: 160px 0 0;
 	background: #fff;
 	box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+	.about-reviews__scroll-pad {
+		display: block;
+	}
+
+	.about-reviews {
+		position: sticky;
+		top: var(--ee-about-reviews-sticky-top);
+		z-index: 2;
+		width: 100%;
+		padding-top: max(20px, 1.04vw);
+		padding-bottom: 0;
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.about-reviews.is-pinned {
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+	}
 }
 
 .about-reviews__main {
@@ -1080,6 +1158,11 @@
 		gap: 40px;
 	}
 
+	.about-value__scroll-pad {
+		display: none;
+		height: 0;
+	}
+
 	.about-value__row {
 		display: flex;
 		flex-direction: column;
@@ -1345,7 +1428,10 @@
 	}
 
 	.about-page .about-reviews {
-		padding: 0;
+		padding-top: 20px;
+		padding-bottom: 0;
+		padding-left: 0;
+		padding-right: 0;
 		gap: 40px;
 		display: flex;
 		flex-direction: column;
@@ -1355,6 +1441,11 @@
 		min-width: 0;
 		overflow: visible;
 		background: #fff;
+	}
+
+	.about-reviews__scroll-pad {
+		display: none;
+		height: 0;
 	}
 
 	.about-page .about-reviews__main {

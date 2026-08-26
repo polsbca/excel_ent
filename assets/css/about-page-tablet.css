@@ -311,8 +311,16 @@
 	/* ---------- Value ---------- */
 
 	.about-value {
-		padding: 0;
+		padding-top: 20px;
+		padding-bottom: 0;
+		padding-left: 0;
+		padding-right: 0;
 		gap: 64px;
+	}
+
+	.about-value__scroll-pad {
+		display: block;
+		height: 44px;
 	}
 
 	.about-value__row {
@@ -574,14 +582,22 @@
 	.about-page .about-reviews {
 		display: flex;
 		flex-direction: column;
-		padding: 0;
+		padding-top: 20px;
+		padding-bottom: 0;
+		padding-left: 0;
+		padding-right: 0;
 		gap: 40px;
 		width: 100%;
 		max-width: 100%;
 		min-width: 0;
-		overflow-x: hidden;
+		overflow-x: clip;
 		box-sizing: border-box;
 		background: #fff;
+	}
+
+	.about-reviews__scroll-pad {
+		display: block;
+		height: 44px;
 	}
 
 	.about-page .about-reviews__main {

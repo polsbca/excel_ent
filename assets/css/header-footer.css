@@ -108,7 +108,7 @@ body.page-template-page-about .site-main {
 
 body.page-template-page-about .about-page {
 	max-width: 100%;
-	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 body.page-template-page-about .site-header__inner {

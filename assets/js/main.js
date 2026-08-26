@@ -305,6 +305,24 @@
 			if (blogPin) {
 				blogPin.style.setProperty("--ee-blog-sticky-top", topPx);
 			}
+
+			const aboutValuePin = document.querySelector("[data-about-value-pin]");
+			const aboutValue = document.querySelector("[data-about-value]");
+			if (aboutValue) {
+				aboutValue.style.setProperty("--ee-about-value-sticky-top", topPx);
+			}
+			if (aboutValuePin) {
+				aboutValuePin.style.setProperty("--ee-about-value-sticky-top", topPx);
+			}
+
+			const aboutReviewsPin = document.querySelector("[data-about-reviews-pin]");
+			const aboutReviews = document.querySelector("[data-about-reviews]");
+			if (aboutReviews) {
+				aboutReviews.style.setProperty("--ee-about-reviews-sticky-top", topPx);
+			}
+			if (aboutReviewsPin) {
+				aboutReviewsPin.style.setProperty("--ee-about-reviews-sticky-top", topPx);
+			}
 		};
 
 		const setStickySearchOpen = (open) => {
@@ -1969,6 +1987,74 @@
 		});
 	}
 
+	/* ---------- About value sticky pin ---------- */
+	const aboutValue = document.querySelector("[data-about-value]");
+	if (aboutValue) {
+		const aboutValuePin = document.querySelector("[data-about-value-pin]");
+		const pinMq = window.matchMedia("(min-width: 768px)");
+
+		const syncAboutValuePin = () => {
+			if (!aboutValuePin) {
+				return;
+			}
+			if (!pinMq.matches) {
+				aboutValuePin.style.height = "";
+				aboutValue.classList.remove("is-pinned");
+				return;
+			}
+			aboutValuePin.style.height = "auto";
+			const pad = aboutValuePin.querySelector(".about-value__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionH = Math.ceil(aboutValue.getBoundingClientRect().height);
+			const holdPx = Math.round(window.innerHeight * 1);
+			aboutValuePin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncAboutValuePinnedState = () => {
+			if (!aboutValuePin || !pinMq.matches) {
+				aboutValue.classList.remove("is-pinned");
+				return;
+			}
+			const stickyTop =
+				parseFloat(getComputedStyle(aboutValue).getPropertyValue("--ee-about-value-sticky-top")) || 0;
+			const rect = aboutValue.getBoundingClientRect();
+			const pinRect = aboutValuePin.getBoundingClientRect();
+			const pinned =
+				rect.top <= stickyTop + 1.5 &&
+				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+			aboutValue.classList.toggle("is-pinned", pinned);
+		};
+
+		if (lenis) {
+			lenis.on("scroll", syncAboutValuePinnedState);
+		} else {
+			window.addEventListener("scroll", syncAboutValuePinnedState, { passive: true });
+		}
+		window.addEventListener("resize", () => {
+			syncAboutValuePin();
+			syncAboutValuePinnedState();
+		});
+		if (typeof pinMq.addEventListener === "function") {
+			pinMq.addEventListener("change", () => {
+				syncAboutValuePin();
+				syncAboutValuePinnedState();
+			});
+		} else if (typeof pinMq.addListener === "function") {
+			pinMq.addListener(() => {
+				syncAboutValuePin();
+				syncAboutValuePinnedState();
+			});
+		}
+		window.requestAnimationFrame(() => {
+			syncAboutValuePin();
+			syncAboutValuePinnedState();
+		});
+		window.addEventListener("load", () => {
+			syncAboutValuePin();
+			syncAboutValuePinnedState();
+		});
+	}
+
 	/* ---------- Explore Artists filters ---------- */
 	const exploreSection = document.querySelector("[data-explore-artists]");
 	const exploreSearch = document.querySelector("[data-explore-search]");
@@ -3058,16 +3144,49 @@
 		start();
 	}
 
-	/* ---------- About reviews carousel ---------- */
+	/* ---------- About reviews carousel + sticky pin ---------- */
 	const aboutReviews = document.querySelector("[data-about-reviews]");
 	if (aboutReviews) {
+		const aboutReviewsPin = document.querySelector("[data-about-reviews-pin]");
 		const track = aboutReviews.querySelector("[data-about-reviews-track]");
 		const viewport = aboutReviews.querySelector(".about-reviews__viewport");
 		const cards = Array.from(aboutReviews.querySelectorAll(".about-reviews__card"));
 		const pages = Array.from(aboutReviews.querySelectorAll("[data-about-reviews-page]"));
 		const scrollCarouselMq = window.matchMedia("(max-width: 1199px)");
+		const pinMq = window.matchMedia("(min-width: 768px)");
 		let page = 0;
 
+		const syncAboutReviewsPin = () => {
+			if (!aboutReviewsPin) {
+				return;
+			}
+			if (!pinMq.matches) {
+				aboutReviewsPin.style.height = "";
+				aboutReviews.classList.remove("is-pinned");
+				return;
+			}
+			aboutReviewsPin.style.height = "auto";
+			const pad = aboutReviewsPin.querySelector(".about-reviews__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionH = Math.ceil(aboutReviews.getBoundingClientRect().height);
+			const holdPx = Math.round(window.innerHeight * 1);
+			aboutReviewsPin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncAboutReviewsPinnedState = () => {
+			if (!aboutReviewsPin || !pinMq.matches) {
+				aboutReviews.classList.remove("is-pinned");
+				return;
+			}
+			const stickyTop =
+				parseFloat(getComputedStyle(aboutReviews).getPropertyValue("--ee-about-reviews-sticky-top")) || 0;
+			const rect = aboutReviews.getBoundingClientRect();
+			const pinRect = aboutReviewsPin.getBoundingClientRect();
+			const pinned =
+				rect.top <= stickyTop + 1.5 &&
+				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+			aboutReviews.classList.toggle("is-pinned", pinned);
+		};
 		const getPerPage = () => 3;
 
 		const getPageCount = () => Math.max(1, Math.ceil(cards.length / getPerPage()));
@@ -3177,15 +3296,45 @@
 
 		const onResize = () => {
 			if (scrollCarouselMq.matches) {
-				track.style.transform = "";
+				if (track) {
+					track.style.transform = "";
+				}
 				onScrollCarousel();
 			} else {
 				goTo(page);
 			}
+			syncAboutReviewsPin();
+			syncAboutReviewsPinnedState();
 		};
 		scrollCarouselMq.addEventListener("change", onResize);
+		window.addEventListener("resize", onResize, { passive: true });
+
+		if (lenis) {
+			lenis.on("scroll", syncAboutReviewsPinnedState);
+		} else {
+			window.addEventListener("scroll", syncAboutReviewsPinnedState, { passive: true });
+		}
+		if (typeof pinMq.addEventListener === "function") {
+			pinMq.addEventListener("change", () => {
+				syncAboutReviewsPin();
+				syncAboutReviewsPinnedState();
+			});
+		} else if (typeof pinMq.addListener === "function") {
+			pinMq.addListener(() => {
+				syncAboutReviewsPin();
+				syncAboutReviewsPinnedState();
+			});
+		}
 
 		goTo(0, true);
+		window.requestAnimationFrame(() => {
+			syncAboutReviewsPin();
+			syncAboutReviewsPinnedState();
+		});
+		window.addEventListener("load", () => {
+			syncAboutReviewsPin();
+			syncAboutReviewsPinnedState();
+		});
 	}
 
 	/* ---------- Package tabs ---------- */
