@@ -1,4 +1,4 @@
-/* Excel Ent — About page (Figma 1126:1218 desktop / 1099:5036 tablet / 1023:8454 mobile) */
+/* Excel Ent — About page (Figma 2202:35308 / 2202:35943 / 2202:35975 desktop / 1099:5036 tablet / 1023:8454 mobile) */
 
 .about-page {
 	background: #fff;
@@ -14,6 +14,27 @@
 	padding: 80px;
 	background: #fff;
 	box-sizing: border-box;
+}
+
+.about-intro__inner {
+	display: contents;
+}
+
+.about-intro.is-viewport-fitted {
+	height: var(--ee-about-intro-viewport-height);
+	min-height: 0;
+	padding-top: var(--ee-about-intro-fit-pad-top);
+	padding-bottom: var(--ee-about-intro-fit-pad-bottom);
+	overflow: hidden;
+}
+
+.about-intro.is-viewport-fitted .about-intro__inner {
+	display: flex;
+	flex-direction: column;
+	gap: 1.67vw;
+	width: calc(100% / var(--ee-about-intro-fit-scale));
+	transform: scale(var(--ee-about-intro-fit-scale));
+	transform-origin: top left;
 }
 
 .about-intro__header {
@@ -236,6 +257,27 @@
 	box-sizing: border-box;
 }
 
+.about-value__inner {
+	display: contents;
+}
+
+.about-value.is-viewport-fitted {
+	height: var(--ee-about-value-viewport-height);
+	min-height: 0;
+	padding-top: var(--ee-about-value-fit-pad-top);
+	padding-bottom: var(--ee-about-value-fit-pad-bottom);
+	overflow: hidden;
+}
+
+.about-value.is-viewport-fitted .about-value__inner {
+	display: flex;
+	flex-direction: column;
+	gap: 2.08vw;
+	width: calc(100% / var(--ee-about-value-fit-scale));
+	transform: scale(var(--ee-about-value-fit-scale));
+	transform-origin: top left;
+}
+
 @media (min-width: 768px) {
 	.about-value__scroll-pad {
 		display: block;
@@ -392,6 +434,23 @@
 
 /* ---------- Why ---------- */
 
+.about-why-pin {
+	--ee-about-why-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.about-why__scroll-pad {
+	display: none;
+	height: max(140px, 7.29vw);
+	pointer-events: none;
+	background: #000;
+}
+
+.about-why__inner {
+	display: contents;
+}
+
 .about-why {
 	display: flex;
 	flex-direction: column;
@@ -400,6 +459,40 @@
 	background: #000;
 	color: #fff;
 	box-sizing: border-box;
+}
+
+.about-why.is-viewport-fitted {
+	height: var(--ee-about-why-viewport-height);
+	min-height: 0;
+	padding-top: var(--ee-about-why-fit-pad-top);
+	padding-bottom: var(--ee-about-why-fit-pad-bottom);
+	overflow: hidden;
+}
+
+.about-why.is-viewport-fitted .about-why__inner {
+	display: flex;
+	flex-direction: column;
+	gap: 3.125vw;
+	width: calc(100% / var(--ee-about-why-fit-scale));
+	transform: scale(var(--ee-about-why-fit-scale));
+	transform-origin: top left;
+}
+
+@media (min-width: 768px) {
+	.about-why__scroll-pad {
+		display: block;
+	}
+
+	.about-why {
+		position: sticky;
+		top: var(--ee-about-why-sticky-top);
+		z-index: 3;
+		width: 100%;
+	}
+
+	.about-why.is-pinned {
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+	}
 }
 
 .about-why__header {
@@ -476,6 +569,23 @@
 
 /* ---------- Approach ---------- */
 
+.about-approach-pin {
+	--ee-about-approach-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.about-approach__scroll-pad {
+	display: none;
+	height: max(140px, 7.29vw);
+	pointer-events: none;
+	background: #fff;
+}
+
+.about-approach__inner {
+	display: contents;
+}
+
 .about-approach {
 	display: flex;
 	flex-direction: column;
@@ -483,6 +593,40 @@
 	padding: 160px 0;
 	background: #fff;
 	box-sizing: border-box;
+}
+
+.about-approach.is-viewport-fitted {
+	height: var(--ee-about-approach-viewport-height);
+	min-height: 0;
+	padding-top: var(--ee-about-approach-fit-pad-top);
+	padding-bottom: var(--ee-about-approach-fit-pad-bottom);
+	overflow: hidden;
+}
+
+.about-approach.is-viewport-fitted .about-approach__inner {
+	display: flex;
+	flex-direction: column;
+	gap: 2.3958vw;
+	width: calc(100% / var(--ee-about-approach-fit-scale));
+	transform: scale(var(--ee-about-approach-fit-scale));
+	transform-origin: top left;
+}
+
+@media (min-width: 768px) {
+	.about-approach__scroll-pad {
+		display: block;
+	}
+
+	.about-approach {
+		position: sticky;
+		top: var(--ee-about-approach-sticky-top);
+		z-index: 2;
+		width: 100%;
+	}
+
+	.about-approach.is-pinned {
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+	}
 }
 
 .about-approach__slider {
@@ -653,6 +797,10 @@
 	background: #fff;
 }
 
+.about-reviews__inner {
+	display: contents;
+}
+
 .about-reviews {
 	position: relative;
 	display: flex;
@@ -660,6 +808,23 @@
 	padding: 160px 0 0;
 	background: #fff;
 	box-sizing: border-box;
+}
+
+.about-reviews.is-viewport-fitted {
+	height: var(--ee-about-reviews-viewport-height);
+	min-height: 0;
+	padding-top: var(--ee-about-reviews-fit-pad-top);
+	padding-bottom: var(--ee-about-reviews-fit-pad-bottom);
+	overflow: hidden;
+}
+
+.about-reviews.is-viewport-fitted .about-reviews__inner {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	width: calc(100% / var(--ee-about-reviews-fit-scale));
+	transform: scale(var(--ee-about-reviews-fit-scale));
+	transform-origin: top left;
 }
 
 @media (min-width: 768px) {
@@ -871,7 +1036,7 @@
 
 /* Awards strip sits between intro and value on about page */
 .about-page .awards-marquee {
-	background: #111;
+	background: #000;
 }
 
 /* ---------- Responsive ---------- */

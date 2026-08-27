@@ -171,21 +171,23 @@ if ( empty( $excel_ent_chips ) ) {
 	</div>
 
 	<section class="search-empty" aria-label="<?php esc_attr_e( 'No search results', 'excel-ent' ); ?>">
-		<div class="search-empty__visual">
-			<img
-				class="search-empty__illustration"
-				src="<?php echo esc_url( $excel_ent_search_uri . '/empty-dog.jpg' ); ?>"
-				alt="<?php esc_attr_e( 'Sad dog illustration indicating no results', 'excel-ent' ); ?>"
-				width="376"
-				height="339"
-				decoding="async"
-			>
-		</div>
-		<div class="search-empty__copy">
-			<h1 class="search-empty__title"><?php esc_html_e( "Sorry, We Couldn't Find Any Matching Artists", 'excel-ent' ); ?></h1>
-			<p class="search-empty__lede">
-				<?php esc_html_e( "We couldn't find any artists that match your search or filters. Try adjusting your search, exploring another category, or broadening your location or date.", 'excel-ent' ); ?>
-			</p>
+		<div class="search-empty__inner">
+			<div class="search-empty__visual">
+				<img
+					class="search-empty__illustration"
+					src="<?php echo esc_url( $excel_ent_search_uri . '/empty-dog.jpg' ); ?>"
+					alt="<?php esc_attr_e( 'Sad dog illustration indicating no results', 'excel-ent' ); ?>"
+					width="376"
+					height="339"
+					decoding="async"
+				>
+			</div>
+			<div class="search-empty__copy">
+				<h1 class="search-empty__title"><?php esc_html_e( "Sorry, We Couldn't Find Any Matching Artists", 'excel-ent' ); ?></h1>
+				<p class="search-empty__lede">
+					<?php esc_html_e( "We couldn't find any artists that match your search or filters. Try adjusting your search, exploring another category, or broadening your location or date.", 'excel-ent' ); ?>
+				</p>
+			</div>
 		</div>
 	</section>
 </div>

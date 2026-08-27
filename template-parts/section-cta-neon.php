@@ -1,6 +1,6 @@
 <?php
 /**
- * Neon CTA strip (Figma 1084:2440 / mobile 1041:2036).
+ * Neon CTA strip (Figma 2202:36071 / mobile 1041:2036).
  *
  * @package Excel_Ent
  */

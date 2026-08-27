@@ -1,4 +1,4 @@
-/* Excel Ent — Latest from the Blog (Figma 1911:2228 desktop / gap 1084:2500) */
+/* Excel Ent — Latest from the Blog (Figma 2202:30748 desktop) */
 
 /*
  * Full section sticks as one unit under the site header
@@ -27,7 +27,7 @@
 	padding: 160px 80px;
 	box-sizing: border-box;
 	overflow: hidden;
-	/* Figma 1084:2500 — 100px white band below blog before CTA */
+	/* Keep a white separation band before the following CTA. */
 	border-bottom: 100px solid #fff;
 }
 
@@ -147,6 +147,12 @@
 	color: #000;
 }
 
+.blog-card.is-active {
+	background: #fff;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: #000;
+}
+
 .blog-card__media {
 	position: relative;
 	flex: 0 0 auto;
@@ -229,8 +235,13 @@
 }
 
 .blog-card:hover .blog-card__icon--dark,
-.blog-card:focus-within .blog-card__icon--dark {
+.blog-card:focus-within .blog-card__icon--dark,
+.blog-card.is-active .blog-card__icon--dark {
 	display: block;
+}
+
+.blog-card.is-active .blog-card__icon--light {
+	display: none;
 }
 
 .blog-card__copy {
@@ -294,6 +305,18 @@
 
 .blog-card:hover .blog-card__cta,
 .blog-card:focus-within .blog-card__cta {
+	border: 0;
+	border-bottom: 2px solid #f89a42;
+	background-image: var(
+		--ee-quote-gradient,
+		linear-gradient(270deg, #eb2055 0.48%, #f1634c 80%, #f8a742 100%)
+	);
+	box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
+	font-weight: 800;
+	color: #fff;
+}
+
+.blog-card.is-active .blog-card__cta {
 	border: 0;
 	border-bottom: 2px solid #f89a42;
 	background-image: var(

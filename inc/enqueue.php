@@ -91,16 +91,9 @@ function excel_ent_enqueue_assets() {
 	);
 
 	wp_enqueue_style(
-		'excel-ent-subscribe-popup',
-		EXCEL_ENT_URI . '/assets/css/subscribe-popup.css',
-		array( 'excel-ent-newsletter' ),
-		EXCEL_ENT_VERSION
-	);
-
-	wp_enqueue_style(
 		'excel-ent-services',
 		EXCEL_ENT_URI . '/assets/css/services.css',
-		array( 'excel-ent-subscribe-popup' ),
+		array( 'excel-ent-newsletter' ),
 		EXCEL_ENT_VERSION
 	);
 

@@ -213,24 +213,17 @@ input[type="submit"]:active,
 .excel-way__cta:hover,
 .excel-way__cta:focus-visible {
 	transform: translateY(-3px);
-	background: rgba(255, 255, 255, 0.35);
-	background-image: none;
-	border-color: #fff;
+	border: 0;
+	border-bottom: 2px solid #f89a42;
+	background-color: transparent;
+	background-image: var(--ee-btn-grad-figma);
+	background-size: 200% 100%;
+	background-position: 100% 50%;
+	box-shadow: var(--ee-btn-glow);
 	color: #fff;
-	box-shadow: none;
+	font-weight: 800;
 	filter: none;
 	text-decoration: none;
-}
-
-/* Active tab keeps solid fill — gradient hover belongs on step cards */
-.excel-way-tab--active:hover,
-.excel-way-tab--active:focus-visible {
-	border: 0;
-	transform: translateY(-3px);
-	background: rgba(255, 255, 255, 0.35);
-	background-image: none;
-	color: #fff;
-	box-shadow: none;
 }
 
 /* CTA neon — same hover language as hero Book / Register buttons */

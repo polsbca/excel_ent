@@ -1,4 +1,4 @@
-/* Excel Ent — Most Popular Services (Figma 1084:2263) */
+/* Excel Ent — Most Popular Services (Figma 2202:30698) */
 
 /*
  * Full section sticks as one unit under the site header
@@ -25,6 +25,10 @@
 	gap: 60px;
 	padding: 160px 80px;
 	box-sizing: border-box;
+}
+
+.services-section__inner {
+	display: contents;
 }
 
 @media (min-width: 768px) {
@@ -520,6 +524,36 @@
 	.services-section__grid {
 		grid-column: 1 / -1;
 		grid-row: 2;
+	}
+
+	.services-section.is-viewport-fitted {
+		display: block;
+		height: var(--ee-services-viewport-height);
+		min-height: 0;
+		padding-top: var(--ee-services-fit-pad-top);
+		padding-bottom: var(--ee-services-fit-pad-bottom);
+		overflow: hidden;
+	}
+
+	.services-section.is-viewport-fitted .services-section__inner {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		grid-template-rows: auto auto;
+		align-items: start;
+		column-gap: 2.08vw;
+		row-gap: 2.08vw;
+		width: calc(100% / var(--ee-services-fit-scale));
+		transform: scale(var(--ee-services-fit-scale));
+		transform-origin: top left;
+	}
+
+	.services-section.is-viewport-fitted .services-section__grid {
+		height: 30.36vw;
+		min-height: 30.36vw;
+	}
+
+	.services-section.is-viewport-fitted .services-grid {
+		width: calc(27.66vw / var(--ee-services-fit-scale));
 	}
 }
 

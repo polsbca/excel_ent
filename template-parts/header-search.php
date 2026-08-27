@@ -348,8 +348,8 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 			>
 			<span class="header-search__label">
 				<span class="header-search__title" data-header-categories-title><?php esc_html_e( 'Browse Categories', 'excel-ent' ); ?></span>
-				<span class="header-search__meta" data-header-categories-meta data-default-meta="<?php esc_attr_e( 'Any categories', 'excel-ent' ); ?>">
-					<?php echo esc_html( $excel_ent_category_value ? $excel_ent_category_value : __( 'Any categories', 'excel-ent' ) ); ?>
+				<span class="header-search__meta" data-header-categories-meta data-default-meta="<?php esc_attr_e( 'Any occasions or categories', 'excel-ent' ); ?>">
+					<?php echo esc_html( $excel_ent_category_value ? $excel_ent_category_value : __( 'Any occasions or categories', 'excel-ent' ) ); ?>
 				</span>
 			</span>
 		</button>
@@ -465,8 +465,8 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 			>
 			<span class="header-search__label">
 				<span class="header-search__title" data-header-location-title><?php esc_html_e( 'Location', 'excel-ent' ); ?></span>
-				<span class="header-search__meta" data-header-location-meta data-default-meta="<?php esc_attr_e( 'Add Post Code', 'excel-ent' ); ?>">
-					<?php echo esc_html( $excel_ent_location_value ? $excel_ent_location_value : __( 'Add Post Code', 'excel-ent' ) ); ?>
+				<span class="header-search__meta" data-header-location-meta data-default-meta="<?php esc_attr_e( 'Add Postalcode', 'excel-ent' ); ?>">
+					<?php echo esc_html( $excel_ent_location_value ? $excel_ent_location_value : __( 'Add Postalcode', 'excel-ent' ) ); ?>
 				</span>
 			</span>
 		</button>

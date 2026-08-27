@@ -1,6 +1,6 @@
 <?php
 /**
- * About page content — Figma desktop 1126:1218 / tablet 1099:5036 / mobile 1023:8454
+ * About page content — Figma desktop 2202:35943 / 2202:35975 / tablet 1099:5036 / mobile 1023:8454
  *
  * @package Excel_Ent
  */
@@ -91,6 +91,7 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 
 <!-- Intro -->
 <section class="about-intro" aria-label="<?php esc_attr_e( 'About Excel Entertainment', 'excel-ent' ); ?>">
+	<div class="about-intro__inner">
 	<header class="about-intro__header">
 		<h1 class="about-intro__title"><?php esc_html_e( 'ABOUT US', 'excel-ent' ); ?></h1>
 		<p class="about-intro__eyebrow"><?php esc_html_e( 'Trusted · Experienced · Personal', 'excel-ent' ); ?></p>
@@ -168,6 +169,7 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 			</p>
 		</div>
 	</div>
+	</div>
 </section>
 
 <?php get_template_part( 'template-parts/section', 'awards' ); ?>
@@ -176,6 +178,7 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 <div class="about-value-pin" data-about-value-pin>
 	<div class="about-value__scroll-pad" aria-hidden="true"></div>
 <section class="about-value" aria-label="<?php esc_attr_e( 'How we add value', 'excel-ent' ); ?>" data-about-value>
+	<div class="about-value__inner">
 	<div class="about-value__row">
 		<div class="about-value__media reveal" data-reveal>
 			<img
@@ -219,11 +222,15 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 			<?php endforeach; ?>
 		</ul>
 	</div>
+</div>
 </section>
 </div>
 
 <!-- Why choose -->
-<section class="about-why" aria-label="<?php esc_attr_e( 'Why venues choose Excel', 'excel-ent' ); ?>">
+<div class="about-why-pin" data-about-why-pin>
+	<div class="about-why__scroll-pad" aria-hidden="true"></div>
+<section class="about-why" aria-label="<?php esc_attr_e( 'Why venues choose Excel', 'excel-ent' ); ?>" data-about-why>
+	<div class="about-why__inner">
 	<header class="about-why__header reveal" data-reveal>
 		<h2 class="about-why__title">
 			<span><?php esc_html_e( 'Why Venues Choose', 'excel-ent' ); ?></span>
@@ -242,10 +249,15 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 			</li>
 		<?php endforeach; ?>
 	</ol>
+	</div>
 </section>
+</div>
 
 <!-- Approach -->
+<div class="about-approach-pin" data-about-approach-pin>
+	<div class="about-approach__scroll-pad" aria-hidden="true"></div>
 <section class="about-approach" aria-label="<?php esc_attr_e( 'Our approach to growth', 'excel-ent' ); ?>" data-about-approach>
+	<div class="about-approach__inner">
 	<div class="about-approach__slider reveal" data-reveal>
 		<div class="about-approach__viewport">
 			<div class="about-approach__track" data-about-approach-track>
@@ -299,7 +311,9 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 			<?php endforeach; ?>
 		</ul>
 	</div>
+	</div>
 </section>
+</div>
 
 <?php get_template_part( 'template-parts/section', 'newsletter' ); ?>
 
@@ -307,6 +321,7 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 <div class="about-reviews-pin" data-about-reviews-pin>
 	<div class="about-reviews__scroll-pad" aria-hidden="true"></div>
 <section class="about-reviews" aria-label="<?php esc_attr_e( 'Client reviews', 'excel-ent' ); ?>" data-about-reviews>
+	<div class="about-reviews__inner">
 	<div class="about-reviews__main">
 		<div class="about-reviews__heading reveal" data-reveal>
 			<h2 class="about-reviews__title about-reviews__title--desktop">
@@ -367,6 +382,7 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 				><?php echo esc_html( (string) $excel_ent_page ); ?></button>
 			<?php endfor; ?>
 		</div>
+	</div>
 	</div>
 </section>
 </div>

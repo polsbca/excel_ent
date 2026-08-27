@@ -323,6 +323,24 @@
 			if (aboutReviewsPin) {
 				aboutReviewsPin.style.setProperty("--ee-about-reviews-sticky-top", topPx);
 			}
+
+			const aboutWhyPin = document.querySelector("[data-about-why-pin]");
+			const aboutWhy = document.querySelector("[data-about-why]");
+			if (aboutWhy) {
+				aboutWhy.style.setProperty("--ee-about-why-sticky-top", topPx);
+			}
+			if (aboutWhyPin) {
+				aboutWhyPin.style.setProperty("--ee-about-why-sticky-top", topPx);
+			}
+
+			const aboutApproachPin = document.querySelector("[data-about-approach-pin]");
+			const aboutApproach = document.querySelector("[data-about-approach]");
+			if (aboutApproach) {
+				aboutApproach.style.setProperty("--ee-about-approach-sticky-top", topPx);
+			}
+			if (aboutApproachPin) {
+				aboutApproachPin.style.setProperty("--ee-about-approach-sticky-top", topPx);
+			}
 		};
 
 		const setStickySearchOpen = (open) => {
@@ -396,6 +414,7 @@
 			}
 			syncStickyOffset();
 			syncArtistsStickyTop();
+			window.dispatchEvent(new CustomEvent("excel-ent:header-state-change"));
 			if (isExplorePage && header.classList.contains("is-explore-filter-open")) {
 				window.dispatchEvent(new CustomEvent("ee-explore-filter-refit"));
 			}
@@ -525,6 +544,113 @@
 			},
 			{ passive: true }
 		);
+	}
+
+	/* ---------- About intro viewport fitting ---------- */
+	if (aboutIntro) {
+		const aboutIntroFitMq = window.matchMedia("(min-width: 1200px)");
+
+		const syncAboutIntroViewport = () => {
+			aboutIntro.classList.remove("is-viewport-fitted");
+			aboutIntro.style.removeProperty("height");
+			aboutIntro.style.removeProperty("--ee-about-intro-viewport-height");
+			aboutIntro.style.removeProperty("--ee-about-intro-fit-scale");
+			aboutIntro.style.removeProperty("--ee-about-intro-fit-pad-top");
+			aboutIntro.style.removeProperty("--ee-about-intro-fit-pad-bottom");
+
+			if (!aboutIntroFitMq.matches) {
+				return;
+			}
+
+			const naturalHeight = Math.ceil(aboutIntro.getBoundingClientRect().height);
+			const header = document.querySelector(".site-header");
+			const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+			const availableHeight = Math.max(window.innerHeight - headerHeight, 0);
+			const fitScale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
+
+			if (fitScale >= 1) {
+				return;
+			}
+
+			const styles = getComputedStyle(aboutIntro);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+
+			aboutIntro.style.setProperty("--ee-about-intro-viewport-height", `${availableHeight}px`);
+			aboutIntro.style.setProperty("--ee-about-intro-fit-scale", String(fitScale));
+			aboutIntro.style.setProperty("--ee-about-intro-fit-pad-top", `${padTop * fitScale}px`);
+			aboutIntro.style.setProperty("--ee-about-intro-fit-pad-bottom", `${padBottom * fitScale}px`);
+			aboutIntro.classList.add("is-viewport-fitted");
+		};
+
+		window.addEventListener("resize", syncAboutIntroViewport);
+		window.addEventListener("load", syncAboutIntroViewport);
+		window.addEventListener("excel-ent:header-state-change", syncAboutIntroViewport);
+		window.requestAnimationFrame(syncAboutIntroViewport);
+
+		if (typeof aboutIntroFitMq.addEventListener === "function") {
+			aboutIntroFitMq.addEventListener("change", syncAboutIntroViewport);
+		} else if (typeof aboutIntroFitMq.addListener === "function") {
+			aboutIntroFitMq.addListener(syncAboutIntroViewport);
+		}
+
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(syncAboutIntroViewport);
+		}
+	}
+
+	/* ---------- Search empty-state viewport fitting ---------- */
+	const searchEmpty = document.querySelector(".search-empty");
+	if (searchEmpty) {
+		const searchEmptyFitMq = window.matchMedia("(min-width: 1200px)");
+
+		const syncSearchEmptyViewport = () => {
+			searchEmpty.classList.remove("is-viewport-fitted");
+			searchEmpty.style.removeProperty("height");
+			searchEmpty.style.removeProperty("--ee-search-empty-viewport-height");
+			searchEmpty.style.removeProperty("--ee-search-empty-fit-scale");
+			searchEmpty.style.removeProperty("--ee-search-empty-fit-pad-top");
+			searchEmpty.style.removeProperty("--ee-search-empty-fit-pad-bottom");
+
+			if (!searchEmptyFitMq.matches) {
+				return;
+			}
+
+			const naturalHeight = Math.ceil(searchEmpty.getBoundingClientRect().height);
+			const sectionTop = Math.max(searchEmpty.getBoundingClientRect().top, 0);
+			const availableHeight = Math.max(window.innerHeight - sectionTop, 0);
+			const fitScale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
+
+			if (fitScale >= 1 || !availableHeight) {
+				return;
+			}
+
+			const styles = getComputedStyle(searchEmpty);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+
+			searchEmpty.style.setProperty("--ee-search-empty-viewport-height", `${availableHeight}px`);
+			searchEmpty.style.setProperty("--ee-search-empty-fit-scale", String(fitScale));
+			searchEmpty.style.setProperty("--ee-search-empty-fit-pad-top", `${padTop * fitScale}px`);
+			searchEmpty.style.setProperty("--ee-search-empty-fit-pad-bottom", `${padBottom * fitScale}px`);
+			searchEmpty.classList.add("is-viewport-fitted");
+		};
+
+		window.addEventListener("resize", syncSearchEmptyViewport);
+		window.addEventListener("load", syncSearchEmptyViewport);
+		window.requestAnimationFrame(syncSearchEmptyViewport);
+
+		searchEmpty.querySelector("img")?.addEventListener("load", syncSearchEmptyViewport);
+
+		if (typeof searchEmptyFitMq.addEventListener === "function") {
+			searchEmptyFitMq.addEventListener("change", syncSearchEmptyViewport);
+		} else if (typeof searchEmptyFitMq.addListener === "function") {
+			searchEmptyFitMq.addListener(syncSearchEmptyViewport);
+		}
+
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(syncSearchEmptyViewport);
+		}
 	}
 
 	/* ---------- Hero parallax on mouse ---------- */
@@ -658,11 +784,7 @@
 			let index = 0;
 			let timer = null;
 			const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-			const image = carousel.querySelector("[data-carousel-image]");
-			const label = carousel.querySelector("[data-carousel-label]");
-			const fill = carousel.querySelector("[data-carousel-fill]");
-			const prev = carousel.querySelector("[data-carousel-prev]");
-			const next = carousel.querySelector("[data-carousel-next]");
+			const dots = Array.from(carousel.querySelectorAll("[data-carousel-dot]"));
 			const AUTO_MS = 6000;
 
 			const render = () => {
@@ -670,18 +792,11 @@
 				if (!slide) {
 					return;
 				}
-				if (image) {
-					image.src = slide.image || slide.bg || "";
-					image.alt = slide.label || "";
-				}
-				if (label) {
-					label.textContent = slide.label || "";
-				}
-				if (fill) {
-					const segment = 100 / slides.length;
-					fill.style.width = `${Math.max(segment, 28)}%`;
-					fill.style.left = `${index * segment}%`;
-				}
+				dots.forEach((dot, dotIndex) => {
+					const active = dotIndex === index;
+					dot.classList.toggle("is-active", active);
+					dot.setAttribute("aria-selected", active ? "true" : "false");
+				});
 				if (heroBgs.length) {
 					heroBgs.forEach((bg, i) => {
 						bg.classList.toggle("is-active", i === index);
@@ -709,13 +824,12 @@
 				timer = window.setInterval(() => go(1), AUTO_MS);
 			};
 
-			prev?.addEventListener("click", () => {
-				go(-1);
-				startAuto();
-			});
-			next?.addEventListener("click", () => {
-				go(1);
-				startAuto();
+			dots.forEach((dot, dotIndex) => {
+				dot.addEventListener("click", () => {
+					index = dotIndex;
+					render();
+					startAuto();
+				});
 			});
 
 			carousel.addEventListener("pointerenter", stopAuto);
@@ -1430,14 +1544,35 @@
 			if (!pinMq.matches) {
 				excelWayPin.style.height = "";
 				excelWay.classList.remove("is-pinned");
+				excelWay.classList.remove("is-viewport-fitted");
 				return;
 			}
 			excelWayPin.style.height = "auto";
+			excelWay.classList.remove("is-viewport-fitted");
+			excelWay.style.removeProperty("height");
+			excelWay.style.removeProperty("--ee-excel-way-viewport-height");
+			excelWay.style.removeProperty("--ee-excel-way-fit-scale");
+			excelWay.style.removeProperty("--ee-excel-way-fit-pad-top");
+			excelWay.style.removeProperty("--ee-excel-way-fit-pad-bottom");
 			const pad = excelWayPin.querySelector(".excel-way__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(excelWay.getBoundingClientRect().height);
+			const stickyTop =
+				parseFloat(getComputedStyle(excelWay).getPropertyValue("--ee-excel-way-sticky-top")) || 0;
+			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale = Math.min(1, availableH / Math.max(sectionH, 1));
+			if (fitScale < 1) {
+				const styles = getComputedStyle(excelWay);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				excelWay.style.setProperty("--ee-excel-way-viewport-height", `${availableH}px`);
+				excelWay.style.setProperty("--ee-excel-way-fit-scale", String(fitScale));
+				excelWay.style.setProperty("--ee-excel-way-fit-pad-top", `${padTop * fitScale}px`);
+				excelWay.style.setProperty("--ee-excel-way-fit-pad-bottom", `${padBottom * fitScale}px`);
+				excelWay.classList.add("is-viewport-fitted");
+			}
 			const holdPx = Math.round(window.innerHeight * 1);
-			excelWayPin.style.height = `${padH + sectionH + holdPx}px`;
+			excelWayPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
 		};
 
 		const syncExcelWayPinnedState = () => {
@@ -1541,6 +1676,16 @@
 			syncExcelWayPin();
 			syncExcelWayPinnedState();
 		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			syncExcelWayPin();
+			syncExcelWayPinnedState();
+		});
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				syncExcelWayPin();
+				syncExcelWayPinnedState();
+			});
+		}
 
 		window.setTimeout(applyExcelWayHash, 80);
 		window.addEventListener("hashchange", applyExcelWayHash);
@@ -1559,7 +1704,7 @@
 		const prevBtn = blogSection.querySelector("[data-blog-prev]");
 		const nextBtn = blogSection.querySelector("[data-blog-next]");
 		const pinMq = window.matchMedia("(min-width: 768px)");
-		let index = window.innerWidth <= 1199 ? 0 : cards.length > 2 ? 1 : 0;
+		let index = window.innerWidth <= 1199 ? 0 : cards.length > 2 ? 2 : 0;
 
 		const isBlogMobile = () => window.innerWidth <= 767;
 		const isBlogSwipe = () => window.innerWidth <= 1199;
@@ -1802,14 +1947,40 @@
 			if (!pinMq.matches) {
 				venuesPin.style.height = "";
 				venuesSection.classList.remove("is-pinned");
+				venuesSection.classList.remove("is-viewport-fitted");
+				venuesSection.style.removeProperty("height");
+				venuesSection.style.removeProperty("--ee-venues-viewport-height");
+				venuesSection.style.removeProperty("--ee-venues-fit-scale");
+				venuesSection.style.removeProperty("--ee-venues-fit-pad-top");
+				venuesSection.style.removeProperty("--ee-venues-fit-pad-bottom");
 				return;
 			}
 			venuesPin.style.height = "auto";
+			venuesSection.classList.remove("is-viewport-fitted");
+			venuesSection.style.removeProperty("height");
+			venuesSection.style.removeProperty("--ee-venues-viewport-height");
+			venuesSection.style.removeProperty("--ee-venues-fit-scale");
+			venuesSection.style.removeProperty("--ee-venues-fit-pad-top");
+			venuesSection.style.removeProperty("--ee-venues-fit-pad-bottom");
 			const pad = venuesPin.querySelector(".venues-section__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(venuesSection.getBoundingClientRect().height);
+			const stickyTop =
+				parseFloat(getComputedStyle(venuesSection).getPropertyValue("--ee-venues-sticky-top")) || 0;
+			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale = Math.min(1, availableH / Math.max(sectionH, 1));
+			if (fitScale < 1) {
+				const styles = getComputedStyle(venuesSection);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				venuesSection.style.setProperty("--ee-venues-viewport-height", `${availableH}px`);
+				venuesSection.style.setProperty("--ee-venues-fit-scale", String(fitScale));
+				venuesSection.style.setProperty("--ee-venues-fit-pad-top", `${padTop * fitScale}px`);
+				venuesSection.style.setProperty("--ee-venues-fit-pad-bottom", `${padBottom * fitScale}px`);
+				venuesSection.classList.add("is-viewport-fitted");
+			}
 			const holdPx = Math.round(window.innerHeight * 1);
-			venuesPin.style.height = `${padH + sectionH + holdPx}px`;
+			venuesPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
 		};
 
 		const syncVenuesPinnedState = () => {
@@ -1838,71 +2009,6 @@
 			}, 600);
 		};
 
-		/**
-		 * Place the expanded venue panel in the vertical center of the screen
-		 * (area below the sticky header). Temporarily unlocks section sticky
-		 * so the panel can actually travel to center.
-		 */
-		const centerVenuePanel = (panel) => {
-			const stickyTop =
-				parseFloat(getComputedStyle(venuesSection).getPropertyValue("--ee-venues-sticky-top")) || 0;
-			const viewHeight = window.innerHeight;
-			const viewMid = stickyTop + (viewHeight - stickyTop) / 2;
-			const currentScroll = lenis ? lenis.scroll : window.scrollY || window.pageYOffset || 0;
-
-			const sectionRect = venuesSection.getBoundingClientRect();
-			const wasStuck =
-				pinMq.matches &&
-				venuesPin &&
-				Math.abs(sectionRect.top - stickyTop) <= 2.5;
-
-			if (wasStuck) {
-				venuesSection.classList.add("is-centering");
-				void venuesSection.offsetHeight;
-				const unlockedTop = venuesSection.getBoundingClientRect().top;
-				const jump = unlockedTop - sectionRect.top;
-				if (Math.abs(jump) > 1) {
-					if (lenis) {
-						lenis.scrollTo(currentScroll + jump, { immediate: true });
-					} else {
-						window.scrollTo(0, currentScroll + jump);
-					}
-				}
-			}
-
-			const scrollNow = lenis ? lenis.scroll : window.scrollY || window.pageYOffset || 0;
-			const panelRect = panel.getBoundingClientRect();
-			const panelMidDoc = scrollNow + panelRect.top + panelRect.height / 2;
-			const target = Math.max(0, panelMidDoc - viewMid);
-
-			let restored = false;
-			const restoreSticky = () => {
-				if (restored) {
-					return;
-				}
-				restored = true;
-				venuesSection.classList.remove("is-centering");
-				syncVenuesPin();
-				syncVenuesPinnedState();
-			};
-
-			if (Math.abs(target - scrollNow) < 8) {
-				restoreSticky();
-				return;
-			}
-
-			if (lenis) {
-				lenis.scrollTo(target, {
-					duration: 1,
-					onComplete: restoreSticky,
-				});
-				window.setTimeout(restoreSticky, 1200);
-			} else {
-				window.scrollTo({ top: target, behavior: "smooth" });
-				window.setTimeout(restoreSticky, 1000);
-			}
-		};
-
 		const setActive = (panel) => {
 			panels.forEach((item) => {
 				const on = item === panel;
@@ -1917,15 +2023,14 @@
 				}
 			});
 
-			let didCenter = false;
-			const runCenter = () => {
-				if (didCenter) {
+			let didRefresh = false;
+			const refreshAfterTransition = () => {
+				if (didRefresh) {
 					return;
 				}
-				didCenter = true;
+				didRefresh = true;
 				syncVenuesPin();
 				syncVenuesPinnedState();
-				centerVenuePanel(panel);
 			};
 
 			const onTransitionEnd = (event) => {
@@ -1936,7 +2041,7 @@
 					return;
 				}
 				panel.removeEventListener("transitionend", onTransitionEnd);
-				runCenter();
+				refreshAfterTransition();
 			};
 
 			panel.addEventListener("transitionend", onTransitionEnd);
@@ -1944,7 +2049,7 @@
 
 			window.setTimeout(() => {
 				panel.removeEventListener("transitionend", onTransitionEnd);
-				runCenter();
+				refreshAfterTransition();
 			}, 580);
 		};
 
@@ -1985,6 +2090,20 @@
 			syncVenuesPin();
 			syncVenuesPinnedState();
 		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			syncVenuesPin();
+			syncVenuesPinnedState();
+		});
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				syncVenuesPin();
+				syncVenuesPinnedState();
+			});
+		}
+		window.setTimeout(() => {
+			syncVenuesPin();
+			syncVenuesPinnedState();
+		}, 250);
 	}
 
 	/* ---------- About value sticky pin ---------- */
@@ -1992,6 +2111,7 @@
 	if (aboutValue) {
 		const aboutValuePin = document.querySelector("[data-about-value-pin]");
 		const pinMq = window.matchMedia("(min-width: 768px)");
+		const fitMq = window.matchMedia("(min-width: 1200px)");
 
 		const syncAboutValuePin = () => {
 			if (!aboutValuePin) {
@@ -1999,15 +2119,42 @@
 			}
 			if (!pinMq.matches) {
 				aboutValuePin.style.height = "";
-				aboutValue.classList.remove("is-pinned");
+				aboutValue.classList.remove("is-pinned", "is-viewport-fitted");
+				aboutValue.style.removeProperty("height");
+				aboutValue.style.removeProperty("--ee-about-value-viewport-height");
+				aboutValue.style.removeProperty("--ee-about-value-fit-scale");
+				aboutValue.style.removeProperty("--ee-about-value-fit-pad-top");
+				aboutValue.style.removeProperty("--ee-about-value-fit-pad-bottom");
 				return;
 			}
 			aboutValuePin.style.height = "auto";
+			aboutValue.classList.remove("is-viewport-fitted");
+			aboutValue.style.removeProperty("height");
+			aboutValue.style.removeProperty("--ee-about-value-viewport-height");
+			aboutValue.style.removeProperty("--ee-about-value-fit-scale");
+			aboutValue.style.removeProperty("--ee-about-value-fit-pad-top");
+			aboutValue.style.removeProperty("--ee-about-value-fit-pad-bottom");
 			const pad = aboutValuePin.querySelector(".about-value__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(aboutValue.getBoundingClientRect().height);
+			const stickyTop =
+				parseFloat(getComputedStyle(aboutValue).getPropertyValue("--ee-about-value-sticky-top")) || 0;
+			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
+
+			if (fitScale < 1) {
+				const styles = getComputedStyle(aboutValue);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				aboutValue.style.setProperty("--ee-about-value-viewport-height", `${availableH}px`);
+				aboutValue.style.setProperty("--ee-about-value-fit-scale", String(fitScale));
+				aboutValue.style.setProperty("--ee-about-value-fit-pad-top", `${padTop * fitScale}px`);
+				aboutValue.style.setProperty("--ee-about-value-fit-pad-bottom", `${padBottom * fitScale}px`);
+				aboutValue.classList.add("is-viewport-fitted");
+			}
+
 			const holdPx = Math.round(window.innerHeight * 1);
-			aboutValuePin.style.height = `${padH + sectionH + holdPx}px`;
+			aboutValuePin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
 		};
 
 		const syncAboutValuePinnedState = () => {
@@ -2053,6 +2200,271 @@
 			syncAboutValuePin();
 			syncAboutValuePinnedState();
 		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			syncAboutValuePin();
+			syncAboutValuePinnedState();
+		});
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				syncAboutValuePin();
+				syncAboutValuePinnedState();
+			});
+		}
+		if (typeof fitMq.addEventListener === "function") {
+			fitMq.addEventListener("change", () => {
+				syncAboutValuePin();
+				syncAboutValuePinnedState();
+			});
+		} else if (typeof fitMq.addListener === "function") {
+			fitMq.addListener(() => {
+				syncAboutValuePin();
+				syncAboutValuePinnedState();
+			});
+		}
+	}
+
+	/* ---------- About why sticky pin ---------- */
+	const aboutWhy = document.querySelector("[data-about-why]");
+	if (aboutWhy) {
+		const aboutWhyPin = document.querySelector("[data-about-why-pin]");
+		const pinMq = window.matchMedia("(min-width: 768px)");
+		const fitMq = window.matchMedia("(min-width: 1200px)");
+
+		const syncAboutWhyPin = () => {
+			if (!aboutWhyPin) {
+				return;
+			}
+			if (!pinMq.matches) {
+				aboutWhyPin.style.height = "";
+				aboutWhy.classList.remove("is-pinned", "is-viewport-fitted");
+				aboutWhy.style.removeProperty("height");
+				aboutWhy.style.removeProperty("--ee-about-why-viewport-height");
+				aboutWhy.style.removeProperty("--ee-about-why-fit-scale");
+				aboutWhy.style.removeProperty("--ee-about-why-fit-pad-top");
+				aboutWhy.style.removeProperty("--ee-about-why-fit-pad-bottom");
+				return;
+			}
+
+			aboutWhyPin.style.height = "auto";
+			aboutWhy.classList.remove("is-viewport-fitted");
+			aboutWhy.style.removeProperty("height");
+			aboutWhy.style.removeProperty("--ee-about-why-viewport-height");
+			aboutWhy.style.removeProperty("--ee-about-why-fit-scale");
+			aboutWhy.style.removeProperty("--ee-about-why-fit-pad-top");
+			aboutWhy.style.removeProperty("--ee-about-why-fit-pad-bottom");
+			const pad = aboutWhyPin.querySelector(".about-why__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionH = Math.ceil(aboutWhy.getBoundingClientRect().height);
+			const stickyTop =
+				parseFloat(getComputedStyle(aboutWhy).getPropertyValue("--ee-about-why-sticky-top")) || 0;
+			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
+
+			if (fitScale < 1) {
+				const styles = getComputedStyle(aboutWhy);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+
+				aboutWhy.style.setProperty("--ee-about-why-viewport-height", `${availableH}px`);
+				aboutWhy.style.setProperty("--ee-about-why-fit-scale", String(fitScale));
+				aboutWhy.style.setProperty("--ee-about-why-fit-pad-top", `${padTop * fitScale}px`);
+				aboutWhy.style.setProperty("--ee-about-why-fit-pad-bottom", `${padBottom * fitScale}px`);
+				aboutWhy.classList.add("is-viewport-fitted");
+			}
+
+			const holdPx = Math.round(window.innerHeight * 1);
+
+			aboutWhyPin.style.height = `${padH + sectionH * fitScale + holdPx}px`;
+		};
+
+		const syncAboutWhyPinnedState = () => {
+			if (!aboutWhyPin || !pinMq.matches) {
+				aboutWhy.classList.remove("is-pinned");
+				return;
+			}
+
+			const stickyTop =
+				parseFloat(getComputedStyle(aboutWhy).getPropertyValue("--ee-about-why-sticky-top")) || 0;
+			const rect = aboutWhy.getBoundingClientRect();
+			const pinRect = aboutWhyPin.getBoundingClientRect();
+			const pinned =
+				rect.top <= stickyTop + 1.5 &&
+				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+
+			aboutWhy.classList.toggle("is-pinned", pinned);
+		};
+
+		if (lenis) {
+			lenis.on("scroll", syncAboutWhyPinnedState);
+		} else {
+			window.addEventListener("scroll", syncAboutWhyPinnedState, { passive: true });
+		}
+		window.addEventListener("resize", () => {
+			syncAboutWhyPin();
+			syncAboutWhyPinnedState();
+		});
+		if (typeof pinMq.addEventListener === "function") {
+			pinMq.addEventListener("change", () => {
+				syncAboutWhyPin();
+				syncAboutWhyPinnedState();
+			});
+		} else if (typeof pinMq.addListener === "function") {
+			pinMq.addListener(() => {
+				syncAboutWhyPin();
+				syncAboutWhyPinnedState();
+			});
+		}
+		if (typeof fitMq.addEventListener === "function") {
+			fitMq.addEventListener("change", () => {
+				syncAboutWhyPin();
+				syncAboutWhyPinnedState();
+			});
+		} else if (typeof fitMq.addListener === "function") {
+			fitMq.addListener(() => {
+				syncAboutWhyPin();
+				syncAboutWhyPinnedState();
+			});
+		}
+		window.requestAnimationFrame(() => {
+			syncAboutWhyPin();
+			syncAboutWhyPinnedState();
+		});
+		window.addEventListener("load", () => {
+			syncAboutWhyPin();
+			syncAboutWhyPinnedState();
+		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			syncAboutWhyPin();
+			syncAboutWhyPinnedState();
+		});
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				syncAboutWhyPin();
+				syncAboutWhyPinnedState();
+			});
+		}
+	}
+
+	/* ---------- About approach sticky pin ---------- */
+	const aboutApproachSticky = document.querySelector("[data-about-approach]");
+	if (aboutApproachSticky) {
+		const aboutApproachPin = document.querySelector("[data-about-approach-pin]");
+		const pinMq = window.matchMedia("(min-width: 768px)");
+		const fitMq = window.matchMedia("(min-width: 1200px)");
+
+		const syncAboutApproachPin = () => {
+			if (!aboutApproachPin) {
+				return;
+			}
+			if (!pinMq.matches) {
+				aboutApproachPin.style.height = "";
+				aboutApproachSticky.classList.remove("is-pinned", "is-viewport-fitted");
+				aboutApproachSticky.style.removeProperty("height");
+				aboutApproachSticky.style.removeProperty("--ee-about-approach-viewport-height");
+				aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-scale");
+				aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-pad-top");
+				aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-pad-bottom");
+				return;
+			}
+
+			aboutApproachPin.style.height = "auto";
+			aboutApproachSticky.classList.remove("is-viewport-fitted");
+			aboutApproachSticky.style.removeProperty("height");
+			aboutApproachSticky.style.removeProperty("--ee-about-approach-viewport-height");
+			aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-scale");
+			aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-pad-top");
+			aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-pad-bottom");
+
+			const pad = aboutApproachPin.querySelector(".about-approach__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionH = Math.ceil(aboutApproachSticky.getBoundingClientRect().height);
+			const stickyTop =
+				parseFloat(getComputedStyle(aboutApproachSticky).getPropertyValue("--ee-about-approach-sticky-top")) || 0;
+			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
+
+			if (fitScale < 1) {
+				const styles = getComputedStyle(aboutApproachSticky);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+
+				aboutApproachSticky.style.setProperty("--ee-about-approach-viewport-height", `${availableH}px`);
+				aboutApproachSticky.style.setProperty("--ee-about-approach-fit-scale", String(fitScale));
+				aboutApproachSticky.style.setProperty("--ee-about-approach-fit-pad-top", `${padTop * fitScale}px`);
+				aboutApproachSticky.style.setProperty("--ee-about-approach-fit-pad-bottom", `${padBottom * fitScale}px`);
+				aboutApproachSticky.classList.add("is-viewport-fitted");
+			}
+
+			const holdPx = Math.round(window.innerHeight * 1);
+			aboutApproachPin.style.height = `${padH + sectionH * fitScale + holdPx}px`;
+		};
+
+		const syncAboutApproachPinnedState = () => {
+			if (!aboutApproachPin || !pinMq.matches) {
+				aboutApproachSticky.classList.remove("is-pinned");
+				return;
+			}
+
+			const stickyTop =
+				parseFloat(getComputedStyle(aboutApproachSticky).getPropertyValue("--ee-about-approach-sticky-top")) || 0;
+			const rect = aboutApproachSticky.getBoundingClientRect();
+			const pinRect = aboutApproachPin.getBoundingClientRect();
+			const pinned =
+				rect.top <= stickyTop + 1.5 &&
+				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+
+			aboutApproachSticky.classList.toggle("is-pinned", pinned);
+		};
+
+		if (lenis) {
+			lenis.on("scroll", syncAboutApproachPinnedState);
+		} else {
+			window.addEventListener("scroll", syncAboutApproachPinnedState, { passive: true });
+		}
+		window.addEventListener("resize", () => {
+			syncAboutApproachPin();
+			syncAboutApproachPinnedState();
+		});
+		if (typeof pinMq.addEventListener === "function") {
+			pinMq.addEventListener("change", () => {
+				syncAboutApproachPin();
+				syncAboutApproachPinnedState();
+			});
+		} else if (typeof pinMq.addListener === "function") {
+			pinMq.addListener(() => {
+				syncAboutApproachPin();
+				syncAboutApproachPinnedState();
+			});
+		}
+		if (typeof fitMq.addEventListener === "function") {
+			fitMq.addEventListener("change", () => {
+				syncAboutApproachPin();
+				syncAboutApproachPinnedState();
+			});
+		} else if (typeof fitMq.addListener === "function") {
+			fitMq.addListener(() => {
+				syncAboutApproachPin();
+				syncAboutApproachPinnedState();
+			});
+		}
+		window.requestAnimationFrame(() => {
+			syncAboutApproachPin();
+			syncAboutApproachPinnedState();
+		});
+		window.addEventListener("load", () => {
+			syncAboutApproachPin();
+			syncAboutApproachPinnedState();
+		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			syncAboutApproachPin();
+			syncAboutApproachPinnedState();
+		});
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				syncAboutApproachPin();
+				syncAboutApproachPinnedState();
+			});
+		}
 	}
 
 	/* ---------- Explore Artists filters ---------- */
@@ -2078,8 +2490,8 @@
 			"artist-type": "Artist Type",
 			tribute: "Tribute Acts",
 			"artists-tributes": "Artists & Tributes",
-			era: "Decades",
-			event: "Entertainment & Events",
+			era: "Era / Decade",
+			event: "Event Type",
 			genre: "Music Genre",
 		};
 
@@ -3154,6 +3566,7 @@
 		const pages = Array.from(aboutReviews.querySelectorAll("[data-about-reviews-page]"));
 		const scrollCarouselMq = window.matchMedia("(max-width: 1199px)");
 		const pinMq = window.matchMedia("(min-width: 768px)");
+		const fitMq = window.matchMedia("(min-width: 1200px)");
 		let page = 0;
 
 		const syncAboutReviewsPin = () => {
@@ -3162,15 +3575,44 @@
 			}
 			if (!pinMq.matches) {
 				aboutReviewsPin.style.height = "";
-				aboutReviews.classList.remove("is-pinned");
+				aboutReviews.classList.remove("is-pinned", "is-viewport-fitted");
+				aboutReviews.style.removeProperty("height");
+				aboutReviews.style.removeProperty("--ee-about-reviews-viewport-height");
+				aboutReviews.style.removeProperty("--ee-about-reviews-fit-scale");
+				aboutReviews.style.removeProperty("--ee-about-reviews-fit-pad-top");
+				aboutReviews.style.removeProperty("--ee-about-reviews-fit-pad-bottom");
 				return;
 			}
+
 			aboutReviewsPin.style.height = "auto";
+			aboutReviews.classList.remove("is-viewport-fitted");
+			aboutReviews.style.removeProperty("height");
+			aboutReviews.style.removeProperty("--ee-about-reviews-viewport-height");
+			aboutReviews.style.removeProperty("--ee-about-reviews-fit-scale");
+			aboutReviews.style.removeProperty("--ee-about-reviews-fit-pad-top");
+			aboutReviews.style.removeProperty("--ee-about-reviews-fit-pad-bottom");
 			const pad = aboutReviewsPin.querySelector(".about-reviews__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(aboutReviews.getBoundingClientRect().height);
+			const stickyTop =
+				parseFloat(getComputedStyle(aboutReviews).getPropertyValue("--ee-about-reviews-sticky-top")) || 0;
+			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
+
+			if (fitScale < 1) {
+				const styles = getComputedStyle(aboutReviews);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+
+				aboutReviews.style.setProperty("--ee-about-reviews-viewport-height", `${availableH}px`);
+				aboutReviews.style.setProperty("--ee-about-reviews-fit-scale", String(fitScale));
+				aboutReviews.style.setProperty("--ee-about-reviews-fit-pad-top", `${padTop * fitScale}px`);
+				aboutReviews.style.setProperty("--ee-about-reviews-fit-pad-bottom", `${padBottom * fitScale}px`);
+				aboutReviews.classList.add("is-viewport-fitted");
+			}
+
 			const holdPx = Math.round(window.innerHeight * 1);
-			aboutReviewsPin.style.height = `${padH + sectionH + holdPx}px`;
+			aboutReviewsPin.style.height = `${padH + sectionH * fitScale + holdPx}px`;
 		};
 
 		const syncAboutReviewsPinnedState = () => {
@@ -3321,6 +3763,17 @@
 			});
 		} else if (typeof pinMq.addListener === "function") {
 			pinMq.addListener(() => {
+				syncAboutReviewsPin();
+				syncAboutReviewsPinnedState();
+			});
+		}
+		if (typeof fitMq.addEventListener === "function") {
+			fitMq.addEventListener("change", () => {
+				syncAboutReviewsPin();
+				syncAboutReviewsPinnedState();
+			});
+		} else if (typeof fitMq.addListener === "function") {
+			fitMq.addListener(() => {
 				syncAboutReviewsPin();
 				syncAboutReviewsPinnedState();
 			});
@@ -5884,6 +6337,7 @@
 		const cards = Array.from(servicesSwap.querySelectorAll("[data-service-card]"));
 		const swapMs = reduced ? 0 : 680;
 		const pinMq = window.matchMedia("(min-width: 768px)");
+		const fitMq = window.matchMedia("(min-width: 1200px)");
 		let busy = false;
 		let pending = null;
 		let activeId = featured?.getAttribute("data-service-id") || "";
@@ -5894,15 +6348,40 @@
 			}
 			if (!pinMq.matches) {
 				servicesPin.style.height = "";
-				servicesSwap.classList.remove("is-pinned");
+				servicesSwap.classList.remove("is-pinned", "is-viewport-fitted");
+				servicesSwap.style.removeProperty("height");
+				servicesSwap.style.removeProperty("--ee-services-viewport-height");
+				servicesSwap.style.removeProperty("--ee-services-fit-scale");
+				servicesSwap.style.removeProperty("--ee-services-fit-pad-top");
+				servicesSwap.style.removeProperty("--ee-services-fit-pad-bottom");
 				return;
 			}
 			servicesPin.style.height = "auto";
+			servicesSwap.classList.remove("is-viewport-fitted");
+			servicesSwap.style.removeProperty("height");
+			servicesSwap.style.removeProperty("--ee-services-viewport-height");
+			servicesSwap.style.removeProperty("--ee-services-fit-scale");
+			servicesSwap.style.removeProperty("--ee-services-fit-pad-top");
+			servicesSwap.style.removeProperty("--ee-services-fit-pad-bottom");
 			const pad = servicesPin.querySelector(".services-section__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(servicesSwap.getBoundingClientRect().height);
+			const stickyTop =
+				parseFloat(getComputedStyle(servicesSwap).getPropertyValue("--ee-services-sticky-top")) || 0;
+			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
+			if (fitScale < 1) {
+				const styles = getComputedStyle(servicesSwap);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				servicesSwap.style.setProperty("--ee-services-viewport-height", `${availableH}px`);
+				servicesSwap.style.setProperty("--ee-services-fit-scale", String(fitScale));
+				servicesSwap.style.setProperty("--ee-services-fit-pad-top", `${padTop * fitScale}px`);
+				servicesSwap.style.setProperty("--ee-services-fit-pad-bottom", `${padBottom * fitScale}px`);
+				servicesSwap.classList.add("is-viewport-fitted");
+			}
 			const holdPx = Math.round(window.innerHeight * 1);
-			servicesPin.style.height = `${padH + sectionH + holdPx}px`;
+			servicesPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
 		};
 
 		const syncServicesPinnedState = () => {
@@ -6160,6 +6639,17 @@
 				syncServicesPinnedState();
 			});
 		}
+		if (typeof fitMq.addEventListener === "function") {
+			fitMq.addEventListener("change", () => {
+				syncServicesPin();
+				syncServicesPinnedState();
+			});
+		} else if (typeof fitMq.addListener === "function") {
+			fitMq.addListener(() => {
+				syncServicesPin();
+				syncServicesPinnedState();
+			});
+		}
 		window.requestAnimationFrame(() => {
 			syncServicesPin();
 			syncServicesPinnedState();
@@ -6168,6 +6658,20 @@
 			syncServicesPin();
 			syncServicesPinnedState();
 		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			syncServicesPin();
+			syncServicesPinnedState();
+		});
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				syncServicesPin();
+				syncServicesPinnedState();
+			});
+		}
+		window.setTimeout(() => {
+			syncServicesPin();
+			syncServicesPinnedState();
+		}, 250);
 	}
 })();
 

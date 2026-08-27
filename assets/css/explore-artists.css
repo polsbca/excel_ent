@@ -988,6 +988,10 @@
 	white-space: nowrap;
 }
 
+.explore-artist-card__status--desktop {
+	display: none;
+}
+
 .explore-artist-card__status--later {
 	border-color: #f89a42;
 }

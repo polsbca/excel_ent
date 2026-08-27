@@ -1,6 +1,6 @@
 <?php
 /**
- * Explore Artists listing — Figma 1224:89355 / tablet 1099:2920 / mobile 1023:6857
+ * Explore Artists listing — Figma desktop 2202:32111 / tablet 1099:2920 / mobile 1023:6857
  *
  * @package Excel_Ent
  */
@@ -159,6 +159,9 @@ $excel_ent_artists = array(
 				</div>
 
 				<div class="explore-artist-card__top">
+					<span class="explore-artist-card__status explore-artist-card__status--desktop explore-artist-card__status--<?php echo esc_attr( $excel_ent_artist['status_mod'] ); ?>" aria-hidden="true">
+						<?php echo esc_html( $excel_ent_artist['status'] ); ?>
+					</span>
 					<button
 						class="explore-artist-card__fav magnetic"
 						type="button"

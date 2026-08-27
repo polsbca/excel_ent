@@ -1,4 +1,4 @@
-/* Excel Ent — Partner logo marquee (Figma 1023:21081) */
+/* Excel Ent — Partner logo marquee (Figma 2202:35323 / 1023:21081 mobile) */
 
 .awards-marquee {
 	position: relative;
@@ -67,6 +67,12 @@
 .awards-marquee__logo:hover {
 	opacity: 0.88;
 	transform: scale(1.03);
+}
+
+@media (min-width: 1200px) {
+	.awards-marquee {
+		padding: 40px 0;
+	}
 }
 
 @keyframes ee-awards-marquee {

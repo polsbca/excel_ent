@@ -1,6 +1,6 @@
 <?php
 /**
- * Partner logo marquee strip (Figma 1023:21081).
+ * Partner logo marquee spacing (Figma 2202:35322; strip 2202:35323).
  * Logos come from Brand Logos CPT in WP admin; static defaults if none published.
  *
  * @package Excel_Ent

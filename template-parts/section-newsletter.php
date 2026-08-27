@@ -1,6 +1,6 @@
 <?php
 /**
- * Newsletter / last-minute performer CTA (Figma 1113:2325).
+ * Newsletter / last-minute performer CTA (Figma 2202:36025).
  *
  * @package Excel_Ent
  */

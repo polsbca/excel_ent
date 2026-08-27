@@ -1,6 +1,6 @@
 <?php
 /**
- * The Excel Way section (Figma desktop 1084:1901+ / mobile 1048:2446+).
+ * The Excel Way section (Figma desktop 2202:30887 / 2202:30945).
  *
  * @package Excel_Ent
  */
@@ -232,7 +232,7 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 		>
 			<div class="excel-way__stack excel-way__stack--how">
 				<div class="excel-way__intro reveal" data-reveal>
-					<p class="excel-way__subtitle excel-way__subtitle--desktop"><?php esc_html_e( 'Simple 5-Step Process', 'excel-ent' ); ?></p>
+					<p class="excel-way__subtitle excel-way__subtitle--desktop"><?php esc_html_e( 'Five Step Process', 'excel-ent' ); ?></p>
 					<p class="excel-way__subtitle excel-way__subtitle--mobile"><?php esc_html_e( 'Simple 4-Step Process', 'excel-ent' ); ?></p>
 					<p class="excel-way__lede">
 						<?php esc_html_e( 'We handle every detail so you can focus on enjoying the event. Booking a top act has never been this straightforward.', 'excel-ent' ); ?>
@@ -332,7 +332,15 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 
 			<div class="excel-way__footer excel-way__footer--cancel reveal" data-reveal>
 				<p class="excel-way-notice">
-					<?php esc_html_e( 'This protection is included on every booking made through Excel Entertainment — no premium plan required.', 'excel-ent' ); ?>
+					<img
+						class="excel-way-notice__icon"
+						src="<?php echo esc_url( $excel_ent_way_uri . '/star-line.svg' ); ?>"
+						alt=""
+						width="16"
+						height="16"
+						decoding="async"
+					>
+					<span><?php esc_html_e( 'This protection is included on every booking made through Excel Entertainment — no premium plan required.', 'excel-ent' ); ?></span>
 				</p>
 				<?php $excel_ent_render_badges( $excel_ent_way_badges, $excel_ent_way_uri ); ?>
 				<a class="excel-way__cta magnetic" href="<?php echo esc_url( $excel_ent_quote ); ?>">

@@ -448,7 +448,7 @@ function excel_ent_is_primary_nav_current( $key = '', $url = '' ) {
 
 	switch ( $key ) {
 		case 'home':
-			return is_front_page();
+			return is_front_page() || is_search();
 		case 'about':
 			return excel_ent_is_about_page();
 		case 'explore_artists':
@@ -574,24 +574,38 @@ add_filter( 'wp_nav_menu_objects', 'excel_ent_primary_menu_objects', 10, 2 );
  */
 function excel_ent_default_entertainment_links() {
 	return array(
-		__( 'Artists & Tributes', 'excel-ent' )     => excel_ent_get_explore_artists_url(
+		__( 'Solo Artists', 'excel-ent' )           => excel_ent_get_explore_artists_url(
 			array(
-				'categories' => array( 'artist-type', 'tribute' ),
+				'categories' => array( 'artist-type' ),
+				'tags'       => array( 'solo' ),
 			)
 		),
-		__( 'Decades', 'excel-ent' )                => excel_ent_get_explore_artists_url(
+		__( 'Duos', 'excel-ent' )                   => excel_ent_get_explore_artists_url(
 			array(
-				'categories' => array( 'era' ),
+				'categories' => array( 'artist-type' ),
+				'tags'       => array( 'duo' ),
 			)
 		),
-		__( 'Entertainment & Events', 'excel-ent' ) => excel_ent_get_explore_artists_url(
+		__( 'Bands', 'excel-ent' )                  => excel_ent_get_explore_artists_url(
 			array(
-				'categories' => array( 'event' ),
+				'categories' => array( 'artist-type' ),
+				'tags'       => array( 'bands' ),
 			)
 		),
-		__( 'Music Genre', 'excel-ent' )         => excel_ent_get_explore_artists_url(
+		__( 'Tribute Acts', 'excel-ent' )          => excel_ent_get_explore_artists_url(
 			array(
-				'categories' => array( 'genre' ),
+				'categories' => array( 'tribute' ),
+			)
+		),
+		__( 'DJ Nights', 'excel-ent' )             => excel_ent_get_explore_artists_url(
+			array(
+				'categories' => array( 'artist-type' ),
+				'tags'       => array( 'dj' ),
+			)
+		),
+		__( 'Celebrity Acts', 'excel-ent' )        => excel_ent_get_explore_artists_url(
+			array(
+				'tags' => array( 'celebrity-acts' ),
 			)
 		),
 	);
@@ -604,24 +618,27 @@ function excel_ent_default_entertainment_links() {
  */
 function excel_ent_default_services_links() {
 	return array(
-		__( 'Wedding', 'excel-ent' )    => excel_ent_get_explore_artists_url(
+		__( 'Wedding Packages', 'excel-ent' )    => excel_ent_get_explore_artists_url(
 			array(
 				'categories' => array( 'event' ),
 				'tags'       => array( 'wedding' ),
 			)
 		),
-		__( 'Tribute', 'excel-ent' )    => excel_ent_get_explore_artists_url(
+		__( 'Corporate Events', 'excel-ent' )    => excel_ent_get_explore_artists_url(
 			array(
-				'categories' => array( 'tribute' ),
+				'categories' => array( 'event' ),
+				'tags'       => array( 'corporate' ),
 			)
 		),
-		__( 'Pub Nights', 'excel-ent' ) => home_url( '/pub-nights/' ),
-		__( 'Bands', 'excel-ent' )      => excel_ent_get_explore_artists_url(
+		__( 'Pub Nights', 'excel-ent' )           => home_url( '/pub-nights/' ),
+		__( 'Themed Nights', 'excel-ent' )        => excel_ent_get_explore_artists_url(
 			array(
-				'categories' => array( 'artist-type' ),
-				'tags'       => array( 'bands' ),
+				'categories' => array( 'event' ),
+				'tags'       => array( 'themed' ),
 			)
 		),
+		__( 'Artist Registration', 'excel-ent' )  => excel_ent_get_contact_url( 'talent' ),
+		__( 'Venue Registration', 'excel-ent' )   => excel_ent_get_contact_url( 'venues' ),
 	);
 }
 
@@ -632,11 +649,16 @@ function excel_ent_default_services_links() {
  */
 function excel_ent_default_company_links() {
 	return array(
-		__( 'About Us', 'excel-ent' )                 => home_url( '/about-us/' ),
-		__( 'Contact Us', 'excel-ent' )               => excel_ent_get_contact_url(),
-		__( 'Event Packages', 'excel-ent' )           => home_url( '/packages/' ),
-		__( 'Cancellation Protection', 'excel-ent' )  => home_url( '/#cancellation-protection' ),
-		__( 'Terms & Conditions', 'excel-ent' )       => home_url( '/terms-conditions/' ),
+		__( 'About Us', 'excel-ent' )           => home_url( '/about-us/' ),
+		__( 'Contact Us', 'excel-ent' )         => excel_ent_get_contact_url(),
+		__( 'Ideas & Advice', 'excel-ent' )     => home_url( '/#blog' ),
+		__( 'Terms & Conditions', 'excel-ent' ) => home_url( '/terms-conditions/' ),
+		__( 'Privacy Policy', 'excel-ent' )     => home_url( '/privacy-policy/' ),
+		__( 'Celebrity Acts', 'excel-ent' )     => excel_ent_get_explore_artists_url(
+			array(
+				'tags' => array( 'celebrity-acts' ),
+			)
+		),
 	);
 }
 

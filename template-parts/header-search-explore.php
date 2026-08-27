@@ -1,11 +1,15 @@
 <?php
 /**
- * Explore Artists header search + category filters — Figma 1299:7406 / dropdowns 1515:14175
+ * Explore Artists header search + category filters — Figma 2202:33027 / dropdowns 1515:14175
  *
  * @package Excel_Ent
  */
 
 $excel_ent_ea_uri = EXCEL_ENT_URI . '/assets/images/explore-artists';
+$excel_ent_search_action = is_search() ? home_url( '/' ) : home_url( '/explore-artists/' );
+$excel_ent_search_selected_tags = is_search() && isset( $_GET['occasion'] )
+	? array_values( array_filter( array_map( 'sanitize_key', explode( ',', sanitize_text_field( wp_unslash( $_GET['occasion'] ) ) ) ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	: array();
 
 $excel_ent_ea_filters = array(
 	'artist-type' => array(
@@ -61,7 +65,7 @@ $excel_ent_ea_filters = array(
 		),
 	),
 	'era'         => array(
-		'label' => __( 'Decades', 'excel-ent' ),
+		'label' => __( 'Era / Decade', 'excel-ent' ),
 		'mod'   => 'wide',
 		'tags'  => array(
 			'00s' => __( "00's", 'excel-ent' ),
@@ -77,7 +81,7 @@ $excel_ent_ea_filters = array(
 		),
 	),
 	'event'       => array(
-		'label' => __( 'Entertainment & Events', 'excel-ent' ),
+		'label' => __( 'Event Type', 'excel-ent' ),
 		'mod'   => 'event',
 		'tags'  => array(
 			'celebrity-act'          => __( 'Celebrity Act', 'excel-ent' ),
@@ -162,7 +166,7 @@ $excel_ent_search_categories = array(
 	),
 	array(
 		'id'           => 'era',
-		'label'        => __( 'Decades', 'excel-ent' ),
+		'label'        => __( 'Era / Decade', 'excel-ent' ),
 		'count'        => '1200',
 		'active'       => false,
 		'icon'         => 'caret',
@@ -171,7 +175,7 @@ $excel_ent_search_categories = array(
 	),
 	array(
 		'id'           => 'event',
-		'label'        => __( 'Entertainment & Events', 'excel-ent' ),
+		'label'        => __( 'Event Type', 'excel-ent' ),
 		'count'        => '1200',
 		'active'       => false,
 		'icon'         => 'caret',
@@ -206,7 +210,7 @@ $excel_ent_search_categories = array(
 	),
 );
 
-$excel_ent_render_filter_panel = static function ( $id, $group ) use ( $excel_ent_ea_uri ) {
+$excel_ent_render_filter_panel = static function ( $id, $group ) use ( $excel_ent_ea_uri, $excel_ent_search_selected_tags ) {
 	$mod          = ! empty( $group['mod'] ) ? ' explore-filter--' . $group['mod'] : '';
 	$is_sort      = ! empty( $group['mod'] ) && 'sort' === $group['mod'];
 	$show_confirm = ! isset( $group['confirm'] ) || $group['confirm'];
@@ -247,7 +251,7 @@ $excel_ent_render_filter_panel = static function ( $id, $group ) use ( $excel_en
 				aria-label="<?php echo esc_attr( $group['label'] ); ?>"
 			>
 				<?php foreach ( $group['tags'] as $excel_ent_value => $excel_ent_tag_label ) : ?>
-					<?php $excel_ent_tag_on = $is_sort && 'recommended' === $excel_ent_value; ?>
+					<?php $excel_ent_tag_on = ( $is_sort && 'recommended' === $excel_ent_value ) || in_array( $excel_ent_value, $excel_ent_search_selected_tags, true ); ?>
 					<button
 						type="button"
 						class="explore-filter__tag<?php echo $excel_ent_tag_on ? ' is-selected' : ''; ?>"
@@ -317,7 +321,7 @@ $excel_ent_render_filter_panel = static function ( $id, $group ) use ( $excel_en
 			class="explore-artists-search__form"
 			role="search"
 			method="get"
-			action="<?php echo esc_url( home_url( '/explore-artists/' ) ); ?>"
+			action="<?php echo esc_url( $excel_ent_search_action ); ?>"
 		>
 			<label class="explore-artists-search__label" for="explore-artists-search-query">
 				<span class="explore-artists-search__title"><?php esc_html_e( 'Search', 'excel-ent' ); ?></span>

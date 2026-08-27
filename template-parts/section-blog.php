@@ -1,6 +1,6 @@
 <?php
 /**
- * Latest from the Blog section + detail modal (Figma 1173:70215 / 1023:6274).
+ * Latest from the Blog section + detail modal (Figma 2202:30748).
  *
  * @package Excel_Ent
  */
@@ -94,7 +94,7 @@ $excel_ent_blog_total = count( $excel_ent_blog_posts );
 		<div class="blog-section__track" data-blog-track>
 			<?php foreach ( $excel_ent_blog_posts as $excel_ent_index => $excel_ent_post ) : ?>
 				<article
-					class="blog-card<?php echo 1 === $excel_ent_index || ( 0 === $excel_ent_index && 1 === $excel_ent_blog_total ) ? ' is-active' : ''; ?>"
+					class="blog-card<?php echo 2 === $excel_ent_index || ( 0 === $excel_ent_index && 1 === $excel_ent_blog_total ) ? ' is-active' : ''; ?>"
 					data-blog-card
 				>
 					<div class="blog-card__media">
@@ -165,7 +165,7 @@ $excel_ent_blog_total = count( $excel_ent_blog_posts );
 			</button>
 
 			<p class="blog-section__count">
-				<span data-blog-current><?php echo esc_html( (string) ( $excel_ent_blog_total > 2 ? 2 : 1 ) ); ?></span>/<span data-blog-total><?php echo esc_html( (string) $excel_ent_blog_total ); ?></span>
+				<span data-blog-current><?php echo esc_html( (string) ( $excel_ent_blog_total > 2 ? 3 : 1 ) ); ?></span>/<span data-blog-total><?php echo esc_html( (string) $excel_ent_blog_total ); ?></span>
 			</p>
 
 			<button

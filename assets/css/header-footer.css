@@ -3159,12 +3159,12 @@ body.mobile-search-open {
 	display: none;
 }
 
-/* Desktop footer — Figma 1668:2065, scales with viewport (incl. 5K) */
+/* Desktop footer — Figma 2202:30845, scales with viewport (incl. 5K) */
 @media (min-width: 1200px) {
 	.site-footer {
 		max-width: none;
 		width: 100%;
-		padding: max(64px, 4.17vw) max(48px, 6.25vw);
+		padding: max(64px, 4.17vw) max(48px, 8.33vw) 0;
 	}
 
 	.site-footer__glow {
@@ -3394,7 +3394,11 @@ body.mobile-search-open {
 	}
 
 	.site-footer__bottom {
-		display: none;
+		display: flex;
+		margin-top: max(64px, 4.17vw);
+		padding: 30px 0;
+		border-top-color: #616161;
+		opacity: 1;
 	}
 }
 

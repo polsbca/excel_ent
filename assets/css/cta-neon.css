@@ -1,4 +1,4 @@
-/* Excel Ent — Neon CTA (Figma 1084:2440 / mobile 1041:2036) */
+/* Excel Ent — Neon CTA (Figma 2202:36071 / mobile 1041:2036) */
 
 .cta-neon {
 	background: #000;
@@ -190,10 +190,28 @@
 }
 
 @media (min-width: 1200px) {
+	.cta-neon {
+		padding: 4.17vw 6.25vw;
+	}
+
 	.cta-neon__inner {
 		flex-direction: row;
 		flex-wrap: nowrap;
 		align-items: flex-start;
+	}
+
+	.cta-neon__copy {
+		height: 7.76vw;
+		justify-content: space-between;
+		gap: 0;
+	}
+
+	.cta-neon__title {
+		font-size: 4.17vw;
+	}
+
+	.cta-neon__btn--outline {
+		display: none;
 	}
 
 	.cta-neon__rail {

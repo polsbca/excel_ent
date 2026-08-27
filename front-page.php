@@ -10,7 +10,6 @@ get_header();
 $excel_ent_contact     = home_url( '/contact-us/' );
 $excel_ent_join        = home_url( '/contact-us/#talent' );
 $excel_ent_hero_slides = excel_ent_get_hero_slides();
-$excel_ent_hero_first  = $excel_ent_hero_slides[0] ?? null;
 ?>
 
 <section class="hero" id="hero" aria-label="<?php esc_attr_e( 'Hero', 'excel-ent' ); ?>" data-hero>
@@ -76,63 +75,17 @@ $excel_ent_hero_first  = $excel_ent_hero_slides[0] ?? null;
 		</div>
 
 		<div class="hero__carousel" data-hero-carousel>
-			<div class="hero-carousel__nav">
-				<button
-					type="button"
-					class="hero-carousel__btn hero-carousel__btn--prev magnetic"
-					data-carousel-prev
-					aria-label="<?php esc_attr_e( 'Previous slide', 'excel-ent' ); ?>"
-				>
-					<img
-						src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/hero/arrow-left.svg' ); ?>"
-						alt=""
-						width="35"
-						height="35"
-						decoding="async"
-					>
-				</button>
-
-				<div class="hero-carousel__media">
-					<img
-						class="hero-carousel__ring"
-						src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/hero/carousel-ring.svg' ); ?>"
-						alt=""
-						width="129"
-						height="129"
-						decoding="async"
-					>
-					<img
-						class="hero-carousel__thumb"
-						data-carousel-image
-						src="<?php echo esc_url( $excel_ent_hero_first['image'] ?? '' ); ?>"
-						alt=""
-						width="91"
-						height="91"
-						decoding="async"
-					>
-				</div>
-
-				<button
-					type="button"
-					class="hero-carousel__btn hero-carousel__btn--next magnetic"
-					data-carousel-next
-					aria-label="<?php esc_attr_e( 'Next slide', 'excel-ent' ); ?>"
-				>
-					<img
-						src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/hero/arrow-right.svg' ); ?>"
-						alt=""
-						width="34"
-						height="34"
-						decoding="async"
-					>
-				</button>
-			</div>
-
-			<p class="hero-carousel__label" data-carousel-label><?php echo esc_html( $excel_ent_hero_first['label'] ?? '' ); ?></p>
-
-			<div class="hero-carousel__progress" aria-hidden="true">
-				<span class="hero-carousel__track"></span>
-				<span class="hero-carousel__fill" data-carousel-fill></span>
+			<div class="hero-carousel__dots" role="tablist" aria-label="<?php esc_attr_e( 'Hero slides', 'excel-ent' ); ?>">
+				<?php foreach ( $excel_ent_hero_slides as $excel_ent_i => $excel_ent_slide ) : ?>
+					<button
+						type="button"
+						class="hero-carousel__dot<?php echo 0 === (int) $excel_ent_i ? ' is-active' : ''; ?>"
+						data-carousel-dot="<?php echo esc_attr( (string) $excel_ent_i ); ?>"
+						role="tab"
+						aria-selected="<?php echo 0 === (int) $excel_ent_i ? 'true' : 'false'; ?>"
+						aria-label="<?php echo esc_attr( sprintf( __( 'Show %s slide', 'excel-ent' ), $excel_ent_slide['label'] ?? ( $excel_ent_i + 1 ) ) ); ?>"
+					></button>
+				<?php endforeach; ?>
 			</div>
 
 			<script type="application/json" data-carousel-slides>

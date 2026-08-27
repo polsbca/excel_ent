@@ -1,6 +1,6 @@
 <?php
 /**
- * Most Popular Services section (Figma 1084:2263 desktop / 1023:3144 mobile).
+ * Most Popular Services section (Figma 2202:30698 desktop / 1023:3144 mobile).
  *
  * @package Excel_Ent
  */
@@ -73,6 +73,7 @@ $excel_ent_featured = array(
 <div class="services-section-pin" data-services-pin>
 	<div class="services-section__scroll-pad" aria-hidden="true"></div>
 <section class="services-section" id="services" data-services-swap aria-label="<?php esc_attr_e( 'Most Popular Services', 'excel-ent' ); ?>">
+	<div class="services-section__inner">
 	<header class="services-section__header reveal" data-reveal>
 		<div class="services-section__heading">
 			<h2 class="services-section__title">
@@ -197,6 +198,7 @@ $excel_ent_featured = array(
 			</div>
 		</article>
 		</div>
+	</div>
 	</div>
 </section>
 </div>
