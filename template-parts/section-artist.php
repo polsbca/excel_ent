@@ -17,8 +17,6 @@ $excel_ent_tags = array(
 	__( 'Wedding', 'excel-ent' ),
 	__( 'Jazz', 'excel-ent' ),
 	__( 'Club Classics', 'excel-ent' ),
-	__( 'Smooth Jazz', 'excel-ent' ),
-	__( 'Plug & Play', 'excel-ent' ),
 );
 
 $excel_ent_perks = array(
@@ -89,22 +87,39 @@ $excel_ent_gallery = array(
 		'duration' => __( '5:00 PM - 9:00 PM (4 Hours)', 'excel-ent' ),
 		'guests'   => __( '150 Attendee', 'excel-ent' ),
 	),
+	array(
+		'image'    => $excel_ent_uri . '/gallery-7.jpg',
+		'venue'    => __( 'Live Music Venue, London', 'excel-ent' ),
+		'location' => __( 'London, UK', 'excel-ent' ),
+		'duration' => __( '8:00 PM - 11:00 PM (3 Hours)', 'excel-ent' ),
+		'guests'   => __( '500 Attendee', 'excel-ent' ),
+	),
 );
 
 $excel_ent_similar = array(
+	array(
+		'name'       => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
+		'image'      => $excel_ent_ea . '/artist-1.jpg',
+		'price'      => '£1,200',
+		'rating'     => '4.5',
+		'location'   => __( 'Manchester', 'excel-ent' ),
+		'status'     => __( 'Available this weekend', 'excel-ent' ),
+		'status_mod' => 'weekend',
+		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
+	),
 	array(
 		'name'       => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
 		'image'      => $excel_ent_ea . '/artist-2.jpg',
 		'price'      => '£1,200',
 		'rating'     => '4.5',
 		'location'   => __( 'Manchester', 'excel-ent' ),
-		'status'     => __( 'Available After 30 days', 'excel-ent' ),
-		'status_mod' => 'later',
+		'status'     => __( 'Available this weekend', 'excel-ent' ),
+		'status_mod' => 'weekend',
 		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 	array(
 		'name'       => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
-		'image'      => $excel_ent_ea . '/artist-4.jpg',
+		'image'      => $excel_ent_ea . '/artist-2.jpg',
 		'price'      => '£1,200',
 		'rating'     => '4.5',
 		'location'   => __( 'Manchester', 'excel-ent' ),
@@ -114,17 +129,7 @@ $excel_ent_similar = array(
 	),
 	array(
 		'name'       => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
-		'image'      => $excel_ent_ea . '/artist-5.jpg',
-		'price'      => '£1,200',
-		'rating'     => '4.5',
-		'location'   => __( 'Manchester', 'excel-ent' ),
-		'status'     => __( 'Available this weekend', 'excel-ent' ),
-		'status_mod' => 'weekend',
-		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
-	),
-	array(
-		'name'       => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
-		'image'      => $excel_ent_ea . '/artist-6.jpg',
+		'image'      => $excel_ent_ea . '/artist-2.jpg',
 		'price'      => '£1,200',
 		'rating'     => '4.5',
 		'location'   => __( 'Manchester', 'excel-ent' ),
@@ -133,10 +138,15 @@ $excel_ent_similar = array(
 		'tags'       => array( 'Nightclubs', 'DJs', 'clubs', 'Nightclubs' ),
 	),
 );
+
+for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar_index < 9; $excel_ent_similar_index++ ) {
+	$excel_ent_similar[] = $excel_ent_similar[1];
+}
 ?>
 
 <!-- Hero / Profile -->
 <section class="artist-hero" aria-label="<?php esc_attr_e( 'Artist profile', 'excel-ent' ); ?>">
+	<div class="artist-hero__inner">
 	<div class="artist-hero__media">
 		<img
 			src="<?php echo esc_url( $excel_ent_uri . '/hero.webp' ); ?>"
@@ -226,15 +236,19 @@ $excel_ent_similar = array(
 			</button>
 		</div>
 	</div>
+	</div>
 </section>
 
 <!-- Performance & Energy -->
-<section class="artist-performance" aria-label="<?php esc_attr_e( 'Performance and energy', 'excel-ent' ); ?>">
+<div class="artist-performance-pin" data-artist-performance-pin>
+	<div class="artist-performance__scroll-pad" aria-hidden="true"></div>
+<section class="artist-performance" aria-label="<?php esc_attr_e( 'Performance and energy', 'excel-ent' ); ?>" data-artist-performance>
+	<div class="artist-performance__inner">
 	<div class="artist-performance__copy reveal" data-reveal>
 		<h2 class="artist-performance__title"><?php esc_html_e( 'Performance & Energy', 'excel-ent' ); ?></h2>
 		<div class="artist-performance__cols">
-			<p><?php esc_html_e( "Available as a 'plug and play' sax option, Rose can seamlessly connect to your venue's PA system or a DJ provided by the client, creating an effortless live sax experience. For a complete entertainment package, she can also provide a full DJ service alongside her performance.", 'excel-ent' ); ?></p>
 			<p><?php esc_html_e( 'Performed at The Roundhouse Theatre, The O2, Cork Opera House in Ireland, and Udaipur City Palace, Rose Sax is a versatile saxophonist who brings sophistication and energy to every event. Her repertoire spans smooth jazz standards to club classics and freestyle improvisation with live musicians.', 'excel-ent' ); ?></p>
+			<p><?php esc_html_e( "Available as a 'plug and play' sax option, Rose can seamlessly connect to your venue's PA system or a DJ provided by the client, creating an effortless live sax experience. For a complete entertainment package, she can also provide a full DJ service alongside her performance.", 'excel-ent' ); ?></p>
 		</div>
 	</div>
 
@@ -291,9 +305,14 @@ $excel_ent_similar = array(
 		</div>
 	</div>
 </section>
+</div>
+</div>
 
 <!-- Example Set Lists -->
+<div class="artist-setlist-pin" data-artist-setlist-pin>
+	<div class="artist-setlist__scroll-pad" aria-hidden="true"></div>
 <section class="artist-setlist" aria-label="<?php esc_attr_e( 'Example set lists', 'excel-ent' ); ?>" data-artist-setlist>
+	<div class="artist-setlist__inner">
 	<article class="artist-setlist__featured reveal" data-reveal>
 		<img src="<?php echo esc_url( $excel_ent_uri . '/featured.jpg' ); ?>" alt="" width="546" height="1040" loading="lazy" decoding="async">
 		<div class="artist-setlist__featured-top">
@@ -375,6 +394,8 @@ $excel_ent_similar = array(
 		</div>
 	</div>
 </section>
+</div>
+</div>
 
 <!-- Photos & Videos -->
 <section class="artist-media" aria-label="<?php esc_attr_e( 'Photos and videos', 'excel-ent' ); ?>" data-artist-media>
@@ -406,7 +427,7 @@ $excel_ent_similar = array(
 
 		<div class="artist-media__gallery">
 			<div class="artist-media__thumbs stagger" data-media-thumbs-primary>
-				<?php foreach ( array_slice( $excel_ent_gallery, 0, 4 ) as $excel_ent_gi => $excel_ent_g ) : ?>
+				<?php foreach ( array_slice( $excel_ent_gallery, 1, 4 ) as $excel_ent_gi => $excel_ent_g ) : ?>
 					<button
 						class="artist-media__thumb reveal<?php echo 3 === $excel_ent_gi ? ' is-selected' : ''; ?>"
 						type="button"
@@ -425,7 +446,7 @@ $excel_ent_similar = array(
 				<?php endforeach; ?>
 			</div>
 			<div class="artist-media__thumbs artist-media__thumbs--secondary stagger" data-media-thumbs-secondary>
-				<?php foreach ( array_slice( $excel_ent_gallery, 4, 2 ) as $excel_ent_gi => $excel_ent_g ) : ?>
+				<?php foreach ( array_slice( $excel_ent_gallery, 5, 2 ) as $excel_ent_gi => $excel_ent_g ) : ?>
 					<button
 						class="artist-media__thumb reveal"
 						type="button"
@@ -436,7 +457,7 @@ $excel_ent_similar = array(
 						data-location="<?php echo esc_attr( $excel_ent_g['location'] ); ?>"
 						data-duration="<?php echo esc_attr( $excel_ent_g['duration'] ); ?>"
 						data-guests="<?php echo esc_attr( $excel_ent_g['guests'] ); ?>"
-						style="--i: <?php echo esc_attr( (string) ( $excel_ent_gi + 4 ) ); ?>; transition-delay: <?php echo esc_attr( (string) ( ( $excel_ent_gi + 4 ) * 80 ) ); ?>ms"
+						style="--i: <?php echo esc_attr( (string) ( $excel_ent_gi + 5 ) ); ?>; transition-delay: <?php echo esc_attr( (string) ( ( $excel_ent_gi + 5 ) * 80 ) ); ?>ms"
 					>
 						<img src="<?php echo esc_url( $excel_ent_g['image'] ); ?>" alt="" loading="lazy" decoding="async">
 						<span class="artist-media__selected-label"><?php esc_html_e( 'SELECTED', 'excel-ent' ); ?></span>
@@ -450,7 +471,7 @@ $excel_ent_similar = array(
 		<div class="artist-media__video reveal" data-reveal>
 			<img
 				class="artist-media__video-poster"
-				src="<?php echo esc_url( $excel_ent_uri . '/video-poster.jpg' ); ?>"
+				src="<?php echo esc_url( $excel_ent_uri . '/gallery-7.jpg' ); ?>"
 				alt="<?php esc_attr_e( 'Artist performance video', 'excel-ent' ); ?>"
 				width="1682"
 				height="886"
@@ -479,7 +500,10 @@ $excel_ent_similar = array(
 </section>
 
 <!-- Similar Artists -->
+<div class="artist-similar-pin" data-artist-similar-pin>
+	<div class="artist-similar__scroll-pad" aria-hidden="true"></div>
 <section class="artist-similar" aria-label="<?php esc_attr_e( 'Similar artists', 'excel-ent' ); ?>" data-artist-similar>
+	<div class="artist-similar__inner">
 	<header class="artist-similar__header reveal" data-reveal>
 		<h2 class="artist-similar__title"><?php esc_html_e( 'View Similar Artists', 'excel-ent' ); ?></h2>
 		<div class="artist-similar__eyebrow">
@@ -574,10 +598,12 @@ $excel_ent_similar = array(
 			<button class="magnetic" type="button" data-similar-prev aria-label="<?php esc_attr_e( 'Previous artists', 'excel-ent' ); ?>">
 				<img src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/artists/arrow-nav-left.svg' ); ?>" alt="" width="42" height="42" decoding="async">
 			</button>
-			<p data-similar-count>1/4</p>
+			<p data-similar-count>1/9</p>
 			<button class="magnetic" type="button" data-similar-next aria-label="<?php esc_attr_e( 'Next artists', 'excel-ent' ); ?>">
 				<img src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/artists/arrow-nav-right.svg' ); ?>" alt="" width="42" height="42" decoding="async">
 			</button>
 		</div>
 	</div>
 </section>
+</div>
+</div>

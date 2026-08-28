@@ -620,7 +620,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 <section class="contact-intro" aria-label="<?php esc_attr_e( 'Contact Excel Entertainment', 'excel-ent' ); ?>" data-contact-tabs>
 	<header class="contact-intro__header">
 		<h1 class="contact-intro__title">
-			<span class="contact-intro__title-desktop"><?php esc_html_e( 'THE Stage Is Ready', 'excel-ent' ); ?></span>
+			<span class="contact-intro__title-desktop"><?php esc_html_e( 'GET STARTED', 'excel-ent' ); ?></span>
 			<span class="contact-intro__title-tablet"><?php esc_html_e( 'Contact us', 'excel-ent' ); ?></span>
 			<span class="contact-intro__title-mobile"><?php esc_html_e( 'GET STARTED', 'excel-ent' ); ?></span>
 		</h1>
@@ -708,13 +708,13 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 				</section>
 
 				<!-- Entertainment Preferences -->
-				<section class="contact-acc" data-contact-acc>
+				<section class="contact-acc contact-acc--tint" data-contact-acc>
 					<button type="button" class="contact-acc__toggle" data-contact-acc-toggle aria-expanded="false">
 						<span class="contact-acc__heading">
 							<span class="contact-acc__icon" aria-hidden="true">
 								<img src="<?php echo esc_url( $excel_ent_uri . '/icon-music.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							</span>
-							<span class="contact-acc__title"><?php esc_html_e( 'Entertainment Preferences:', 'excel-ent' ); ?></span>
+							<span class="contact-acc__title"><?php esc_html_e( 'Entertainment Preferences', 'excel-ent' ); ?></span>
 						</span>
 						<span class="contact-acc__plus" aria-hidden="true"></span>
 					</button>
@@ -823,13 +823,13 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 				</section>
 
 				<!-- Event Details -->
-				<section class="contact-acc" data-contact-acc>
+				<section class="contact-acc contact-acc--tint" data-contact-acc>
 					<button type="button" class="contact-acc__toggle" data-contact-acc-toggle aria-expanded="false">
 						<span class="contact-acc__heading">
 							<span class="contact-acc__icon" aria-hidden="true">
 								<img src="<?php echo esc_url( $excel_ent_uri . '/icon-calendar.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							</span>
-							<span class="contact-acc__title"><?php esc_html_e( 'Event Details:', 'excel-ent' ); ?></span>
+							<span class="contact-acc__title"><?php esc_html_e( 'Event Details', 'excel-ent' ); ?></span>
 						</span>
 						<span class="contact-acc__plus" aria-hidden="true"></span>
 					</button>
@@ -1075,7 +1075,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<span class="contact-acc__icon" aria-hidden="true">
 								<img src="<?php echo esc_url( $excel_ent_uri . '/icon-chat.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							</span>
-							<span class="contact-acc__title"><?php esc_html_e( 'Additional Information:', 'excel-ent' ); ?></span>
+							<span class="contact-acc__title"><?php esc_html_e( 'Additional Information', 'excel-ent' ); ?></span>
 						</span>
 						<span class="contact-acc__plus" aria-hidden="true"></span>
 					</button>
@@ -1094,7 +1094,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<span class="contact-acc__icon" aria-hidden="true">
 								<img src="<?php echo esc_url( $excel_ent_uri . '/icon-phone.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							</span>
-							<span class="contact-acc__title"><?php esc_html_e( 'Contact Preference:', 'excel-ent' ); ?></span>
+							<span class="contact-acc__title"><?php esc_html_e( 'Contact Preference', 'excel-ent' ); ?></span>
 						</span>
 						<span class="contact-acc__plus" aria-hidden="true"></span>
 					</button>
@@ -1224,7 +1224,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<span class="contact-acc__icon" aria-hidden="true">
 								<img src="<?php echo esc_url( $excel_ent_uri . '/icon-music.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							</span>
-							<span class="contact-acc__title"><?php esc_html_e( 'Performance Details:', 'excel-ent' ); ?></span>
+							<span class="contact-acc__title"><?php esc_html_e( 'Performance Details', 'excel-ent' ); ?></span>
 						</span>
 						<span class="contact-acc__plus" aria-hidden="true"></span>
 					</button>
@@ -1290,7 +1290,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<span class="contact-acc__icon" aria-hidden="true">
 								<img src="<?php echo esc_url( $excel_ent_uri . '/icon-camera.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							</span>
-							<span class="contact-acc__title"><?php esc_html_e( 'Media & Reviews:', 'excel-ent' ); ?></span>
+							<span class="contact-acc__title"><?php esc_html_e( 'Media & Reviews', 'excel-ent' ); ?></span>
 						</span>
 						<span class="contact-acc__plus" aria-hidden="true"></span>
 					</button>
@@ -1361,7 +1361,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<span class="contact-acc__icon" aria-hidden="true">
 								<img src="<?php echo esc_url( $excel_ent_uri . '/icon-task.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							</span>
-							<span class="contact-acc__title"><?php esc_html_e( 'Travel & Technical Information:', 'excel-ent' ); ?></span>
+							<span class="contact-acc__title"><?php esc_html_e( 'Travel & Technical Information', 'excel-ent' ); ?></span>
 						</span>
 						<span class="contact-acc__plus" aria-hidden="true"></span>
 					</button>
@@ -1429,7 +1429,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<span class="contact-acc__icon" aria-hidden="true">
 								<img src="<?php echo esc_url( $excel_ent_uri . '/icon-chat.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							</span>
-							<span class="contact-acc__title"><?php esc_html_e( 'Artist bio:', 'excel-ent' ); ?></span>
+							<span class="contact-acc__title"><?php esc_html_e( 'Artist bio', 'excel-ent' ); ?></span>
 						</span>
 						<span class="contact-acc__plus" aria-hidden="true"></span>
 					</button>
@@ -1448,7 +1448,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<span class="contact-acc__icon" aria-hidden="true">
 								<img src="<?php echo esc_url( $excel_ent_uri . '/icon-phone.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							</span>
-							<span class="contact-acc__title"><?php esc_html_e( 'Contact Preference:', 'excel-ent' ); ?></span>
+							<span class="contact-acc__title"><?php esc_html_e( 'Contact Preference', 'excel-ent' ); ?></span>
 						</span>
 						<span class="contact-acc__plus" aria-hidden="true"></span>
 					</button>

@@ -30,6 +30,27 @@
 
 /* ---------- Header ---------- */
 
+@media (min-width: 768px) {
+	body.page-template-page-artist .site-header {
+		position: sticky !important;
+		top: 0 !important;
+		z-index: 100;
+	}
+
+	body.page-template-page-artist .site-header.is-scrolled {
+		position: fixed !important;
+		top: 0 !important;
+		right: 0;
+		left: 0;
+		width: 100%;
+		background: #000;
+	}
+
+	body.page-template-page-artist .site-header.is-nav-open {
+		position: fixed !important;
+	}
+}
+
 .site-header {
 	position: relative;
 	z-index: 50;
@@ -61,17 +82,17 @@ body.page-template-page-artist .site-header {
 }
 
 body.page-template-page-artist {
-	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 html:has(body.page-template-page-artist) {
-	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 body.page-template-page-artist .site,
 body.page-template-page-artist .site-main,
 body.page-template-page-artist .artist-page {
-	overflow-x: hidden;
+	overflow-x: visible;
 	max-width: 100%;
 }
 
@@ -122,21 +143,26 @@ body.page-template-page-about .site-header__bar {
 
 /* Packages — bar only, no search strip (Figma 1126:2252 / mobile 1023:10624) */
 body.page-template-page-package .site-header {
+	position: sticky;
+	top: 0;
+	z-index: 50;
 	background: #000;
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
 }
 
 body.page-template-page-package {
-	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 html:has(body.page-template-page-package) {
-	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 body.page-template-page-package .site,
 body.page-template-page-package .site-main,
 body.page-template-page-package .package-page {
-	overflow-x: hidden;
+	overflow-x: clip;
 	max-width: 100%;
 }
 
@@ -5232,6 +5258,13 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 
 /* Tablet — Figma 1083:582 (front page header + compact search) */
 @media (min-width: 768px) and (max-width: 1199px) {
+	body.page-template-page-artist .site-header {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		background: #000;
+	}
+
 	body.home .site-header,
 	body.front-page .site-header {
 		position: absolute;

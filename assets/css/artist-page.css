@@ -18,6 +18,10 @@
 	box-sizing: border-box;
 }
 
+.artist-hero__inner {
+	display: contents;
+}
+
 .artist-hero__media {
 	position: relative;
 	flex: 1 1 0;
@@ -113,6 +117,7 @@
 	.artist-media__stage > img.is-enter {
 		opacity: 1 !important;
 		transform: none !important;
+		clip-path: inset(0) !important;
 	}
 
 	.artist-media__stage.is-meta-fading .artist-media__meta {
@@ -453,6 +458,18 @@
 
 /* ---------- Performance ---------- */
 
+.artist-performance-pin {
+	--ee-artist-performance-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.artist-performance__scroll-pad {
+	display: none;
+	height: max(140px, 7.29vw);
+	pointer-events: none;
+}
+
 .artist-performance {
 	display: flex;
 	align-items: flex-start;
@@ -461,6 +478,10 @@
 	background: #fff;
 	color: #000;
 	box-sizing: border-box;
+}
+
+.artist-performance__inner {
+	display: contents;
 }
 
 .artist-performance__copy {
@@ -632,6 +653,19 @@
 
 /* ---------- Set list ---------- */
 
+.artist-setlist-pin {
+	--ee-artist-setlist-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+	background: #000;
+}
+
+.artist-setlist__scroll-pad {
+	display: none;
+	height: max(140px, 7.29vw);
+	pointer-events: none;
+}
+
 .artist-setlist {
 	display: flex;
 	align-items: stretch;
@@ -640,6 +674,10 @@
 	background: #000;
 	color: #fff;
 	box-sizing: border-box;
+}
+
+.artist-setlist__inner {
+	display: contents;
 }
 
 .artist-setlist__featured {
@@ -1096,9 +1134,11 @@
 	object-position: bottom;
 	opacity: 1;
 	transform: scale(1);
+	clip-path: inset(0);
 	transition:
 		opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-		transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+		transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+		clip-path 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 	will-change: opacity, transform;
 }
 
@@ -1108,19 +1148,22 @@
 }
 
 .artist-media__stage > img.is-outgoing.is-exit {
-	opacity: 0;
-	transform: scale(1.04);
+	opacity: 1;
+	transform: none;
+	clip-path: inset(0);
 }
 
 .artist-media__stage > img[data-media-main].is-enter {
 	z-index: 1;
-	opacity: 0;
-	transform: scale(1.06);
+	opacity: 1;
+	transform: translateY(5%) scale(1.02);
+	clip-path: inset(100% 0 0);
 }
 
 .artist-media__stage > img[data-media-main].is-enter.is-visible {
 	opacity: 1;
-	transform: scale(1);
+	transform: translateY(0) scale(1);
+	clip-path: inset(0);
 }
 
 .artist-media__meta {
@@ -1350,6 +1393,22 @@
 }
 
 /* ---------- Similar artists ---------- */
+
+.artist-similar-pin {
+	--ee-artist-similar-sticky-top: 0px;
+	position: relative;
+	isolation: isolate;
+}
+
+.artist-similar__scroll-pad {
+	display: none;
+	height: max(140px, 7.29vw);
+	pointer-events: none;
+}
+
+.artist-similar__inner {
+	display: contents;
+}
 
 .artist-similar {
 	display: flex;

@@ -144,6 +144,11 @@ $excel_ent_artists = array(
 			<article
 				class="<?php echo esc_attr( $excel_ent_card_class ); ?>"
 				data-reveal
+				data-explore-artist-card
+				data-profile-url="<?php echo esc_url( $excel_ent_profile ); ?>"
+				role="link"
+				tabindex="0"
+				aria-label="<?php echo esc_attr( sprintf( /* translators: %s: artist name */ __( 'View profile: %s', 'excel-ent' ), $excel_ent_artist['name'] ) ); ?>"
 				style="--i: <?php echo esc_attr( (string) $excel_ent_index ); ?>; transition-delay: <?php echo esc_attr( (string) ( $excel_ent_index * 80 ) ); ?>ms"
 			>
 				<div class="explore-artist-card__media" aria-hidden="true">

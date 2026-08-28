@@ -817,6 +817,15 @@
 		border-color 0.35s ease;
 }
 
+.explore-artist-card[data-profile-url] {
+	cursor: pointer;
+}
+
+.explore-artist-card[data-profile-url]:focus-visible {
+	outline: 3px solid #f89a42;
+	outline-offset: 4px;
+}
+
 .explore-artist-card.is-visible:hover {
 	transform: translateY(-6px);
 	border-color: #f89a42;

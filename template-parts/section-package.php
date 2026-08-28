@@ -302,10 +302,28 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 		<p class="package-panel__lede reveal" data-reveal>
 			<?php esc_html_e( "Make your special day unforgettable with Excel Entertainment's bespoke wedding packages, tailored to create the perfect atmosphere for your celebration.", 'excel-ent' ); ?>
 		</p>
-		<div class="package-grid stagger">
-			<?php foreach ( $excel_ent_wedding as $excel_ent_i => $excel_ent_pkg ) : ?>
-				<?php $excel_ent_render_card( $excel_ent_pkg, $excel_ent_note, $excel_ent_quote, $excel_ent_i, 'wedding' ); ?>
-			<?php endforeach; ?>
+		<div class="package-grid-wrap">
+			<div class="package-grid stagger">
+				<?php foreach ( $excel_ent_wedding as $excel_ent_i => $excel_ent_pkg ) : ?>
+					<?php $excel_ent_render_card( $excel_ent_pkg, $excel_ent_note, $excel_ent_quote, $excel_ent_i, 'wedding' ); ?>
+				<?php endforeach; ?>
+			</div>
+			<div class="package-grid__rail" aria-hidden="true"><span></span></div>
+		</div>
+		<div class="package-selected">
+			<div class="package-selected__copy">
+				<h2><?php esc_html_e( 'Platinum', 'excel-ent' ); ?></h2>
+				<p><?php esc_html_e( 'Prices start from: £999', 'excel-ent' ); ?></p>
+			</div>
+			<button
+				type="button"
+				class="package-selected__btn magnetic"
+				data-package-enquiry
+				data-package-name="<?php esc_attr_e( 'Platinum', 'excel-ent' ); ?>"
+				data-package-label="<?php esc_attr_e( 'Platinum from £999', 'excel-ent' ); ?>"
+			>
+				<?php esc_html_e( 'Start Enquiry', 'excel-ent' ); ?>
+			</button>
 		</div>
 	</div>
 
@@ -320,10 +338,28 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 		<p class="package-panel__lede reveal" data-reveal>
 			<?php esc_html_e( 'Reliable entertainment at scale for pubs, hotels, and multi-site venues — with vetted artists, flexible scheduling, and backup cover built in.', 'excel-ent' ); ?>
 		</p>
-		<div class="package-grid stagger">
-			<?php foreach ( $excel_ent_bulk as $excel_ent_i => $excel_ent_pkg ) : ?>
-				<?php $excel_ent_render_card( $excel_ent_pkg, $excel_ent_note, $excel_ent_quote, $excel_ent_i, 'bulk' ); ?>
-			<?php endforeach; ?>
+		<div class="package-grid-wrap">
+			<div class="package-grid stagger">
+				<?php foreach ( $excel_ent_bulk as $excel_ent_i => $excel_ent_pkg ) : ?>
+					<?php $excel_ent_render_card( $excel_ent_pkg, $excel_ent_note, $excel_ent_quote, $excel_ent_i, 'bulk' ); ?>
+				<?php endforeach; ?>
+			</div>
+			<div class="package-grid__rail" aria-hidden="true"><span></span></div>
+		</div>
+		<div class="package-selected">
+			<div class="package-selected__copy">
+				<h2><?php esc_html_e( 'Enterprise', 'excel-ent' ); ?></h2>
+				<p><?php esc_html_e( 'Prices start from: Partner', 'excel-ent' ); ?></p>
+			</div>
+			<button
+				type="button"
+				class="package-selected__btn magnetic"
+				data-package-enquiry
+				data-package-name="<?php esc_attr_e( 'Enterprise', 'excel-ent' ); ?>"
+				data-package-label="<?php esc_attr_e( 'Enterprise from Partner', 'excel-ent' ); ?>"
+			>
+				<?php esc_html_e( 'Start Enquiry', 'excel-ent' ); ?>
+			</button>
 		</div>
 	</div>
 </section>
