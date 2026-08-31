@@ -131,7 +131,7 @@ $excel_ent_search_categories = array(
 	array(
 		'id'     => 'all',
 		'label'  => __( 'ALL', 'excel-ent' ),
-		'count'  => '1800',
+		'count'  => '1200',
 		'active' => true,
 		'icon'   => 'none',
 	),
