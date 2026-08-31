@@ -1852,6 +1852,7 @@
 		const nextBtn = blogSection.querySelector("[data-blog-next]");
 		const pinMq = window.matchMedia("(min-width: 320px)");
 		let index = window.innerWidth <= 1199 ? 0 : cards.length > 2 ? 2 : 0;
+		let blogMobilePinInitialized = false;
 
 		const isBlogMobile = () => window.innerWidth <= 767;
 		const isBlogSwipe = () => window.innerWidth <= 1199;
@@ -1861,6 +1862,7 @@
 				return;
 			}
 			if (!pinMq.matches) {
+				blogMobilePinInitialized = false;
 				blogPin.style.height = "";
 				blogSection.classList.remove("is-pinned", "is-viewport-fitted");
 				blogSection.style.removeProperty("height");
@@ -1869,6 +1871,12 @@
 				blogSection.style.removeProperty("--ee-blog-fit-pad-top");
 				blogSection.style.removeProperty("--ee-blog-fit-pad-bottom");
 				blogSection.style.removeProperty("--ee-blog-fit-gap");
+				return;
+			}
+			if (!isBlogMobile()) {
+				blogMobilePinInitialized = false;
+			}
+			if (isBlogMobile() && blogMobilePinInitialized) {
 				return;
 			}
 			const preservePinLayout =
@@ -1898,6 +1906,20 @@
 			const sectionH = Math.ceil(blogSection.getBoundingClientRect().height);
 			const stickyTop =
 				parseFloat(getComputedStyle(blogSection).getPropertyValue("--ee-blog-sticky-top")) || 0;
+			if (isBlogMobile()) {
+				/*
+				 * Mobile browser chrome can change innerHeight while the user
+				 * scrolls. Do not repeatedly resize/scale this sticky section;
+				 * that is what makes the card and CTA jerk or clip. Establish
+				 * its natural height once and keep the scroll hold stable.
+				 */
+				if (!blogMobilePinInitialized) {
+					const holdPx = Math.round(window.innerHeight);
+					blogPin.style.height = `${padH + sectionH + holdPx}px`;
+					blogMobilePinInitialized = true;
+				}
+				return;
+			}
 			const availableH = Math.max(window.innerHeight - stickyTop, 0);
 			const fitScale = Math.min(1, availableH / Math.max(sectionH, 1));
 			if (fitScale < 1) {
@@ -2106,11 +2128,13 @@
 		}
 		if (typeof pinMq.addEventListener === "function") {
 			pinMq.addEventListener("change", () => {
+				blogMobilePinInitialized = false;
 				syncBlogPin();
 				syncBlogPinnedState();
 			});
 		} else if (typeof pinMq.addListener === "function") {
 			pinMq.addListener(() => {
+				blogMobilePinInitialized = false;
 				syncBlogPin();
 				syncBlogPinnedState();
 			});

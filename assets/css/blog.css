@@ -748,6 +748,7 @@
 		padding: 34px 0;
 		gap: 30px;
 		border-bottom: 60px solid #fff;
+		overflow: visible;
 	}
 
 	.blog-section.is-viewport-fitted {
