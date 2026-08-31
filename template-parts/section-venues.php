@@ -16,13 +16,6 @@ $excel_ent_venues = array(
 		'active'      => true,
 	),
 	array(
-		'id'          => 'golf-social',
-		'title'       => __( 'Golf & Social Clubs', 'excel-ent' ),
-		'image'       => $excel_ent_venues_uri . '/golf-social.jpg',
-		'description' => __( 'Create memorable experiences with entertainment suited to members, social gatherings, and special celebrations.', 'excel-ent' ),
-		'active'      => false,
-	),
-	array(
 		'id'          => 'hotels',
 		'title'       => __( 'Hotels', 'excel-ent' ),
 		'image'       => $excel_ent_venues_uri . '/hotels.jpg',
@@ -30,10 +23,17 @@ $excel_ent_venues = array(
 		'active'      => false,
 	),
 	array(
-		'id'          => 'weddings',
-		'title'       => __( 'Weddings', 'excel-ent' ),
+		'id'          => 'golf-social',
+		'title'       => __( 'Golf & Social Clubs', 'excel-ent' ),
+		'image'       => $excel_ent_venues_uri . '/golf-social.jpg',
+		'description' => __( 'Create memorable experiences with entertainment suited to members, social gatherings, and special celebrations.', 'excel-ent' ),
+		'active'      => false,
+	),
+	array(
+		'id'          => 'community-centres',
+		'title'       => __( 'Community Centres', 'excel-ent' ),
 		'image'       => $excel_ent_venues_uri . '/weddings.jpg',
-		'description' => __( 'Make every celebration memorable with entertainment tailored to your wedding, guests, and special moments.', 'excel-ent' ),
+		'description' => __( 'Flexible entertainment for community events, celebrations, and local gatherings.', 'excel-ent' ),
 		'active'      => false,
 	),
 	array(

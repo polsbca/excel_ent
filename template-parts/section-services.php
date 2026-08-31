@@ -90,7 +90,7 @@ $excel_ent_featured = array(
 		<a class="services-section__eyebrow magnetic reveal" data-reveal href="<?php echo esc_url( $excel_ent_services_url ); ?>">
 			<img src="<?php echo esc_url( $excel_ent_services_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
 			<span class="services-section__eyebrow-label services-section__eyebrow-label--desktop"><?php esc_html_e( 'View All Services', 'excel-ent' ); ?></span>
-			<span class="services-section__eyebrow-label services-section__eyebrow-label--mobile"><?php esc_html_e( 'Venue Types', 'excel-ent' ); ?></span>
+			<span class="services-section__eyebrow-label services-section__eyebrow-label--mobile"><?php esc_html_e( 'View All Services', 'excel-ent' ); ?></span>
 		</a>
 
 		<div class="services-section__grid reveal" data-reveal>
@@ -175,8 +175,8 @@ $excel_ent_featured = array(
 					<a class="service-featured__cta service-featured__cta--desktop magnetic" href="<?php echo esc_url( $excel_ent_featured['explore_link'] ); ?>" data-service-cta-desktop>
 						<?php esc_html_e( 'View All', 'excel-ent' ); ?>
 					</a>
-					<a class="service-featured__cta service-featured__cta--mobile magnetic" href="<?php echo esc_url( $excel_ent_featured['profile_link'] ); ?>" data-service-cta-mobile>
-						<?php esc_html_e( 'View Profile', 'excel-ent' ); ?>
+					<a class="service-featured__cta service-featured__cta--mobile magnetic" href="<?php echo esc_url( $excel_ent_services_url ); ?>" data-service-cta-mobile>
+						<?php esc_html_e( 'View All', 'excel-ent' ); ?>
 					</a>
 				</div>
 

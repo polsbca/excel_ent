@@ -225,7 +225,7 @@
 }
 
 .venue-panel:not(.is-active)[data-venue-id="golf-social"] .venue-panel__overlay,
-.venue-panel:not(.is-active)[data-venue-id="weddings"] .venue-panel__overlay,
+.venue-panel:not(.is-active)[data-venue-id="community-centres"] .venue-panel__overlay,
 .venue-panel:not(.is-active)[data-venue-id="corporate"] .venue-panel__overlay {
 	background:
 		linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.7) 100%),
@@ -856,5 +856,121 @@
 	.venue-panel__body,
 	.venue-panel__collapsed-title {
 		transition: none !important;
+	}
+}
+
+/* Homepage mobile venues section — Figma 2331:2778 */
+@media (max-width: 767px) {
+	.venues-section-pin {
+		background: #fff;
+	}
+
+	.venues-section__scroll-pad {
+		display: block;
+		height: 0;
+	}
+
+	.venues-section {
+		position: sticky;
+		top: var(--ee-venues-sticky-top, 0px);
+		z-index: 3;
+		min-height: 0;
+		padding: 34px 24px;
+		box-sizing: border-box;
+		overflow: hidden;
+	}
+
+	.venues-section.is-viewport-fitted {
+		height: var(--ee-venues-viewport-height);
+		min-height: 0;
+		padding-top: var(--ee-venues-fit-pad-top);
+		padding-bottom: var(--ee-venues-fit-pad-bottom);
+		overflow: hidden;
+	}
+
+	.venues-section.is-viewport-fitted .venues-section__inner {
+		width: calc(100% / var(--ee-venues-fit-scale));
+		transform: scale(var(--ee-venues-fit-scale));
+		transform-origin: top left;
+	}
+
+	.venues-section__inner {
+		gap: 30px;
+	}
+
+	.venues-section__header {
+		gap: 16px;
+	}
+
+	.venues-section__aside {
+		order: -1;
+	}
+
+	.venues-section__heading {
+		order: 0;
+		gap: 16px;
+	}
+
+	.venues-section__title {
+		font-size: 32px;
+		line-height: 34px;
+		letter-spacing: 1px;
+		max-width: 309px;
+	}
+
+	.venues-section__lede {
+		font-size: 12px;
+		line-height: 16px;
+		letter-spacing: 1px;
+	}
+
+	.venues-section__eyebrow {
+		padding-right: 140px;
+	}
+
+	.venues-section__eyebrow span {
+		font-size: 12px;
+	}
+
+	.venue-panel {
+		border-top-width: 1px;
+	}
+
+	.venue-panel:not(.is-active),
+	.venue-panel:not(.is-active)[data-venue-id="hotels"] {
+		height: 61px;
+		flex-basis: 61px;
+	}
+
+	.venue-panel.is-active {
+		height: 187px;
+		min-height: 187px;
+		flex-basis: 187px;
+	}
+
+	.venue-panel.is-active .venue-panel__body {
+		justify-content: flex-end;
+		gap: 0;
+		padding: 36px 16px;
+	}
+
+	.venue-panel__content {
+		gap: 16px;
+	}
+
+	.venue-panel__copy {
+		gap: 16px;
+	}
+
+	.venue-panel__title,
+	.venue-panel__collapsed-title {
+		font-size: 24px;
+		line-height: normal;
+	}
+
+	.venue-panel__text {
+		font-size: 14px;
+		line-height: normal;
+		letter-spacing: 1px;
 	}
 }

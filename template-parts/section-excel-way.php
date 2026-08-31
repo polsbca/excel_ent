@@ -54,27 +54,32 @@ $excel_ent_way_steps = array(
 	),
 );
 
-/* Mobile How it works — Figma 1048:2446 (4 steps). */
+/* Mobile How it works — Figma 2331:2704 (5 cards). */
 $excel_ent_way_steps_mobile = array(
 	array(
 		'num'   => '1',
 		'title' => __( 'Tell Us Your Vision', 'excel-ent' ),
-		'text'  => __( 'Share your event type, date, venue, and budget — a quick call or online form is all it takes.', 'excel-ent' ),
+		'text'  => __( 'Share your event details and choose a minimum of three acts you like, in order of preference.', 'excel-ent' ),
 	),
 	array(
 		'num'   => '2',
-		'title' => __( 'We Match You', 'excel-ent' ),
-		'text'  => __( 'Our team hand-picks auditioned artists from our roster — shortlisted options sent directly to you within 24hrs.', 'excel-ent' ),
+		'title' => __( 'We acknowledge your enquiry', 'excel-ent' ),
+		'text'  => __( "You'll get an email confirming we've received it, and requesting any extra details we need.", 'excel-ent' ),
 	),
 	array(
 		'num'   => '3',
-		'title' => __( 'Confirm & Relax', 'excel-ent' ),
-		'text'  => __( 'Approve your chosen act, sign off the details, and leave all coordination entirely to us. Zero stress.', 'excel-ent' ),
+		'title' => __( 'We check availability', 'excel-ent' ),
+		'text'  => __( "We check your top choice first. If they're unavailable, we suggest the next act from your list.", 'excel-ent' ),
 	),
 	array(
 		'num'   => '4',
-		'title' => __( 'Enjoy the Show', 'excel-ent' ),
-		'text'  => __( 'Your artist arrives fully equipped — PA, lighting, PLI covered and PAT tested. Ready to deliver magic.', 'excel-ent' ),
+		'title' => __( 'Invoice sent', 'excel-ent' ),
+		'text'  => __( 'Once your act is confirmed, we send an invoice for payment.', 'excel-ent' ),
+	),
+	array(
+		'num'   => '5',
+		'title' => __( 'Booking confirmed', 'excel-ent' ),
+		'text'  => __( 'Your booking is locked in and we handle every detail from here.', 'excel-ent' ),
 	),
 );
 
@@ -329,6 +334,12 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 					</article>
 				<?php endforeach; ?>
 			</div>
+			<div class="excel-way__mobile-pagination" data-excel-way-pagination data-total="3">
+				<span class="excel-way__mobile-pagination-track">
+					<span class="excel-way__mobile-pagination-fill"></span>
+				</span>
+				<span class="excel-way__mobile-pagination-count"><span data-excel-way-current>1</span>/3</span>
+			</div>
 
 			<div class="excel-way__footer excel-way__footer--cancel reveal" data-reveal>
 				<p class="excel-way-notice">
@@ -357,6 +368,9 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 			aria-labelledby="excel-way-tab-who-we-are"
 			hidden
 		>
+			<p class="excel-way-notice excel-way-notice--who">
+				<span><?php esc_html_e( 'This protection is included on every booking made through Excel Entertainment — no premium plan required.', 'excel-ent' ); ?></span>
+			</p>
 			<div class="excel-way-about reveal" data-reveal>
 				<div class="excel-way-about__intro">
 					<h3 class="excel-way-about__title"><?php esc_html_e( 'Who we are', 'excel-ent' ); ?></h3>
@@ -410,6 +424,12 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 							</div>
 						</div>
 					<?php endforeach; ?>
+				</div>
+				<div class="excel-way__mobile-pagination" data-excel-way-pagination data-total="6">
+					<span class="excel-way__mobile-pagination-track">
+						<span class="excel-way__mobile-pagination-fill"></span>
+					</span>
+					<span class="excel-way__mobile-pagination-count"><span data-excel-way-current>1</span>/6</span>
 				</div>
 			</div>
 

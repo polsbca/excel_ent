@@ -1624,7 +1624,7 @@
 		const excelWayPin = document.querySelector("[data-excel-way-pin]");
 		const tabs = Array.from(excelWay.querySelectorAll("[data-excel-way-tab]"));
 		const panels = Array.from(excelWay.querySelectorAll("[data-excel-way-panel]"));
-		const pinMq = window.matchMedia("(min-width: 768px)");
+		const pinMq = window.matchMedia("(min-width: 320px)");
 
 		const syncExcelWayPin = () => {
 			if (!excelWayPin) {
@@ -1698,9 +1698,49 @@
 			});
 		};
 
+		const mobileExcelWayCarousels = Array.from(
+			excelWay.querySelectorAll("[data-excel-way-panel]")
+		)
+			.map((panel) => {
+				const scroller =
+					panel.querySelector(".excel-way__steps--cancel") ||
+					panel.querySelector(".excel-way-about__list--mobile");
+				const pagination = panel.querySelector("[data-excel-way-pagination]");
+				if (!scroller || !pagination) {
+					return null;
+				}
+
+				const current = pagination.querySelector("[data-excel-way-current]");
+				const fill = pagination.querySelector(".excel-way__mobile-pagination-fill");
+				const total = Number(pagination.getAttribute("data-total")) || 1;
+				const update = () => {
+					const firstCard = scroller.firstElementChild;
+					const cardWidth = firstCard?.getBoundingClientRect().width || 240;
+					const index = Math.min(
+						total,
+						Math.max(1, Math.round(scroller.scrollLeft / Math.max(cardWidth, 1)) + 1)
+					);
+					if (current) {
+						current.textContent = String(index);
+					}
+					if (fill) {
+						fill.style.width = `${(index / total) * 100}%`;
+					}
+				};
+
+				scroller.addEventListener("scroll", update, { passive: true });
+				window.addEventListener("resize", update, { passive: true });
+				update();
+				return { scroller, update };
+			})
+			.filter(Boolean);
+
 		tabs.forEach((tab) => {
 			tab.addEventListener("click", () => {
 				setTab(tab.getAttribute("data-excel-way-tab") || "how-it-works");
+				window.requestAnimationFrame(() => {
+					mobileExcelWayCarousels.forEach(({ update }) => update());
+				});
 			});
 		});
 
@@ -1792,7 +1832,7 @@
 		const totalEl = blogSection.querySelector("[data-blog-total]");
 		const prevBtn = blogSection.querySelector("[data-blog-prev]");
 		const nextBtn = blogSection.querySelector("[data-blog-next]");
-		const pinMq = window.matchMedia("(min-width: 768px)");
+		const pinMq = window.matchMedia("(min-width: 320px)");
 		let index = window.innerWidth <= 1199 ? 0 : cards.length > 2 ? 2 : 0;
 
 		const isBlogMobile = () => window.innerWidth <= 767;
@@ -1804,15 +1844,43 @@
 			}
 			if (!pinMq.matches) {
 				blogPin.style.height = "";
-				blogSection.classList.remove("is-pinned");
+				blogSection.classList.remove("is-pinned", "is-viewport-fitted");
+				blogSection.style.removeProperty("height");
+				blogSection.style.removeProperty("--ee-blog-viewport-height");
+				blogSection.style.removeProperty("--ee-blog-fit-scale");
+				blogSection.style.removeProperty("--ee-blog-fit-pad-top");
+				blogSection.style.removeProperty("--ee-blog-fit-pad-bottom");
+				blogSection.style.removeProperty("--ee-blog-fit-gap");
 				return;
 			}
 			blogPin.style.height = "auto";
+			blogSection.classList.remove("is-viewport-fitted");
+			blogSection.style.removeProperty("height");
+			blogSection.style.removeProperty("--ee-blog-viewport-height");
+			blogSection.style.removeProperty("--ee-blog-fit-scale");
+			blogSection.style.removeProperty("--ee-blog-fit-pad-top");
+			blogSection.style.removeProperty("--ee-blog-fit-pad-bottom");
+			blogSection.style.removeProperty("--ee-blog-fit-gap");
 			const pad = blogPin.querySelector(".blog-section__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(blogSection.getBoundingClientRect().height);
+			const stickyTop =
+				parseFloat(getComputedStyle(blogSection).getPropertyValue("--ee-blog-sticky-top")) || 0;
+			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale = Math.min(1, availableH / Math.max(sectionH, 1));
+			if (fitScale < 1) {
+				const styles = getComputedStyle(blogSection);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				blogSection.style.setProperty("--ee-blog-viewport-height", `${availableH}px`);
+				blogSection.style.setProperty("--ee-blog-fit-scale", String(fitScale));
+				blogSection.style.setProperty("--ee-blog-fit-pad-top", `${padTop * fitScale}px`);
+				blogSection.style.setProperty("--ee-blog-fit-pad-bottom", `${padBottom * fitScale}px`);
+				blogSection.style.setProperty("--ee-blog-fit-gap", `${30 * fitScale}px`);
+				blogSection.classList.add("is-viewport-fitted");
+			}
 			const holdPx = Math.round(window.innerHeight * 1);
-			blogPin.style.height = `${padH + sectionH + holdPx}px`;
+			blogPin.style.height = `${padH + sectionH * fitScale + holdPx}px`;
 		};
 
 		const syncBlogPinnedState = () => {
@@ -2027,7 +2095,7 @@
 	if (venuesSection) {
 		const venuesPin = document.querySelector("[data-venues-pin]");
 		const panels = Array.from(venuesSection.querySelectorAll("[data-venue-panel]"));
-		const pinMq = window.matchMedia("(min-width: 768px)");
+		const pinMq = window.matchMedia("(min-width: 320px)");
 
 		const syncVenuesPin = () => {
 			if (!venuesPin) {
@@ -6919,8 +6987,8 @@
 		const featured = servicesSwap.querySelector("[data-service-featured]");
 		const cards = Array.from(servicesSwap.querySelectorAll("[data-service-card]"));
 		const swapMs = reduced ? 0 : 680;
-		const pinMq = window.matchMedia("(min-width: 768px)");
-		const fitMq = window.matchMedia("(min-width: 1200px)");
+		const pinMq = window.matchMedia("(min-width: 320px)");
+		const fitMq = window.matchMedia("(min-width: 320px)");
 		let busy = false;
 		let pending = null;
 		let activeId = featured?.getAttribute("data-service-id") || "";

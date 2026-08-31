@@ -574,38 +574,25 @@ add_filter( 'wp_nav_menu_objects', 'excel_ent_primary_menu_objects', 10, 2 );
  */
 function excel_ent_default_entertainment_links() {
 	return array(
-		__( 'Solo Artists', 'excel-ent' )           => excel_ent_get_explore_artists_url(
+		__( 'Artists & Tributes', 'excel-ent' )     => excel_ent_get_explore_artists_url(
 			array(
 				'categories' => array( 'artist-type' ),
-				'tags'       => array( 'solo' ),
+				'tags'       => array( 'tribute' ),
 			)
 		),
-		__( 'Duos', 'excel-ent' )                   => excel_ent_get_explore_artists_url(
+		__( 'Decades', 'excel-ent' )                => excel_ent_get_explore_artists_url(
 			array(
-				'categories' => array( 'artist-type' ),
-				'tags'       => array( 'duo' ),
+				'categories' => array( 'era' ),
 			)
 		),
-		__( 'Bands', 'excel-ent' )                  => excel_ent_get_explore_artists_url(
+		__( 'Entertainment & Events', 'excel-ent' ) => excel_ent_get_explore_artists_url(
 			array(
-				'categories' => array( 'artist-type' ),
-				'tags'       => array( 'bands' ),
+				'categories' => array( 'event' ),
 			)
 		),
-		__( 'Tribute Acts', 'excel-ent' )          => excel_ent_get_explore_artists_url(
+		__( 'Genres & Music', 'excel-ent' )         => excel_ent_get_explore_artists_url(
 			array(
-				'categories' => array( 'tribute' ),
-			)
-		),
-		__( 'DJ Nights', 'excel-ent' )             => excel_ent_get_explore_artists_url(
-			array(
-				'categories' => array( 'artist-type' ),
-				'tags'       => array( 'dj' ),
-			)
-		),
-		__( 'Celebrity Acts', 'excel-ent' )        => excel_ent_get_explore_artists_url(
-			array(
-				'tags' => array( 'celebrity-acts' ),
+				'categories' => array( 'genre' ),
 			)
 		),
 	);

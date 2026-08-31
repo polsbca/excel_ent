@@ -999,6 +999,252 @@
 	z-index: 1;
 }
 
+/* Homepage mobile services section — Figma 2331:2812 */
+@media (max-width: 767px) {
+	.services-section-pin {
+		background: #fff;
+	}
+
+	.services-section__scroll-pad {
+		display: block;
+		height: 0;
+	}
+
+	.services-section {
+		position: sticky;
+		top: var(--ee-services-sticky-top, 0px);
+		z-index: 2;
+		min-height: 0;
+		padding: 34px 24px;
+		gap: 16px;
+		overflow: hidden;
+	}
+
+	.services-section.is-viewport-fitted {
+		height: var(--ee-services-viewport-height);
+		min-height: 0;
+		padding-top: var(--ee-services-fit-pad-top);
+		padding-bottom: var(--ee-services-fit-pad-bottom);
+		overflow: hidden;
+	}
+
+	.services-section.is-viewport-fitted .services-section__inner {
+		display: block;
+		width: calc(100% / var(--ee-services-fit-scale));
+		transform: scale(var(--ee-services-fit-scale));
+		transform-origin: top left;
+	}
+
+	.services-section__inner {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.services-section__header {
+		gap: 0;
+	}
+
+	.services-section__heading {
+		gap: 0;
+	}
+
+	.services-section__title {
+		width: 100%;
+		font-size: 32px;
+		line-height: 36px;
+		white-space: nowrap;
+	}
+
+	.services-section__title-line {
+		display: inline;
+	}
+
+	.services-section__title-line + .services-section__title-line::before {
+		content: "\00a0";
+	}
+
+	.services-section__lede {
+		display: none;
+	}
+
+	.services-section__content {
+		display: flex;
+		flex-direction: column;
+		gap: 30px;
+		width: 100%;
+	}
+
+	.services-section__eyebrow {
+		gap: 7px;
+		width: 100%;
+		padding-right: 140px;
+		box-sizing: border-box;
+	}
+
+	.services-section__eyebrow img {
+		order: 1;
+		flex: 1 1 auto;
+		width: auto;
+		min-width: 0;
+		height: 1px;
+	}
+
+	.services-section__eyebrow-label--desktop {
+		display: inline;
+		order: -1;
+		font-size: 12px;
+	}
+
+	.services-section__eyebrow-label--mobile {
+		display: none;
+	}
+
+	.services-section__grid {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		height: auto;
+		min-height: 0;
+		gap: 0;
+	}
+
+	.service-featured {
+		order: -1;
+		width: 100%;
+		height: 272px;
+		min-height: 272px;
+		aspect-ratio: auto;
+	}
+
+	.service-featured__inner {
+		padding: 20px 16px;
+		gap: 0;
+	}
+
+	.service-featured__top,
+	.service-featured__bottom {
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	.service-featured__stats {
+		gap: 0;
+	}
+
+	.service-featured__rating {
+		display: none;
+	}
+
+	.service-featured__price-block {
+		flex-direction: column;
+		gap: 20px;
+		width: 65px;
+	}
+
+	.service-featured__price {
+		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 75;
+		font-size: 20px;
+		line-height: normal;
+	}
+
+	.service-featured__price-label {
+		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 75;
+		font-size: 10px;
+	}
+
+	.service-featured__cta--desktop {
+		display: none;
+	}
+
+	.service-featured__cta--mobile {
+		display: inline-flex;
+		width: auto;
+		height: 51px;
+		min-height: 51px;
+		padding: 0 20px;
+		font-size: 16px;
+	}
+
+	.service-featured__bottom {
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: flex-end;
+		gap: 14px;
+	}
+
+	.service-featured__duration {
+		order: 0;
+		font-size: 12px;
+		line-height: 1.369;
+	}
+
+	.service-featured__info {
+		order: 1;
+		gap: 8px;
+	}
+
+	.service-featured__location {
+		gap: 8px;
+		font-size: 10px;
+	}
+
+	.service-featured__location img {
+		width: 14px;
+		height: 14px;
+	}
+
+	.service-featured__title {
+		font-size: 24px;
+		gap: 10px;
+	}
+
+	.service-featured__title-text--desktop {
+		display: inline;
+	}
+
+	.service-featured__title-text--mobile,
+	.service-featured__subtitle {
+		display: none;
+	}
+
+	.services-grid {
+		width: 100%;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-rows: repeat(2, 125px);
+	}
+
+	.service-card {
+		height: 125px;
+		min-height: 125px;
+		padding: 16px 14px;
+		border-width: 1px;
+	}
+
+	.service-card__name {
+		font-size: 16px;
+		letter-spacing: 0;
+	}
+
+	.service-card__price-block {
+		gap: 10px;
+		width: 131px;
+	}
+
+	.service-card__price {
+		font-size: 14px;
+		text-align: left;
+	}
+
+	.service-card__price-label {
+		font-size: 12px;
+	}
+}
+
 .service-card.is-swap-ghost .service-card__image,
 .service-card.is-swap-ghost .service-card__overlay,
 .service-card.is-swap-ghost .service-card__content,
