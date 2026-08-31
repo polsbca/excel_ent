@@ -731,6 +731,7 @@
 @media (max-width: 767px) {
 	.blog-section-pin {
 		background: #000;
+		overflow-anchor: none;
 	}
 
 	.blog-section__scroll-pad {

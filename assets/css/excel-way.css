@@ -1584,6 +1584,7 @@
 @media (max-width: 767px) {
 	.excel-way-pin {
 		background: #000;
+		overflow-anchor: none;
 	}
 
 	.excel-way__scroll-pad {
@@ -1624,6 +1625,7 @@
 	.excel-way__header {
 		gap: 20px;
 		padding-left: 24px;
+		box-sizing: border-box;
 		overflow: visible;
 	}
 
@@ -1651,6 +1653,7 @@
 	.excel-way__panel {
 		gap: 26px;
 		padding: 0 24px;
+		box-sizing: border-box;
 	}
 
 	#excel-way-panel-how-it-works {
@@ -1706,7 +1709,7 @@
 		display: flex;
 		flex-direction: row;
 		flex-wrap: nowrap;
-		width: calc(100vw - 48px);
+		width: 100%;
 		height: 186px;
 		min-height: 186px;
 		overflow-x: auto;

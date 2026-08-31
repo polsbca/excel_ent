@@ -1636,7 +1636,22 @@
 				excelWay.classList.remove("is-viewport-fitted");
 				return;
 			}
-			excelWayPin.style.height = "auto";
+			const preservePinLayout =
+				excelWay.classList.contains("is-viewport-fitted") &&
+				excelWayPin.style.height &&
+				excelWayPin.style.height !== "auto";
+			if (!preservePinLayout) {
+				excelWayPin.style.height = "auto";
+			}
+			if (preservePinLayout) {
+				/*
+				 * Measure the newly selected panel without allowing its natural
+				 * height to change the document flow. On a real mobile device,
+				 * that change can trigger scroll anchoring and visibly jerk the
+				 * sticky section.
+				 */
+				excelWay.style.visibility = "hidden";
+			}
 			excelWay.classList.remove("is-viewport-fitted");
 			excelWay.style.removeProperty("height");
 			excelWay.style.removeProperty("--ee-excel-way-viewport-height");
@@ -1662,6 +1677,9 @@
 			}
 			const holdPx = Math.round(window.innerHeight * 1);
 			excelWayPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
+			if (preservePinLayout) {
+				excelWay.style.visibility = "";
+			}
 		};
 
 		const syncExcelWayPinnedState = () => {
@@ -1904,10 +1922,10 @@
 
 			if (track && cards[0]) {
 				const gap = parseFloat(getComputedStyle(track).gap) || 40;
-				const cardWidth = cards[0].getBoundingClientRect().width || 584;
+				const cardWidth = cards[0].offsetWidth || 584;
 
 				if (isBlogMobile() && viewport) {
-					const viewportWidth = viewport.getBoundingClientRect().width;
+					const viewportWidth = viewport.offsetWidth || 0;
 					const offset = index * (cardWidth + gap) - (viewportWidth - cardWidth) / 2;
 					track.style.transform = `translateX(${-offset}px)`;
 				} else if (isBlogSwipe() && viewport) {
@@ -1967,9 +1985,9 @@
 					return 0;
 				}
 				const gap = parseFloat(getComputedStyle(track).gap) || 40;
-				const cardWidth = cards[0].getBoundingClientRect().width || 584;
+				const cardWidth = cards[0].offsetWidth || 584;
 				if (isBlogMobile()) {
-					const viewportWidth = viewport.getBoundingClientRect().width;
+					const viewportWidth = viewport.offsetWidth || 0;
 					return index * (cardWidth + gap) - (viewportWidth - cardWidth) / 2;
 				}
 				return index * (cardWidth + gap);
@@ -2088,6 +2106,17 @@
 			syncBlogPin();
 			syncBlogPinnedState();
 		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			syncBlogPin();
+			syncBlogPinnedState();
+		});
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				update();
+				syncBlogPin();
+				syncBlogPinnedState();
+			});
+		}
 	}
 
 	/* ---------- Venues accordion + sticky pin ---------- */
@@ -2155,17 +2184,6 @@
 			venuesSection.classList.toggle("is-pinned", pinned);
 		};
 
-		const remountVenuesPin = () => {
-			window.requestAnimationFrame(() => {
-				syncVenuesPin();
-				syncVenuesPinnedState();
-			});
-			window.setTimeout(() => {
-				syncVenuesPin();
-				syncVenuesPinnedState();
-			}, 600);
-		};
-
 		const setActive = (panel) => {
 			panels.forEach((item) => {
 				const on = item === panel;
@@ -2180,34 +2198,14 @@
 				}
 			});
 
-			let didRefresh = false;
-			const refreshAfterTransition = () => {
-				if (didRefresh) {
-					return;
-				}
-				didRefresh = true;
-				syncVenuesPin();
-				syncVenuesPinnedState();
-			};
-
-			const onTransitionEnd = (event) => {
-				if (event.target !== panel) {
-					return;
-				}
-				if (event.propertyName !== "height" && event.propertyName !== "flex-basis") {
-					return;
-				}
-				panel.removeEventListener("transitionend", onTransitionEnd);
-				refreshAfterTransition();
-			};
-
-			panel.addEventListener("transitionend", onTransitionEnd);
-			remountVenuesPin();
-
-			window.setTimeout(() => {
-				panel.removeEventListener("transitionend", onTransitionEnd);
-				refreshAfterTransition();
-			}, 580);
+			/*
+			 * Mobile panels have fixed expanded/collapsed heights, so changing
+			 * the active item does not change the pin geometry. Re-fitting here
+			 * temporarily removes the scaled state and makes the section jump.
+			 * Keep the existing fit until a real geometry change (resize or
+			 * header update) occurs.
+			 */
+			syncVenuesPinnedState();
 		};
 
 		panels.forEach((panel) => {
@@ -6527,10 +6525,26 @@
 					return;
 				}
 
+				const currentScroll =
+					window.excelEntLenis?.scroll ?? window.scrollY ?? document.documentElement.scrollTop;
 				const open = !column.classList.contains("is-open");
 				column.classList.toggle("is-open", open);
 				trigger.setAttribute("aria-expanded", open ? "true" : "false");
 				panel.hidden = !open;
+
+				/*
+				 * Changing a footer panel's display height at the bottom of the
+				 * document can trigger mobile browser scroll anchoring. Restore
+				 * the current viewport after layout settles so the footer grows
+				 * or collapses in place instead of jumping the page.
+				 */
+				window.requestAnimationFrame(() => {
+					if (window.excelEntLenis) {
+						window.excelEntLenis.scrollTo(currentScroll, { immediate: true });
+					} else {
+						window.scrollTo(0, currentScroll);
+					}
+				});
 			});
 		});
 	}
