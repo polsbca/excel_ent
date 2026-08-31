@@ -755,7 +755,7 @@
 		min-height: 0;
 		padding-top: var(--ee-blog-fit-pad-top);
 		padding-bottom: var(--ee-blog-fit-pad-bottom);
-		overflow: hidden;
+		overflow: clip;
 	}
 
 	.blog-section.is-viewport-fitted .blog-section__header,

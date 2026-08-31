@@ -46,7 +46,7 @@
 		min-height: 0;
 		padding-top: var(--ee-excel-way-fit-pad-top);
 		padding-bottom: var(--ee-excel-way-fit-pad-bottom);
-		overflow: hidden;
+		overflow: clip;
 	}
 
 	.excel-way.is-viewport-fitted .excel-way__inner {
@@ -1200,7 +1200,7 @@
 		overflow-y: hidden;
 		-webkit-overflow-scrolling: touch;
 		scrollbar-width: none;
-		touch-action: pan-x;
+		touch-action: pan-x pan-y;
 		padding-right: 24px;
 	}
 
@@ -1716,7 +1716,7 @@
 		overflow-y: hidden;
 		scrollbar-width: none;
 		-webkit-overflow-scrolling: touch;
-		touch-action: pan-x;
+		touch-action: pan-x pan-y;
 	}
 
 	.excel-way__steps--mobile::-webkit-scrollbar,
@@ -1780,7 +1780,7 @@
 		box-sizing: border-box;
 		scrollbar-width: none;
 		-webkit-overflow-scrolling: touch;
-		touch-action: pan-x;
+		touch-action: pan-x pan-y;
 	}
 
 	.excel-way__badges--how-mobile::-webkit-scrollbar {

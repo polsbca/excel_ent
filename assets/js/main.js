@@ -1871,7 +1871,21 @@
 				blogSection.style.removeProperty("--ee-blog-fit-gap");
 				return;
 			}
-			blogPin.style.height = "auto";
+			const preservePinLayout =
+				blogSection.classList.contains("is-viewport-fitted") &&
+				blogPin.style.height &&
+				blogPin.style.height !== "auto";
+			if (!preservePinLayout) {
+				blogPin.style.height = "auto";
+			}
+			if (preservePinLayout) {
+				/*
+				 * Measure after a resize or header change without temporarily
+				 * collapsing the sticky pin. That collapse can move the scroll
+				 * position on mobile and clip the card CTA at the bottom.
+				 */
+				blogSection.style.visibility = "hidden";
+			}
 			blogSection.classList.remove("is-viewport-fitted");
 			blogSection.style.removeProperty("height");
 			blogSection.style.removeProperty("--ee-blog-viewport-height");
@@ -1899,6 +1913,9 @@
 			}
 			const holdPx = Math.round(window.innerHeight * 1);
 			blogPin.style.height = `${padH + sectionH * fitScale + holdPx}px`;
+			if (preservePinLayout) {
+				blogSection.style.visibility = "";
+			}
 		};
 
 		const syncBlogPinnedState = () => {
@@ -6525,26 +6542,10 @@
 					return;
 				}
 
-				const currentScroll =
-					window.excelEntLenis?.scroll ?? window.scrollY ?? document.documentElement.scrollTop;
 				const open = !column.classList.contains("is-open");
 				column.classList.toggle("is-open", open);
 				trigger.setAttribute("aria-expanded", open ? "true" : "false");
 				panel.hidden = !open;
-
-				/*
-				 * Changing a footer panel's display height at the bottom of the
-				 * document can trigger mobile browser scroll anchoring. Restore
-				 * the current viewport after layout settles so the footer grows
-				 * or collapses in place instead of jumping the page.
-				 */
-				window.requestAnimationFrame(() => {
-					if (window.excelEntLenis) {
-						window.excelEntLenis.scrollTo(currentScroll, { immediate: true });
-					} else {
-						window.scrollTo(0, currentScroll);
-					}
-				});
 			});
 		});
 	}

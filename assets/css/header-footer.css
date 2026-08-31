@@ -7050,7 +7050,6 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	body.front-page .site-footer {
 		padding: 0 24px 20px;
 		background: #000;
-		overflow-anchor: none;
 	}
 
 	body.home .site-footer__glow,
