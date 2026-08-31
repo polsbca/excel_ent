@@ -962,12 +962,12 @@
 	}
 
 	.artists-section__title {
-		font-size: 32px;
-		line-height: 30px;
+		font-size: min(32px, calc(9vw - 4.32px));
+		line-height: 0.94;
 		letter-spacing: 1px;
 		max-width: none;
 		margin: 0;
-		white-space: normal;
+		white-space: nowrap;
 	}
 
 	.artists-section__browse {
@@ -1795,5 +1795,69 @@
 	.artist-card--occasion:focus-within .artist-card__image,
 	.artist-card--occasion.is-hover .artist-card__image {
 		transform: scale(1.05);
+	}
+}
+
+/* Homepage mobile artists section — Figma 2331:2682 */
+@media (max-width: 767px) {
+	.artists-section {
+		position: sticky;
+		top: var(--ee-artists-sticky-top, 0px);
+		z-index: 5;
+		gap: 16px;
+		min-height: 0;
+		padding: 34px 0;
+		box-sizing: border-box;
+		overflow: hidden;
+	}
+
+	.artists-section__scroll-pad {
+		display: block;
+		height: 0;
+	}
+
+	.artists-section__header {
+		gap: 0;
+	}
+
+	.artists-section__intro {
+		gap: 12px;
+	}
+
+	.artists-section__browse,
+	.artists-section__toolbar {
+		display: flex;
+	}
+
+	.artists-section__toolbar {
+		display: none;
+	}
+
+	.artists-section__carousel {
+		padding-left: 24px;
+		padding-right: 0;
+	}
+
+	.artists-section__track {
+		gap: 14px;
+	}
+
+	.artist-card,
+	.artist-card--occasion {
+		width: 285px;
+		height: 504px;
+	}
+
+	.artist-card--occasion .artist-card__detail {
+		display: none;
+	}
+
+	.artist-card--occasion .artist-card__footer {
+		gap: 0;
+		padding: 40px 30px;
+	}
+
+	.artists-section__nav {
+		margin-top: 10px;
 	}
 }

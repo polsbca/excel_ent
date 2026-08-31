@@ -823,7 +823,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 				</section>
 
 				<!-- Event Details -->
-				<section class="contact-acc contact-acc--tint" data-contact-acc>
+				<section class="contact-acc" data-contact-acc>
 					<button type="button" class="contact-acc__toggle" data-contact-acc-toggle aria-expanded="false">
 						<span class="contact-acc__heading">
 							<span class="contact-acc__icon" aria-hidden="true">

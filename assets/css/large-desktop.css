@@ -1952,23 +1952,33 @@
 		gap: 1.04vw;
 		width: 100%;
 		height: 35.47vw;
-		overflow: clip;
+		overflow-x: hidden;
+		overflow-y: auto;
+		scrollbar-width: none;
+	}
+
+	.package-grid-wrap::-webkit-scrollbar {
+		display: none;
 	}
 
 	.package-grid {
 		flex: 1 1 auto;
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: 1.04vw;
-		height: 35.47vw;
+		height: max-content;
+		min-height: 35.47vw;
 		min-width: 0;
+		align-self: flex-start;
 	}
 
 	.package-grid__rail {
-		position: relative;
+		position: sticky;
+		top: 0;
 		display: block;
 		flex: 0 0 0.26vw;
 		width: 0.26vw;
 		height: 35.47vw;
+		align-self: flex-start;
 		background: rgba(0, 0, 0, 0.2);
 	}
 
@@ -1983,10 +1993,11 @@
 	}
 
 	.package-card {
-		height: 35.47vw;
-		min-height: 0;
+		height: auto;
+		min-height: 35.47vw;
 		padding: 1.04vw;
 		gap: 3.125vw;
+		justify-content: flex-start;
 		overflow: hidden;
 		background-image: linear-gradient(
 			270deg,
@@ -2010,8 +2021,7 @@
 		color: #000;
 	}
 
-	.package-card:hover,
-	.package-card:focus-within {
+	.package-card.is-selected {
 		background: #000;
 		background-image: none;
 		border: 1px solid rgba(255, 255, 255, 0.24);
@@ -2027,8 +2037,7 @@
 		color: #000;
 	}
 
-	.package-card:hover .package-card__name,
-	.package-card:focus-within .package-card__name {
+	.package-card.is-selected .package-card__name {
 		background-image: linear-gradient(180deg, #f8a742 0%, #eb2055 100%);
 		background-clip: text;
 		-webkit-background-clip: text;
@@ -2047,14 +2056,10 @@
 		color: #000;
 	}
 
-	.package-card:hover .package-card__from,
-	.package-card:hover .package-card__alt,
-	.package-card:hover .package-card__note,
-	.package-card:hover .package-card__includes,
-	.package-card:focus-within .package-card__from,
-	.package-card:focus-within .package-card__alt,
-	.package-card:focus-within .package-card__note,
-	.package-card:focus-within .package-card__includes {
+	.package-card.is-selected .package-card__from,
+	.package-card.is-selected .package-card__alt,
+	.package-card.is-selected .package-card__note,
+	.package-card.is-selected .package-card__includes {
 		color: #fff;
 	}
 
@@ -2067,8 +2072,7 @@
 		color: #000;
 	}
 
-	.package-card:hover .package-card__price,
-	.package-card:focus-within .package-card__price {
+	.package-card.is-selected .package-card__price {
 		background-image: linear-gradient(180deg, #f8a742 0%, #eb2055 100%);
 		background-clip: text;
 		-webkit-background-clip: text;
@@ -2082,14 +2086,14 @@
 		color: #000;
 	}
 
-	.package-card:hover .package-card__features li,
-	.package-card:focus-within .package-card__features li {
+	.package-card.is-selected .package-card__features li {
 		border-bottom-color: #eb2055;
 		color: #fff;
 	}
 
 	.package-card__top {
 		gap: 1.56vw;
+		min-height: 15.4vw;
 	}
 
 	.package-card__identity {
@@ -2122,6 +2126,11 @@
 		font-size: 0.83vw;
 	}
 
+	.package-card__price-suffix-detail {
+		font-size: 0.83vw;
+		white-space: nowrap;
+	}
+
 	.package-card__note {
 		font-size: 0.94vw;
 		line-height: 1.2;
@@ -2129,8 +2138,9 @@
 
 	.package-card__body {
 		gap: 1.67vw;
+		flex: 0 0 auto;
 		min-height: 0;
-		overflow: hidden;
+		overflow: visible;
 	}
 
 	.package-card__includes {
@@ -2141,7 +2151,9 @@
 	.package-card__features {
 		gap: 0;
 		min-height: 0;
-		overflow: hidden;
+		overflow: visible;
+		flex: 0 0 auto;
+		justify-content: flex-start;
 	}
 
 	.package-card__features li {
@@ -2151,38 +2163,7 @@
 	}
 
 	.package-card__more {
-		order: 4;
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		width: 100%;
-		margin: 0;
-		padding: 0.52vw 0;
-		border: 0;
-		border-top: 1px solid rgba(0, 0, 0, 0.3);
-		background: transparent;
-		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
-		font-variation-settings: "wdth" 75;
-		font-weight: 700;
-		font-size: 0.94vw;
-		line-height: 1;
-		color: #ed3153;
-		cursor: pointer;
-	}
-
-	.package-card--featured .package-card__more {
-		border-top-color: rgba(0, 0, 0, 0.3);
-	}
-
-	.package-card:hover .package-card__more,
-	.package-card:focus-within .package-card__more {
-		border-top-color: #eb2055;
-	}
-
-	.package-card__more img {
-		width: 1.15vw;
-		height: 1.15vw;
-		display: block;
+		display: none;
 	}
 
 	.package-card__btn {

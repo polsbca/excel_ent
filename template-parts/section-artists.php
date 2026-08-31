@@ -252,7 +252,7 @@ unset( $excel_ent_profile );
 			<div class="artists-section__browse reveal" data-reveal>
 				<div class="artists-section__eyebrow">
 					<img src="<?php echo esc_url( $excel_ent_artist_uri . '/line-accent.svg' ); ?>" alt="" width="226" height="2" decoding="async">
-					<span><?php esc_html_e( 'Browse by Artist', 'excel-ent' ); ?></span>
+					<span><?php esc_html_e( 'Browse by Artist & occasions', 'excel-ent' ); ?></span>
 				</div>
 			</div>
 		</div>

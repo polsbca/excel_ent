@@ -559,18 +559,21 @@
 /* Phone — Figma 1023:20995 */
 @media (max-width: 767px) {
 	.hero {
-		min-height: 0;
+		height: calc(100svh - 100px);
+		min-height: calc(100svh - 100px);
 	}
 
 	.hero__layout {
-		padding: 188px 24px 40px;
-		min-height: auto;
-		gap: 80px;
+		height: 100%;
+		min-height: 0;
+		padding: 180px 24px 20px;
+		gap: 0;
+		justify-content: space-between;
 	}
 
 	.hero__main {
 		flex-direction: column;
-		gap: 80px;
+		gap: 40px;
 	}
 
 	.hero__copy {
@@ -579,7 +582,7 @@
 
 	.hero__intro {
 		order: 1;
-		gap: 40px;
+		gap: 25px;
 		max-width: none;
 	}
 
@@ -647,7 +650,8 @@
 	.btn-hero {
 		min-width: 0;
 		width: 100%;
-		min-height: 0;
+		height: 51px;
+		min-height: 51px;
 		padding: 20px;
 		font-size: 16px;
 	}
@@ -666,7 +670,19 @@
 		align-self: center;
 		width: auto;
 		gap: 0;
-		margin-top: 40px;
+		margin-top: 0;
+	}
+
+	.hero-carousel__dots {
+		width: 51px;
+		height: 9px;
+		gap: 2px;
+	}
+
+	.hero-carousel__dot {
+		flex: 0 0 9px;
+		width: 9px;
+		height: 9px;
 	}
 
 	.hero-carousel__nav,

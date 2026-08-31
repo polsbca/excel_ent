@@ -163,6 +163,8 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index, $gro
 		data-package-card
 		data-package-id="<?php echo esc_attr( $pkg_id ); ?>"
 		data-package-group="<?php echo esc_attr( $group ); ?>"
+		data-package-name="<?php echo esc_attr( $package['name'] ); ?>"
+		data-package-price="<?php echo esc_attr( $price_label ); ?>"
 		style="--i: <?php echo esc_attr( (string) $index ); ?>; transition-delay: <?php echo esc_attr( (string) ( $index * 80 ) ); ?>ms"
 	>
 		<div class="package-card__top">
@@ -175,6 +177,9 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index, $gro
 					<span class="package-card__price-main"><?php echo esc_html( $package['price']['main'] ); ?></span>
 					<?php if ( ! empty( $package['price']['suffix'] ) ) : ?>
 						<span class="package-card__price-suffix"><?php echo esc_html( $package['price']['suffix'] ); ?></span>
+					<?php endif; ?>
+					<?php if ( ! empty( $package['price']['suffix_detail'] ) ) : ?>
+						<span class="package-card__price-suffix-detail"><?php echo esc_html( $package['price']['suffix_detail'] ); ?></span>
 					<?php endif; ?>
 				</p>
 				<?php if ( ! empty( $package['price']['alt'] ) ) : ?>

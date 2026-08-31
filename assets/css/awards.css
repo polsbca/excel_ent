@@ -116,7 +116,8 @@
 
 @media (max-width: 700px) {
 	.awards-marquee {
-		padding: 40px 0;
+		height: 100px;
+		padding: 20px 0;
 		border-top-width: 0.5px;
 		border-bottom-width: 0.5px;
 		border-color: #ed3153;

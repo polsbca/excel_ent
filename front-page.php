@@ -56,15 +56,15 @@ $excel_ent_hero_slides = excel_ent_get_hero_slides();
 
 			<aside class="hero__stats" aria-label="<?php esc_attr_e( 'Company statistics', 'excel-ent' ); ?>">
 				<div class="hero-stat">
-					<p class="hero-stat__num" data-count="14" data-suffix="+">0</p>
+					<p class="hero-stat__num" data-count="25" data-suffix="+">0</p>
 					<p class="hero-stat__label"><?php esc_html_e( 'Years Established', 'excel-ent' ); ?></p>
 				</div>
 				<div class="hero-stat">
-					<p class="hero-stat__num" data-count="1800" data-suffix="+">0</p>
+					<p class="hero-stat__num" data-count="500" data-suffix="+">0</p>
 					<p class="hero-stat__label"><?php esc_html_e( 'Acts on Roster', 'excel-ent' ); ?></p>
 				</div>
 				<div class="hero-stat">
-					<p class="hero-stat__num" data-count="15000" data-suffix="+" data-format="comma">0</p>
+					<p class="hero-stat__num" data-count="1200" data-suffix="+" data-format="comma">0</p>
 					<p class="hero-stat__label"><?php esc_html_e( 'Events Booked', 'excel-ent' ); ?></p>
 				</div>
 				<div class="hero-stat">

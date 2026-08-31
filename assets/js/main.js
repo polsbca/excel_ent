@@ -939,7 +939,7 @@
 		const prevBtn = artistsSection.querySelector("[data-artists-prev]");
 		const nextBtn = artistsSection.querySelector("[data-artists-next]");
 		const modeBtns = artistsSection.querySelectorAll("[data-artists-mode]");
-		const pinMq = window.matchMedia("(min-width: 768px)");
+		const pinMq = window.matchMedia("(min-width: 320px)");
 
 		const syncArtistsPin = () => {
 			if (!artistsPin) {
@@ -4258,6 +4258,72 @@
 	if (packageTabs) {
 		const tabs = Array.from(packageTabs.querySelectorAll("[data-package-tab]"));
 		const panels = Array.from(packageTabs.querySelectorAll("[data-package-panel]"));
+		const packageCards = Array.from(packageTabs.querySelectorAll("[data-package-card]"));
+		const packageScrollers = Array.from(packageTabs.querySelectorAll(".package-grid-wrap"));
+
+		const syncPackageRail = (scroller) => {
+			if (!scroller) {
+				return;
+			}
+			const panel = scroller.closest("[data-package-panel]");
+			const rail = panel?.querySelector(".package-grid__rail");
+			const thumb = rail?.querySelector("span");
+			if (!rail || !thumb) {
+				return;
+			}
+
+			const maxScroll = Math.max(scroller.scrollHeight - scroller.clientHeight, 0);
+			const maxOffset = Math.max(rail.clientHeight - thumb.offsetHeight, 0);
+			const progress = maxScroll ? scroller.scrollTop / maxScroll : 0;
+			thumb.style.top = `${progress * maxOffset}px`;
+		};
+
+		packageScrollers.forEach((scroller) => {
+			scroller.addEventListener("scroll", () => syncPackageRail(scroller), {
+				passive: true,
+			});
+			window.requestAnimationFrame(() => syncPackageRail(scroller));
+		});
+
+		const selectPackageCard = (card) => {
+			const panel = card?.closest("[data-package-panel]");
+			if (!panel || !card) {
+				return;
+			}
+			panel.querySelectorAll("[data-package-card]").forEach((item) => {
+				item.classList.toggle("is-selected", item === card);
+			});
+
+			const selectedTitle = panel.querySelector(".package-selected__copy h2");
+			const selectedPrice = panel.querySelector(".package-selected__copy p");
+			const selectedButton = panel.querySelector(".package-selected__btn");
+			const cardEnquiry = card.querySelector("[data-package-enquiry]");
+			const packageName = card.dataset.packageName || "";
+			const packagePrice = card.dataset.packagePrice || "";
+
+			if (selectedTitle) {
+				selectedTitle.textContent = packageName;
+			}
+			if (selectedPrice) {
+				selectedPrice.textContent = `Prices start from: ${packagePrice}`;
+			}
+			if (selectedButton) {
+				selectedButton.dataset.packageName =
+					cardEnquiry?.dataset.packageName || packageName;
+				selectedButton.dataset.packageLabel =
+					cardEnquiry?.dataset.packageLabel || `${packageName} from ${packagePrice}`;
+			}
+		};
+
+		packageCards.forEach((card) => {
+			card.addEventListener("click", () => selectPackageCard(card));
+		});
+
+		packageCards.forEach((card) => {
+			if (card.classList.contains("package-card--featured")) {
+				selectPackageCard(card);
+			}
+		});
 
 		const activate = (id) => {
 			tabs.forEach((tab) => {
@@ -4270,9 +4336,17 @@
 				panel.classList.toggle("is-active", on);
 				panel.hidden = !on;
 				if (on) {
+					const scroller = panel.querySelector(".package-grid-wrap");
+					const defaultCard = panel.querySelector(".package-card--featured") ||
+						panel.querySelector("[data-package-card]");
+					if (scroller) {
+						scroller.scrollTop = 0;
+					}
+					selectPackageCard(defaultCard);
 					panel.querySelectorAll(".reveal, [data-reveal]").forEach((item) => {
 						item.classList.add("is-visible");
 					});
+					window.requestAnimationFrame(() => syncPackageRail(scroller));
 				}
 			});
 		};
@@ -4292,6 +4366,10 @@
 				window.excelEntOpenPackageCompare(id);
 			});
 		});
+
+		window.addEventListener("resize", () => {
+			packageScrollers.forEach((scroller) => syncPackageRail(scroller));
+		}, { passive: true });
 	}
 
 	/* ---------- Package compare modal (mobile) ---------- */
