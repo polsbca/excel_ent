@@ -358,11 +358,39 @@
 	}
 
 	.search-empty {
-		gap: 120px;
-		padding: 60px 24px 100px;
+		align-items: stretch;
+		gap: 10px;
+		padding: 10px 24px 60px;
+	}
+
+	.search-empty__eyebrow {
+		display: block;
+		margin: 0;
+		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 75;
+		font-weight: 800;
+		font-size: 12px;
+		line-height: 1;
+		text-transform: capitalize;
+		color: #000;
+		white-space: nowrap;
+	}
+
+	.search-empty__inner {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 34px;
+		width: 100%;
+		padding-top: 24px;
+		box-sizing: border-box;
 	}
 
 	.search-empty__visual {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
 		max-width: 190px;
 	}
 
@@ -372,7 +400,7 @@
 	}
 
 	.search-empty__copy {
-		gap: 60px;
+		gap: 30px;
 		padding: 0;
 		max-width: none;
 	}

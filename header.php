@@ -160,6 +160,7 @@ $excel_ent_quote = excel_ent_get_quote_url();
 				get_template_part( 'template-parts/header', 'search-explore' );
 			} elseif ( is_search() ) {
 				get_template_part( 'template-parts/header', 'search' );
+				get_template_part( 'template-parts/header', 'search-mobile' );
 			} elseif ( ! excel_ent_is_artist_page() && ! excel_ent_is_about_page() && ! excel_ent_is_package_page() && ! excel_ent_is_contact_page() ) {
 				get_template_part( 'template-parts/header', 'search' );
 				get_template_part( 'template-parts/header', 'search-mobile' );

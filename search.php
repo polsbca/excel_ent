@@ -171,6 +171,7 @@ if ( empty( $excel_ent_chips ) ) {
 	</div>
 
 	<section class="search-empty" aria-label="<?php esc_attr_e( 'No search results', 'excel-ent' ); ?>">
+		<p class="search-empty__eyebrow"><?php esc_html_e( 'No Results found', 'excel-ent' ); ?></p>
 		<div class="search-empty__inner">
 			<div class="search-empty__visual">
 				<img
