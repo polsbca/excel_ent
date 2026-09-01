@@ -3480,16 +3480,119 @@
 		const progress = artistVenue.querySelector("[data-venue-progress]");
 		const dotsRoot = artistVenue.querySelector("[data-venue-dots]");
 		const dots = [];
+		const venueSwipeMq = window.matchMedia("(max-width: 1199px)");
+		let venueTrack = null;
+		let venueTrackStep = 0;
+		let venueTrackMaxOffset = 0;
 
-		const render = () => {
+		const isVenueSwipe = () => venueSwipeMq.matches;
+
+		const getVenueTrackStep = () => Math.max(artistVenue.offsetWidth || 0, 1);
+
+		const rubberVenueTrack = (offset) => {
+			if (offset < 0) {
+				return offset * 0.22;
+			}
+			if (offset > venueTrackMaxOffset) {
+				return venueTrackMaxOffset + (offset - venueTrackMaxOffset) * 0.22;
+			}
+			return offset;
+		};
+
+		const applyVenueTrackTransform = (offset, animate = true) => {
+			if (!venueTrack) {
+				return;
+			}
+			venueTrack.style.transition =
+				animate && !reduced
+					? "transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)"
+					: "none";
+			venueTrack.style.transform = `translate3d(${-rubberVenueTrack(offset)}px, 0, 0)`;
+		};
+
+		const measureVenueTrack = () => {
+			venueTrackStep = getVenueTrackStep();
+			venueTrackMaxOffset = Math.max(slides.length - 1, 0) * venueTrackStep;
+			return index * venueTrackStep;
+		};
+
+		const syncVenueTrackPosition = (animate = true) => {
+			if (!venueTrack) {
+				return;
+			}
+			measureVenueTrack();
+			applyVenueTrackTransform(index * venueTrackStep, animate);
+		};
+
+		const buildVenueTrack = () => {
+			if (!isVenueSwipe() || !slides.length) {
+				return;
+			}
+
+			artistVenue.classList.add("is-swipe-mode");
+			if (image) {
+				image.hidden = true;
+				image.setAttribute("aria-hidden", "true");
+			}
+
+			if (!venueTrack) {
+				venueTrack = document.createElement("div");
+				venueTrack.className = "artist-performance__venue-track";
+				venueTrack.setAttribute("data-venue-track", "");
+				artistVenue.insertBefore(venueTrack, artistVenue.firstChild);
+			}
+
+			venueTrack.replaceChildren();
+			slides.forEach((slide, i) => {
+				const slideEl = document.createElement("div");
+				slideEl.className = "artist-performance__venue-slide";
+				const img = document.createElement("img");
+				img.src = slide.image;
+				img.alt = slide.label || "";
+				img.loading = i === index ? "eager" : "lazy";
+				img.decoding = "async";
+				img.draggable = false;
+				slideEl.appendChild(img);
+				venueTrack.appendChild(slideEl);
+			});
+
+			syncVenueTrackPosition(false);
+		};
+
+		const destroyVenueTrack = () => {
+			artistVenue.classList.remove("is-swipe-mode", "is-dragging");
+			if (venueTrack) {
+				venueTrack.remove();
+				venueTrack = null;
+			}
+			if (image) {
+				image.hidden = false;
+				image.removeAttribute("aria-hidden");
+			}
+		};
+
+		const syncVenueSwipeMode = () => {
+			if (isVenueSwipe()) {
+				buildVenueTrack();
+				return;
+			}
+			destroyVenueTrack();
+			render(false);
+		};
+
+		const render = (animate = true) => {
 			const slide = slides[index];
 			if (!slide) {
 				return;
 			}
-			if (image) {
+
+			if (venueTrack && isVenueSwipe()) {
+				syncVenueTrackPosition(animate);
+			} else if (image) {
 				image.src = slide.image;
 				image.alt = slide.label || "";
 			}
+
 			if (label) {
 				label.textContent = slide.label || "";
 			}
@@ -3501,6 +3604,14 @@
 				dot.classList.toggle("is-active", active);
 				dot.setAttribute("aria-current", active ? "true" : "false");
 			});
+		};
+
+		const goVenue = (delta) => {
+			if (!slides.length) {
+				return;
+			}
+			index = (index + delta + slides.length) % slides.length;
+			render();
 		};
 
 		if (dotsRoot && slides.length) {
@@ -3522,22 +3633,245 @@
 		}
 
 		artistVenue.querySelector("[data-venue-prev]")?.addEventListener("click", () => {
-			if (!slides.length) {
-				return;
-			}
-			index = (index - 1 + slides.length) % slides.length;
-			render();
+			goVenue(-1);
 		});
 
 		artistVenue.querySelector("[data-venue-next]")?.addEventListener("click", () => {
-			if (!slides.length) {
-				return;
-			}
-			index = (index + 1) % slides.length;
-			render();
+			goVenue(1);
 		});
 
-		render();
+		if (slides.length) {
+			let swipeActive = false;
+			let swipeAxis = null;
+			let swipeStartX = 0;
+			let swipeStartY = 0;
+			let swipeDeltaX = 0;
+			let swipeBaseOffset = 0;
+			let swipePointerId = null;
+			let swipeSwiping = false;
+			let swipeLastX = 0;
+			let swipeLastT = 0;
+			let swipeVelocity = 0;
+			let venueLenisPaused = false;
+
+			const pauseVenueLenis = () => {
+				if (!venueLenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.stop();
+					venueLenisPaused = true;
+				}
+			};
+
+			const resumeVenueLenis = () => {
+				if (venueLenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.start();
+					venueLenisPaused = false;
+				}
+			};
+
+			const beginVenueSwipe = (clientX, clientY, id) => {
+				if (!isVenueSwipe() || !venueTrack) {
+					return false;
+				}
+				swipeActive = true;
+				swipePointerId = id;
+				swipeStartX = clientX;
+				swipeStartY = clientY;
+				swipeLastX = clientX;
+				swipeLastT = performance.now();
+				swipeVelocity = 0;
+				swipeDeltaX = 0;
+				swipeAxis = null;
+				swipeSwiping = false;
+				swipeBaseOffset = measureVenueTrack();
+				pauseVenueLenis();
+				return true;
+			};
+
+			const moveVenueSwipe = (clientX, clientY, event) => {
+				if (!swipeActive || !venueTrack) {
+					return;
+				}
+
+				const dx = clientX - swipeStartX;
+				const dy = clientY - swipeStartY;
+				const now = performance.now();
+				const dt = Math.max(now - swipeLastT, 1);
+				swipeVelocity = (clientX - swipeLastX) / dt;
+				swipeLastX = clientX;
+				swipeLastT = now;
+
+				if (!swipeAxis) {
+					const absX = Math.abs(dx);
+					const absY = Math.abs(dy);
+					if (absX < 8 && absY < 8) {
+						return;
+					}
+					if (absY > absX && absY > 12) {
+						swipeActive = false;
+						swipePointerId = null;
+						resumeVenueLenis();
+						return;
+					}
+					if (absX >= absY) {
+						swipeAxis = "x";
+						swipeSwiping = true;
+						artistVenue.classList.add("is-dragging");
+					} else {
+						return;
+					}
+				}
+
+				if (swipeAxis !== "x") {
+					return;
+				}
+
+				swipeDeltaX = dx;
+				applyVenueTrackTransform(swipeBaseOffset - swipeDeltaX, false);
+				if (event?.cancelable) {
+					event.preventDefault();
+				}
+			};
+
+			const finishVenueSwipe = () => {
+				if (!swipeActive && !swipeSwiping) {
+					resumeVenueLenis();
+					artistVenue.classList.remove("is-dragging");
+					return;
+				}
+
+				swipeActive = false;
+				swipePointerId = null;
+				artistVenue.classList.remove("is-dragging");
+				resumeVenueLenis();
+
+				if (swipeSwiping) {
+					const threshold = Math.min(40, Math.max(24, venueTrackStep * 0.12));
+					if (
+						Math.abs(swipeDeltaX) > threshold ||
+						Math.abs(swipeVelocity) > 0.35
+					) {
+						if (swipeDeltaX < 0 || swipeVelocity < -0.35) {
+							goVenue(1);
+						} else if (swipeDeltaX > 0 || swipeVelocity > 0.35) {
+							goVenue(-1);
+						}
+					} else {
+						render(true);
+					}
+				} else {
+					render(true);
+				}
+
+				swipeSwiping = false;
+				swipeDeltaX = 0;
+				swipeAxis = null;
+				swipeVelocity = 0;
+			};
+
+			artistVenue.addEventListener(
+				"touchstart",
+				(e) => {
+					if (!isVenueSwipe() || e.touches.length !== 1) {
+						return;
+					}
+					const touch = e.touches[0];
+					beginVenueSwipe(touch.clientX, touch.clientY, touch.identifier);
+				},
+				{ passive: true }
+			);
+
+			artistVenue.addEventListener(
+				"touchmove",
+				(e) => {
+					if (!swipeActive || !isVenueSwipe() || e.touches.length !== 1) {
+						return;
+					}
+					const touch = e.touches[0];
+					if (
+						swipePointerId !== null &&
+						touch.identifier !== swipePointerId
+					) {
+						return;
+					}
+					moveVenueSwipe(touch.clientX, touch.clientY, e);
+				},
+				{ passive: false }
+			);
+
+			const onVenueTouchEnd = (e) => {
+				if (!swipeActive) {
+					return;
+				}
+				const touch = e.changedTouches?.[0];
+				if (
+					touch &&
+					swipePointerId !== null &&
+					touch.identifier !== swipePointerId
+				) {
+					return;
+				}
+				finishVenueSwipe();
+			};
+
+			artistVenue.addEventListener("touchend", onVenueTouchEnd, { passive: true });
+			artistVenue.addEventListener("touchcancel", onVenueTouchEnd, { passive: true });
+
+			artistVenue.addEventListener("pointerdown", (e) => {
+				if (!isVenueSwipe() || e.pointerType === "touch") {
+					return;
+				}
+				if (e.button !== 0) {
+					return;
+				}
+				beginVenueSwipe(e.clientX, e.clientY, e.pointerId);
+			});
+
+			artistVenue.addEventListener("pointermove", (e) => {
+				if (
+					!swipeActive ||
+					!isVenueSwipe() ||
+					e.pointerType === "touch" ||
+					e.pointerId !== swipePointerId
+				) {
+					return;
+				}
+				moveVenueSwipe(e.clientX, e.clientY, e);
+			});
+
+			artistVenue.addEventListener("pointerup", (e) => {
+				if (e.pointerId !== swipePointerId) {
+					return;
+				}
+				finishVenueSwipe();
+			});
+
+			artistVenue.addEventListener("pointercancel", (e) => {
+				if (e.pointerId !== swipePointerId) {
+					return;
+				}
+				finishVenueSwipe();
+			});
+
+			artistVenue.addEventListener("dragstart", (e) => e.preventDefault());
+
+			syncVenueSwipeMode();
+			if (typeof venueSwipeMq.addEventListener === "function") {
+				venueSwipeMq.addEventListener("change", syncVenueSwipeMode);
+			} else if (typeof venueSwipeMq.addListener === "function") {
+				venueSwipeMq.addListener(syncVenueSwipeMode);
+			}
+			window.addEventListener(
+				"resize",
+				() => {
+					if (venueTrack) {
+						syncVenueTrackPosition(false);
+					}
+				},
+				{ passive: true }
+			);
+		}
+
+		render(false);
 	}
 
 	/* ---------- Artist performance sticky pin ---------- */
@@ -3548,6 +3882,57 @@
 		const pinMobileMq = window.matchMedia("(max-width: 767px)");
 		const isArtistPerformancePinActive = () =>
 			pinDesktopMq.matches || pinMobileMq.matches;
+		let performanceMobileFitLocked = false;
+		let performanceMobileFitSnapshot = null;
+		let performanceMobileFitWidth = window.innerWidth;
+		let performanceMobilePinReady = false;
+		let performanceResizeTimer = 0;
+
+		const resetPerformanceMobilePin = () => {
+			performanceMobileFitLocked = false;
+			performanceMobileFitSnapshot = null;
+			performanceMobileFitWidth = window.innerWidth;
+		};
+
+		const applyPerformanceViewportFit = (snapshot) => {
+			if (!artistPerformancePin || !snapshot) {
+				return;
+			}
+
+			artistPerformance.classList.remove("is-viewport-fitted");
+			artistPerformance.style.removeProperty("height");
+			artistPerformance.style.removeProperty("--ee-artist-performance-viewport-height");
+			artistPerformance.style.removeProperty("--ee-artist-performance-fit-scale");
+			artistPerformance.style.removeProperty("--ee-artist-performance-fit-pad-top");
+			artistPerformance.style.removeProperty("--ee-artist-performance-fit-pad-bottom");
+			artistPerformance.style.removeProperty("--ee-artist-performance-content-height");
+
+			if (snapshot.useFit) {
+				artistPerformance.style.setProperty(
+					"--ee-artist-performance-viewport-height",
+					`${snapshot.availableHeight}px`
+				);
+				artistPerformance.style.setProperty(
+					"--ee-artist-performance-fit-scale",
+					String(snapshot.fitScale)
+				);
+				artistPerformance.style.setProperty(
+					"--ee-artist-performance-fit-pad-top",
+					`${snapshot.padTop * snapshot.fitScale}px`
+				);
+				artistPerformance.style.setProperty(
+					"--ee-artist-performance-fit-pad-bottom",
+					`${snapshot.padBottom * snapshot.fitScale}px`
+				);
+				artistPerformance.style.setProperty(
+					"--ee-artist-performance-content-height",
+					`${snapshot.contentHeight}px`
+				);
+				artistPerformance.classList.add("is-viewport-fitted");
+			}
+
+			artistPerformancePin.style.height = `${snapshot.pinHeight}px`;
+		};
 
 		const syncArtistPerformancePin = () => {
 			if (!artistPerformancePin) {
@@ -3555,6 +3940,7 @@
 			}
 
 			if (!isArtistPerformancePinActive()) {
+				resetPerformanceMobilePin();
 				artistPerformancePin.style.height = "";
 				artistPerformance.classList.remove("is-pinned", "is-viewport-fitted");
 				artistPerformance.style.removeProperty("height");
@@ -3563,6 +3949,28 @@
 				artistPerformance.style.removeProperty("--ee-artist-performance-fit-pad-top");
 				artistPerformance.style.removeProperty("--ee-artist-performance-fit-pad-bottom");
 				artistPerformance.style.removeProperty("--ee-artist-performance-content-height");
+				return;
+			}
+
+			if (!pinMobileMq.matches) {
+				resetPerformanceMobilePin();
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				pinMobileMq.matches &&
+				performanceMobileFitLocked &&
+				Math.abs(viewportWidth - performanceMobileFitWidth) > 80
+			) {
+				resetPerformanceMobilePin();
+			}
+
+			if (
+				pinMobileMq.matches &&
+				performanceMobileFitLocked &&
+				performanceMobileFitSnapshot
+			) {
+				applyPerformanceViewportFit(performanceMobileFitSnapshot);
 				return;
 			}
 
@@ -3577,51 +3985,41 @@
 
 			const pad = artistPerformancePin.querySelector(".artist-performance__scroll-pad");
 			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-			const sectionHeight = Math.ceil(artistPerformance.getBoundingClientRect().height);
+			const sectionHeight = Math.ceil(artistPerformance.scrollHeight);
 			const stickyTop =
 				parseFloat(
 					getComputedStyle(artistPerformance).getPropertyValue(
 						"--ee-artist-performance-sticky-top"
 					)
 				) || 0;
-			const availableHeight = Math.max(window.innerHeight - stickyTop, 0);
+			const viewportHeight = window.visualViewport?.height || window.innerHeight;
+			const availableHeight = Math.max(viewportHeight - stickyTop, 0);
 			const fitScale = isArtistPerformancePinActive()
 				? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
 				: 1;
+			const styles = getComputedStyle(artistPerformance);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
+			const useFit = fitScale < 0.999;
+			const holdHeight = Math.round(viewportHeight);
+			const snapshot = {
+				availableHeight,
+				fitScale,
+				padTop,
+				padBottom,
+				contentHeight,
+				pinHeight: padHeight + sectionHeight * fitScale + holdHeight,
+				useFit,
+			};
 
-			if (fitScale < 1) {
-				const styles = getComputedStyle(artistPerformance);
-				const padTop = parseFloat(styles.paddingTop) || 0;
-				const padBottom = parseFloat(styles.paddingBottom) || 0;
-				const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
+			applyPerformanceViewportFit(snapshot);
 
-				artistPerformance.style.setProperty(
-					"--ee-artist-performance-viewport-height",
-					`${availableHeight}px`
-				);
-				artistPerformance.style.setProperty(
-					"--ee-artist-performance-fit-scale",
-					String(fitScale)
-				);
-				artistPerformance.style.setProperty(
-					"--ee-artist-performance-fit-pad-top",
-					`${padTop * fitScale}px`
-				);
-				artistPerformance.style.setProperty(
-					"--ee-artist-performance-fit-pad-bottom",
-					`${padBottom * fitScale}px`
-				);
-				artistPerformance.style.setProperty(
-					"--ee-artist-performance-content-height",
-					`${contentHeight}px`
-				);
-				artistPerformance.classList.add("is-viewport-fitted");
+			if (pinMobileMq.matches && performanceMobilePinReady && useFit) {
+				performanceMobileFitLocked = true;
+				performanceMobileFitSnapshot = snapshot;
+				performanceMobileFitWidth = viewportWidth;
 			}
-
-			const holdHeight = Math.round(window.innerHeight);
-			artistPerformancePin.style.height = `${
-				padHeight + sectionHeight * fitScale + holdHeight
-			}px`;
 		};
 
 		const syncArtistPerformancePinnedState = () => {
@@ -3636,12 +4034,13 @@
 						"--ee-artist-performance-sticky-top"
 					)
 				) || 0;
+			const viewportHeight = window.visualViewport?.height || window.innerHeight;
 			const sectionRect = artistPerformance.getBoundingClientRect();
 			const pinRect = artistPerformancePin.getBoundingClientRect();
 			const pinned =
 				sectionRect.top <= stickyTop + 1.5 &&
 				pinRect.bottom >
-					stickyTop + Math.min(sectionRect.height, window.innerHeight - stickyTop) + 4;
+					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
 			artistPerformance.classList.toggle("is-pinned", pinned);
 		};
 
@@ -3652,21 +4051,63 @@
 			});
 		};
 
+		const refreshArtistPerformancePinLayout = () => {
+			if (pinMobileMq.matches) {
+				resetPerformanceMobilePin();
+			}
+			refreshArtistPerformancePin();
+		};
+
 		if (lenis) {
 			lenis.on("scroll", syncArtistPerformancePinnedState);
 		} else {
 			window.addEventListener("scroll", syncArtistPerformancePinnedState, { passive: true });
 		}
-		window.addEventListener("resize", refreshArtistPerformancePin, { passive: true });
-		window.addEventListener("load", refreshArtistPerformancePin);
-		window.addEventListener("excel-ent:header-state-change", refreshArtistPerformancePin);
+		window.addEventListener("resize", () => {
+			window.clearTimeout(performanceResizeTimer);
+			performanceResizeTimer = window.setTimeout(() => {
+				if (pinMobileMq.matches) {
+					if (
+						performanceMobileFitLocked &&
+						Math.abs(window.innerWidth - performanceMobileFitWidth) > 80
+					) {
+						refreshArtistPerformancePinLayout();
+						return;
+					}
+					if (!performanceMobileFitLocked) {
+						refreshArtistPerformancePin();
+					} else {
+						syncArtistPerformancePinnedState();
+					}
+					return;
+				}
+				refreshArtistPerformancePinLayout();
+			}, 150);
+		}, { passive: true });
+		window.addEventListener("load", () => {
+			performanceMobilePinReady = true;
+			resetPerformanceMobilePin();
+			refreshArtistPerformancePinLayout();
+		});
+		window.addEventListener("orientationchange", () => {
+			resetPerformanceMobilePin();
+			performanceMobileFitWidth = window.innerWidth;
+			window.setTimeout(refreshArtistPerformancePinLayout, 150);
+		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (pinMobileMq.matches) {
+				syncArtistPerformancePinnedState();
+				return;
+			}
+			refreshArtistPerformancePinLayout();
+		});
 
 		if (typeof pinDesktopMq.addEventListener === "function") {
-			pinDesktopMq.addEventListener("change", refreshArtistPerformancePin);
-			pinMobileMq.addEventListener("change", refreshArtistPerformancePin);
+			pinDesktopMq.addEventListener("change", refreshArtistPerformancePinLayout);
+			pinMobileMq.addEventListener("change", refreshArtistPerformancePinLayout);
 		} else if (typeof pinDesktopMq.addListener === "function") {
-			pinDesktopMq.addListener(refreshArtistPerformancePin);
-			pinMobileMq.addListener(refreshArtistPerformancePin);
+			pinDesktopMq.addListener(refreshArtistPerformancePinLayout);
+			pinMobileMq.addListener(refreshArtistPerformancePinLayout);
 		}
 
 		window.requestAnimationFrame(refreshArtistPerformancePin);
@@ -4682,7 +5123,7 @@
 			if (snapshot.useFit) {
 				artistSimilar.style.setProperty(
 					"--ee-artist-similar-viewport-height",
-					`${snapshot.availableHeight}px`
+					`${snapshot.fittedSectionHeight}px`
 				);
 				artistSimilar.style.setProperty(
 					"--ee-artist-similar-fit-scale",
@@ -4694,7 +5135,7 @@
 				);
 				artistSimilar.style.setProperty(
 					"--ee-artist-similar-fit-pad-bottom",
-					`${snapshot.padBottom * snapshot.fitScale}px`
+					"0px"
 				);
 				artistSimilar.style.setProperty(
 					"--ee-artist-similar-content-height",
@@ -4788,6 +5229,7 @@
 			const padBottom = parseFloat(styles.paddingBottom) || 0;
 			const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
 			const useFit = fitScale < 0.999;
+			const fittedSectionHeight = Math.ceil(sectionHeight * fitScale);
 			const holdHeight = Math.round(viewportHeight);
 			const snapshot = {
 				availableHeight,
@@ -4795,7 +5237,8 @@
 				padTop,
 				padBottom,
 				contentHeight,
-				pinHeight: padHeight + sectionHeight * fitScale + holdHeight,
+				fittedSectionHeight,
+				pinHeight: padHeight + fittedSectionHeight + holdHeight,
 				useFit,
 			};
 

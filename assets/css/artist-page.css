@@ -3402,6 +3402,7 @@
 		height: auto;
 		overflow: visible;
 		isolation: isolate;
+		overflow-anchor: none;
 	}
 
 	.artist-performance__scroll-pad {
@@ -3445,10 +3446,18 @@
 	}
 
 	.artist-performance.is-viewport-fitted .artist-performance__inner {
-		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 20px;
+		width: calc(100% / var(--ee-artist-performance-fit-scale, 1));
+		max-width: calc(100% / var(--ee-artist-performance-fit-scale, 1));
 		height: var(--ee-artist-performance-content-height);
-		transform: scale(var(--ee-artist-performance-fit-scale));
-		transform-origin: top center;
+		transform: scale(var(--ee-artist-performance-fit-scale, 1));
+		transform-origin: top left;
+		flex: none;
+		min-height: 0;
+		will-change: transform;
 	}
 
 	.artist-performance__copy {
@@ -3541,6 +3550,53 @@
 		margin-top: 0;
 		width: 34.5%;
 		background: linear-gradient(90deg, #f89a42, #ed3153);
+	}
+
+	.artist-performance__gallery.is-swipe-mode > .artist-performance__image[data-venue-image] {
+		display: none;
+	}
+
+	.artist-performance__venue-track {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		display: flex;
+		flex-direction: row;
+		width: 100%;
+		height: 100%;
+		will-change: transform;
+	}
+
+	.artist-performance__venue-slide {
+		flex: 0 0 100%;
+		width: 100%;
+		height: 100%;
+		min-width: 0;
+	}
+
+	.artist-performance__venue-slide img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center top;
+		pointer-events: none;
+		user-select: none;
+		-webkit-user-drag: none;
+	}
+
+	.artist-performance__gallery.is-swipe-mode {
+		touch-action: pan-y;
+		cursor: grab;
+	}
+
+	.artist-performance__gallery.is-swipe-mode.is-dragging {
+		touch-action: none;
+		cursor: grabbing;
+	}
+
+	.artist-performance__gallery.is-swipe-mode.is-dragging .artist-performance__venue-track {
+		transition: none !important;
 	}
 
 	/* ----- Set list — Figma 2331:5286 ----- */
@@ -4315,11 +4371,13 @@
 	}
 
 	.artist-similar.is-viewport-fitted {
-		height: var(--ee-artist-similar-viewport-height);
+		height: auto;
+		max-height: var(--ee-artist-similar-viewport-height);
 		min-height: 0;
 		padding-top: var(--ee-artist-similar-fit-pad-top);
-		padding-bottom: var(--ee-artist-similar-fit-pad-bottom);
+		padding-bottom: 0;
 		overflow: hidden;
+		box-sizing: border-box;
 	}
 
 	.artist-similar.is-viewport-fitted .artist-similar__inner {
@@ -4334,6 +4392,10 @@
 		transform-origin: top left;
 		flex: none;
 		min-height: 0;
+		margin-bottom: calc(
+			var(--ee-artist-similar-content-height) *
+			(var(--ee-artist-similar-fit-scale, 1) - 1)
+		);
 		backface-visibility: hidden;
 		will-change: transform;
 	}
