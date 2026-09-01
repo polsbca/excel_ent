@@ -1,9 +1,9 @@
 # Excel Entertainment — Artist REST API Specification
 
-**Version:** 1.4.0  
+**Version:** 1.5.0  
 **Audience:** Third-party API vendor  
 **Consumer:** Excel Entertainment WordPress theme (`excel_ent`)  
-**Last updated:** 2026-08-12
+**Last updated:** 2026-09-01
 
 This document defines the REST APIs required to power all artist-related UI in the Excel Entertainment website. Today the theme uses hardcoded demo data. The vendor API must supply the same (or richer) data so the site can replace static arrays with live responses.
 
@@ -339,10 +339,12 @@ Thumbnails switch the main stage image + meta (`data-media-thumb`).
 
 ## 1.4 Register as Artist form (theme contract)
 
-**Templates:** `page-contactus.php` → `template-parts/section-contact.php` (tab `REGISTER as ARTIST`, panel `data-contact-panel="talent"`)  
+**Templates:** `page-contactus.php` → `template-parts/section-contact.php` (tab **Register as Artist**, panel `data-contact-panel="talent"`)  
 **Form:** `POST` `multipart/form-data` → theme currently targets `/artist-registration/`; **production must call vendor API**  
 **Submit button:** “Register as Artist”  
 **Post-submit copy:** “Our team will get back to you within 24 hours.”
+
+> **Full specification:** [`docs/API-ARTIST-REGISTRATION.md`](./API-ARTIST-REGISTRATION.md) — complete field mapping, enums, file rules, validation, examples, and acceptance checklist for backend developers.
 
 ### Required API
 
@@ -361,7 +363,7 @@ Checkbox must be `true` before submit:
 
 API field: `consent.website_content_sharing` (boolean, required).
 
-### Form sections → API payload
+### Form sections → API payload (summary)
 
 #### Personal details
 
@@ -375,32 +377,30 @@ API field: `consent.website_content_sharing` (boolean, required).
 
 #### Performance details
 
-| UI label | WP `name` | API path | Values |
-|----------|-----------|----------|--------|
+| UI label | WP `name` | API path | Notes |
+|----------|-----------|----------|-------|
 | Years Performing | `excel_ent_years` | `performance.years_performing` | `lt-1`, `1-2`, `3-6`, `7-10`, `8-12`, `16+` |
-| Rate / Price Range | `excel_ent_rate` | `performance.rate_range` | Free text (e.g. `starting from £600`) |
-| Performance Category | `excel_ent_perf_category` | `performance.category` | `dj`, `live`, `solo`, `tribute`, `duo` |
-| Venue | `excel_ent_venue_type` | `performance.venue_type` | `pubs-clubs`, `hotels`, `golf-social`, `community` |
-
-Venue labels: **Pubs & Clubs**, **Hotels**, **Golf & Social Clubs**, **Community Centres**.
+| Base location | `excel_ent_base_location` | `performance.base_location` | Postcode / city (free text) |
+| Performance Set Lengths | `excel_ent_set_length` | `performance.set_lengths[]` | **Multi-select** — comma-separated in form: `flexible`, `1-hour`, `2-hours`, `3-hours`, `4-hours` |
+| Rate / Price Range | `excel_ent_rate` | `performance.rate_range` | Free text |
+| Performance Category | `excel_ent_perf_category` | `performance.categories[]` | **Multi-select** — grouped taxonomy (Artists & Tributes, Decades, Entertainment & Events, Music Genre). Comma-separated codes in form — full list in [`API-ARTIST-REGISTRATION.md` §3.5](./API-ARTIST-REGISTRATION.md#35-performance-categories-performancecategories) |
 
 #### Media & reviews
 
 | UI label | WP `name` | API path | Notes |
 |----------|-----------|----------|-------|
-| Headshot | `excel_ent_headshot[]` | `media.headshots[]` | 1–2 images |
-| References | `excel_ent_references` | `media.references` | Links or summary |
-| Performance Photos | `excel_ent_photos[]` | `media.performance_photos[]` | Up to 8 images |
-| Video Links | `excel_ent_video_links` | `media.video_links` | URL(s) |
-| Portfolio Website Link | `excel_ent_portfolio` | `media.portfolio_url` | URL |
-| Social Media links | `excel_ent_social` | `media.social_links` | Text / URL |
-| Performance Offerings | `excel_ent_offerings` | `media.performance_offerings` | Acts, playlists, styles |
+| Headshot | `excel_ent_headshot[]` | `media.headshots[]` | Up to **3** images (`image/*`) |
+| Performance Photos | `excel_ent_photos[]` | `media.performance_photos[]` | Up to **8** images |
+| Playlist Website Links | `excel_ent_playlist[]` | `media.playlist_links[]` | Up to **10** URLs (YouTube, Vimeo) |
+| Social Media links | `excel_ent_social[]` | `media.social_links[]` | Up to **3** URLs |
+| Video a Performance Link | `excel_ent_video_links` | `media.video_link` | Single URL |
+| Add Customer Reviews | `excel_ent_reviews` | `media.reviews_link` | Single URL (e.g. Google reviews) |
 
 #### Travel & technical
 
 | UI label | WP `name` | API path | Values |
 |----------|-----------|----------|--------|
-| Travel radius | `excel_ent_travel` | `travel.radius` | `local`, `regional`, `nationwide`, `international` |
+| Travel radius | `excel_ent_travel` | `travel.radius` | `0-20`, `20-50`, `50-100`, `nationwide` |
 | Technical Requirements | `excel_ent_tech` | `travel.technical_requirements` | Free text |
 | Public Liability Insurance | `excel_ent_pli` | `travel.public_liability_insurance` | `yes` \| `no` |
 | P.A.T. tested equipment | `excel_ent_pat` | `travel.pat_tested` | `yes` \| `no` |
@@ -432,28 +432,17 @@ On **successful** `POST /v1/artist-applications`, the API **must** send:
 | Recipient | Purpose | Trigger |
 |-----------|---------|---------|
 | **Applicant** (`personal.email`) | Confirmation / receipt | Always |
-| **Excel team** (configurable, e.g. `bookings@excelentertainment.co.uk`) | New artist registration alert | Always |
+| **Excel team** (configurable, e.g. `info@excelentertainment.co.uk`) | New artist registration alert | Always |
 
-**Applicant email** should include:
+**Applicant email** should include thank-you, name + stage name, summary (categories, set lengths, travel radius, contact preference), SLA line (**24 hours**), and reference id.
 
-- Thank-you / confirmation subject (e.g. “We received your artist registration”)
-- Applicant name + stage name
-- Short summary of submission (category, venue type, contact preference)
-- SLA line matching UI: **“Our team will get back to you within 24 hours.”**
-- Application reference id
-
-**Excel team email** should include:
-
-- Full application summary (all sections)
-- Links to uploaded media (or attachments within size limits)
-- Applicant email + phone for follow-up
-- Application reference id + timestamp
+**Excel team email** should include full application summary, media links, applicant contact details, reference id + timestamp.
 
 Response should echo email status (see §4.10 `notifications` object). If storage succeeds but email fails, return `207` or `201` with `notifications.partial_failure` — do not lose the application record.
 
 ### Example JSON body (non-file fields)
 
-Use `multipart/form-data` when uploading files; JSON below shows logical shape:
+Use `multipart/form-data` when uploading files; JSON below shows logical shape. See [`API-ARTIST-REGISTRATION.md`](./API-ARTIST-REGISTRATION.md) for cURL and WordPress proxy examples.
 
 ```json
 {
@@ -467,19 +456,19 @@ Use `multipart/form-data` when uploading files; JSON below shows logical shape:
   },
   "performance": {
     "years_performing": "3-6",
+    "base_location": "M1 2AB",
+    "set_lengths": ["flexible", "2-hours"],
     "rate_range": "starting from £600",
-    "category": "solo",
-    "venue_type": "pubs-clubs"
+    "categories": ["male-solo", "covers", "wedding"]
   },
   "media": {
-    "references": "https://...",
-    "video_links": "https://youtube.com/...",
-    "portfolio_url": "https://...",
-    "social_links": "@alexrocksz",
-    "performance_offerings": "Wedding sets, club classics, smooth jazz"
+    "playlist_links": ["https://youtube.com/..."],
+    "social_links": ["https://instagram.com/alexrocksz"],
+    "video_link": "https://youtube.com/...",
+    "reviews_link": "https://g.page/..."
   },
   "travel": {
-    "radius": "nationwide",
+    "radius": "50-100",
     "technical_requirements": "PA provided by venue",
     "public_liability_insurance": "yes",
     "pat_tested": "yes"
@@ -863,7 +852,7 @@ Extends list artist. Used by **`page-artist.php` / `section-artist.php`** (see �
 
 ### 3.6 Artist application (Register as Artist)
 
-Stored resource returned by `POST /v1/artist-applications`. See §1.4 for field mapping.
+Stored resource returned by `POST /v1/artist-applications`. See §1.4 and [`API-ARTIST-REGISTRATION.md`](./API-ARTIST-REGISTRATION.md) for full field mapping.
 
 ```json
 {
@@ -881,12 +870,15 @@ Stored resource returned by `POST /v1/artist-applications`. See §1.4 for field 
   },
   "performance": {
     "years_performing": "3-6",
-    "years_performing_label": "3-6 year",
+    "years_performing_label": "3- 6 year",
+    "base_location": "M1 2AB",
+    "set_lengths": ["flexible", "2-hours"],
+    "set_length_labels": ["Flexible / Tailored to Event", "2 hours"],
     "rate_range": "starting from £600",
-    "category": "solo",
-    "category_label": "Solo singer",
-    "venue_type": "pubs-clubs",
-    "venue_type_label": "Pubs & Clubs"
+    "categories": ["male-solo", "covers", "wedding"],
+    "categories_detail": [
+      { "code": "male-solo", "label": "Male Solo", "group": "artists-tributes" }
+    ]
   },
   "media": {
     "headshots": [
@@ -895,15 +887,14 @@ Stored resource returned by `POST /v1/artist-applications`. See §1.4 for field 
     "performance_photos": [
       { "id": "file_2", "url": "https://cdn.example.com/.../photo-1.jpg", "filename": "live-1.jpg" }
     ],
-    "references": "https://...",
-    "video_links": "https://youtube.com/...",
-    "portfolio_url": "https://...",
-    "social_links": "@alexrocksz",
-    "performance_offerings": "Wedding sets, club classics"
+    "playlist_links": ["https://youtube.com/..."],
+    "social_links": ["https://instagram.com/alexrocksz"],
+    "video_link": "https://youtube.com/...",
+    "reviews_link": "https://g.page/..."
   },
   "travel": {
-    "radius": "nationwide",
-    "radius_label": "Nationwide UK",
+    "radius": "50-100",
+    "radius_label": "50 - 100 miles",
     "technical_requirements": "PA provided by venue",
     "public_liability_insurance": "yes",
     "pat_tested": "yes"
@@ -921,7 +912,7 @@ Stored resource returned by `POST /v1/artist-applications`. See §1.4 for field 
   "notifications": {
     "applicant_email_sent": true,
     "team_email_sent": true,
-    "team_recipient": "bookings@excelentertainment.co.uk"
+    "team_recipient": "info@excelentertainment.co.uk"
   }
 }
 ```
@@ -1296,6 +1287,8 @@ Unauthenticated sites may omit these; theme will keep local-only toggles.
 
 Creates an artist registration record, stores uploaded media, and **sends email to both the applicant and the Excel team**.
 
+> **Developer reference:** [`docs/API-ARTIST-REGISTRATION.md`](./API-ARTIST-REGISTRATION.md) — validation rules, enums, file limits, cURL example, WordPress proxy mapping, acceptance checklist.
+
 #### Request
 
 ```
@@ -1307,14 +1300,14 @@ Content-Type: multipart/form-data
 |--------------|------|----------|-------------|
 | `type` | string | Yes | Always `talent` from contact form |
 | `personal` | object / JSON string | Yes | See §3.6 / §1.4 |
-| `performance` | object | Yes | Includes `venue_type` |
-| `media` | object + files | Partial | Text fields + `headshots[]`, `performance_photos[]` |
-| `travel` | object | Yes | PLI + PAT yes/no |
+| `performance` | object | Yes | Includes `base_location`, `set_lengths[]`, `categories[]` |
+| `media` | object + files | Partial | URLs + `headshots[]`, `performance_photos[]`, `playlist_links[]`, `social_links[]` |
+| `travel` | object | Partial | `radius` (`0-20` … `nationwide`), PLI + PAT yes/no |
 | `bio` | string | No | Artist bio |
-| `contact_preference` | object | Yes | `method` + optional `details` |
+| `contact_preference` | object | No | `method` + optional `details` |
 | `consent.website_content_sharing` | boolean | **Yes** | Must be `true` |
-| `headshots[]` | file[] | Recommended | 1–2 images (`image/*`) |
-| `performance_photos[]` | file[] | Recommended | Up to 8 images (`image/*`) |
+| `headshots[]` | file[] | No | Up to 3 images (`image/*`) |
+| `performance_photos[]` | file[] | No | Up to 8 images (`image/*`) |
 
 **Alternative:** `application/json` when media is pre-uploaded via vendor upload URLs (vendor to document if supported).
 
@@ -1445,7 +1438,7 @@ Not required for theme launch; document if vendor provides admin UI.
 - [ ] **Profile:** videos include poster + playable/external URL  
 - [ ] **Profile:** wishlist + favourite flags/endpoints  
 - [ ] **Profile:** similar artists endpoint returns Explore-card-compatible objects (`limit` ≥ 4)  
-- [ ] **Register as Artist:** `POST /artist-applications` accepts full §1.4 payload + file uploads  
+- [ ] **Register as Artist:** `POST /artist-applications` accepts full §1.4 / [`API-ARTIST-REGISTRATION.md`](./API-ARTIST-REGISTRATION.md) payload + file uploads  
 - [ ] **Register as Artist:** validates `consent.website_content_sharing === true`  
 - [ ] **Register as Artist:** stores application and returns `id`, `reference`, `status`, SLA `message`  
 - [ ] **Register as Artist:** sends confirmation email to applicant  

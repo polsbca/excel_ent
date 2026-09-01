@@ -2939,6 +2939,12 @@ body.mobile-search-open {
 	transform: translateY(-3px) rotate(-45deg);
 }
 
+.nav-toggle__menu {
+	display: none;
+	width: 18px;
+	height: 18px;
+}
+
 .nav-toggle__close {
 	display: none;
 	width: 18px;

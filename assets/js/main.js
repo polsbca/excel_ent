@@ -20,6 +20,7 @@
 				document.body.classList.contains("blog-modal-open") ||
 				document.body.classList.contains("package-compare-open") ||
 				document.body.classList.contains("package-enquiry-open") ||
+				document.body.classList.contains("package-card-expanded-open") ||
 				document.body.classList.contains("subscribe-popup-open");
 			if (locked) {
 				lenis.stop();
@@ -258,9 +259,10 @@
 		};
 
 		const syncArtistsStickyTop = () => {
-			const top = header.classList.contains("is-scrolled")
-				? Math.ceil(header.getBoundingClientRect().height)
-				: 0;
+			const isArtistMobile = isArtistPage && window.matchMedia("(max-width: 767px)").matches;
+			const headerHeight = Math.ceil(header.getBoundingClientRect().height);
+			const top =
+				header.classList.contains("is-scrolled") || isArtistMobile ? headerHeight : 0;
 			const topPx = `${top}px`;
 			if (isArtistPage && primary) {
 				primary.style.paddingTop = header.classList.contains("is-scrolled") ? topPx : "";
@@ -363,6 +365,15 @@
 			}
 			if (artistSetlistPin) {
 				artistSetlistPin.style.setProperty("--ee-artist-setlist-sticky-top", topPx);
+			}
+
+			const artistMediaPin = document.querySelector("[data-artist-media-pin]");
+			const artistMediaEl = document.querySelector("[data-artist-media]");
+			if (artistMediaEl) {
+				artistMediaEl.style.setProperty("--ee-artist-media-sticky-top", topPx);
+			}
+			if (artistMediaPin) {
+				artistMediaPin.style.setProperty("--ee-artist-media-sticky-top", topPx);
 			}
 
 			const artistSimilarPin = document.querySelector("[data-artist-similar-pin]");
@@ -634,7 +645,8 @@
 
 	/* ---------- Artist hero viewport fitting ---------- */
 	if (artistHero) {
-		const artistHeroFitMq = window.matchMedia("(min-width: 1200px)");
+		const artistHeroFitDesktopMq = window.matchMedia("(min-width: 1200px)");
+		const artistHeroFitMobileMq = window.matchMedia("(max-width: 767px)");
 
 		const syncArtistHeroViewport = () => {
 			artistHero.classList.remove("is-viewport-fitted");
@@ -645,13 +657,25 @@
 			artistHero.style.removeProperty("--ee-artist-hero-fit-pad-bottom");
 			artistHero.style.removeProperty("--ee-artist-hero-content-height");
 
-			if (!artistHeroFitMq.matches) {
+			const isDesktop = artistHeroFitDesktopMq.matches;
+			const isMobile = artistHeroFitMobileMq.matches;
+
+			if (!isDesktop && !isMobile) {
 				return;
 			}
 
 			const naturalHeight = Math.ceil(artistHero.getBoundingClientRect().height);
-			const sectionTop = Math.max(artistHero.getBoundingClientRect().top, 0);
-			const availableHeight = Math.max(window.innerHeight - sectionTop, 0);
+			const header = document.querySelector(".site-header");
+			const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+			let availableHeight;
+
+			if (isMobile) {
+				availableHeight = Math.max(window.innerHeight - headerHeight, 0);
+			} else {
+				const sectionTop = Math.max(artistHero.getBoundingClientRect().top, 0);
+				availableHeight = Math.max(window.innerHeight - sectionTop, 0);
+			}
+
 			const fitScale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
 
 			if (fitScale >= 1 || !availableHeight) {
@@ -673,14 +697,21 @@
 
 		window.addEventListener("resize", syncArtistHeroViewport);
 		window.addEventListener("load", syncArtistHeroViewport);
+		window.addEventListener("excel-ent:header-state-change", syncArtistHeroViewport);
 		window.requestAnimationFrame(syncArtistHeroViewport);
 
 		artistHero.querySelector("img")?.addEventListener("load", syncArtistHeroViewport);
 
-		if (typeof artistHeroFitMq.addEventListener === "function") {
-			artistHeroFitMq.addEventListener("change", syncArtistHeroViewport);
-		} else if (typeof artistHeroFitMq.addListener === "function") {
-			artistHeroFitMq.addListener(syncArtistHeroViewport);
+		if (typeof artistHeroFitDesktopMq.addEventListener === "function") {
+			artistHeroFitDesktopMq.addEventListener("change", syncArtistHeroViewport);
+		} else if (typeof artistHeroFitDesktopMq.addListener === "function") {
+			artistHeroFitDesktopMq.addListener(syncArtistHeroViewport);
+		}
+
+		if (typeof artistHeroFitMobileMq.addEventListener === "function") {
+			artistHeroFitMobileMq.addEventListener("change", syncArtistHeroViewport);
+		} else if (typeof artistHeroFitMobileMq.addListener === "function") {
+			artistHeroFitMobileMq.addListener(syncArtistHeroViewport);
 		}
 
 		if (document.fonts?.ready) {
@@ -3431,15 +3462,17 @@
 	const artistPerformance = document.querySelector("[data-artist-performance]");
 	if (artistPerformance) {
 		const artistPerformancePin = document.querySelector("[data-artist-performance-pin]");
-		const pinMq = window.matchMedia("(min-width: 1200px)");
-		const fitMq = window.matchMedia("(min-width: 1200px)");
+		const pinDesktopMq = window.matchMedia("(min-width: 1200px)");
+		const pinMobileMq = window.matchMedia("(max-width: 767px)");
+		const isArtistPerformancePinActive = () =>
+			pinDesktopMq.matches || pinMobileMq.matches;
 
 		const syncArtistPerformancePin = () => {
 			if (!artistPerformancePin) {
 				return;
 			}
 
-			if (!pinMq.matches) {
+			if (!isArtistPerformancePinActive()) {
 				artistPerformancePin.style.height = "";
 				artistPerformance.classList.remove("is-pinned", "is-viewport-fitted");
 				artistPerformance.style.removeProperty("height");
@@ -3470,7 +3503,7 @@
 					)
 				) || 0;
 			const availableHeight = Math.max(window.innerHeight - stickyTop, 0);
-			const fitScale = fitMq.matches
+			const fitScale = isArtistPerformancePinActive()
 				? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
 				: 1;
 
@@ -3510,7 +3543,7 @@
 		};
 
 		const syncArtistPerformancePinnedState = () => {
-			if (!artistPerformancePin || !pinMq.matches) {
+			if (!artistPerformancePin || !isArtistPerformancePinActive()) {
 				artistPerformance.classList.remove("is-pinned");
 				return;
 			}
@@ -3546,10 +3579,12 @@
 		window.addEventListener("load", refreshArtistPerformancePin);
 		window.addEventListener("excel-ent:header-state-change", refreshArtistPerformancePin);
 
-		if (typeof fitMq.addEventListener === "function") {
-			fitMq.addEventListener("change", refreshArtistPerformancePin);
-		} else if (typeof fitMq.addListener === "function") {
-			fitMq.addListener(refreshArtistPerformancePin);
+		if (typeof pinDesktopMq.addEventListener === "function") {
+			pinDesktopMq.addEventListener("change", refreshArtistPerformancePin);
+			pinMobileMq.addEventListener("change", refreshArtistPerformancePin);
+		} else if (typeof pinDesktopMq.addListener === "function") {
+			pinDesktopMq.addListener(refreshArtistPerformancePin);
+			pinMobileMq.addListener(refreshArtistPerformancePin);
 		}
 
 		window.requestAnimationFrame(refreshArtistPerformancePin);
@@ -3561,15 +3596,17 @@
 	const artistSetlist = document.querySelector("[data-artist-setlist]");
 	if (artistSetlist) {
 		const artistSetlistPin = document.querySelector("[data-artist-setlist-pin]");
-		const pinMq = window.matchMedia("(min-width: 1200px)");
-		const fitMq = window.matchMedia("(min-width: 1200px)");
+		const pinDesktopMq = window.matchMedia("(min-width: 1200px)");
+		const pinMobileMq = window.matchMedia("(max-width: 767px)");
+		const isArtistSetlistPinActive = () =>
+			pinDesktopMq.matches || pinMobileMq.matches;
 
 		const syncArtistSetlistPin = () => {
 			if (!artistSetlistPin) {
 				return;
 			}
 
-			if (!pinMq.matches) {
+			if (!isArtistSetlistPinActive()) {
 				artistSetlistPin.style.height = "";
 				artistSetlist.classList.remove("is-pinned", "is-viewport-fitted");
 				artistSetlist.style.removeProperty("height");
@@ -3600,7 +3637,7 @@
 					)
 				) || 0;
 			const availableHeight = Math.max(window.innerHeight - stickyTop, 0);
-			const fitScale = fitMq.matches
+			const fitScale = isArtistSetlistPinActive()
 				? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
 				: 1;
 
@@ -3640,7 +3677,7 @@
 		};
 
 		const syncArtistSetlistPinnedState = () => {
-			if (!artistSetlistPin || !pinMq.matches) {
+			if (!artistSetlistPin || !isArtistSetlistPinActive()) {
 				artistSetlist.classList.remove("is-pinned");
 				return;
 			}
@@ -3746,10 +3783,12 @@
 		window.addEventListener("load", refreshArtistSetlistPin);
 		window.addEventListener("excel-ent:header-state-change", refreshArtistSetlistPin);
 
-		if (typeof fitMq.addEventListener === "function") {
-			fitMq.addEventListener("change", refreshArtistSetlistPin);
-		} else if (typeof fitMq.addListener === "function") {
-			fitMq.addListener(refreshArtistSetlistPin);
+		if (typeof pinDesktopMq.addEventListener === "function") {
+			pinDesktopMq.addEventListener("change", refreshArtistSetlistPin);
+			pinMobileMq.addEventListener("change", refreshArtistSetlistPin);
+		} else if (typeof pinDesktopMq.addListener === "function") {
+			pinDesktopMq.addListener(refreshArtistSetlistPin);
+			pinMobileMq.addListener(refreshArtistSetlistPin);
 		}
 
 		window.requestAnimationFrame(refreshArtistSetlistPin);
@@ -3760,6 +3799,116 @@
 
 	const artistMedia = document.querySelector("[data-artist-media]");
 	if (artistMedia) {
+		const artistMediaPin = document.querySelector("[data-artist-media-pin]");
+		const mediaPinDesktopMq = window.matchMedia("(min-width: 1200px)");
+		const mediaPinMobileMq = window.matchMedia("(max-width: 767px)");
+		const isArtistMediaPinActive = () =>
+			mediaPinDesktopMq.matches || mediaPinMobileMq.matches;
+
+		const syncArtistMediaPin = () => {
+			if (!artistMediaPin) {
+				return;
+			}
+
+			if (!isArtistMediaPinActive()) {
+				artistMediaPin.style.height = "";
+				artistMedia.classList.remove("is-pinned", "is-viewport-fitted");
+				artistMedia.style.removeProperty("height");
+				artistMedia.style.removeProperty("--ee-artist-media-viewport-height");
+				artistMedia.style.removeProperty("--ee-artist-media-fit-scale");
+				artistMedia.style.removeProperty("--ee-artist-media-fit-pad-top");
+				artistMedia.style.removeProperty("--ee-artist-media-fit-pad-bottom");
+				artistMedia.style.removeProperty("--ee-artist-media-content-height");
+				return;
+			}
+
+			artistMediaPin.style.height = "auto";
+			artistMedia.classList.remove("is-viewport-fitted");
+			artistMedia.style.removeProperty("height");
+			artistMedia.style.removeProperty("--ee-artist-media-viewport-height");
+			artistMedia.style.removeProperty("--ee-artist-media-fit-scale");
+			artistMedia.style.removeProperty("--ee-artist-media-fit-pad-top");
+			artistMedia.style.removeProperty("--ee-artist-media-fit-pad-bottom");
+			artistMedia.style.removeProperty("--ee-artist-media-content-height");
+
+			const pad = artistMediaPin.querySelector(".artist-media__scroll-pad");
+			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const sectionHeight = Math.ceil(artistMedia.getBoundingClientRect().height);
+			const stickyTop =
+				parseFloat(
+					getComputedStyle(artistMedia).getPropertyValue(
+						"--ee-artist-media-sticky-top"
+					)
+				) || 0;
+			const availableHeight = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale =
+				isArtistMediaPinActive() && mediaPinMobileMq.matches
+					? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
+					: 1;
+
+			if (fitScale < 1) {
+				const styles = getComputedStyle(artistMedia);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
+
+				artistMedia.style.setProperty(
+					"--ee-artist-media-viewport-height",
+					`${availableHeight}px`
+				);
+				artistMedia.style.setProperty(
+					"--ee-artist-media-fit-scale",
+					String(fitScale)
+				);
+				artistMedia.style.setProperty(
+					"--ee-artist-media-fit-pad-top",
+					`${padTop * fitScale}px`
+				);
+				artistMedia.style.setProperty(
+					"--ee-artist-media-fit-pad-bottom",
+					`${padBottom * fitScale}px`
+				);
+				artistMedia.style.setProperty(
+					"--ee-artist-media-content-height",
+					`${contentHeight}px`
+				);
+				artistMedia.classList.add("is-viewport-fitted");
+			}
+
+			const holdHeight = Math.round(window.innerHeight);
+			artistMediaPin.style.height = `${
+				padHeight + sectionHeight * fitScale + holdHeight
+			}px`;
+		};
+
+		const syncArtistMediaPinnedState = () => {
+			if (!artistMediaPin || !isArtistMediaPinActive()) {
+				artistMedia.classList.remove("is-pinned");
+				return;
+			}
+
+			const stickyTop =
+				parseFloat(
+					getComputedStyle(artistMedia).getPropertyValue(
+						"--ee-artist-media-sticky-top"
+					)
+				) || 0;
+			const sectionRect = artistMedia.getBoundingClientRect();
+			const pinRect = artistMediaPin.getBoundingClientRect();
+			const pinned =
+				sectionRect.top <= stickyTop + 1.5 &&
+				pinRect.bottom >
+					stickyTop + Math.min(sectionRect.height, window.innerHeight - stickyTop) + 4;
+			artistMedia.classList.toggle("is-pinned", pinned);
+		};
+
+		const refreshArtistMediaPin = () => {
+			window.requestAnimationFrame(() => {
+				syncArtistMediaPin();
+				syncArtistMediaPinnedState();
+			});
+		};
+
 		const tabs = Array.from(artistMedia.querySelectorAll("[data-media-tab]"));
 		const panels = Array.from(artistMedia.querySelectorAll("[data-media-panel]"));
 		const thumbs = Array.from(artistMedia.querySelectorAll("[data-media-thumb]"));
@@ -3782,6 +3931,7 @@
 				panel.classList.toggle("is-active", on);
 				panel.hidden = !on;
 			});
+			refreshArtistMediaPin();
 		};
 
 		tabs.forEach((tab) => {
@@ -3790,19 +3940,127 @@
 			});
 		});
 
-		const updateMeta = (thumb) => {
+		const photosPanel = artistMedia.querySelector('[data-media-panel="photos"]');
+		const photoProgress = artistMedia.querySelector("[data-media-progress-fill]");
+		const photoSwipeMq = window.matchMedia("(max-width: 1199px)");
+		let photoIndex = 0;
+
+		const buildPhotoSlides = () => {
+			const slides = [];
+
+			if (main?.getAttribute("src")) {
+				slides.push({
+					image: main.getAttribute("src"),
+					venue: venue?.textContent?.trim() || "",
+					location: location?.textContent?.trim() || "",
+					duration: duration?.textContent?.trim() || "",
+					guests: guests?.textContent?.trim() || "",
+					thumb: null,
+				});
+			}
+
+			thumbs.forEach((thumb) => {
+				const image = thumb.getAttribute("data-image");
+				if (!image) {
+					return;
+				}
+				slides.push({
+					image,
+					venue: thumb.getAttribute("data-venue") || "",
+					location: thumb.getAttribute("data-location") || "",
+					duration: thumb.getAttribute("data-duration") || "",
+					guests: thumb.getAttribute("data-guests") || "",
+					thumb,
+				});
+			});
+
+			return slides;
+		};
+
+		let photoSlides = buildPhotoSlides();
+
+		const slideToThumb = (slide) => ({
+			getAttribute: (name) => {
+				switch (name) {
+					case "data-image":
+						return slide.image;
+					case "data-venue":
+						return slide.venue;
+					case "data-location":
+						return slide.location;
+					case "data-duration":
+						return slide.duration;
+					case "data-guests":
+						return slide.guests;
+					default:
+						return "";
+				}
+			},
+		});
+
+		const updateMetaFromSlide = (slide) => {
+			if (!slide) {
+				return;
+			}
 			if (venue) {
-				venue.textContent = thumb.getAttribute("data-venue") || "";
+				venue.textContent = slide.venue || "";
 			}
 			if (location) {
-				location.textContent = thumb.getAttribute("data-location") || "";
+				location.textContent = slide.location || "";
 			}
 			if (duration) {
-				duration.textContent = thumb.getAttribute("data-duration") || "";
+				duration.textContent = slide.duration || "";
 			}
 			if (guests) {
-				guests.textContent = thumb.getAttribute("data-guests") || "";
+				guests.textContent = slide.guests || "";
 			}
+		};
+
+		const updatePhotoProgress = () => {
+			if (!photoProgress || !photoSlides.length) {
+				return;
+			}
+			photoProgress.style.width = `${((photoIndex + 1) / photoSlides.length) * 100}%`;
+		};
+
+		const syncPhotoSelection = (slide) => {
+			thumbs.forEach((item) => item.classList.toggle("is-selected", item === slide?.thumb));
+		};
+
+		const showPhoto = (nextIndex) => {
+			if (!photoSlides.length) {
+				return;
+			}
+			photoIndex =
+				((nextIndex % photoSlides.length) + photoSlides.length) % photoSlides.length;
+			const slide = photoSlides[photoIndex];
+			if (!slide) {
+				return;
+			}
+
+			if (main && main.getAttribute("src") !== slide.image) {
+				swapMainImage(slide.image, slideToThumb(slide));
+			} else {
+				updateMetaFromSlide(slide);
+			}
+			syncPhotoSelection(slide);
+			updatePhotoProgress();
+		};
+
+		const goPhoto = (delta) => {
+			showPhoto(photoIndex + delta);
+		};
+
+		const updateMeta = (thumb) => {
+			if (!thumb) {
+				return;
+			}
+			updateMetaFromSlide({
+				venue: thumb.getAttribute("data-venue") || "",
+				location: thumb.getAttribute("data-location") || "",
+				duration: thumb.getAttribute("data-duration") || "",
+				guests: thumb.getAttribute("data-guests") || "",
+			});
 		};
 
 		const centerMediaStage = () => {
@@ -3896,11 +4154,206 @@
 				if (thumb.classList.contains("is-selected")) {
 					return;
 				}
+				const idx = photoSlides.findIndex((slide) => slide.thumb === thumb);
+				if (idx >= 0) {
+					photoIndex = idx;
+				}
 				thumbs.forEach((item) => item.classList.toggle("is-selected", item === thumb));
 				centerMediaStage();
 				swapMainImage(thumb.getAttribute("data-image") || "", thumb);
+				updatePhotoProgress();
 			});
 		});
+
+		if (stage && photosPanel) {
+			let touchActive = false;
+			let touchAxis = null;
+			let touchStartX = 0;
+			let touchStartY = 0;
+			let pointerId = null;
+			let lenisPaused = false;
+
+			const isPhotoSwipe = () => photoSwipeMq.matches;
+
+			const pausePhotoLenis = () => {
+				if (!lenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.stop();
+					lenisPaused = true;
+				}
+			};
+
+			const resumePhotoLenis = () => {
+				if (lenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.start();
+					lenisPaused = false;
+				}
+			};
+
+			const finishPhotoSwipe = (clientX) => {
+				if (!touchActive || touchAxis !== "x") {
+					touchActive = false;
+					touchAxis = null;
+					pointerId = null;
+					stage.classList.remove("is-dragging");
+					resumePhotoLenis();
+					return;
+				}
+
+				const delta = clientX - touchStartX;
+				if (Math.abs(delta) > 40) {
+					goPhoto(delta < 0 ? 1 : -1);
+				}
+
+				touchActive = false;
+				touchAxis = null;
+				pointerId = null;
+				stage.classList.remove("is-dragging");
+				resumePhotoLenis();
+			};
+
+			const onPhotoTouchStart = (e) => {
+				if (!isPhotoSwipe() || e.touches.length !== 1) {
+					return;
+				}
+				touchActive = true;
+				touchAxis = null;
+				touchStartX = e.touches[0].clientX;
+				touchStartY = e.touches[0].clientY;
+				pointerId = e.touches[0].identifier;
+				pausePhotoLenis();
+			};
+
+			const onPhotoTouchMove = (e) => {
+				if (!touchActive || !isPhotoSwipe() || e.touches.length !== 1) {
+					return;
+				}
+				const touch = e.touches[0];
+				if (pointerId !== null && touch.identifier !== pointerId) {
+					return;
+				}
+
+				const dx = touch.clientX - touchStartX;
+				const dy = touch.clientY - touchStartY;
+
+				if (!touchAxis) {
+					if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+						return;
+					}
+					if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
+						touchActive = false;
+						touchAxis = null;
+						pointerId = null;
+						resumePhotoLenis();
+						return;
+					}
+					touchAxis = "x";
+					stage.classList.add("is-dragging");
+				}
+
+				if (touchAxis === "x") {
+					e.preventDefault();
+				}
+			};
+
+			const onPhotoTouchEnd = (e) => {
+				if (!touchActive) {
+					return;
+				}
+				const touch = e.changedTouches?.[0];
+				if (touch && pointerId !== null && touch.identifier !== pointerId) {
+					return;
+				}
+				finishPhotoSwipe(touch?.clientX ?? touchStartX);
+			};
+
+			stage.addEventListener("touchstart", onPhotoTouchStart, { passive: true });
+			stage.addEventListener("touchmove", onPhotoTouchMove, { passive: false });
+			stage.addEventListener("touchend", onPhotoTouchEnd, { passive: true });
+			stage.addEventListener("touchcancel", onPhotoTouchEnd, { passive: true });
+
+			stage.addEventListener("pointerdown", (e) => {
+				if (!isPhotoSwipe() || e.pointerType === "touch") {
+					return;
+				}
+				if (e.button !== 0) {
+					return;
+				}
+				touchActive = true;
+				touchAxis = null;
+				touchStartX = e.clientX;
+				touchStartY = e.clientY;
+				pointerId = e.pointerId;
+				pausePhotoLenis();
+				try {
+					stage.setPointerCapture(e.pointerId);
+				} catch (err) {
+					/* ignore */
+				}
+			});
+
+			stage.addEventListener("pointermove", (e) => {
+				if (!touchActive || !isPhotoSwipe() || e.pointerId !== pointerId) {
+					return;
+				}
+				const dx = e.clientX - touchStartX;
+				const dy = e.clientY - touchStartY;
+				if (!touchAxis) {
+					if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+						return;
+					}
+					if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
+						touchActive = false;
+						touchAxis = null;
+						pointerId = null;
+						resumePhotoLenis();
+						return;
+					}
+					touchAxis = "x";
+					stage.classList.add("is-dragging");
+				}
+				if (touchAxis === "x") {
+					e.preventDefault();
+				}
+			});
+
+			stage.addEventListener("pointerup", (e) => {
+				if (e.pointerId !== pointerId) {
+					return;
+				}
+				finishPhotoSwipe(e.clientX);
+			});
+
+			stage.addEventListener("pointercancel", (e) => {
+				if (e.pointerId !== pointerId) {
+					return;
+				}
+				finishPhotoSwipe(e.clientX);
+			});
+		}
+
+		updatePhotoProgress();
+
+		if (lenis) {
+			lenis.on("scroll", syncArtistMediaPinnedState);
+		} else {
+			window.addEventListener("scroll", syncArtistMediaPinnedState, { passive: true });
+		}
+		window.addEventListener("resize", refreshArtistMediaPin, { passive: true });
+		window.addEventListener("load", refreshArtistMediaPin);
+		window.addEventListener("excel-ent:header-state-change", refreshArtistMediaPin);
+
+		if (typeof mediaPinDesktopMq.addEventListener === "function") {
+			mediaPinDesktopMq.addEventListener("change", refreshArtistMediaPin);
+			mediaPinMobileMq.addEventListener("change", refreshArtistMediaPin);
+		} else if (typeof mediaPinDesktopMq.addListener === "function") {
+			mediaPinDesktopMq.addListener(refreshArtistMediaPin);
+			mediaPinMobileMq.addListener(refreshArtistMediaPin);
+		}
+
+		window.requestAnimationFrame(refreshArtistMediaPin);
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(refreshArtistMediaPin);
+		}
 	}
 
 	const artistSimilar = document.querySelector("[data-artist-similar]");
@@ -3913,29 +4366,96 @@
 		const count = artistSimilar.querySelector("[data-similar-count]");
 		let index = 0;
 
-		const isSwipeCarousel = () => window.matchMedia("(max-width: 1199px)").matches;
+		const similarPinDesktopMq = window.matchMedia("(min-width: 1200px)");
+		const similarPinMobileMq = window.matchMedia("(max-width: 767px)");
+		const similarTabletMq = window.matchMedia("(min-width: 768px) and (max-width: 1199px)");
+		const isSimilarPinActive = () =>
+			similarPinDesktopMq.matches || similarPinMobileMq.matches;
+		const isSimilarMobileGrid = () => similarPinMobileMq.matches;
+		const isSimilarTabletCarousel = () => similarTabletMq.matches;
 
 		const syncArtistSimilarPin = () => {
 			if (!artistSimilarPin) {
 				return;
 			}
 
-			if (isSwipeCarousel()) {
+			if (!isSimilarPinActive()) {
 				artistSimilarPin.style.height = "";
-				artistSimilar.classList.remove("is-pinned");
+				artistSimilarPin.style.marginBottom = "";
+				artistSimilar.classList.remove("is-pinned", "is-viewport-fitted");
+				artistSimilar.style.removeProperty("height");
+				artistSimilar.style.removeProperty("--ee-artist-similar-viewport-height");
+				artistSimilar.style.removeProperty("--ee-artist-similar-fit-scale");
+				artistSimilar.style.removeProperty("--ee-artist-similar-fit-pad-top");
+				artistSimilar.style.removeProperty("--ee-artist-similar-fit-pad-bottom");
+				artistSimilar.style.removeProperty("--ee-artist-similar-content-height");
 				return;
 			}
+
+			artistSimilarPin.style.height = "auto";
+			artistSimilar.classList.remove("is-viewport-fitted");
+			artistSimilar.style.removeProperty("height");
+			artistSimilar.style.removeProperty("--ee-artist-similar-viewport-height");
+			artistSimilar.style.removeProperty("--ee-artist-similar-fit-scale");
+			artistSimilar.style.removeProperty("--ee-artist-similar-fit-pad-top");
+			artistSimilar.style.removeProperty("--ee-artist-similar-fit-pad-bottom");
+			artistSimilar.style.removeProperty("--ee-artist-similar-content-height");
 
 			const pad = artistSimilarPin.querySelector(".artist-similar__scroll-pad");
 			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionHeight = Math.ceil(artistSimilar.getBoundingClientRect().height);
-			artistSimilarPin.style.height = `${
-				padHeight + sectionHeight + Math.round(window.innerHeight)
-			}px`;
+			const stickyTop =
+				parseFloat(
+					getComputedStyle(artistSimilar).getPropertyValue(
+						"--ee-artist-similar-sticky-top"
+					)
+				) || 0;
+			const availableHeight = Math.max(window.innerHeight - stickyTop, 0);
+			const fitScale =
+				isSimilarPinActive() && similarPinMobileMq.matches
+					? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
+					: 1;
+
+			if (fitScale < 1) {
+				const styles = getComputedStyle(artistSimilar);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
+
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-viewport-height",
+					`${availableHeight}px`
+				);
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-fit-scale",
+					String(fitScale)
+				);
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-fit-pad-top",
+					`${padTop * fitScale}px`
+				);
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-fit-pad-bottom",
+					`${padBottom * fitScale}px`
+				);
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-content-height",
+					`${contentHeight}px`
+				);
+				artistSimilar.classList.add("is-viewport-fitted");
+			}
+
+			const fittedHeight = Math.ceil(sectionHeight * fitScale);
+			const holdHeight = similarPinMobileMq.matches
+				? Math.max(180, Math.round(availableHeight - fittedHeight))
+				: Math.round(window.innerHeight);
+
+			artistSimilarPin.style.height = `${padHeight + fittedHeight + holdHeight}px`;
+			artistSimilarPin.style.marginBottom = "";
 		};
 
 		const syncArtistSimilarPinnedState = () => {
-			if (!artistSimilarPin || isSwipeCarousel()) {
+			if (!artistSimilarPin || !isSimilarPinActive()) {
 				artistSimilar.classList.remove("is-pinned");
 				return;
 			}
@@ -3962,40 +4482,53 @@
 			});
 		};
 
-		const update = () => {
-			const max = Math.max(cards.length - 1, 0);
-			index = Math.min(Math.max(index, 0), max);
-
-			if (isSwipeCarousel()) {
-				if (track) {
-					track.style.transform = "";
-				}
-				if (viewport && cards[index]) {
-					const left = cards[index].offsetLeft - (parseFloat(getComputedStyle(viewport).paddingLeft) || 0);
-					if (Math.abs(viewport.scrollLeft - left) > 2) {
-						viewport.scrollTo({ left, behavior: "smooth" });
-					}
-				}
-			} else if (track && cards[0]) {
-				const gap = parseFloat(getComputedStyle(track).gap) || 50;
-				const cardWidth = cards[0].getBoundingClientRect().width || 560;
-				track.style.transform = `translateX(-${index * (cardWidth + gap)}px)`;
-			}
-
-			if (count) {
-				count.textContent = `${cards.length ? index + 1 : 0}/${cards.length}`;
-			}
-			if (progress && cards.length) {
-				const width = 100 / cards.length;
-				progress.style.width = `${width}%`;
-				progress.style.left = `${index * width}%`;
-			}
-		};
-
-		const syncFromScroll = () => {
-			if (!isSwipeCarousel() || !viewport || !cards.length) {
+		const syncSimilarProgressFromScroll = () => {
+			if (!viewport || !cards.length) {
 				return;
 			}
+
+			if (isSimilarMobileGrid()) {
+				const maxScroll = Math.max(viewport.scrollWidth - viewport.clientWidth, 0);
+				const ratio = maxScroll > 0 ? viewport.scrollLeft / maxScroll : 0;
+
+				if (progress) {
+					progress.style.left = "0";
+					progress.style.width = `${Math.max(ratio * 100, maxScroll ? 8 : 100)}%`;
+				}
+
+				let leftmost = 0;
+				let leftmostOffset = Infinity;
+				const scrollLeft = viewport.scrollLeft;
+				cards.forEach((card, i) => {
+					const cardLeft = card.offsetLeft;
+					if (cardLeft >= scrollLeft - 4 && cardLeft < leftmostOffset) {
+						leftmostOffset = cardLeft;
+						leftmost = i;
+					}
+				});
+				if (leftmostOffset === Infinity) {
+					let closest = 0;
+					let closestDist = Infinity;
+					cards.forEach((card, i) => {
+						const dist = Math.abs(card.offsetLeft - scrollLeft);
+						if (dist < closestDist) {
+							closestDist = dist;
+							closest = i;
+						}
+					});
+					leftmost = closest;
+				}
+				index = leftmost;
+				if (count) {
+					count.textContent = `${leftmost + 1}/${cards.length}`;
+				}
+				return;
+			}
+
+			if (!isSimilarTabletCarousel()) {
+				return;
+			}
+
 			const pad = parseFloat(getComputedStyle(viewport).paddingLeft) || 0;
 			let closest = 0;
 			let closestDist = Infinity;
@@ -4010,6 +4543,50 @@
 				index = closest;
 				if (count) {
 					count.textContent = `${index + 1}/${cards.length}`;
+				}
+				if (progress && cards.length) {
+					const width = 100 / cards.length;
+					progress.style.width = `${width}%`;
+					progress.style.left = `${index * width}%`;
+				}
+			}
+		};
+
+		const update = () => {
+			const max = Math.max(cards.length - 1, 0);
+			index = Math.min(Math.max(index, 0), max);
+
+			if (isSimilarMobileGrid()) {
+				if (track) {
+					track.style.transform = "";
+				}
+				syncSimilarProgressFromScroll();
+			} else if (isSimilarTabletCarousel()) {
+				if (track) {
+					track.style.transform = "";
+				}
+				if (viewport && cards[index]) {
+					const left =
+						cards[index].offsetLeft -
+						(parseFloat(getComputedStyle(viewport).paddingLeft) || 0);
+					if (Math.abs(viewport.scrollLeft - left) > 2) {
+						viewport.scrollTo({ left, behavior: "smooth" });
+					}
+				}
+				if (count) {
+					count.textContent = `${cards.length ? index + 1 : 0}/${cards.length}`;
+				}
+				if (progress && cards.length) {
+					const width = 100 / cards.length;
+					progress.style.width = `${width}%`;
+					progress.style.left = `${index * width}%`;
+				}
+			} else if (track && cards[0]) {
+				const gap = parseFloat(getComputedStyle(track).gap) || 50;
+				const cardWidth = cards[0].getBoundingClientRect().width || 560;
+				track.style.transform = `translateX(-${index * (cardWidth + gap)}px)`;
+				if (count) {
+					count.textContent = `${cards.length ? index + 1 : 0}/${cards.length}`;
 				}
 				if (progress && cards.length) {
 					const width = 100 / cards.length;
@@ -4045,7 +4622,7 @@
 		});
 
 		viewport?.addEventListener("scroll", () => {
-			window.requestAnimationFrame(syncFromScroll);
+			window.requestAnimationFrame(syncSimilarProgressFromScroll);
 		}, { passive: true });
 
 		if (lenis) {
@@ -4059,6 +4636,35 @@
 		}, { passive: true });
 		window.addEventListener("load", refreshArtistSimilarPin);
 		window.addEventListener("excel-ent:header-state-change", refreshArtistSimilarPin);
+
+		if (typeof similarPinDesktopMq.addEventListener === "function") {
+			similarPinDesktopMq.addEventListener("change", () => {
+				update();
+				refreshArtistSimilarPin();
+			});
+			similarPinMobileMq.addEventListener("change", () => {
+				update();
+				refreshArtistSimilarPin();
+			});
+			similarTabletMq.addEventListener("change", () => {
+				update();
+				refreshArtistSimilarPin();
+			});
+		} else if (typeof similarPinDesktopMq.addListener === "function") {
+			similarPinDesktopMq.addListener(() => {
+				update();
+				refreshArtistSimilarPin();
+			});
+			similarPinMobileMq.addListener(() => {
+				update();
+				refreshArtistSimilarPin();
+			});
+			similarTabletMq.addListener(() => {
+				update();
+				refreshArtistSimilarPin();
+			});
+		}
+
 		window.requestAnimationFrame(refreshArtistSimilarPin);
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(refreshArtistSimilarPin);
@@ -4367,6 +4973,19 @@
 		const panels = Array.from(packageTabs.querySelectorAll("[data-package-panel]"));
 		const packageCards = Array.from(packageTabs.querySelectorAll("[data-package-card]"));
 		const packageScrollers = Array.from(packageTabs.querySelectorAll(".package-grid-wrap"));
+		const packageDesktopMq = window.matchMedia("(min-width: 1200px)");
+		const packageIntroFitMq = window.matchMedia("(min-width: 1200px)");
+		let packageIntroFitLocked = false;
+
+		const clearPackageIntroViewportFit = () => {
+			packageIntroFitLocked = false;
+			packageTabs.classList.remove("is-viewport-fitted");
+			packageTabs.style.removeProperty("height");
+			packageTabs.style.removeProperty("--ee-package-intro-viewport-height");
+			packageTabs.style.removeProperty("--ee-package-intro-fit-scale");
+			packageTabs.style.removeProperty("--ee-package-intro-fit-pad-top");
+			packageTabs.style.removeProperty("--ee-package-intro-fit-pad-bottom");
+		};
 
 		const syncPackageRail = (scroller) => {
 			if (!scroller) {
@@ -4422,14 +5041,172 @@
 			}
 		};
 
+		const readMoreLabel = packageTabs.dataset.readMore || "Read more";
+		const readLessLabel = packageTabs.dataset.readLess || "Read less";
+
+		const isPackageDesktopExpandMode = () => {
+			if (!packageDesktopMq.matches) {
+				return false;
+			}
+			const grid = packageTabs.querySelector(".package-panel.is-active .package-grid");
+			if (!grid) {
+				return false;
+			}
+			const columns = getComputedStyle(grid).gridTemplateColumns
+				.split(/\s+/)
+				.filter(Boolean);
+			return columns.length >= 4;
+		};
+
+		let packageIntroPlaceholder = null;
+
+		const syncPackageExpandedLayout = () => {
+			const header = document.querySelector(".site-header");
+			const headerHeight = header ? Math.ceil(header.offsetHeight) : 0;
+
+			packageTabs.style.setProperty("--ee-package-sticky-top", `${headerHeight}px`);
+
+			if (!packageTabs.classList.contains("has-expanded-card")) {
+				packageTabs.style.removeProperty("--ee-package-expanded-height");
+				document.body.classList.remove("package-card-expanded-open");
+				document.documentElement.classList.remove("package-card-expanded-open");
+				if (packageIntroPlaceholder) {
+					packageIntroPlaceholder.remove();
+					packageIntroPlaceholder = null;
+				}
+				delete packageTabs.dataset.naturalHeight;
+				return;
+			}
+
+			if (!packageIntroPlaceholder) {
+				packageIntroPlaceholder = document.createElement("div");
+				packageIntroPlaceholder.className = "package-intro__placeholder";
+				packageIntroPlaceholder.setAttribute("aria-hidden", "true");
+				packageTabs.insertAdjacentElement("beforebegin", packageIntroPlaceholder);
+			}
+			const placeholderHeight = Number.parseInt(
+				packageTabs.dataset.naturalHeight || "",
+				10
+			);
+			packageIntroPlaceholder.style.height = `${placeholderHeight || packageTabs.offsetHeight}px`;
+
+			const availableHeight = Math.max(window.innerHeight - headerHeight, 0);
+			packageTabs.style.setProperty("--ee-package-expanded-height", `${availableHeight}px`);
+
+			const currentScroll = window.excelEntLenis?.scroll ?? window.scrollY ?? 0;
+			const targetScroll = Math.max(
+				0,
+				packageTabs.getBoundingClientRect().top + currentScroll - headerHeight
+			);
+
+			if (Math.abs(currentScroll - targetScroll) > 2) {
+				if (window.excelEntLenis) {
+					window.excelEntLenis.scrollTo(targetScroll, { immediate: true });
+				} else {
+					window.scrollTo(0, targetScroll);
+				}
+			}
+
+			document.body.classList.add("package-card-expanded-open");
+			document.documentElement.classList.add("package-card-expanded-open");
+		};
+
+		const setPackageCardExpanded = (card, expanded) => {
+			const btn = card.querySelector("[data-package-more]");
+			const label = btn?.querySelector("[data-package-more-label]");
+			const addIcon = btn?.querySelector(".package-card__more-icon--add");
+			const removeIcon = btn?.querySelector(".package-card__more-icon--remove");
+			const body = card.querySelector(".package-card__body");
+
+			card.classList.toggle("is-expanded", expanded);
+			if (btn) {
+				btn.setAttribute("aria-expanded", expanded ? "true" : "false");
+			}
+			if (label) {
+				label.textContent = expanded ? readLessLabel : readMoreLabel;
+			}
+			if (addIcon) {
+				addIcon.hidden = expanded;
+			}
+			if (removeIcon) {
+				removeIcon.hidden = !expanded;
+			}
+			if (!expanded && body) {
+				body.scrollTop = 0;
+			}
+		};
+
+		const collapsePackageCard = (card) => {
+			if (!card) {
+				return;
+			}
+			setPackageCardExpanded(card, false);
+		};
+
+		const collapseAllPackageCards = () => {
+			packageCards.forEach((card) => collapsePackageCard(card));
+			packageTabs.classList.remove("has-expanded-card");
+			syncPackageExpandedLayout();
+		};
+
+		const expandPackageCard = (card) => {
+			const panel = card.closest("[data-package-panel]");
+			panel?.querySelectorAll("[data-package-card].is-expanded").forEach((item) => {
+				if (item !== card) {
+					collapsePackageCard(item);
+				}
+			});
+			clearPackageIntroViewportFit();
+			const introHeight = Math.ceil(packageTabs.offsetHeight);
+			setPackageCardExpanded(card, true);
+			card.classList.add("is-visible", "in");
+			selectPackageCard(card);
+			packageTabs.dataset.naturalHeight = String(introHeight);
+			packageTabs.classList.add("has-expanded-card");
+			window.requestAnimationFrame(() => {
+				syncPackageExpandedLayout();
+				window.requestAnimationFrame(() => {
+					card.querySelector(".package-card__body")?.scrollTo(0, 0);
+				});
+			});
+		};
+
+		const togglePackageCardExpand = (card) => {
+			if (card.classList.contains("is-expanded")) {
+				collapsePackageCard(card);
+				if (!packageTabs.querySelector("[data-package-card].is-expanded")) {
+					packageTabs.classList.remove("has-expanded-card");
+					window.requestAnimationFrame(() => {
+						syncPackageExpandedLayout();
+						syncPackageIntroViewport(true);
+					});
+				}
+				return;
+			}
+			expandPackageCard(card);
+		};
+
 		packageCards.forEach((card) => {
-			card.addEventListener("click", () => selectPackageCard(card));
+			card.addEventListener("click", (e) => {
+				if (e.target.closest("[data-package-more], [data-package-enquiry]")) {
+					return;
+				}
+				selectPackageCard(card);
+				const packageId = card.dataset.packageId;
+				if (packageId && typeof window.excelEntOpenPackageCompare === "function") {
+					window.excelEntOpenPackageCompare(packageId);
+				}
+			});
 		});
 
 		packageCards.forEach((card) => {
 			if (card.classList.contains("package-card--featured")) {
 				selectPackageCard(card);
 			}
+		});
+
+		packageTabs.querySelectorAll(".package-panel.is-active .reveal, .package-panel.is-active [data-reveal]").forEach((item) => {
+			item.classList.add("is-visible", "in");
 		});
 
 		const activate = (id) => {
@@ -4446,6 +5223,7 @@
 					const scroller = panel.querySelector(".package-grid-wrap");
 					const defaultCard = panel.querySelector(".package-card--featured") ||
 						panel.querySelector("[data-package-card]");
+					collapseAllPackageCards();
 					if (scroller) {
 						scroller.scrollTop = 0;
 					}
@@ -4453,7 +5231,10 @@
 					panel.querySelectorAll(".reveal, [data-reveal]").forEach((item) => {
 						item.classList.add("is-visible");
 					});
-					window.requestAnimationFrame(() => syncPackageRail(scroller));
+					window.requestAnimationFrame(() => {
+						syncPackageRail(scroller);
+						syncPackageIntroViewport(true);
+					});
 				}
 			});
 		};
@@ -4464,19 +5245,96 @@
 			});
 		});
 
-		packageTabs.querySelectorAll("[data-package-more]").forEach((btn) => {
-			btn.addEventListener("click", () => {
-				const id = btn.getAttribute("data-package-id");
-				if (!id || typeof window.excelEntOpenPackageCompare !== "function") {
-					return;
-				}
-				window.excelEntOpenPackageCompare(id);
-			});
+		packageTabs.addEventListener("click", (e) => {
+			const btn = e.target.closest("[data-package-more]");
+			if (!btn || !packageTabs.contains(btn)) {
+				return;
+			}
+			e.preventDefault();
+			e.stopPropagation();
+			const card = btn.closest("[data-package-card]");
+			if (isPackageDesktopExpandMode() && card) {
+				togglePackageCardExpand(card);
+				return;
+			}
+			const id = btn.getAttribute("data-package-id");
+			if (!id || typeof window.excelEntOpenPackageCompare !== "function") {
+				return;
+			}
+			window.excelEntOpenPackageCompare(id);
 		});
+
+		const syncPackageIntroViewport = (force = false) => {
+			if (
+				!force &&
+				packageIntroFitLocked &&
+				packageTabs.classList.contains("is-viewport-fitted")
+			) {
+				return;
+			}
+
+			clearPackageIntroViewportFit();
+
+			if (!packageIntroFitMq.matches) {
+				return;
+			}
+
+			if (packageTabs.classList.contains("has-expanded-card")) {
+				return;
+			}
+
+			const naturalHeight = Math.ceil(packageTabs.offsetHeight);
+			const header = document.querySelector(".site-header");
+			const headerHeight = header ? Math.ceil(header.offsetHeight) : 0;
+			const availableHeight = Math.max(window.innerHeight - headerHeight, 0);
+			const fitScale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
+
+			if (fitScale >= 1 || !availableHeight) {
+				return;
+			}
+
+			const styles = getComputedStyle(packageTabs);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+
+			packageTabs.style.setProperty("--ee-package-intro-viewport-height", `${availableHeight}px`);
+			packageTabs.style.setProperty("--ee-package-intro-fit-scale", String(fitScale));
+			packageTabs.style.setProperty("--ee-package-intro-fit-pad-top", `${padTop * fitScale}px`);
+			packageTabs.style.setProperty("--ee-package-intro-fit-pad-bottom", `${padBottom * fitScale}px`);
+			packageTabs.classList.add("is-viewport-fitted");
+			packageIntroFitLocked = true;
+		};
 
 		window.addEventListener("resize", () => {
 			packageScrollers.forEach((scroller) => syncPackageRail(scroller));
+			if (packageTabs.classList.contains("has-expanded-card")) {
+				syncPackageExpandedLayout();
+			}
+			syncPackageIntroViewport(true);
 		}, { passive: true });
+
+		window.addEventListener("load", () => syncPackageIntroViewport(true));
+		window.requestAnimationFrame(() => syncPackageIntroViewport(true));
+
+		if (typeof packageIntroFitMq.addEventListener === "function") {
+			packageIntroFitMq.addEventListener("change", () => {
+				if (!packageDesktopMq.matches) {
+					collapseAllPackageCards();
+				}
+				syncPackageIntroViewport(true);
+			});
+		} else if (typeof packageIntroFitMq.addListener === "function") {
+			packageIntroFitMq.addListener(() => {
+				if (!packageDesktopMq.matches) {
+					collapseAllPackageCards();
+				}
+				syncPackageIntroViewport(true);
+			});
+		}
+
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => syncPackageIntroViewport(true));
+		}
 	}
 
 	/* ---------- Package compare modal (mobile) ---------- */

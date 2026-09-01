@@ -16,6 +16,10 @@
 	box-sizing: border-box;
 }
 
+.package-intro__inner {
+	display: contents;
+}
+
 .package-intro__header {
 	display: flex;
 	flex-direction: column;

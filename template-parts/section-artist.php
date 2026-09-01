@@ -17,6 +17,8 @@ $excel_ent_tags = array(
 	__( 'Wedding', 'excel-ent' ),
 	__( 'Jazz', 'excel-ent' ),
 	__( 'Club Classics', 'excel-ent' ),
+	__( 'Smooth Jazz', 'excel-ent' ),
+	__( 'Plug & Play', 'excel-ent' ),
 );
 
 $excel_ent_perks = array(
@@ -247,8 +249,10 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 	<div class="artist-performance__copy reveal" data-reveal>
 		<h2 class="artist-performance__title"><?php esc_html_e( 'Performance & Energy', 'excel-ent' ); ?></h2>
 		<div class="artist-performance__cols">
-			<p><?php esc_html_e( 'Performed at The Roundhouse Theatre, The O2, Cork Opera House in Ireland, and Udaipur City Palace, Rose Sax is a versatile saxophonist who brings sophistication and energy to every event. Her repertoire spans smooth jazz standards to club classics and freestyle improvisation with live musicians.', 'excel-ent' ); ?></p>
-			<p><?php esc_html_e( "Available as a 'plug and play' sax option, Rose can seamlessly connect to your venue's PA system or a DJ provided by the client, creating an effortless live sax experience. For a complete entertainment package, she can also provide a full DJ service alongside her performance.", 'excel-ent' ); ?></p>
+			<p><?php esc_html_e( "Available as a 'plug and play' sax option, Rose can seamlessly connect to your venue's PA system or a DJ provided by the client, creating an effortless live sax experience.", 'excel-ent' ); ?></p>
+			<p><?php esc_html_e( 'For a complete entertainment package, she can also provide a full DJ service alongside her performance.', 'excel-ent' ); ?></p>
+			<p><?php esc_html_e( 'Performed at The Roundhouse Theatre, The O2, Cork Opera House in Ireland, and Udaipur City Palace, Rose Sax is a versatile saxophonist who brings sophistication and energy to every event.', 'excel-ent' ); ?></p>
+			<p><?php esc_html_e( 'Her repertoire spans smooth jazz standards to club classics and freestyle improvisation with live musicians.', 'excel-ent' ); ?></p>
 		</div>
 	</div>
 
@@ -304,8 +308,8 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 			</button>
 		</div>
 	</div>
+	</div>
 </section>
-</div>
 </div>
 
 <!-- Example Set Lists -->
@@ -393,12 +397,15 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 			</div>
 		</div>
 	</div>
+	</div>
 </section>
-</div>
 </div>
 
 <!-- Photos & Videos -->
+<div class="artist-media-pin" data-artist-media-pin>
+	<div class="artist-media__scroll-pad" aria-hidden="true"></div>
 <section class="artist-media" aria-label="<?php esc_attr_e( 'Photos and videos', 'excel-ent' ); ?>" data-artist-media>
+	<div class="artist-media__inner">
 	<h2 class="artist-media__title reveal" data-reveal><?php esc_html_e( 'PHOTOS & VIDEOS', 'excel-ent' ); ?></h2>
 
 	<div class="artist-media__tabs reveal" data-reveal role="tablist">
@@ -407,7 +414,7 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 	</div>
 
 	<div class="artist-media__panel is-active" id="artist-media-photos" role="tabpanel" aria-labelledby="artist-media-tab-photos" data-media-panel="photos">
-		<div class="artist-media__stage reveal" data-reveal>
+		<div class="artist-media__stage reveal" data-reveal data-media-stage>
 			<img
 				src="<?php echo esc_url( $excel_ent_gallery[0]['image'] ); ?>"
 				alt=""
@@ -423,6 +430,10 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 				<span><?php esc_html_e( 'Duration:', 'excel-ent' ); ?> <strong data-media-duration><?php echo esc_html( $excel_ent_gallery[0]['duration'] ); ?></strong></span>
 				<span><?php esc_html_e( 'Guest Count:', 'excel-ent' ); ?> <strong data-media-guests><?php echo esc_html( $excel_ent_gallery[0]['guests'] ); ?></strong></span>
 			</div>
+		</div>
+
+		<div class="artist-media__progress" data-media-progress aria-hidden="true">
+			<span class="artist-media__progress-fill" data-media-progress-fill></span>
 		</div>
 
 		<div class="artist-media__gallery">
@@ -479,7 +490,7 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 				decoding="async"
 			>
 			<div class="artist-media__playback">
-				<div class="artist-media__playback-controls">
+				<div class="artist-media__playback-nav">
 					<button type="button" class="artist-media__ctrl magnetic" aria-label="<?php esc_attr_e( 'Previous video', 'excel-ent' ); ?>">
 						<img src="<?php echo esc_url( $excel_ent_uri . '/video-skip-back.svg' ); ?>" alt="" width="18" height="18" decoding="async">
 					</button>
@@ -489,15 +500,19 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 					<button type="button" class="artist-media__ctrl magnetic" aria-label="<?php esc_attr_e( 'Next video', 'excel-ent' ); ?>">
 						<img src="<?php echo esc_url( $excel_ent_uri . '/video-skip-forward.svg' ); ?>" alt="" width="18" height="18" decoding="async">
 					</button>
-					<div class="artist-media__playback-progress" aria-hidden="true">
-						<span style="width: 60%"></span>
-					</div>
 				</div>
-				<p class="artist-media__playback-time">2:21 / 3:30</p>
+				<div class="artist-media__playback-bar">
+					<div class="artist-media__playback-progress" aria-hidden="true">
+						<span style="width: 18.59%"></span>
+					</div>
+					<p class="artist-media__playback-time">2:21 / 3:30</p>
+				</div>
 			</div>
 		</div>
 	</div>
+	</div>
 </section>
+</div>
 
 <!-- Similar Artists -->
 <div class="artist-similar-pin" data-artist-similar-pin>
@@ -541,13 +556,8 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 								</span>
 								<span class="explore-artist-card__rating">
 									<img src="<?php echo esc_url( $excel_ent_ea . '/star.svg' ); ?>" alt="" width="18" height="18" decoding="async">
-									<?php
-									printf(
-										/* translators: %s: rating value */
-										esc_html__( '%s Rating', 'excel-ent' ),
-										esc_html( $excel_ent_artist['rating'] )
-									);
-									?>
+									<span class="explore-artist-card__rating-value"><?php echo esc_html( $excel_ent_artist['rating'] ); ?></span>
+									<span class="explore-artist-card__rating-suffix"><?php esc_html_e( ' Rating', 'excel-ent' ); ?></span>
 								</span>
 								<span class="explore-artist-card__location">
 									<img src="<?php echo esc_url( $excel_ent_ea . '/map-pin.svg' ); ?>" alt="" width="18" height="18" decoding="async">
@@ -604,6 +614,6 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 			</button>
 		</div>
 	</div>
+	</div>
 </section>
-</div>
 </div>

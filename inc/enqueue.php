@@ -210,6 +210,15 @@ function excel_ent_enqueue_assets() {
 		EXCEL_ENT_VERSION
 	);
 
+	if ( excel_ent_is_package_page() ) {
+		wp_enqueue_style(
+			'excel-ent-package-page-desktop-expand',
+			EXCEL_ENT_URI . '/assets/css/package-page-desktop-expand.css',
+			array( 'excel-ent-large-desktop' ),
+			EXCEL_ENT_VERSION
+		);
+	}
+
 	wp_enqueue_script(
 		'excel-ent-lenis',
 		'https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js',

@@ -40,6 +40,14 @@ $excel_ent_quote = excel_ent_get_quote_url();
 				<span class="nav-toggle__bar" aria-hidden="true"></span>
 				<span class="nav-toggle__bar" aria-hidden="true"></span>
 				<img
+					class="nav-toggle__menu"
+					src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/menu-line.svg' ); ?>"
+					alt=""
+					width="18"
+					height="18"
+					decoding="async"
+				>
+				<img
 					class="nav-toggle__close"
 					src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/nav/close-large-line.svg' ); ?>"
 					alt=""
@@ -143,10 +151,10 @@ $excel_ent_quote = excel_ent_get_quote_url();
 						aria-label="<?php esc_attr_e( 'Search artists', 'excel-ent' ); ?>"
 					>
 						<img
-							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line-header.svg' ); ?>"
+							src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/search-eye-line.svg' ); ?>"
 							alt=""
-							width="30"
-							height="30"
+							width="18"
+							height="18"
 							decoding="async"
 						>
 					</a>

@@ -189,23 +189,6 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index, $gro
 			</div>
 		</div>
 
-		<button
-			type="button"
-			class="package-card__more"
-			data-package-more
-			data-package-id="<?php echo esc_attr( $pkg_id ); ?>"
-			aria-haspopup="dialog"
-		>
-			<span><?php esc_html_e( 'Read more', 'excel-ent' ); ?></span>
-			<img
-				src="<?php echo esc_url( $excel_ent_pkg_uri . '/add-fill.svg' ); ?>"
-				alt=""
-				width="24"
-				height="24"
-				decoding="async"
-			>
-		</button>
-
 		<div class="package-card__body">
 			<p class="package-card__includes"><?php esc_html_e( 'This includes:', 'excel-ent' ); ?></p>
 			<ul class="package-card__features">
@@ -214,6 +197,35 @@ $excel_ent_render_card = static function ( $package, $note, $quote, $index, $gro
 				<?php endforeach; ?>
 			</ul>
 		</div>
+
+		<button
+			type="button"
+			class="package-card__more"
+			data-package-more
+			data-package-id="<?php echo esc_attr( $pkg_id ); ?>"
+			aria-expanded="false"
+		>
+			<span class="package-card__more-label" data-package-more-label><?php esc_html_e( 'Read more', 'excel-ent' ); ?></span>
+			<span class="package-card__more-icons" aria-hidden="true">
+				<img
+					class="package-card__more-icon package-card__more-icon--add"
+					src="<?php echo esc_url( $excel_ent_pkg_uri . '/add-fill.svg' ); ?>"
+					alt=""
+					width="24"
+					height="24"
+					decoding="async"
+				>
+				<img
+					class="package-card__more-icon package-card__more-icon--remove"
+					src="<?php echo esc_url( $excel_ent_pkg_uri . '/remove-fill.svg' ); ?>"
+					alt=""
+					width="22"
+					height="22"
+					decoding="async"
+					hidden
+				>
+			</span>
+		</button>
 
 		<button
 			type="button"
@@ -265,7 +277,14 @@ $excel_ent_compare_catalog = array_merge(
 $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 ?>
 
-<section class="package-intro" aria-label="<?php esc_attr_e( 'Event packages', 'excel-ent' ); ?>" data-package-tabs>
+<section
+	class="package-intro"
+	aria-label="<?php esc_attr_e( 'Event packages', 'excel-ent' ); ?>"
+	data-package-tabs
+	data-read-more="<?php echo esc_attr( __( 'Read more', 'excel-ent' ) ); ?>"
+	data-read-less="<?php echo esc_attr( __( 'Read less', 'excel-ent' ) ); ?>"
+>
+	<div class="package-intro__inner">
 	<header class="package-intro__header">
 		<h1 class="package-intro__title"><?php esc_html_e( 'PACKAGES', 'excel-ent' ); ?></h1>
 		<p class="package-intro__lede">
@@ -366,6 +385,7 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 				<?php esc_html_e( 'Start Enquiry', 'excel-ent' ); ?>
 			</button>
 		</div>
+	</div>
 	</div>
 </section>
 
