@@ -599,8 +599,9 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 			<?php endforeach; ?>
 		</div>
 	</div>
+	</div>
 
-	<div class="artist-similar__footer reveal" data-reveal>
+	<div class="artist-similar__footer">
 		<div class="artist-similar__bar" aria-hidden="true">
 			<span data-similar-progress></span>
 		</div>
@@ -613,7 +614,6 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 				<img src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/artists/arrow-nav-right.svg' ); ?>" alt="" width="42" height="42" decoding="async">
 			</button>
 		</div>
-	</div>
 	</div>
 </section>
 </div>

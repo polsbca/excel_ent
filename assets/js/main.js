@@ -4123,6 +4123,57 @@
 		const pinMobileMq = window.matchMedia("(max-width: 767px)");
 		const isArtistSetlistPinActive = () =>
 			pinDesktopMq.matches || pinMobileMq.matches;
+		let setlistMobileFitLocked = false;
+		let setlistMobileFitSnapshot = null;
+		let setlistMobileFitWidth = window.innerWidth;
+		let setlistMobilePinReady = false;
+		let setlistResizeTimer = 0;
+
+		const resetSetlistMobilePin = () => {
+			setlistMobileFitLocked = false;
+			setlistMobileFitSnapshot = null;
+			setlistMobileFitWidth = window.innerWidth;
+		};
+
+		const applySetlistViewportFit = (snapshot) => {
+			if (!artistSetlistPin || !snapshot) {
+				return;
+			}
+
+			artistSetlist.classList.remove("is-viewport-fitted");
+			artistSetlist.style.removeProperty("height");
+			artistSetlist.style.removeProperty("--ee-artist-setlist-viewport-height");
+			artistSetlist.style.removeProperty("--ee-artist-setlist-fit-scale");
+			artistSetlist.style.removeProperty("--ee-artist-setlist-fit-pad-top");
+			artistSetlist.style.removeProperty("--ee-artist-setlist-fit-pad-bottom");
+			artistSetlist.style.removeProperty("--ee-artist-setlist-content-height");
+
+			if (snapshot.useFit) {
+				artistSetlist.style.setProperty(
+					"--ee-artist-setlist-viewport-height",
+					`${snapshot.fittedSectionHeight}px`
+				);
+				artistSetlist.style.setProperty(
+					"--ee-artist-setlist-fit-scale",
+					String(snapshot.fitScale)
+				);
+				artistSetlist.style.setProperty(
+					"--ee-artist-setlist-fit-pad-top",
+					`${snapshot.padTop * snapshot.fitScale}px`
+				);
+				artistSetlist.style.setProperty(
+					"--ee-artist-setlist-fit-pad-bottom",
+					"0px"
+				);
+				artistSetlist.style.setProperty(
+					"--ee-artist-setlist-content-height",
+					`${snapshot.contentHeight}px`
+				);
+				artistSetlist.classList.add("is-viewport-fitted");
+			}
+
+			artistSetlistPin.style.height = `${snapshot.pinHeight}px`;
+		};
 
 		const syncArtistSetlistPin = () => {
 			if (!artistSetlistPin) {
@@ -4130,6 +4181,7 @@
 			}
 
 			if (!isArtistSetlistPinActive()) {
+				resetSetlistMobilePin();
 				artistSetlistPin.style.height = "";
 				artistSetlist.classList.remove("is-pinned", "is-viewport-fitted");
 				artistSetlist.style.removeProperty("height");
@@ -4138,6 +4190,28 @@
 				artistSetlist.style.removeProperty("--ee-artist-setlist-fit-pad-top");
 				artistSetlist.style.removeProperty("--ee-artist-setlist-fit-pad-bottom");
 				artistSetlist.style.removeProperty("--ee-artist-setlist-content-height");
+				return;
+			}
+
+			if (!pinMobileMq.matches) {
+				resetSetlistMobilePin();
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				pinMobileMq.matches &&
+				setlistMobileFitLocked &&
+				Math.abs(viewportWidth - setlistMobileFitWidth) > 80
+			) {
+				resetSetlistMobilePin();
+			}
+
+			if (
+				pinMobileMq.matches &&
+				setlistMobileFitLocked &&
+				setlistMobileFitSnapshot
+			) {
+				applySetlistViewportFit(setlistMobileFitSnapshot);
 				return;
 			}
 
@@ -4152,51 +4226,51 @@
 
 			const pad = artistSetlistPin.querySelector(".artist-setlist__scroll-pad");
 			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-			const sectionHeight = Math.ceil(artistSetlist.getBoundingClientRect().height);
+			const pinStyles = getComputedStyle(artistSetlistPin);
+			const pinPadTop = parseFloat(pinStyles.paddingTop) || 0;
+			const pinPadBottom = parseFloat(pinStyles.paddingBottom) || 0;
+			const sectionHeight = Math.ceil(artistSetlist.scrollHeight);
 			const stickyTop =
 				parseFloat(
 					getComputedStyle(artistSetlist).getPropertyValue(
 						"--ee-artist-setlist-sticky-top"
 					)
 				) || 0;
-			const availableHeight = Math.max(window.innerHeight - stickyTop, 0);
+			const viewportHeight = window.visualViewport?.height || window.innerHeight;
+			const availableHeight = Math.max(viewportHeight - stickyTop, 0);
 			const fitScale = isArtistSetlistPinActive()
 				? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
 				: 1;
+			const styles = getComputedStyle(artistSetlist);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
+			const useFit = fitScale < 0.999;
+			const fittedSectionHeight = Math.ceil(sectionHeight * fitScale);
+			const holdHeight = Math.round(viewportHeight);
+			const snapshot = {
+				availableHeight,
+				fitScale,
+				padTop,
+				padBottom,
+				contentHeight,
+				fittedSectionHeight,
+				pinHeight:
+					padHeight +
+					pinPadTop +
+					pinPadBottom +
+					fittedSectionHeight +
+					holdHeight,
+				useFit,
+			};
 
-			if (fitScale < 1) {
-				const styles = getComputedStyle(artistSetlist);
-				const padTop = parseFloat(styles.paddingTop) || 0;
-				const padBottom = parseFloat(styles.paddingBottom) || 0;
-				const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
+			applySetlistViewportFit(snapshot);
 
-				artistSetlist.style.setProperty(
-					"--ee-artist-setlist-viewport-height",
-					`${availableHeight}px`
-				);
-				artistSetlist.style.setProperty(
-					"--ee-artist-setlist-fit-scale",
-					String(fitScale)
-				);
-				artistSetlist.style.setProperty(
-					"--ee-artist-setlist-fit-pad-top",
-					`${padTop * fitScale}px`
-				);
-				artistSetlist.style.setProperty(
-					"--ee-artist-setlist-fit-pad-bottom",
-					`${padBottom * fitScale}px`
-				);
-				artistSetlist.style.setProperty(
-					"--ee-artist-setlist-content-height",
-					`${contentHeight}px`
-				);
-				artistSetlist.classList.add("is-viewport-fitted");
+			if (pinMobileMq.matches && setlistMobilePinReady && useFit) {
+				setlistMobileFitLocked = true;
+				setlistMobileFitSnapshot = snapshot;
+				setlistMobileFitWidth = viewportWidth;
 			}
-
-			const holdHeight = Math.round(window.innerHeight);
-			artistSetlistPin.style.height = `${
-				padHeight + sectionHeight * fitScale + holdHeight
-			}px`;
 		};
 
 		const syncArtistSetlistPinnedState = () => {
@@ -4211,12 +4285,13 @@
 						"--ee-artist-setlist-sticky-top"
 					)
 				) || 0;
+			const viewportHeight = window.visualViewport?.height || window.innerHeight;
 			const sectionRect = artistSetlist.getBoundingClientRect();
 			const pinRect = artistSetlistPin.getBoundingClientRect();
 			const pinned =
 				sectionRect.top <= stickyTop + 1.5 &&
 				pinRect.bottom >
-					stickyTop + Math.min(sectionRect.height, window.innerHeight - stickyTop) + 4;
+					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
 			artistSetlist.classList.toggle("is-pinned", pinned);
 		};
 
@@ -4225,6 +4300,13 @@
 				syncArtistSetlistPin();
 				syncArtistSetlistPinnedState();
 			});
+		};
+
+		const refreshArtistSetlistPinLayout = () => {
+			if (pinMobileMq.matches) {
+				resetSetlistMobilePin();
+			}
+			refreshArtistSetlistPin();
 		};
 
 		const tabs = Array.from(artistSetlist.querySelectorAll("[data-setlist-tab]"));
@@ -4302,16 +4384,51 @@
 		} else {
 			window.addEventListener("scroll", syncArtistSetlistPinnedState, { passive: true });
 		}
-		window.addEventListener("resize", refreshArtistSetlistPin, { passive: true });
-		window.addEventListener("load", refreshArtistSetlistPin);
-		window.addEventListener("excel-ent:header-state-change", refreshArtistSetlistPin);
+		window.addEventListener("resize", () => {
+			window.clearTimeout(setlistResizeTimer);
+			setlistResizeTimer = window.setTimeout(() => {
+				if (pinMobileMq.matches) {
+					if (
+						setlistMobileFitLocked &&
+						Math.abs(window.innerWidth - setlistMobileFitWidth) > 80
+					) {
+						refreshArtistSetlistPinLayout();
+						return;
+					}
+					if (!setlistMobileFitLocked) {
+						refreshArtistSetlistPin();
+					} else {
+						syncArtistSetlistPinnedState();
+					}
+					return;
+				}
+				refreshArtistSetlistPinLayout();
+			}, 150);
+		}, { passive: true });
+		window.addEventListener("load", () => {
+			setlistMobilePinReady = true;
+			resetSetlistMobilePin();
+			refreshArtistSetlistPinLayout();
+		});
+		window.addEventListener("orientationchange", () => {
+			resetSetlistMobilePin();
+			setlistMobileFitWidth = window.innerWidth;
+			window.setTimeout(refreshArtistSetlistPinLayout, 150);
+		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (pinMobileMq.matches) {
+				syncArtistSetlistPinnedState();
+				return;
+			}
+			refreshArtistSetlistPinLayout();
+		});
 
 		if (typeof pinDesktopMq.addEventListener === "function") {
-			pinDesktopMq.addEventListener("change", refreshArtistSetlistPin);
-			pinMobileMq.addEventListener("change", refreshArtistSetlistPin);
+			pinDesktopMq.addEventListener("change", refreshArtistSetlistPinLayout);
+			pinMobileMq.addEventListener("change", refreshArtistSetlistPinLayout);
 		} else if (typeof pinDesktopMq.addListener === "function") {
-			pinDesktopMq.addListener(refreshArtistSetlistPin);
-			pinMobileMq.addListener(refreshArtistSetlistPin);
+			pinDesktopMq.addListener(refreshArtistSetlistPinLayout);
+			pinMobileMq.addListener(refreshArtistSetlistPinLayout);
 		}
 
 		window.requestAnimationFrame(refreshArtistSetlistPin);
@@ -5086,6 +5203,8 @@
 		const cards = Array.from(artistSimilar.querySelectorAll(".explore-artist-card"));
 		const progress = artistSimilar.querySelector("[data-similar-progress]");
 		const count = artistSimilar.querySelector("[data-similar-count]");
+		const artistSimilarInner = artistSimilar.querySelector(".artist-similar__inner");
+		const artistSimilarFooter = artistSimilar.querySelector(".artist-similar__footer");
 		let index = 0;
 
 		const similarPinDesktopMq = window.matchMedia("(min-width: 1200px)");
@@ -5210,7 +5329,19 @@
 
 			const pad = artistSimilarPin.querySelector(".artist-similar__scroll-pad");
 			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-			const sectionHeight = Math.ceil(artistSimilar.scrollHeight);
+			const sectionStyles = getComputedStyle(artistSimilar);
+			const padTop = parseFloat(sectionStyles.paddingTop) || 0;
+			const padBottom = parseFloat(sectionStyles.paddingBottom) || 0;
+			const sectionGap = parseFloat(sectionStyles.gap) || 0;
+			const footerHeight = artistSimilarFooter
+				? Math.ceil(artistSimilarFooter.getBoundingClientRect().height)
+				: 0;
+			const innerHeight = artistSimilarInner
+				? Math.ceil(artistSimilarInner.scrollHeight)
+				: Math.ceil(artistSimilar.scrollHeight);
+			const sectionHeight = Math.ceil(
+				padTop + innerHeight + sectionGap + footerHeight + padBottom
+			);
 			const stickyTop =
 				parseFloat(
 					getComputedStyle(artistSimilar).getPropertyValue(
@@ -5219,17 +5350,19 @@
 				) || 0;
 			const viewportHeight = window.visualViewport?.height || window.innerHeight;
 			const availableHeight = Math.max(viewportHeight - stickyTop, 0);
+			const reservedHeight = padTop + padBottom + sectionGap + footerHeight;
+			const availableInnerHeight = Math.max(availableHeight - reservedHeight, 0);
 			const fitScale = similarPinMobileMq.matches
-				? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
+				? Math.min(1, availableInnerHeight / Math.max(innerHeight, 1))
 				: isSimilarPinActive()
 					? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
 					: 1;
-			const styles = getComputedStyle(artistSimilar);
-			const padTop = parseFloat(styles.paddingTop) || 0;
-			const padBottom = parseFloat(styles.paddingBottom) || 0;
-			const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
+			const contentHeight = innerHeight;
 			const useFit = fitScale < 0.999;
-			const fittedSectionHeight = Math.ceil(sectionHeight * fitScale);
+			const fittedInnerHeight = Math.ceil(innerHeight * fitScale);
+			const fittedSectionHeight = Math.ceil(
+				padTop * fitScale + fittedInnerHeight + sectionGap + footerHeight + padBottom
+			);
 			const holdHeight = Math.round(viewportHeight);
 			const snapshot = {
 				availableHeight,
@@ -5306,7 +5439,8 @@
 
 				if (progress) {
 					progress.style.left = "0";
-					progress.style.width = `${Math.max(ratio * 100, maxScroll ? 8 : 100)}%`;
+					const minWidth = maxScroll ? 8 : 100;
+					progress.style.width = `${Math.max(ratio * 100, minWidth)}%`;
 				}
 
 				let leftmost = 0;

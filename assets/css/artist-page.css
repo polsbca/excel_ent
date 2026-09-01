@@ -3605,9 +3605,10 @@
 		height: auto;
 		overflow: visible;
 		isolation: isolate;
+		overflow-anchor: none;
 		padding-top: 10px;
-		padding-bottom: 34px;
-		background: #fff;
+		padding-bottom: 0;
+		background: transparent;
 		box-sizing: border-box;
 	}
 
@@ -3646,18 +3647,32 @@
 	}
 
 	.artist-setlist.is-viewport-fitted {
-		height: var(--ee-artist-setlist-viewport-height);
+		height: auto;
+		max-height: var(--ee-artist-setlist-viewport-height);
 		min-height: 0;
 		padding-top: var(--ee-artist-setlist-fit-pad-top);
-		padding-bottom: var(--ee-artist-setlist-fit-pad-bottom);
+		padding-bottom: 0;
 		overflow: hidden;
+		box-sizing: border-box;
 	}
 
 	.artist-setlist.is-viewport-fitted .artist-setlist__inner {
-		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 20px;
+		width: calc(100% / var(--ee-artist-setlist-fit-scale, 1));
+		max-width: calc(100% / var(--ee-artist-setlist-fit-scale, 1));
 		height: var(--ee-artist-setlist-content-height);
-		transform: scale(var(--ee-artist-setlist-fit-scale));
-		transform-origin: top center;
+		transform: scale(var(--ee-artist-setlist-fit-scale, 1));
+		transform-origin: top left;
+		flex: none;
+		min-height: 0;
+		margin-bottom: calc(
+			var(--ee-artist-setlist-content-height) *
+			(var(--ee-artist-setlist-fit-scale, 1) - 1)
+		);
+		will-change: transform;
 	}
 
 	.artist-setlist__panel {
@@ -4345,11 +4360,11 @@
 		display: flex;
 		flex-direction: column;
 		align-items: stretch;
-		gap: 0;
+		gap: 21px;
 		width: 100%;
 		max-width: 100%;
 		min-width: 0;
-		padding: 34px 0 34px;
+		padding: 34px 0 60px;
 		margin: 0;
 		background: #fff;
 		box-sizing: border-box;
@@ -4372,11 +4387,11 @@
 
 	.artist-similar.is-viewport-fitted {
 		height: auto;
-		max-height: var(--ee-artist-similar-viewport-height);
+		max-height: none;
 		min-height: 0;
 		padding-top: var(--ee-artist-similar-fit-pad-top);
-		padding-bottom: 0;
-		overflow: hidden;
+		padding-bottom: 60px;
+		overflow: visible;
 		box-sizing: border-box;
 	}
 
@@ -4398,6 +4413,12 @@
 		);
 		backface-visibility: hidden;
 		will-change: transform;
+	}
+
+	.artist-similar.is-viewport-fitted .artist-similar__footer {
+		flex: none;
+		opacity: 1;
+		transform: none;
 	}
 
 	.artist-similar__header {
@@ -4598,8 +4619,9 @@
 	}
 
 	.artist-similar__footer {
+		display: flex;
 		flex-direction: row;
-		align-items: center;
+		align-items: flex-end;
 		gap: 10px;
 		width: 100%;
 		max-width: 100%;
@@ -4607,6 +4629,8 @@
 		margin: 0;
 		padding: 0 24px;
 		box-sizing: border-box;
+		opacity: 1;
+		transform: none;
 	}
 
 	.artist-similar__bar {
@@ -4614,22 +4638,31 @@
 		height: 4px;
 		order: 1;
 		flex: 1 1 auto;
+		min-width: 0;
 		background: #eaeaea;
+		overflow: hidden;
 	}
 
 	.artist-similar__bar span {
 		position: absolute;
 		top: 0;
 		left: 0;
+		display: block;
 		height: 4px;
+		min-width: 62px;
+		width: 11.11%;
 		background: #000;
+		transition: width 0.2s ease;
 	}
 
 	.artist-similar__pager {
+		display: flex;
 		justify-content: flex-end;
+		align-items: flex-end;
 		width: auto;
 		order: 2;
 		gap: 0;
+		flex: none;
 	}
 
 	.artist-similar__pager button {
@@ -4637,10 +4670,16 @@
 	}
 
 	.artist-similar__pager p {
+		margin: 0;
+		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+		font-variation-settings: "wdth" 75;
 		font-size: 14px;
+		font-weight: 600;
+		line-height: 1;
 		min-width: 0;
 		letter-spacing: 1px;
 		color: #000;
+		text-align: center;
 	}
 
 	/* Been Let Down — Figma 1041:1984 */
