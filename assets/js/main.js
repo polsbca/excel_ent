@@ -647,6 +647,36 @@
 	if (artistHero) {
 		const artistHeroFitDesktopMq = window.matchMedia("(min-width: 1200px)");
 		const artistHeroFitMobileMq = window.matchMedia("(max-width: 767px)");
+		let artistHeroMobileFitLocked = false;
+		let artistHeroMobileFitSnapshot = null;
+		let artistHeroMobileFitWidth = window.innerWidth;
+
+		const applyArtistHeroViewportFit = ({
+			availableHeight,
+			fitScale,
+			padTop,
+			padBottom,
+			contentHeight,
+		}) => {
+			artistHero.style.setProperty(
+				"--ee-artist-hero-viewport-height",
+				`${availableHeight}px`
+			);
+			artistHero.style.setProperty("--ee-artist-hero-fit-scale", String(fitScale));
+			artistHero.style.setProperty(
+				"--ee-artist-hero-fit-pad-top",
+				`${padTop * fitScale}px`
+			);
+			artistHero.style.setProperty(
+				"--ee-artist-hero-fit-pad-bottom",
+				`${padBottom * fitScale}px`
+			);
+			artistHero.style.setProperty(
+				"--ee-artist-hero-content-height",
+				`${contentHeight}px`
+			);
+			artistHero.classList.add("is-viewport-fitted");
+		};
 
 		const syncArtistHeroViewport = () => {
 			artistHero.classList.remove("is-viewport-fitted");
@@ -664,30 +694,41 @@
 				return;
 			}
 
-			/*
-			 * Mobile uses natural document height per Figma 2331:5210.
-			 * Transform scaling caused side gaps and jerky reflow on real devices
-			 * when the browser chrome resized the viewport while scrolling.
-			 */
-			if (isMobile) {
+			if (
+				isMobile &&
+				artistHeroMobileFitLocked &&
+				artistHeroMobileFitSnapshot
+			) {
+				applyArtistHeroViewportFit(artistHeroMobileFitSnapshot);
 				return;
 			}
 
-			const naturalHeight = Math.ceil(artistHero.getBoundingClientRect().height);
+			const naturalHeight = Math.ceil(artistHero.scrollHeight);
 			const header = document.querySelector(".site-header");
-			const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+			const headerHeight = header
+				? Math.ceil(header.getBoundingClientRect().height)
+				: 0;
 			let availableHeight;
 
 			if (isMobile) {
-				availableHeight = Math.max(window.innerHeight - headerHeight, 0);
+				const viewportHeight =
+					window.visualViewport?.height || window.innerHeight;
+				availableHeight = Math.max(viewportHeight - headerHeight, 0);
 			} else {
 				const sectionTop = Math.max(artistHero.getBoundingClientRect().top, 0);
 				availableHeight = Math.max(window.innerHeight - sectionTop, 0);
 			}
 
-			const fitScale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
+			const fitScale = Math.min(
+				1,
+				availableHeight / Math.max(naturalHeight, 1)
+			);
 
-			if (fitScale >= 1 || !availableHeight) {
+			if (fitScale >= 0.999 || !availableHeight) {
+				if (isMobile) {
+					artistHeroMobileFitLocked = false;
+					artistHeroMobileFitSnapshot = null;
+				}
 				return;
 			}
 
@@ -695,18 +736,44 @@
 			const padTop = parseFloat(styles.paddingTop) || 0;
 			const padBottom = parseFloat(styles.paddingBottom) || 0;
 			const contentHeight = Math.max(naturalHeight - padTop - padBottom, 0);
+			const snapshot = {
+				availableHeight,
+				fitScale,
+				padTop,
+				padBottom,
+				contentHeight,
+			};
 
-			artistHero.style.setProperty("--ee-artist-hero-viewport-height", `${availableHeight}px`);
-			artistHero.style.setProperty("--ee-artist-hero-fit-scale", String(fitScale));
-			artistHero.style.setProperty("--ee-artist-hero-fit-pad-top", `${padTop * fitScale}px`);
-			artistHero.style.setProperty("--ee-artist-hero-fit-pad-bottom", `${padBottom * fitScale}px`);
-			artistHero.style.setProperty("--ee-artist-hero-content-height", `${contentHeight}px`);
-			artistHero.classList.add("is-viewport-fitted");
+			if (isMobile) {
+				artistHeroMobileFitLocked = true;
+				artistHeroMobileFitSnapshot = snapshot;
+			}
+
+			applyArtistHeroViewportFit(snapshot);
 		};
 
-		window.addEventListener("resize", syncArtistHeroViewport);
+		const unlockArtistHeroMobileFit = () => {
+			artistHeroMobileFitLocked = false;
+			artistHeroMobileFitSnapshot = null;
+		};
+
+		window.addEventListener("resize", () => {
+			if (
+				artistHeroFitMobileMq.matches &&
+				Math.abs(window.innerWidth - artistHeroMobileFitWidth) > 40
+			) {
+				artistHeroMobileFitWidth = window.innerWidth;
+				unlockArtistHeroMobileFit();
+			}
+			syncArtistHeroViewport();
+		});
 		window.addEventListener("load", syncArtistHeroViewport);
 		window.addEventListener("excel-ent:header-state-change", syncArtistHeroViewport);
+		window.addEventListener("orientationchange", () => {
+			unlockArtistHeroMobileFit();
+			artistHeroMobileFitWidth = window.innerWidth;
+			window.setTimeout(syncArtistHeroViewport, 150);
+		});
 		window.requestAnimationFrame(syncArtistHeroViewport);
 
 		artistHero.querySelector("img")?.addEventListener("load", syncArtistHeroViewport);
@@ -718,9 +785,15 @@
 		}
 
 		if (typeof artistHeroFitMobileMq.addEventListener === "function") {
-			artistHeroFitMobileMq.addEventListener("change", syncArtistHeroViewport);
+			artistHeroFitMobileMq.addEventListener("change", () => {
+				unlockArtistHeroMobileFit();
+				syncArtistHeroViewport();
+			});
 		} else if (typeof artistHeroFitMobileMq.addListener === "function") {
-			artistHeroFitMobileMq.addListener(syncArtistHeroViewport);
+			artistHeroFitMobileMq.addListener(() => {
+				unlockArtistHeroMobileFit();
+				syncArtistHeroViewport();
+			});
 		}
 
 		if (document.fonts?.ready) {
@@ -4581,13 +4654,56 @@
 			similarPinDesktopMq.matches || similarPinMobileMq.matches;
 		const isSimilarMobileGrid = () => similarPinMobileMq.matches;
 		const isSimilarTabletCarousel = () => similarTabletMq.matches;
-		let similarMobilePinInitialized = false;
-		let similarMobilePinWidth = window.innerWidth;
+		let similarMobileFitLocked = false;
+		let similarMobileFitSnapshot = null;
+		let similarMobileFitWidth = window.innerWidth;
+		let similarMobilePinReady = false;
 		let similarResizeTimer = 0;
 
 		const resetSimilarMobilePin = () => {
-			similarMobilePinInitialized = false;
-			similarMobilePinWidth = window.innerWidth;
+			similarMobileFitLocked = false;
+			similarMobileFitSnapshot = null;
+			similarMobileFitWidth = window.innerWidth;
+		};
+
+		const applySimilarViewportFit = (snapshot) => {
+			if (!artistSimilarPin || !snapshot) {
+				return;
+			}
+
+			artistSimilar.classList.remove("is-viewport-fitted");
+			artistSimilar.style.removeProperty("height");
+			artistSimilar.style.removeProperty("--ee-artist-similar-viewport-height");
+			artistSimilar.style.removeProperty("--ee-artist-similar-fit-scale");
+			artistSimilar.style.removeProperty("--ee-artist-similar-fit-pad-top");
+			artistSimilar.style.removeProperty("--ee-artist-similar-fit-pad-bottom");
+			artistSimilar.style.removeProperty("--ee-artist-similar-content-height");
+
+			if (snapshot.useFit) {
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-viewport-height",
+					`${snapshot.availableHeight}px`
+				);
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-fit-scale",
+					String(snapshot.fitScale)
+				);
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-fit-pad-top",
+					`${snapshot.padTop * snapshot.fitScale}px`
+				);
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-fit-pad-bottom",
+					`${snapshot.padBottom * snapshot.fitScale}px`
+				);
+				artistSimilar.style.setProperty(
+					"--ee-artist-similar-content-height",
+					`${snapshot.contentHeight}px`
+				);
+				artistSimilar.classList.add("is-viewport-fitted");
+			}
+
+			artistSimilarPin.style.height = `${snapshot.pinHeight}px`;
 		};
 
 		const syncArtistSimilarPin = () => {
@@ -4616,13 +4732,18 @@
 			const viewportWidth = window.innerWidth;
 			if (
 				similarPinMobileMq.matches &&
-				similarMobilePinInitialized &&
-				Math.abs(viewportWidth - similarMobilePinWidth) > 80
+				similarMobileFitLocked &&
+				Math.abs(viewportWidth - similarMobileFitWidth) > 80
 			) {
 				resetSimilarMobilePin();
 			}
 
-			if (similarPinMobileMq.matches && similarMobilePinInitialized) {
+			if (
+				similarPinMobileMq.matches &&
+				similarMobileFitLocked &&
+				similarMobileFitSnapshot
+			) {
+				applySimilarViewportFit(similarMobileFitSnapshot);
 				return;
 			}
 
@@ -4648,7 +4769,7 @@
 
 			const pad = artistSimilarPin.querySelector(".artist-similar__scroll-pad");
 			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-			const sectionHeight = Math.ceil(artistSimilar.getBoundingClientRect().height);
+			const sectionHeight = Math.ceil(artistSimilar.scrollHeight);
 			const stickyTop =
 				parseFloat(
 					getComputedStyle(artistSimilar).getPropertyValue(
@@ -4662,48 +4783,36 @@
 				: isSimilarPinActive()
 					? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
 					: 1;
+			const styles = getComputedStyle(artistSimilar);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
+			const useFit = fitScale < 0.999;
+			const holdHeight = Math.round(viewportHeight);
+			const snapshot = {
+				availableHeight,
+				fitScale,
+				padTop,
+				padBottom,
+				contentHeight,
+				pinHeight: padHeight + sectionHeight * fitScale + holdHeight,
+				useFit,
+			};
 
-			if (fitScale < 1) {
-				const styles = getComputedStyle(artistSimilar);
-				const padTop = parseFloat(styles.paddingTop) || 0;
-				const padBottom = parseFloat(styles.paddingBottom) || 0;
-				const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
-
-				artistSimilar.style.setProperty(
-					"--ee-artist-similar-viewport-height",
-					`${availableHeight}px`
-				);
-				artistSimilar.style.setProperty(
-					"--ee-artist-similar-fit-scale",
-					String(fitScale)
-				);
-				artistSimilar.style.setProperty(
-					"--ee-artist-similar-fit-pad-top",
-					`${padTop * fitScale}px`
-				);
-				artistSimilar.style.setProperty(
-					"--ee-artist-similar-fit-pad-bottom",
-					`${padBottom * fitScale}px`
-				);
-				artistSimilar.style.setProperty(
-					"--ee-artist-similar-content-height",
-					`${contentHeight}px`
-				);
-				artistSimilar.classList.add("is-viewport-fitted");
-			}
-
-			const holdHeight = Math.round(window.innerHeight);
-			artistSimilarPin.style.height = `${
-				padHeight + sectionHeight * fitScale + holdHeight
-			}px`;
+			applySimilarViewportFit(snapshot);
 
 			if (preservePinLayout) {
 				artistSimilar.style.visibility = "";
 			}
 
-			if (similarPinMobileMq.matches) {
-				similarMobilePinInitialized = true;
-				similarMobilePinWidth = viewportWidth;
+			if (
+				similarPinMobileMq.matches &&
+				similarMobilePinReady &&
+				useFit
+			) {
+				similarMobileFitLocked = true;
+				similarMobileFitSnapshot = snapshot;
+				similarMobileFitWidth = viewportWidth;
 			}
 		};
 
@@ -4897,13 +5006,13 @@
 				update();
 				if (similarPinMobileMq.matches) {
 					if (
-						similarMobilePinInitialized &&
-						Math.abs(window.innerWidth - similarMobilePinWidth) > 80
+						similarMobileFitLocked &&
+						Math.abs(window.innerWidth - similarMobileFitWidth) > 80
 					) {
 						refreshArtistSimilarPinLayout();
 						return;
 					}
-					if (!similarMobilePinInitialized) {
+					if (!similarMobileFitLocked) {
 						refreshArtistSimilarPin();
 					} else {
 						syncArtistSimilarPinnedState();
@@ -4913,7 +5022,16 @@
 				refreshArtistSimilarPinLayout();
 			}, 150);
 		}, { passive: true });
-		window.addEventListener("load", refreshArtistSimilarPinLayout);
+		window.addEventListener("load", () => {
+			similarMobilePinReady = true;
+			resetSimilarMobilePin();
+			refreshArtistSimilarPinLayout();
+		});
+		window.addEventListener("orientationchange", () => {
+			resetSimilarMobilePin();
+			similarMobileFitWidth = window.innerWidth;
+			window.setTimeout(refreshArtistSimilarPinLayout, 150);
+		});
 		window.addEventListener("excel-ent:header-state-change", () => {
 			if (similarPinMobileMq.matches) {
 				syncArtistSimilarPinnedState();
