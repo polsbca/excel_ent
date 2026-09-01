@@ -664,6 +664,15 @@
 				return;
 			}
 
+			/*
+			 * Mobile uses natural document height per Figma 2331:5210.
+			 * Transform scaling caused side gaps and jerky reflow on real devices
+			 * when the browser chrome resized the viewport while scrolling.
+			 */
+			if (isMobile) {
+				return;
+			}
+
 			const naturalHeight = Math.ceil(artistHero.getBoundingClientRect().height);
 			const header = document.querySelector(".site-header");
 			const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
@@ -3944,6 +3953,9 @@
 		const photoProgress = artistMedia.querySelector("[data-media-progress-fill]");
 		const photoSwipeMq = window.matchMedia("(max-width: 1199px)");
 		let photoIndex = 0;
+		let photoTrack = null;
+		let photoTrackStep = 0;
+		let photoTrackMaxOffset = 0;
 
 		const buildPhotoSlides = () => {
 			const slides = [];
@@ -3978,6 +3990,108 @@
 		};
 
 		let photoSlides = buildPhotoSlides();
+
+		const isPhotoSwipe = () => photoSwipeMq.matches;
+
+		const getPhotoTrackStep = () => Math.max(stage?.offsetWidth || 0, 1);
+
+		const rubberPhotoTrack = (offset) => {
+			if (offset < 0) {
+				return offset * 0.22;
+			}
+			if (offset > photoTrackMaxOffset) {
+				return photoTrackMaxOffset + (offset - photoTrackMaxOffset) * 0.22;
+			}
+			return offset;
+		};
+
+		const applyPhotoTrackTransform = (offset, animate = true) => {
+			if (!photoTrack) {
+				return;
+			}
+			photoTrack.style.transition =
+				animate && !reduced
+					? "transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)"
+					: "none";
+			photoTrack.style.transform = `translate3d(${-rubberPhotoTrack(offset)}px, 0, 0)`;
+		};
+
+		const measurePhotoTrack = () => {
+			photoTrackStep = getPhotoTrackStep();
+			photoTrackMaxOffset = Math.max(photoSlides.length - 1, 0) * photoTrackStep;
+			return photoIndex * photoTrackStep;
+		};
+
+		const syncPhotoTrackPosition = (animate = true) => {
+			if (!photoTrack) {
+				return;
+			}
+			measurePhotoTrack();
+			applyPhotoTrackTransform(photoIndex * photoTrackStep, animate);
+		};
+
+		const buildPhotoTrack = () => {
+			if (!stage || !isPhotoSwipe() || !photoSlides.length) {
+				return;
+			}
+
+			stage.classList.add("is-swipe-mode");
+			if (main) {
+				main.hidden = true;
+				main.setAttribute("aria-hidden", "true");
+			}
+
+			if (!photoTrack) {
+				photoTrack = document.createElement("div");
+				photoTrack.className = "artist-media__track";
+				photoTrack.setAttribute("data-media-track", "");
+				stage.insertBefore(photoTrack, stage.firstChild);
+			}
+
+			photoTrack.replaceChildren();
+			photoSlides.forEach((slide, i) => {
+				const slideEl = document.createElement("div");
+				slideEl.className = "artist-media__slide";
+				const img = document.createElement("img");
+				img.src = slide.image;
+				img.alt = slide.venue || "";
+				img.loading = i === photoIndex ? "eager" : "lazy";
+				img.decoding = "async";
+				img.draggable = false;
+				slideEl.appendChild(img);
+				photoTrack.appendChild(slideEl);
+			});
+
+			syncPhotoTrackPosition(false);
+		};
+
+		const destroyPhotoTrack = () => {
+			if (!stage) {
+				return;
+			}
+			stage.classList.remove("is-swipe-mode", "is-dragging");
+			if (photoTrack) {
+				photoTrack.remove();
+				photoTrack = null;
+			}
+			if (main) {
+				main.hidden = false;
+				main.removeAttribute("aria-hidden");
+			}
+		};
+
+		const syncPhotoSwipeMode = () => {
+			if (isPhotoSwipe()) {
+				buildPhotoTrack();
+				return;
+			}
+			destroyPhotoTrack();
+			const slide = photoSlides[photoIndex];
+			if (main && slide?.image) {
+				main.src = slide.image;
+				main.setAttribute("src", slide.image);
+			}
+		};
 
 		const slideToThumb = (slide) => ({
 			getAttribute: (name) => {
@@ -4027,14 +4141,22 @@
 			thumbs.forEach((item) => item.classList.toggle("is-selected", item === slide?.thumb));
 		};
 
-		const showPhoto = (nextIndex) => {
+		const showPhoto = (nextIndex, options = {}) => {
 			if (!photoSlides.length) {
 				return;
 			}
+			const animate = options.animate !== false;
 			photoIndex =
 				((nextIndex % photoSlides.length) + photoSlides.length) % photoSlides.length;
 			const slide = photoSlides[photoIndex];
 			if (!slide) {
+				return;
+			}
+
+			if (photoTrack && isPhotoSwipe()) {
+				syncPhotoTrackPosition(animate);
+				syncPhotoSelection(slide);
+				updatePhotoProgress();
 				return;
 			}
 
@@ -4155,119 +4277,210 @@
 					return;
 				}
 				const idx = photoSlides.findIndex((slide) => slide.thumb === thumb);
-				if (idx >= 0) {
-					photoIndex = idx;
+				if (idx < 0) {
+					return;
 				}
-				thumbs.forEach((item) => item.classList.toggle("is-selected", item === thumb));
-				centerMediaStage();
-				swapMainImage(thumb.getAttribute("data-image") || "", thumb);
-				updatePhotoProgress();
+				if (!isPhotoSwipe()) {
+					centerMediaStage();
+				}
+				showPhoto(idx);
 			});
 		});
 
 		if (stage && photosPanel) {
-			let touchActive = false;
-			let touchAxis = null;
-			let touchStartX = 0;
-			let touchStartY = 0;
-			let pointerId = null;
-			let lenisPaused = false;
-
-			const isPhotoSwipe = () => photoSwipeMq.matches;
+			let swipeActive = false;
+			let swipeAxis = null;
+			let swipeStartX = 0;
+			let swipeStartY = 0;
+			let swipeDeltaX = 0;
+			let swipeBaseOffset = 0;
+			let swipePointerId = null;
+			let swipeSwiping = false;
+			let swipeLastX = 0;
+			let swipeLastT = 0;
+			let swipeVelocity = 0;
+			let photoLenisPaused = false;
 
 			const pausePhotoLenis = () => {
-				if (!lenisPaused && window.excelEntLenis) {
+				if (!photoLenisPaused && window.excelEntLenis) {
 					window.excelEntLenis.stop();
-					lenisPaused = true;
+					photoLenisPaused = true;
 				}
 			};
 
 			const resumePhotoLenis = () => {
-				if (lenisPaused && window.excelEntLenis) {
+				if (photoLenisPaused && window.excelEntLenis) {
 					window.excelEntLenis.start();
-					lenisPaused = false;
+					photoLenisPaused = false;
 				}
 			};
 
-			const finishPhotoSwipe = (clientX) => {
-				if (!touchActive || touchAxis !== "x") {
-					touchActive = false;
-					touchAxis = null;
-					pointerId = null;
-					stage.classList.remove("is-dragging");
-					resumePhotoLenis();
-					return;
+			const beginPhotoSwipe = (clientX, clientY, id) => {
+				if (!isPhotoSwipe() || !photoTrack) {
+					return false;
 				}
-
-				const delta = clientX - touchStartX;
-				if (Math.abs(delta) > 40) {
-					goPhoto(delta < 0 ? 1 : -1);
-				}
-
-				touchActive = false;
-				touchAxis = null;
-				pointerId = null;
-				stage.classList.remove("is-dragging");
-				resumePhotoLenis();
-			};
-
-			const onPhotoTouchStart = (e) => {
-				if (!isPhotoSwipe() || e.touches.length !== 1) {
-					return;
-				}
-				touchActive = true;
-				touchAxis = null;
-				touchStartX = e.touches[0].clientX;
-				touchStartY = e.touches[0].clientY;
-				pointerId = e.touches[0].identifier;
+				swipeActive = true;
+				swipePointerId = id;
+				swipeStartX = clientX;
+				swipeStartY = clientY;
+				swipeLastX = clientX;
+				swipeLastT = performance.now();
+				swipeVelocity = 0;
+				swipeDeltaX = 0;
+				swipeAxis = null;
+				swipeSwiping = false;
+				swipeBaseOffset = measurePhotoTrack();
 				pausePhotoLenis();
+				return true;
 			};
 
-			const onPhotoTouchMove = (e) => {
-				if (!touchActive || !isPhotoSwipe() || e.touches.length !== 1) {
-					return;
-				}
-				const touch = e.touches[0];
-				if (pointerId !== null && touch.identifier !== pointerId) {
+			const movePhotoSwipe = (clientX, clientY, event) => {
+				if (!swipeActive || !photoTrack) {
 					return;
 				}
 
-				const dx = touch.clientX - touchStartX;
-				const dy = touch.clientY - touchStartY;
+				const dx = clientX - swipeStartX;
+				const dy = clientY - swipeStartY;
+				const now = performance.now();
+				const dt = Math.max(now - swipeLastT, 1);
+				swipeVelocity = (clientX - swipeLastX) / dt;
+				swipeLastX = clientX;
+				swipeLastT = now;
 
-				if (!touchAxis) {
-					if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+				if (!swipeAxis) {
+					const absX = Math.abs(dx);
+					const absY = Math.abs(dy);
+					if (absX < 8 && absY < 8) {
 						return;
 					}
-					if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
-						touchActive = false;
-						touchAxis = null;
-						pointerId = null;
+					if (absY > absX && absY > 12) {
+						swipeActive = false;
+						swipePointerId = null;
 						resumePhotoLenis();
 						return;
 					}
-					touchAxis = "x";
-					stage.classList.add("is-dragging");
+					if (absX >= absY) {
+						swipeAxis = "x";
+						swipeSwiping = true;
+						stage.classList.add("is-dragging");
+						if (
+							event &&
+							typeof event.pointerId === "number" &&
+							event.pointerType !== "touch"
+						) {
+							try {
+								stage.setPointerCapture(event.pointerId);
+							} catch (err) {
+								/* ignore */
+							}
+						}
+					} else {
+						return;
+					}
 				}
 
-				if (touchAxis === "x") {
-					e.preventDefault();
+				if (swipeAxis !== "x") {
+					return;
+				}
+
+				swipeDeltaX = dx;
+				applyPhotoTrackTransform(swipeBaseOffset - swipeDeltaX, false);
+				if (event?.cancelable) {
+					event.preventDefault();
 				}
 			};
 
+			const finishPhotoSwipe = () => {
+				if (!swipeActive && !swipeSwiping) {
+					resumePhotoLenis();
+					stage.classList.remove("is-dragging");
+					return;
+				}
+
+				swipeActive = false;
+				swipePointerId = null;
+				stage.classList.remove("is-dragging");
+				resumePhotoLenis();
+
+				if (swipeSwiping) {
+					const threshold = Math.min(40, Math.max(24, photoTrackStep * 0.12));
+					let nextIndex = photoIndex;
+					if (
+						Math.abs(swipeDeltaX) > threshold ||
+						Math.abs(swipeVelocity) > 0.35
+					) {
+						if (swipeDeltaX < 0 || swipeVelocity < -0.35) {
+							nextIndex = photoIndex + 1;
+						} else if (swipeDeltaX > 0 || swipeVelocity > 0.35) {
+							nextIndex = photoIndex - 1;
+						}
+					}
+					showPhoto(nextIndex);
+
+					const suppressClick = (ev) => {
+						ev.preventDefault();
+						ev.stopPropagation();
+						stage.removeEventListener("click", suppressClick, true);
+					};
+					stage.addEventListener("click", suppressClick, true);
+					window.setTimeout(() => {
+						stage.removeEventListener("click", suppressClick, true);
+					}, 500);
+				} else {
+					syncPhotoTrackPosition(true);
+				}
+
+				swipeSwiping = false;
+				swipeDeltaX = 0;
+				swipeAxis = null;
+				swipeVelocity = 0;
+			};
+
+			stage.addEventListener(
+				"touchstart",
+				(e) => {
+					if (!isPhotoSwipe() || e.touches.length !== 1) {
+						return;
+					}
+					const touch = e.touches[0];
+					beginPhotoSwipe(touch.clientX, touch.clientY, touch.identifier);
+				},
+				{ passive: true }
+			);
+
+			stage.addEventListener(
+				"touchmove",
+				(e) => {
+					if (!swipeActive || !isPhotoSwipe() || e.touches.length !== 1) {
+						return;
+					}
+					const touch = e.touches[0];
+					if (
+						swipePointerId !== null &&
+						touch.identifier !== swipePointerId
+					) {
+						return;
+					}
+					movePhotoSwipe(touch.clientX, touch.clientY, e);
+				},
+				{ passive: false }
+			);
+
 			const onPhotoTouchEnd = (e) => {
-				if (!touchActive) {
+				if (!swipeActive) {
 					return;
 				}
 				const touch = e.changedTouches?.[0];
-				if (touch && pointerId !== null && touch.identifier !== pointerId) {
+				if (
+					touch &&
+					swipePointerId !== null &&
+					touch.identifier !== swipePointerId
+				) {
 					return;
 				}
-				finishPhotoSwipe(touch?.clientX ?? touchStartX);
+				finishPhotoSwipe();
 			};
 
-			stage.addEventListener("touchstart", onPhotoTouchStart, { passive: true });
-			stage.addEventListener("touchmove", onPhotoTouchMove, { passive: false });
 			stage.addEventListener("touchend", onPhotoTouchEnd, { passive: true });
 			stage.addEventListener("touchcancel", onPhotoTouchEnd, { passive: true });
 
@@ -4278,57 +4491,52 @@
 				if (e.button !== 0) {
 					return;
 				}
-				touchActive = true;
-				touchAxis = null;
-				touchStartX = e.clientX;
-				touchStartY = e.clientY;
-				pointerId = e.pointerId;
-				pausePhotoLenis();
-				try {
-					stage.setPointerCapture(e.pointerId);
-				} catch (err) {
-					/* ignore */
-				}
+				beginPhotoSwipe(e.clientX, e.clientY, e.pointerId);
 			});
 
 			stage.addEventListener("pointermove", (e) => {
-				if (!touchActive || !isPhotoSwipe() || e.pointerId !== pointerId) {
+				if (
+					!swipeActive ||
+					!isPhotoSwipe() ||
+					e.pointerType === "touch" ||
+					e.pointerId !== swipePointerId
+				) {
 					return;
 				}
-				const dx = e.clientX - touchStartX;
-				const dy = e.clientY - touchStartY;
-				if (!touchAxis) {
-					if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
-						return;
-					}
-					if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
-						touchActive = false;
-						touchAxis = null;
-						pointerId = null;
-						resumePhotoLenis();
-						return;
-					}
-					touchAxis = "x";
-					stage.classList.add("is-dragging");
-				}
-				if (touchAxis === "x") {
-					e.preventDefault();
-				}
+				movePhotoSwipe(e.clientX, e.clientY, e);
 			});
 
 			stage.addEventListener("pointerup", (e) => {
-				if (e.pointerId !== pointerId) {
+				if (e.pointerId !== swipePointerId) {
 					return;
 				}
-				finishPhotoSwipe(e.clientX);
+				finishPhotoSwipe();
 			});
 
 			stage.addEventListener("pointercancel", (e) => {
-				if (e.pointerId !== pointerId) {
+				if (e.pointerId !== swipePointerId) {
 					return;
 				}
-				finishPhotoSwipe(e.clientX);
+				finishPhotoSwipe();
 			});
+
+			stage.addEventListener("dragstart", (e) => e.preventDefault());
+
+			syncPhotoSwipeMode();
+			if (typeof photoSwipeMq.addEventListener === "function") {
+				photoSwipeMq.addEventListener("change", syncPhotoSwipeMode);
+			} else if (typeof photoSwipeMq.addListener === "function") {
+				photoSwipeMq.addListener(syncPhotoSwipeMode);
+			}
+			window.addEventListener(
+				"resize",
+				() => {
+					if (photoTrack) {
+						syncPhotoTrackPosition(false);
+					}
+				},
+				{ passive: true }
+			);
 		}
 
 		updatePhotoProgress();
@@ -4373,6 +4581,14 @@
 			similarPinDesktopMq.matches || similarPinMobileMq.matches;
 		const isSimilarMobileGrid = () => similarPinMobileMq.matches;
 		const isSimilarTabletCarousel = () => similarTabletMq.matches;
+		let similarMobilePinInitialized = false;
+		let similarMobilePinWidth = window.innerWidth;
+		let similarResizeTimer = 0;
+
+		const resetSimilarMobilePin = () => {
+			similarMobilePinInitialized = false;
+			similarMobilePinWidth = window.innerWidth;
+		};
 
 		const syncArtistSimilarPin = () => {
 			if (!artistSimilarPin) {
@@ -4380,9 +4596,10 @@
 			}
 
 			if (!isSimilarPinActive()) {
+				resetSimilarMobilePin();
 				artistSimilarPin.style.height = "";
-				artistSimilarPin.style.marginBottom = "";
 				artistSimilar.classList.remove("is-pinned", "is-viewport-fitted");
+				artistSimilar.style.removeProperty("visibility");
 				artistSimilar.style.removeProperty("height");
 				artistSimilar.style.removeProperty("--ee-artist-similar-viewport-height");
 				artistSimilar.style.removeProperty("--ee-artist-similar-fit-scale");
@@ -4392,7 +4609,35 @@
 				return;
 			}
 
-			artistSimilarPin.style.height = "auto";
+			if (!similarPinMobileMq.matches) {
+				resetSimilarMobilePin();
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				similarPinMobileMq.matches &&
+				similarMobilePinInitialized &&
+				Math.abs(viewportWidth - similarMobilePinWidth) > 80
+			) {
+				resetSimilarMobilePin();
+			}
+
+			if (similarPinMobileMq.matches && similarMobilePinInitialized) {
+				return;
+			}
+
+			const preservePinLayout =
+				artistSimilar.classList.contains("is-viewport-fitted") &&
+				artistSimilarPin.style.height &&
+				artistSimilarPin.style.height !== "auto";
+
+			if (!preservePinLayout) {
+				artistSimilarPin.style.height = "auto";
+			}
+			if (preservePinLayout) {
+				artistSimilar.style.visibility = "hidden";
+			}
+
 			artistSimilar.classList.remove("is-viewport-fitted");
 			artistSimilar.style.removeProperty("height");
 			artistSimilar.style.removeProperty("--ee-artist-similar-viewport-height");
@@ -4410,9 +4655,11 @@
 						"--ee-artist-similar-sticky-top"
 					)
 				) || 0;
-			const availableHeight = Math.max(window.innerHeight - stickyTop, 0);
-			const fitScale =
-				isSimilarPinActive() && similarPinMobileMq.matches
+			const viewportHeight = window.visualViewport?.height || window.innerHeight;
+			const availableHeight = Math.max(viewportHeight - stickyTop, 0);
+			const fitScale = similarPinMobileMq.matches
+				? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
+				: isSimilarPinActive()
 					? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
 					: 1;
 
@@ -4445,13 +4692,19 @@
 				artistSimilar.classList.add("is-viewport-fitted");
 			}
 
-			const fittedHeight = Math.ceil(sectionHeight * fitScale);
-			const holdHeight = similarPinMobileMq.matches
-				? Math.max(180, Math.round(availableHeight - fittedHeight))
-				: Math.round(window.innerHeight);
+			const holdHeight = Math.round(window.innerHeight);
+			artistSimilarPin.style.height = `${
+				padHeight + sectionHeight * fitScale + holdHeight
+			}px`;
 
-			artistSimilarPin.style.height = `${padHeight + fittedHeight + holdHeight}px`;
-			artistSimilarPin.style.marginBottom = "";
+			if (preservePinLayout) {
+				artistSimilar.style.visibility = "";
+			}
+
+			if (similarPinMobileMq.matches) {
+				similarMobilePinInitialized = true;
+				similarMobilePinWidth = viewportWidth;
+			}
 		};
 
 		const syncArtistSimilarPinnedState = () => {
@@ -4466,12 +4719,13 @@
 						"--ee-artist-similar-sticky-top"
 					)
 				) || 0;
+			const viewportHeight = window.visualViewport?.height || window.innerHeight;
 			const sectionRect = artistSimilar.getBoundingClientRect();
 			const pinRect = artistSimilarPin.getBoundingClientRect();
 			const pinned =
 				sectionRect.top <= stickyTop + 1.5 &&
 				pinRect.bottom >
-					stickyTop + Math.min(sectionRect.height, window.innerHeight - stickyTop) + 4;
+					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
 			artistSimilar.classList.toggle("is-pinned", pinned);
 		};
 
@@ -4480,6 +4734,13 @@
 				syncArtistSimilarPin();
 				syncArtistSimilarPinnedState();
 			});
+		};
+
+		const refreshArtistSimilarPinLayout = () => {
+			if (similarPinMobileMq.matches) {
+				resetSimilarMobilePin();
+			}
+			refreshArtistSimilarPin();
 		};
 
 		const syncSimilarProgressFromScroll = () => {
@@ -4631,43 +4892,67 @@
 			window.addEventListener("scroll", syncArtistSimilarPinnedState, { passive: true });
 		}
 		window.addEventListener("resize", () => {
-			update();
-			refreshArtistSimilarPin();
+			window.clearTimeout(similarResizeTimer);
+			similarResizeTimer = window.setTimeout(() => {
+				update();
+				if (similarPinMobileMq.matches) {
+					if (
+						similarMobilePinInitialized &&
+						Math.abs(window.innerWidth - similarMobilePinWidth) > 80
+					) {
+						refreshArtistSimilarPinLayout();
+						return;
+					}
+					if (!similarMobilePinInitialized) {
+						refreshArtistSimilarPin();
+					} else {
+						syncArtistSimilarPinnedState();
+					}
+					return;
+				}
+				refreshArtistSimilarPinLayout();
+			}, 150);
 		}, { passive: true });
-		window.addEventListener("load", refreshArtistSimilarPin);
-		window.addEventListener("excel-ent:header-state-change", refreshArtistSimilarPin);
+		window.addEventListener("load", refreshArtistSimilarPinLayout);
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (similarPinMobileMq.matches) {
+				syncArtistSimilarPinnedState();
+				return;
+			}
+			refreshArtistSimilarPinLayout();
+		});
 
 		if (typeof similarPinDesktopMq.addEventListener === "function") {
 			similarPinDesktopMq.addEventListener("change", () => {
 				update();
-				refreshArtistSimilarPin();
+				refreshArtistSimilarPinLayout();
 			});
 			similarPinMobileMq.addEventListener("change", () => {
 				update();
-				refreshArtistSimilarPin();
+				refreshArtistSimilarPinLayout();
 			});
 			similarTabletMq.addEventListener("change", () => {
 				update();
-				refreshArtistSimilarPin();
+				refreshArtistSimilarPinLayout();
 			});
 		} else if (typeof similarPinDesktopMq.addListener === "function") {
 			similarPinDesktopMq.addListener(() => {
 				update();
-				refreshArtistSimilarPin();
+				refreshArtistSimilarPinLayout();
 			});
 			similarPinMobileMq.addListener(() => {
 				update();
-				refreshArtistSimilarPin();
+				refreshArtistSimilarPinLayout();
 			});
 			similarTabletMq.addListener(() => {
 				update();
-				refreshArtistSimilarPin();
+				refreshArtistSimilarPinLayout();
 			});
 		}
 
-		window.requestAnimationFrame(refreshArtistSimilarPin);
+		window.requestAnimationFrame(refreshArtistSimilarPinLayout);
 		if (document.fonts?.ready) {
-			document.fonts.ready.then(refreshArtistSimilarPin);
+			document.fonts.ready.then(refreshArtistSimilarPinLayout);
 		}
 		update();
 	}

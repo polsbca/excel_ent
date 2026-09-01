@@ -221,12 +221,12 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 					</a>
 				</div>
 			</div>
-		</div>
 
-		<div class="artist-hero__tags">
-			<?php foreach ( $excel_ent_tags as $excel_ent_tag ) : ?>
-				<span><?php echo esc_html( $excel_ent_tag ); ?></span>
-			<?php endforeach; ?>
+			<div class="artist-hero__tags">
+				<?php foreach ( $excel_ent_tags as $excel_ent_tag ) : ?>
+					<span><?php echo esc_html( $excel_ent_tag ); ?></span>
+				<?php endforeach; ?>
+			</div>
 		</div>
 
 		<div class="artist-hero__actions">

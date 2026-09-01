@@ -625,7 +625,6 @@ function excel_ent_default_services_links() {
 			)
 		),
 		__( 'Artist Registration', 'excel-ent' )  => excel_ent_get_contact_url( 'talent' ),
-		__( 'Venue Registration', 'excel-ent' )   => excel_ent_get_contact_url( 'venues' ),
 	);
 }
 
