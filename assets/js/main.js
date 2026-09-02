@@ -623,17 +623,29 @@
 	}
 
 	/* ---------- About page mobile pin helpers (stable layout, no scroll jerk) ---------- */
+	const getAboutMobileViewportHeight = () =>
+		window.visualViewport?.height || window.innerHeight;
+
 	const aboutMobilePinViewport = {
 		width: window.innerWidth,
-		height: window.innerHeight,
+		height: getAboutMobileViewportHeight(),
 	};
+	let aboutMobilePinLayoutReady = false;
+
+	const markAboutMobilePinLayoutReady = () => {
+		aboutMobilePinLayoutReady = true;
+	};
+
+	window.addEventListener("load", markAboutMobilePinLayoutReady);
+	document.fonts?.ready?.then(markAboutMobilePinLayoutReady);
 
 	const shouldRelayoutAboutMobilePinViewport = () => {
 		const width = window.innerWidth;
-		const height = window.innerHeight;
+		const height = getAboutMobileViewportHeight();
 		const widthDelta = Math.abs(width - aboutMobilePinViewport.width);
 		const heightDelta = Math.abs(height - aboutMobilePinViewport.height);
-		if (widthDelta >= 80 || heightDelta >= 160) {
+		const heightThreshold = width <= 767 ? 40 : 160;
+		if (widthDelta >= 80 || heightDelta >= heightThreshold) {
 			aboutMobilePinViewport.width = width;
 			aboutMobilePinViewport.height = height;
 			return true;
@@ -654,6 +666,7 @@
 			}, 280);
 		};
 		window.visualViewport?.addEventListener("resize", onViewportChange);
+		window.visualViewport?.addEventListener("scroll", onViewportChange);
 	};
 
 	const aboutMobilePinStateFrame = { id: 0, pending: new Set() };
@@ -670,11 +683,21 @@
 	};
 
 	const getAboutMobileAvailableHeight = (stickyTop) =>
-		Math.max(window.innerHeight - stickyTop, 0);
+		Math.max(getAboutMobileViewportHeight() - stickyTop, 0);
 
 	/** Scale mobile sticky units to exactly fill the available viewport (up or down). */
 	const measureAboutMobileStickyUnit = (unitEl, getAvailableHeight) => {
-		const sectionH = Math.ceil(unitEl.getBoundingClientRect().height);
+		const innerEl =
+			unitEl.querySelector('[class*="__unit-inner"]') || unitEl;
+		const innerHeight = Math.max(
+			Math.ceil(innerEl.scrollHeight),
+			Math.ceil(innerEl.getBoundingClientRect().height)
+		);
+		const sectionH = Math.max(
+			Math.ceil(unitEl.scrollHeight),
+			Math.ceil(unitEl.getBoundingClientRect().height),
+			innerHeight
+		);
 		const availableHeight = getAvailableHeight();
 		const fitScale = availableHeight / Math.max(sectionH, 1);
 		const styles = getComputedStyle(unitEl);
@@ -682,6 +705,7 @@
 		const padBottom = parseFloat(styles.paddingBottom) || 0;
 		return {
 			sectionH,
+			innerHeight,
 			availableHeight,
 			fitScale,
 			padTop,
@@ -691,13 +715,18 @@
 	};
 
 	const buildAboutMobilePinSnapshot = (measure, padHeight, holdHeight) => {
-		const displaySectionHeight = Math.ceil(measure.sectionH * measure.fitScale);
+		const displaySectionHeight = Math.ceil(measure.availableHeight);
+		const contentHeight = Math.max(
+			measure.innerHeight ||
+				measure.sectionH - measure.padTop - measure.padBottom,
+			0
+		);
 		return {
 			availableHeight: measure.availableHeight,
 			fitScale: measure.fitScale,
 			padTop: measure.padTop,
 			padBottom: measure.padBottom,
-			contentHeight: Math.max(measure.sectionH - measure.padTop - measure.padBottom, 0),
+			contentHeight,
 			naturalSectionHeight: measure.sectionH,
 			useFit: measure.useFit,
 			displaySectionHeight,
@@ -789,7 +818,7 @@
 			if (snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-intro-viewport-height",
-					`${snapshot.displaySectionHeight}px`
+					`${snapshot.availableHeight}px`
 				);
 				fitEl.style.setProperty(
 					"--ee-about-intro-fit-scale",
@@ -803,7 +832,7 @@
 					"--ee-about-intro-fit-pad-bottom",
 					`${snapshot.padBottom * snapshot.fitScale}px`
 				);
-				if (fitEl === aboutIntro && snapshot.contentHeight) {
+				if (snapshot.contentHeight) {
 					fitEl.style.setProperty(
 						"--ee-about-intro-content-height",
 						`${snapshot.contentHeight}px`
@@ -893,7 +922,7 @@
 
 			applyAboutIntroViewportFit(snapshot);
 
-			if (!aboutIntroMobileFitLocked) {
+			if (!aboutIntroMobileFitLocked && aboutMobilePinLayoutReady) {
 				aboutIntroMobileFitLocked = true;
 				aboutIntroMobileFitSnapshot = snapshot;
 				aboutIntroMobileFitWidth = viewportWidth;
@@ -921,7 +950,7 @@
 			}
 
 			const stickyTop = getAboutIntroStickyTop();
-			const viewportHeight = window.innerHeight;
+			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
 			const pinRect = aboutIntroPin.getBoundingClientRect();
 			const pinned =
@@ -3061,7 +3090,7 @@
 			if (snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-value-viewport-height",
-					`${snapshot.displaySectionHeight}px`
+					`${snapshot.availableHeight}px`
 				);
 				fitEl.style.setProperty(
 					"--ee-about-value-fit-scale",
@@ -3075,7 +3104,7 @@
 					"--ee-about-value-fit-pad-bottom",
 					`${snapshot.padBottom * snapshot.fitScale}px`
 				);
-				if (fitEl === aboutValue && snapshot.contentHeight) {
+				if (snapshot.contentHeight) {
 					fitEl.style.setProperty(
 						"--ee-about-value-content-height",
 						`${snapshot.contentHeight}px`
@@ -3164,12 +3193,12 @@
 				fitTarget,
 				getAboutValueAvailableHeight
 			);
-			const holdHeight = getAboutValueMobileHoldHeight(window.innerHeight);
+			const holdHeight = getAboutValueMobileHoldHeight(getAboutMobileViewportHeight());
 			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
 
 			applyAboutValueViewportFit(snapshot);
 
-			if (!aboutValueMobileFitLocked) {
+			if (!aboutValueMobileFitLocked && aboutMobilePinLayoutReady) {
 				aboutValueMobileFitLocked = true;
 				aboutValueMobileFitSnapshot = snapshot;
 				aboutValueMobileFitWidth = viewportWidth;
@@ -3200,7 +3229,7 @@
 			}
 
 			const stickyTop = getAboutValueStickyTop();
-			const viewportHeight = window.innerHeight;
+			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
 			const pinRect = aboutValuePin.getBoundingClientRect();
 			const pinned =
@@ -3409,7 +3438,7 @@
 			if (snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-why-viewport-height",
-					`${snapshot.displaySectionHeight}px`
+					`${snapshot.availableHeight}px`
 				);
 				fitEl.style.setProperty(
 					"--ee-about-why-fit-scale",
@@ -3423,7 +3452,7 @@
 					"--ee-about-why-fit-pad-bottom",
 					`${snapshot.padBottom * snapshot.fitScale}px`
 				);
-				if (fitEl === aboutWhy && snapshot.contentHeight) {
+				if (snapshot.contentHeight) {
 					fitEl.style.setProperty(
 						"--ee-about-why-content-height",
 						`${snapshot.contentHeight}px`
@@ -3510,12 +3539,12 @@
 				fitTarget,
 				getAboutWhyAvailableHeight
 			);
-			const holdHeight = getAboutWhyMobileHoldHeight(window.innerHeight);
+			const holdHeight = getAboutWhyMobileHoldHeight(getAboutMobileViewportHeight());
 			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
 
 			applyAboutWhyViewportFit(snapshot);
 
-			if (!aboutWhyMobileFitLocked) {
+			if (!aboutWhyMobileFitLocked && aboutMobilePinLayoutReady) {
 				aboutWhyMobileFitLocked = true;
 				aboutWhyMobileFitSnapshot = snapshot;
 				aboutWhyMobileFitWidth = viewportWidth;
@@ -3544,7 +3573,7 @@
 			}
 
 			const stickyTop = getAboutWhyStickyTop();
-			const viewportHeight = window.innerHeight;
+			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
 			const pinRect = aboutWhyPin.getBoundingClientRect();
 			const pinned =
@@ -3745,7 +3774,7 @@
 			if (snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-approach-viewport-height",
-					`${snapshot.displaySectionHeight}px`
+					`${snapshot.availableHeight}px`
 				);
 				fitEl.style.setProperty(
 					"--ee-about-approach-fit-scale",
@@ -3759,7 +3788,7 @@
 					"--ee-about-approach-fit-pad-bottom",
 					`${snapshot.padBottom * snapshot.fitScale}px`
 				);
-				if (fitEl === aboutApproachSticky && snapshot.contentHeight) {
+				if (snapshot.contentHeight) {
 					fitEl.style.setProperty(
 						"--ee-about-approach-content-height",
 						`${snapshot.contentHeight}px`
@@ -3846,12 +3875,12 @@
 				fitTarget,
 				getAboutApproachAvailableHeight
 			);
-			const holdHeight = getAboutApproachMobileHoldHeight(window.innerHeight);
+			const holdHeight = getAboutApproachMobileHoldHeight(getAboutMobileViewportHeight());
 			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
 
 			applyAboutApproachViewportFit(snapshot);
 
-			if (!aboutApproachMobileFitLocked) {
+			if (!aboutApproachMobileFitLocked && aboutMobilePinLayoutReady) {
 				aboutApproachMobileFitLocked = true;
 				aboutApproachMobileFitSnapshot = snapshot;
 				aboutApproachMobileFitWidth = viewportWidth;
@@ -3882,7 +3911,7 @@
 			}
 
 			const stickyTop = getAboutApproachStickyTop();
-			const viewportHeight = window.innerHeight;
+			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
 			const pinRect = aboutApproachPin.getBoundingClientRect();
 			const pinned =
@@ -7225,7 +7254,7 @@
 			if (snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-reviews-viewport-height",
-					`${snapshot.displaySectionHeight}px`
+					`${snapshot.availableHeight}px`
 				);
 				fitEl.style.setProperty(
 					"--ee-about-reviews-fit-scale",
@@ -7239,7 +7268,7 @@
 					"--ee-about-reviews-fit-pad-bottom",
 					`${snapshot.padBottom * snapshot.fitScale}px`
 				);
-				if (fitEl === aboutReviews && snapshot.contentHeight) {
+				if (snapshot.contentHeight) {
 					fitEl.style.setProperty(
 						"--ee-about-reviews-content-height",
 						`${snapshot.contentHeight}px`
@@ -7328,12 +7357,12 @@
 				fitTarget,
 				getAboutReviewsAvailableHeight
 			);
-			const holdHeight = getAboutReviewsMobileHoldHeight(window.innerHeight);
+			const holdHeight = getAboutReviewsMobileHoldHeight(getAboutMobileViewportHeight());
 			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
 
 			applyAboutReviewsViewportFit(snapshot);
 
-			if (!aboutReviewsMobileFitLocked) {
+			if (!aboutReviewsMobileFitLocked && aboutMobilePinLayoutReady) {
 				aboutReviewsMobileFitLocked = true;
 				aboutReviewsMobileFitSnapshot = snapshot;
 				aboutReviewsMobileFitWidth = viewportWidth;
@@ -7364,7 +7393,7 @@
 			}
 
 			const stickyTop = getAboutReviewsStickyTop();
-			const viewportHeight = window.innerHeight;
+			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
 			const pinRect = aboutReviewsPin.getBoundingClientRect();
 			const pinned =
