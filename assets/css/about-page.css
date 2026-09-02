@@ -1401,38 +1401,44 @@
 
 	/* Figma 2331:5615 — horizontal media strip with peek */
 	.about-intro__media {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: nowrap;
-		align-items: stretch;
-		gap: 10px;
+		display: block;
 		width: 100%;
 		max-width: 100%;
 		min-width: 0;
 		height: 263px;
 		min-height: 263px;
 		max-height: 263px;
-		padding: 0 0 0 24px;
+		padding: 0;
 		box-sizing: border-box;
-		overflow-x: auto;
-		overflow-y: hidden;
-		-webkit-overflow-scrolling: touch;
-		scrollbar-width: none;
+		overflow: hidden;
 		touch-action: pan-y;
 		overscroll-behavior-x: contain;
-		scroll-snap-type: x mandatory;
-		scroll-padding-left: 24px;
 		cursor: grab;
 	}
 
 	.about-intro__media.is-dragging {
 		cursor: grabbing;
-		scroll-snap-type: none;
-		scroll-behavior: auto;
+		touch-action: none;
 	}
 
-	.about-intro__media::-webkit-scrollbar {
-		display: none;
+	.about-intro__media-track {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		align-items: stretch;
+		gap: 10px;
+		height: 100%;
+		width: max-content;
+		max-width: none;
+		min-width: 0;
+		padding: 0 0 0 24px;
+		box-sizing: border-box;
+		transition: transform 0.55s var(--ee-ease, cubic-bezier(0.22, 1, 0.36, 1));
+		will-change: transform;
+	}
+
+	.about-intro__media.is-dragging .about-intro__media-track {
+		transition: none;
 	}
 
 	.about-intro__media-item {
@@ -1445,7 +1451,6 @@
 		padding: 0;
 		overflow: hidden;
 		background: #111;
-		scroll-snap-align: start;
 	}
 
 	.about-intro__media-item--tablet-only {
@@ -2568,13 +2573,11 @@
 	}
 
 	.about-page .about-reviews__viewport {
-		overflow-x: auto;
+		overflow-x: hidden;
 		overflow-y: hidden;
 		-webkit-overflow-scrolling: touch;
 		scrollbar-width: none;
-		scroll-snap-type: x mandatory;
-		scroll-padding-inline-start: 24px;
-		scroll-padding-left: 24px;
+		scroll-snap-type: none;
 		touch-action: pan-y;
 		cursor: grab;
 		width: 100%;
@@ -2589,7 +2592,6 @@
 	.about-page .about-reviews__viewport.is-dragging {
 		touch-action: none;
 		cursor: grabbing;
-		scroll-snap-type: none;
 	}
 
 	.about-page .about-reviews__viewport::-webkit-scrollbar {
@@ -2610,8 +2612,17 @@
 		margin: 0;
 		padding: 0 24px;
 		box-sizing: border-box;
-		transform: none !important;
+		transition: transform 0.55s var(--ee-ease, cubic-bezier(0.22, 1, 0.36, 1));
+		will-change: transform;
 		overflow: visible;
+	}
+
+	.about-page .about-reviews__viewport.is-dragging .about-reviews__track {
+		transition: none;
+	}
+
+	.about-page .about-reviews__card:nth-child(n + 5) {
+		display: none;
 	}
 
 	.about-page .about-reviews__card {

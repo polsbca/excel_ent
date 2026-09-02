@@ -375,7 +375,7 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 						data-reveal
 						style="--i: <?php echo esc_attr( (string) ( $excel_ent_ri % 3 ) ); ?>; transition-delay: <?php echo esc_attr( (string) ( ( $excel_ent_ri % 3 ) * 80 ) ); ?>ms"
 					>
-						<p class="about-reviews__num" aria-hidden="true"><?php echo esc_html( str_pad( (string) ( ( $excel_ent_ri % 3 ) + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></p>
+						<p class="about-reviews__num" aria-hidden="true"><?php echo esc_html( str_pad( (string) min( $excel_ent_ri + 1, 4 ), 2, '0', STR_PAD_LEFT ) ); ?></p>
 						<blockquote class="about-reviews__quote">
 							<p><?php echo esc_html( $excel_ent_review['quote'] ); ?></p>
 						</blockquote>

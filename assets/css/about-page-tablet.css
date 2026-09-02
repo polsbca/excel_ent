@@ -182,6 +182,10 @@
 		overscroll-behavior-x: contain;
 	}
 
+	.about-intro__media-track {
+		display: contents;
+	}
+
 	.about-intro__media::-webkit-scrollbar {
 		display: none;
 	}
@@ -655,7 +659,7 @@
 		scrollbar-width: none;
 		scroll-snap-type: x mandatory;
 		scroll-padding-left: 40px;
-		touch-action: pan-y;
+		touch-action: pan-x pan-y;
 		cursor: grab;
 		width: 100%;
 		max-width: 100%;
@@ -682,7 +686,8 @@
 		width: max-content;
 		max-width: none;
 		padding: 0 40px 0 40px;
-		transform: none !important;
+		transition: transform 0.55s var(--ee-ease, cubic-bezier(0.22, 1, 0.36, 1));
+		will-change: transform;
 	}
 
 	.about-page .about-reviews__card {

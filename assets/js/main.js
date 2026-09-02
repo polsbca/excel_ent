@@ -964,6 +964,7 @@
 			window.requestAnimationFrame(() => {
 				syncAboutIntroViewport();
 				syncAboutIntroPinnedState();
+				window.dispatchEvent(new Event("excel-ent:about-intro-pin-layout"));
 			});
 		};
 
@@ -1078,11 +1079,29 @@
 	const aboutIntroMedia = document.querySelector("[data-about-intro-media]");
 	if (aboutIntroMedia) {
 		const aboutIntroMediaMq = window.matchMedia("(max-width: 767px)");
+		let mediaTrack = aboutIntroMedia.querySelector(".about-intro__media-track");
+		if (!mediaTrack) {
+			mediaTrack = document.createElement("div");
+			mediaTrack.className = "about-intro__media-track";
+			while (aboutIntroMedia.firstChild) {
+				mediaTrack.appendChild(aboutIntroMedia.firstChild);
+			}
+			aboutIntroMedia.appendChild(mediaTrack);
+		}
+
+		const mediaItems = () =>
+			Array.from(
+				mediaTrack.querySelectorAll(
+					".about-intro__media-item:not(.about-intro__media-item--tablet-only)"
+				)
+			);
+
+		let mediaIndex = 0;
 		let mediaActive = false;
 		let mediaAxis = null;
 		let mediaStartX = 0;
 		let mediaStartY = 0;
-		let mediaStartScrollLeft = 0;
+		let mediaDeltaX = 0;
 		let mediaPointerId = null;
 		let mediaLenisPaused = false;
 
@@ -1101,27 +1120,33 @@
 		};
 
 		const getAboutIntroMediaStep = () => {
-			const item = aboutIntroMedia.querySelector(".about-intro__media-item");
-			if (!item) {
-				return aboutIntroMedia.clientWidth;
+			const items = mediaItems();
+			if (!items.length) {
+				return 0;
 			}
-			const gap = parseFloat(getComputedStyle(aboutIntroMedia).gap) || 10;
-			return item.offsetWidth + gap;
+			const gap = parseFloat(getComputedStyle(mediaTrack).gap) || 10;
+			return items[0].offsetWidth + gap;
 		};
 
-		const snapAboutIntroMedia = (smooth = true) => {
-			const step = getAboutIntroMediaStep();
-			if (!step) {
+		const setAboutIntroMediaOffset = (offsetPx, instant) => {
+			mediaTrack.style.transition = instant || reduced ? "none" : "";
+			mediaTrack.style.transform = `translateX(${offsetPx}px)`;
+		};
+
+		const goToAboutIntroMedia = (next, instant) => {
+			const items = mediaItems();
+			if (!items.length) {
 				return;
 			}
-			const index = Math.round(aboutIntroMedia.scrollLeft / step);
-			const left = Math.max(0, index * step);
-			aboutIntroMedia.scrollTo({
-				left,
-				behavior: smooth && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-					? "smooth"
-					: "auto",
-			});
+			const count = items.length;
+			mediaIndex = ((next % count) + count) % count;
+			const step = getAboutIntroMediaStep();
+			setAboutIntroMediaOffset(-mediaIndex * step, instant);
+		};
+
+		const applyAboutIntroMediaDrag = (deltaX) => {
+			const step = getAboutIntroMediaStep();
+			setAboutIntroMediaOffset(-mediaIndex * step + deltaX, true);
 		};
 
 		const releaseAboutIntroMediaPointer = (pointerId) => {
@@ -1145,9 +1170,18 @@
 			mediaPointerId = null;
 			aboutIntroMedia.classList.remove("is-dragging");
 			resumeAboutIntroMediaLenis();
-			if (wasHorizontal) {
-				snapAboutIntroMedia(true);
+
+			if (wasHorizontal && aboutIntroMediaMq.matches) {
+				const step = getAboutIntroMediaStep();
+				const threshold = Math.min(48, Math.max(step * 0.15, 24));
+				if (Math.abs(mediaDeltaX) > threshold) {
+					goToAboutIntroMedia(mediaIndex + (mediaDeltaX < 0 ? 1 : -1));
+				} else {
+					goToAboutIntroMedia(mediaIndex, false);
+				}
 			}
+
+			mediaDeltaX = 0;
 		};
 
 		aboutIntroMedia.addEventListener(
@@ -1161,7 +1195,7 @@
 				mediaPointerId = e.pointerId;
 				mediaStartX = e.clientX;
 				mediaStartY = e.clientY;
-				mediaStartScrollLeft = aboutIntroMedia.scrollLeft;
+				mediaDeltaX = 0;
 			},
 			{ passive: true }
 		);
@@ -1180,7 +1214,6 @@
 					if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
 						return;
 					}
-					/* Vertical — yield to page scroll; never pause Lenis or capture pointer */
 					if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
 						mediaActive = false;
 						mediaPointerId = null;
@@ -1204,7 +1237,8 @@
 					return;
 				}
 
-				aboutIntroMedia.scrollLeft = mediaStartScrollLeft - dx;
+				mediaDeltaX = dx;
+				applyAboutIntroMediaDrag(dx);
 				if (e.cancelable) {
 					e.preventDefault();
 				}
@@ -1215,20 +1249,45 @@
 		aboutIntroMedia.addEventListener("pointerup", finishAboutIntroMediaGesture);
 		aboutIntroMedia.addEventListener("pointercancel", finishAboutIntroMediaGesture);
 
+		const resetAboutIntroMediaCarousel = () => {
+			finishAboutIntroMediaGesture();
+			mediaIndex = 0;
+			if (aboutIntroMediaMq.matches) {
+				goToAboutIntroMedia(0, true);
+				return;
+			}
+			mediaTrack.style.transition = "";
+			mediaTrack.style.transform = "";
+		};
+
 		if (typeof aboutIntroMediaMq.addEventListener === "function") {
-			aboutIntroMediaMq.addEventListener("change", () => {
-				finishAboutIntroMediaGesture();
-				aboutIntroMedia.scrollLeft = 0;
-			});
+			aboutIntroMediaMq.addEventListener("change", resetAboutIntroMediaCarousel);
 		} else if (typeof aboutIntroMediaMq.addListener === "function") {
-			aboutIntroMediaMq.addListener(() => {
-				finishAboutIntroMediaGesture();
-				aboutIntroMedia.scrollLeft = 0;
-			});
+			aboutIntroMediaMq.addListener(resetAboutIntroMediaCarousel);
 		}
+
+		window.addEventListener(
+			"resize",
+			() => {
+				if (aboutIntroMediaMq.matches) {
+					goToAboutIntroMedia(mediaIndex, true);
+				}
+			},
+			{ passive: true }
+		);
 
 		aboutIntroMedia.querySelectorAll("img").forEach((img) => {
 			img.setAttribute("draggable", "false");
+		});
+
+		goToAboutIntroMedia(0, true);
+		window.addEventListener("load", () => {
+			goToAboutIntroMedia(mediaIndex, true);
+		});
+		window.addEventListener("excel-ent:about-intro-pin-layout", () => {
+			if (aboutIntroMediaMq.matches) {
+				goToAboutIntroMedia(mediaIndex, true);
+			}
 		});
 	}
 
@@ -7417,9 +7476,24 @@
 			refreshAboutReviewsPin();
 		};
 
+		const reviewsMobileCarouselMq = window.matchMedia("(max-width: 767px)");
+		const reviewsTabletCarouselMq = window.matchMedia(
+			"(min-width: 768px) and (max-width: 1199px)"
+		);
+
 		const getPerPage = () => (scrollCarouselMq.matches ? 1 : 3);
 
-		const getPageCount = () => Math.max(1, Math.ceil(cards.length / getPerPage()));
+		const getCarouselCards = () =>
+			reviewsMobileCarouselMq.matches
+				? cards.slice(0, Math.max(pages.length, 1))
+				: cards;
+
+		const getPageCount = () => {
+			if (reviewsMobileCarouselMq.matches) {
+				return Math.max(1, getCarouselCards().length);
+			}
+			return Math.max(1, Math.ceil(cards.length / getPerPage()));
+		};
 
 		const syncPager = (next) => {
 			const pageCount = getPageCount();
@@ -7432,8 +7506,27 @@
 			});
 		};
 
+		const getTrackGap = () =>
+			track ? parseFloat(window.getComputedStyle(track).gap) || 0 : 0;
+
 		const getTrackPad = () =>
 			track ? parseFloat(window.getComputedStyle(track).paddingLeft) || 0 : 0;
+
+		const getReviewsMobileStep = () => {
+			const carouselCards = getCarouselCards();
+			if (!carouselCards.length) {
+				return 0;
+			}
+			return carouselCards[0].offsetWidth + getTrackGap();
+		};
+
+		const setReviewsTrackOffset = (offsetPx, instant) => {
+			if (!track) {
+				return;
+			}
+			track.style.transition = instant || reduced ? "none" : "";
+			track.style.transform = `translateX(${offsetPx}px)`;
+		};
 
 		const goTo = (next, instant) => {
 			if (!track || !cards.length) {
@@ -7442,6 +7535,13 @@
 
 			const pageCount = getPageCount();
 			const target = ((next % pageCount) + pageCount) % pageCount;
+
+			if (reviewsMobileCarouselMq.matches) {
+				const step = getReviewsMobileStep();
+				setReviewsTrackOffset(-target * step, instant);
+				syncPager(target);
+				return;
+			}
 
 			if (scrollCarouselMq.matches && viewport) {
 				const card = cards[target * getPerPage()];
@@ -7499,7 +7599,7 @@
 		};
 
 		const onScrollCarousel = () => {
-			if (!scrollCarouselMq.matches || !viewport || !cards.length) {
+			if (!reviewsTabletCarouselMq.matches || !viewport || !cards.length) {
 				return;
 			}
 			const left = viewport.scrollLeft;
@@ -7526,12 +7626,13 @@
 		window.addEventListener("touchend", onPointerUp);
 		viewport?.addEventListener("scroll", onScrollCarousel, { passive: true });
 
-		if (viewport && cards.length > 1) {
+		if (viewport && getCarouselCards().length > 1) {
 			let reviewsSwipeActive = false;
 			let reviewsSwipeAxis = null;
 			let reviewsSwipeStartX = 0;
 			let reviewsSwipeStartY = 0;
 			let reviewsSwipeStartScrollLeft = 0;
+			let reviewsSwipeDeltaX = 0;
 			let reviewsSwipePointerId = null;
 			let reviewsSwipeLenisPaused = false;
 
@@ -7560,8 +7661,13 @@
 				}
 			};
 
+			const applyReviewsMobileDragTransform = (deltaX) => {
+				const step = getReviewsMobileStep();
+				setReviewsTrackOffset(-page * step + deltaX, true);
+			};
+
 			const snapReviewsViewport = (smooth = true) => {
-				if (!scrollCarouselMq.matches || !cards.length) {
+				if (!reviewsTabletCarouselMq.matches || !cards.length) {
 					return;
 				}
 				const left = viewport.scrollLeft;
@@ -7589,9 +7695,20 @@
 				reviewsSwipePointerId = null;
 				viewport.classList.remove("is-dragging");
 				resumeReviewsSwipeLenis();
-				if (wasHorizontal) {
+
+				if (wasHorizontal && reviewsMobileCarouselMq.matches) {
+					const step = getReviewsMobileStep();
+					const threshold = Math.min(48, Math.max(step * 0.15, 24));
+					if (Math.abs(reviewsSwipeDeltaX) > threshold) {
+						goTo(page + (reviewsSwipeDeltaX < 0 ? 1 : -1));
+					} else {
+						goTo(page, false);
+					}
+				} else if (wasHorizontal) {
 					snapReviewsViewport(true);
 				}
+
+				reviewsSwipeDeltaX = 0;
 			};
 
 			viewport.addEventListener(
@@ -7606,6 +7723,7 @@
 					reviewsSwipeStartX = e.clientX;
 					reviewsSwipeStartY = e.clientY;
 					reviewsSwipeStartScrollLeft = viewport.scrollLeft;
+					reviewsSwipeDeltaX = 0;
 				},
 				{ passive: true }
 			);
@@ -7647,11 +7765,20 @@
 						return;
 					}
 
-					const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-					viewport.scrollLeft = Math.min(
-						maxScroll,
-						Math.max(0, reviewsSwipeStartScrollLeft - dx)
-					);
+					if (reviewsMobileCarouselMq.matches) {
+						reviewsSwipeDeltaX = dx;
+						applyReviewsMobileDragTransform(dx);
+					} else {
+						const maxScroll = Math.max(
+							0,
+							viewport.scrollWidth - viewport.clientWidth
+						);
+						viewport.scrollLeft = Math.min(
+							maxScroll,
+							Math.max(0, reviewsSwipeStartScrollLeft - dx)
+						);
+					}
+
 					if (e.cancelable) {
 						e.preventDefault();
 					}
@@ -7661,10 +7788,24 @@
 
 			viewport.addEventListener("pointerup", finishReviewsSwipeGesture);
 			viewport.addEventListener("pointercancel", finishReviewsSwipeGesture);
+
+			if (typeof reviewsMobileCarouselMq.addEventListener === "function") {
+				reviewsMobileCarouselMq.addEventListener("change", () => {
+					finishReviewsSwipeGesture();
+					goTo(page, true);
+				});
+			} else if (typeof reviewsMobileCarouselMq.addListener === "function") {
+				reviewsMobileCarouselMq.addListener(() => {
+					finishReviewsSwipeGesture();
+					goTo(page, true);
+				});
+			}
 		}
 
 		const onResize = () => {
-			if (scrollCarouselMq.matches) {
+			if (reviewsMobileCarouselMq.matches) {
+				goTo(page, true);
+			} else if (scrollCarouselMq.matches) {
 				if (track) {
 					track.style.transform = "";
 				}
@@ -7744,6 +7885,7 @@
 				resetAboutReviewsMobilePin();
 				refreshAboutReviewsPinLayout();
 			}
+			goTo(page, true);
 		});
 
 		if (document.fonts?.ready) {
@@ -7757,10 +7899,14 @@
 				) {
 					refreshAboutReviewsPinLayout();
 				}
+				goTo(page, true);
 			});
 		}
 
-		window.setTimeout(refreshAboutReviewsPinLayout, 250);
+		window.setTimeout(() => {
+			refreshAboutReviewsPinLayout();
+			goTo(page, true);
+		}, 250);
 	}
 
 	/* ---------- Package tabs ---------- */
