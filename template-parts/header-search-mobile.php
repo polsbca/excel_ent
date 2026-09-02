@@ -160,32 +160,146 @@ $excel_ent_trigger_has_filters = (
 	|| $excel_ent_date_filled
 	|| $excel_ent_budget_filled
 );
+
+$excel_ent_chip_date_value = '';
+if ( $excel_ent_date_filled && isset( $excel_ent_date_ts ) ) {
+	$excel_ent_chip_date_value = wp_date( 'M j', $excel_ent_date_ts );
+}
+
+$excel_ent_chip_filters = array(
+	'artist'     => __( 'Artist', 'excel-ent' ),
+	'categories' => __( 'Categories', 'excel-ent' ),
+	'location'   => __( 'Location', 'excel-ent' ),
+	'date'       => __( 'Event Date', 'excel-ent' ),
+	'budget'     => __( 'Budget', 'excel-ent' ),
+);
+$excel_ent_chip_types = array(
+	'artist'     => __( 'Artist', 'excel-ent' ),
+	'categories' => __( 'Category', 'excel-ent' ),
+	'location'   => __( 'Location', 'excel-ent' ),
+	'date'       => __( 'Date', 'excel-ent' ),
+	'budget'     => __( 'Budget', 'excel-ent' ),
+);
+$excel_ent_chip_values = array(
+	'artist'     => $excel_ent_artist_filled ? $excel_ent_artist_meta : '',
+	'categories' => $excel_ent_occasion_filled ? $excel_ent_occasion_meta : '',
+	'location'   => $excel_ent_location_filled ? $excel_ent_location_meta : '',
+	'date'       => $excel_ent_chip_date_value,
+	'budget'     => $excel_ent_budget_filled ? $excel_ent_budget_meta : '',
+);
+$excel_ent_chip_active = array(
+	'artist'     => $excel_ent_artist_filled,
+	'categories' => $excel_ent_occasion_filled,
+	'location'   => $excel_ent_location_filled,
+	'date'       => $excel_ent_date_filled,
+	'budget'     => $excel_ent_budget_filled,
+);
 ?>
 <div class="header-search-mobile" data-mobile-search>
-	<button
-		type="button"
-		class="header-search-mobile__trigger<?php echo $excel_ent_trigger_has_filters ? ' has-filters' : ''; ?>"
-		data-mobile-search-open
-		aria-expanded="false"
-		aria-controls="header-search-mobile-panel"
+	<form
+		class="header-search-mobile__form"
+		role="search"
+		method="get"
+		action="<?php echo esc_url( home_url( '/' ) ); ?>"
 	>
-		<span class="header-search-mobile__copy">
-		<span class="header-search-mobile__title"><?php esc_html_e( 'START YOUR SEARCH', 'excel-ent' ); ?></span>
-		<span class="header-search-mobile__hint header-search-mobile__hint--default" data-msm-trigger-hint-default<?php echo $excel_ent_trigger_has_filters ? ' hidden' : ''; ?>><?php esc_html_e( 'Search Artist . Categories . Location . Event Date . Budget', 'excel-ent' ); ?></span>
-			<span class="header-search-mobile__hint-filters" data-msm-trigger-hints<?php echo $excel_ent_trigger_has_filters ? '' : ' hidden'; ?>>
-				<span class="header-search-mobile__hint-filter<?php echo $excel_ent_artist_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="artist"><?php esc_html_e( 'Search Artist', 'excel-ent' ); ?></span><span class="header-search-mobile__hint-sep<?php echo ( $excel_ent_artist_filled || $excel_ent_occasion_filled ) ? ' is-active' : ''; ?>" data-msm-trigger-sep data-after="artist" data-before="categories"> . </span><span class="header-search-mobile__hint-filter<?php echo $excel_ent_occasion_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="categories"><?php esc_html_e( 'Categories', 'excel-ent' ); ?></span><span class="header-search-mobile__hint-sep<?php echo ( $excel_ent_occasion_filled || $excel_ent_location_filled ) ? ' is-active' : ''; ?>" data-msm-trigger-sep data-after="categories" data-before="location"> . </span><span class="header-search-mobile__hint-filter<?php echo $excel_ent_location_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="location"><?php esc_html_e( 'Location', 'excel-ent' ); ?></span><span class="header-search-mobile__hint-sep<?php echo ( $excel_ent_location_filled || $excel_ent_date_filled ) ? ' is-active' : ''; ?>" data-msm-trigger-sep data-after="location" data-before="date"> . </span><span class="header-search-mobile__hint-filter<?php echo $excel_ent_date_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="date"><?php esc_html_e( 'Event Date', 'excel-ent' ); ?></span><span class="header-search-mobile__hint-sep<?php echo ( $excel_ent_date_filled || $excel_ent_budget_filled ) ? ' is-active' : ''; ?>" data-msm-trigger-sep data-after="date" data-before="budget"> . </span><span class="header-search-mobile__hint-filter<?php echo $excel_ent_budget_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="budget"><?php esc_html_e( 'Budget', 'excel-ent' ); ?></span>
-			</span>
-		</span>
-		<span class="header-search-mobile__trigger-btn" aria-hidden="true">
-			<img
-				src="<?php echo esc_url( $excel_ent_legacy_icons . '/search-line-white.svg' ); ?>"
-				alt=""
-				width="18"
-				height="18"
-				decoding="async"
+		<div class="header-search-mobile__home<?php echo $excel_ent_trigger_has_filters ? ' has-selections' : ''; ?>">
+			<div class="header-search-mobile__lead">
+				<img
+					class="header-search-mobile__lead-icon"
+					src="<?php echo esc_url( $excel_ent_legacy_icons . '/search-line-white.svg' ); ?>"
+					alt=""
+					width="18"
+					height="18"
+					decoding="async"
+				>
+				<span class="header-search-mobile__title"><?php esc_html_e( 'START YOUR SEARCH', 'excel-ent' ); ?></span>
+			</div>
+			<div class="header-search-mobile__chips" role="presentation">
+				<?php
+				foreach ( $excel_ent_chip_filters as $excel_ent_chip_key => $excel_ent_chip_label ) :
+					$excel_ent_chip_is_filled = ! empty( $excel_ent_chip_active[ $excel_ent_chip_key ] );
+					?>
+				<button
+					type="button"
+					class="header-search-mobile__chip<?php echo $excel_ent_chip_is_filled ? ' is-filled' : ''; ?>"
+					data-msm-home-chip="<?php echo esc_attr( $excel_ent_chip_key ); ?>"
+					data-msm-trigger-filter="<?php echo esc_attr( $excel_ent_chip_key ); ?>"
+					aria-expanded="false"
+				>
+					<span class="header-search-mobile__chip-empty"<?php echo $excel_ent_chip_is_filled ? ' hidden' : ''; ?>>
+						<span class="header-search-mobile__chip-label"><?php echo esc_html( $excel_ent_chip_label ); ?></span>
+						<img
+							class="header-search-mobile__chip-chevron"
+							src="<?php echo esc_url( $excel_ent_icons . '/chevron-down-fill.svg' ); ?>"
+							alt=""
+							width="14"
+							height="14"
+							decoding="async"
+						>
+					</span>
+					<span class="header-search-mobile__chip-filled"<?php echo $excel_ent_chip_is_filled ? '' : ' hidden'; ?>>
+						<span class="header-search-mobile__chip-copy">
+							<span class="header-search-mobile__chip-type"><?php echo esc_html( $excel_ent_chip_types[ $excel_ent_chip_key ] ); ?></span>
+							<span class="header-search-mobile__chip-value" data-msm-chip-value><?php echo esc_html( $excel_ent_chip_values[ $excel_ent_chip_key ] ); ?></span>
+						</span>
+						<span
+							class="header-search-mobile__chip-clear"
+							data-msm-chip-clear="<?php echo esc_attr( $excel_ent_chip_key ); ?>"
+							role="button"
+							tabindex="0"
+							aria-label="<?php echo esc_attr( sprintf( /* translators: %s: filter name */ __( 'Clear %s', 'excel-ent' ), $excel_ent_chip_types[ $excel_ent_chip_key ] ) ); ?>"
+						>
+							<img
+								src="<?php echo esc_url( $excel_ent_icons . '/close-line.svg' ); ?>"
+								alt=""
+								width="12"
+								height="12"
+								decoding="async"
+							>
+						</span>
+					</span>
+				</button>
+					<?php
+				endforeach;
+				?>
+			</div>
+			<div class="header-search-mobile__home-dropdown" data-msm-home-dropdown hidden></div>
+			<button
+				type="submit"
+				class="header-search-mobile__home-search"
+				data-msm-home-search
+				<?php echo $excel_ent_trigger_has_filters ? '' : 'hidden'; ?>
 			>
-		</span>
-	</button>
+				<?php esc_html_e( 'Search', 'excel-ent' ); ?>
+			</button>
+		</div>
+
+		<button
+			type="button"
+			class="header-search-mobile__trigger<?php echo $excel_ent_trigger_has_filters ? ' has-filters' : ''; ?>"
+			data-mobile-search-open
+			aria-expanded="false"
+			aria-controls="header-search-mobile-panel"
+		>
+			<span class="header-search-mobile__legacy">
+				<span class="header-search-mobile__copy">
+				<span class="header-search-mobile__title"><?php esc_html_e( 'START YOUR SEARCH', 'excel-ent' ); ?></span>
+				<span class="header-search-mobile__hint header-search-mobile__hint--default" data-msm-trigger-hint-default<?php echo $excel_ent_trigger_has_filters ? ' hidden' : ''; ?>><?php esc_html_e( 'Search Artist . Categories . Location . Event Date . Budget', 'excel-ent' ); ?></span>
+					<span class="header-search-mobile__hint-filters" data-msm-trigger-hints<?php echo $excel_ent_trigger_has_filters ? '' : ' hidden'; ?>>
+						<span class="header-search-mobile__hint-filter<?php echo $excel_ent_artist_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="artist"><?php esc_html_e( 'Search Artist', 'excel-ent' ); ?></span><span class="header-search-mobile__hint-sep<?php echo ( $excel_ent_artist_filled || $excel_ent_occasion_filled ) ? ' is-active' : ''; ?>" data-msm-trigger-sep data-after="artist" data-before="categories"> . </span><span class="header-search-mobile__hint-filter<?php echo $excel_ent_occasion_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="categories"><?php esc_html_e( 'Categories', 'excel-ent' ); ?></span><span class="header-search-mobile__hint-sep<?php echo ( $excel_ent_occasion_filled || $excel_ent_location_filled ) ? ' is-active' : ''; ?>" data-msm-trigger-sep data-after="categories" data-before="location"> . </span><span class="header-search-mobile__hint-filter<?php echo $excel_ent_location_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="location"><?php esc_html_e( 'Location', 'excel-ent' ); ?></span><span class="header-search-mobile__hint-sep<?php echo ( $excel_ent_location_filled || $excel_ent_date_filled ) ? ' is-active' : ''; ?>" data-msm-trigger-sep data-after="location" data-before="date"> . </span><span class="header-search-mobile__hint-filter<?php echo $excel_ent_date_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="date"><?php esc_html_e( 'Event Date', 'excel-ent' ); ?></span><span class="header-search-mobile__hint-sep<?php echo ( $excel_ent_date_filled || $excel_ent_budget_filled ) ? ' is-active' : ''; ?>" data-msm-trigger-sep data-after="date" data-before="budget"> . </span><span class="header-search-mobile__hint-filter<?php echo $excel_ent_budget_filled ? ' is-active' : ''; ?>" data-msm-trigger-filter="budget"><?php esc_html_e( 'Budget', 'excel-ent' ); ?></span>
+					</span>
+				</span>
+				<span class="header-search-mobile__trigger-btn" aria-hidden="true">
+					<img
+						src="<?php echo esc_url( $excel_ent_legacy_icons . '/search-line-white.svg' ); ?>"
+						alt=""
+						width="18"
+						height="18"
+						decoding="async"
+					>
+				</span>
+			</span>
+		</button>
 
 	<div
 		id="header-search-mobile-panel"
@@ -197,12 +311,6 @@ $excel_ent_trigger_has_filters = (
 		hidden
 	>
 		<div class="header-search-mobile__sheet" data-msm-sheet>
-			<form
-				class="header-search-mobile__form"
-				role="search"
-				method="get"
-				action="<?php echo esc_url( home_url( '/' ) ); ?>"
-			>
 				<div class="header-search-mobile__top">
 					<button type="button" class="header-search-mobile__clear" data-mobile-search-clear>
 						<img src="<?php echo esc_url( $excel_ent_icons . '/close-line.svg' ); ?>" alt="" width="12" height="12" decoding="async">
@@ -482,7 +590,7 @@ $excel_ent_trigger_has_filters = (
 				<button type="submit" class="header-search-mobile__search-btn">
 					<?php esc_html_e( 'Search', 'excel-ent' ); ?>
 				</button>
-			</form>
 		</div>
 	</div>
+	</form>
 </div>

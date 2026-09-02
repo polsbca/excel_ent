@@ -463,10 +463,10 @@
 				stickyMq.matches ||
 				isExplorePage ||
 				isHomePage ||
+				isSearchPage ||
 				(isArtistPage && window.matchMedia("(min-width: 768px)").matches) ||
 				isAboutPage ||
-				isContactPage ||
-				(isSearchPage && window.matchMedia("(min-width: 768px)").matches);
+				isContactPage;
 			const next = stickyOn ? (scrolled ? y > 40 : y > 80) : false;
 
 			header.classList.toggle("is-panel-open", panelOpen);
@@ -538,7 +538,7 @@
 			}
 			if ((isHomePage || isSearchPage) && !stickyMq.matches) {
 				if (isPhone) {
-					document.querySelector("[data-mobile-search-open]")?.click();
+					setStickySearchOpen(!header.classList.contains("is-search-open"));
 					return;
 				}
 				if (!header.classList.contains("is-scrolled")) {
@@ -11002,7 +11002,22 @@
 		const triggerHintDefault = root.querySelector("[data-msm-trigger-hint-default]");
 		const triggerHints = root.querySelector("[data-msm-trigger-hints]");
 		const triggerFilterKeys = ["artist", "categories", "location", "date", "budget"];
+		const homeRoot = root.querySelector(".header-search-mobile__home");
+		const homeDropdown = root.querySelector("[data-msm-home-dropdown]");
+		const homeChips = Array.from(root.querySelectorAll("[data-msm-home-chip]"));
+		const homeSearchBtn = root.querySelector("[data-msm-home-search]");
+		const homeInlineMq = window.matchMedia("(max-width: 767px)");
 		if (!openBtn || !panel) return;
+
+		const isHomeInline = () =>
+			(document.body.classList.contains("home") ||
+				document.body.classList.contains("front-page") ||
+				document.body.classList.contains("search")) &&
+			homeInlineMq.matches;
+
+		let activeHomePanel = null;
+		let activeHomeCard = null;
+		let activeHomeChip = null;
 
 		const monthNames = [
 			"January",
@@ -11056,6 +11071,82 @@
 			budget: Boolean(budgetInput?.value),
 		});
 
+		const formatShortDate = (d) =>
+			d
+				? d.toLocaleDateString(undefined, {
+						month: "short",
+						day: "numeric",
+					})
+				: "";
+
+		const getFilterDisplayValues = () => {
+			const selectedOccasions = occasionChecks.filter((btn) => btn.classList.contains("is-checked"));
+			const categoryLabels = selectedOccasions
+				.map((btn) => btn.getAttribute("data-label") || "")
+				.filter(Boolean);
+
+			return {
+				artist: (artistSearch?.value || "").trim(),
+				categories: categoryLabels.length === 1 ? categoryLabels[0] : categoryLabels.join(", "),
+				location: (locationInput?.value || "").trim(),
+				date: selectedISO ? formatShortDate(parseISO(selectedISO)) : "",
+				budget: root.querySelector("[data-msm-budget-option].is-selected")?.getAttribute("data-label") || "",
+			};
+		};
+
+		const syncHomeChips = () => {
+			if (!homeRoot) return;
+
+			const states = getTriggerFilterStates();
+			const values = getFilterDisplayValues();
+			const hasFilters = triggerFilterKeys.some((key) => states[key]);
+
+			homeRoot.classList.toggle("has-selections", hasFilters);
+			if (homeSearchBtn) homeSearchBtn.hidden = !hasFilters;
+
+			homeChips.forEach((chip) => {
+				const key = chip.getAttribute("data-msm-home-chip") || "";
+				const filled = Boolean(states[key]);
+				const emptyEl = chip.querySelector(".header-search-mobile__chip-empty");
+				const filledEl = chip.querySelector(".header-search-mobile__chip-filled");
+				const valueEl = chip.querySelector("[data-msm-chip-value]");
+
+				chip.classList.toggle("is-filled", filled);
+				if (emptyEl) emptyEl.hidden = filled;
+				if (filledEl) filledEl.hidden = !filled;
+				if (valueEl && filled) valueEl.textContent = values[key] || "";
+			});
+		};
+
+		const clearHomeFilter = (key) => {
+			if (key === "artist") {
+				if (artistSearch) artistSearch.value = "";
+				filterArtists();
+				syncArtistSummary();
+			} else if (key === "categories") {
+				occasionChecks.forEach((btn) => {
+					btn.classList.remove("is-checked");
+					btn.setAttribute("aria-pressed", "false");
+				});
+				syncOccasionInput();
+			} else if (key === "location") {
+				if (locationInput) locationInput.value = "";
+				syncLocationSummary();
+			} else if (key === "date") {
+				selectedISO = "";
+				pendingISO = "";
+				if (dateInput) dateInput.value = "";
+				syncDateSummary();
+			} else if (key === "budget") {
+				if (budgetInput) budgetInput.value = "";
+				root.querySelectorAll("[data-msm-budget-option]").forEach((opt) => {
+					opt.classList.remove("is-selected");
+				});
+				syncBudgetSummary();
+			}
+			closeHomeDropdown();
+		};
+
 		const syncTriggerHints = () => {
 			const states = getTriggerFilterStates();
 			const hasFilters = triggerFilterKeys.some((key) => states[key]);
@@ -11065,7 +11156,10 @@
 			if (triggerHints) triggerHints.hidden = !hasFilters;
 
 			triggerFilterKeys.forEach((key) => {
-				root.querySelector(`[data-msm-trigger-filter="${key}"]`)?.classList.toggle("is-active", states[key]);
+				root.querySelectorAll(`[data-msm-trigger-filter="${key}"]`).forEach((el) => {
+					if (el.matches("[data-msm-home-chip]")) return;
+					el.classList.toggle("is-active", states[key]);
+				});
 			});
 
 			root.querySelectorAll("[data-msm-trigger-sep]").forEach((sep) => {
@@ -11073,6 +11167,8 @@
 				const before = sep.getAttribute("data-before") || "";
 				sep.classList.toggle("is-active", Boolean(states[after] || states[before]));
 			});
+
+			syncHomeChips();
 		};
 
 		const filterArtists = () => {
@@ -11131,6 +11227,69 @@
 			const label = selected?.getAttribute("data-label") || "";
 			setCardMeta(budgetCard, Boolean(label), label);
 			syncTriggerHints();
+		};
+
+		const closeHomeDropdown = () => {
+			if (activeHomePanel && activeHomeCard) {
+				activeHomePanel.hidden = true;
+				activeHomeCard.appendChild(activeHomePanel);
+			}
+			activeHomePanel = null;
+			activeHomeCard = null;
+			if (activeHomeChip) {
+				activeHomeChip.classList.remove("is-open");
+				activeHomeChip.setAttribute("aria-expanded", "false");
+				activeHomeChip = null;
+			}
+			if (homeDropdown) {
+				homeDropdown.hidden = true;
+				homeDropdown.removeAttribute("data-panel");
+			}
+		};
+
+		const collapsePanels = () => {
+			if (isHomeInline()) {
+				closeHomeDropdown();
+				return;
+			}
+			collapseCards();
+		};
+
+		const openHomeDropdown = (key) => {
+			if (!isHomeInline() || !homeDropdown) return;
+
+			const chip = root.querySelector(`[data-msm-home-chip="${key}"]`);
+			const card = root.querySelector(`[data-msm-card="${key}"]`);
+			const panel = card?.querySelector("[data-msm-panel]");
+			if (!chip || !panel) return;
+
+			const alreadyOpen = chip.classList.contains("is-open");
+			closeHomeDropdown();
+			if (alreadyOpen) return;
+
+			homeDropdown.hidden = false;
+			homeDropdown.setAttribute("data-panel", key);
+			homeDropdown.appendChild(panel);
+			panel.hidden = false;
+			activeHomePanel = panel;
+			activeHomeCard = card;
+			activeHomeChip = chip;
+			chip.classList.add("is-open");
+			chip.setAttribute("aria-expanded", "true");
+
+			window.setTimeout(() => {
+				if (key === "artist") {
+					filterArtists();
+					artistSearch?.focus();
+				} else if (key === "location") {
+					locationInput?.focus();
+				} else if (key === "date") {
+					const base = parseISO(selectedISO) || today;
+					view = { year: base.getFullYear(), month: base.getMonth() };
+					pendingISO = selectedISO;
+					renderCalendar();
+				}
+			}, 0);
 		};
 
 		const collapseCards = () => {
@@ -11194,6 +11353,12 @@
 							view = { year: cellDate.getFullYear(), month: cellDate.getMonth() };
 						}
 						renderCalendar();
+						if (isHomeInline()) {
+							selectedISO = pendingISO;
+							if (dateInput) dateInput.value = selectedISO;
+							syncDateSummary();
+							collapsePanels();
+						}
 					});
 
 					row.appendChild(btn);
@@ -11234,6 +11399,7 @@
 		const overlayHome = panel.parentNode;
 
 		const open = () => {
+			if (isHomeInline()) return;
 			document.body.appendChild(panel);
 			panel.hidden = false;
 			openBtn.setAttribute("aria-expanded", "true");
@@ -11243,6 +11409,10 @@
 		};
 
 		const close = () => {
+			if (isHomeInline()) {
+				closeHomeDropdown();
+				return;
+			}
 			panel.hidden = true;
 			openBtn.setAttribute("aria-expanded", "false");
 			document.body.classList.remove("mobile-search-open");
@@ -11254,8 +11424,47 @@
 
 		openBtn.addEventListener("click", (e) => {
 			e.preventDefault();
+			if (isHomeInline()) return;
 			open();
 		});
+
+		homeChips.forEach((chip) => {
+			chip.addEventListener("click", (e) => {
+				if (e.target.closest("[data-msm-chip-clear]")) return;
+				e.preventDefault();
+				e.stopPropagation();
+				if (!isHomeInline()) return;
+				const key = chip.getAttribute("data-msm-home-chip") || "";
+				openHomeDropdown(key);
+			});
+		});
+
+		root.querySelectorAll("[data-msm-chip-clear]").forEach((clearBtn) => {
+			const handleClear = (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const key = clearBtn.getAttribute("data-msm-chip-clear") || "";
+				if (key) clearHomeFilter(key);
+			};
+			clearBtn.addEventListener("click", handleClear);
+			clearBtn.addEventListener("keydown", (e) => {
+				if (e.key !== "Enter" && e.key !== " ") return;
+				handleClear(e);
+			});
+		});
+
+		document.addEventListener("click", (e) => {
+			if (!isHomeInline() || homeDropdown?.hidden) return;
+			if (e.target.closest("[data-msm-home-chip]")) return;
+			if (homeDropdown.contains(e.target)) return;
+			closeHomeDropdown();
+		});
+
+		homeInlineMq.addEventListener("change", () => {
+			if (!isHomeInline()) closeHomeDropdown();
+		});
+
+		syncHomeChips();
 
 		closeBtns.forEach((btn) => {
 			btn.addEventListener("click", (e) => {
@@ -11269,7 +11478,12 @@
 		});
 
 		document.addEventListener("keydown", (e) => {
-			if (e.key !== "Escape" || panel.hidden) return;
+			if (e.key !== "Escape") return;
+			if (isHomeInline() && !homeDropdown?.hidden) {
+				closeHomeDropdown();
+				return;
+			}
+			if (panel.hidden) return;
 			if (sheet?.classList.contains("is-expanded")) {
 				collapseCards();
 				return;
@@ -11301,7 +11515,7 @@
 				if (artistSearch) artistSearch.value = value;
 				filterArtists();
 				syncArtistSummary();
-				collapseCards();
+				collapsePanels();
 			});
 		});
 
@@ -11333,20 +11547,29 @@
 		root.querySelector("[data-msm-confirm='categories']")?.addEventListener("click", (e) => {
 			e.preventDefault();
 			syncOccasionInput();
-			collapseCards();
+			collapsePanels();
 		});
 
 		root.querySelector("[data-msm-confirm='location']")?.addEventListener("click", (e) => {
 			e.preventDefault();
 			syncLocationSummary();
-			collapseCards();
+			collapsePanels();
 		});
 
 		locationInput?.addEventListener("keydown", (e) => {
 			if (e.key !== "Enter") return;
 			e.preventDefault();
 			syncLocationSummary();
-			collapseCards();
+			collapsePanels();
+		});
+
+		locationInput?.addEventListener("blur", () => {
+			window.setTimeout(() => {
+				syncLocationSummary();
+				if (isHomeInline() && homeDropdown && !homeDropdown.contains(document.activeElement)) {
+					collapsePanels();
+				}
+			}, 0);
 		});
 
 		root.querySelector("[data-msm-cal-prev]")?.addEventListener("click", (e) => {
@@ -11375,7 +11598,7 @@
 			selectedISO = pendingISO;
 			if (dateInput) dateInput.value = selectedISO;
 			syncDateSummary();
-			collapseCards();
+			collapsePanels();
 		});
 
 		root.querySelectorAll("[data-msm-budget-option]").forEach((btn) => {
@@ -11387,6 +11610,7 @@
 					other.classList.toggle("is-selected", other === btn);
 				});
 				syncBudgetSummary();
+				if (isHomeInline()) collapsePanels();
 			});
 		});
 
