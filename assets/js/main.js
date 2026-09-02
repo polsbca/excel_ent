@@ -261,9 +261,11 @@
 		const syncArtistsStickyTop = () => {
 			const isArtistMobile = isArtistPage && window.matchMedia("(max-width: 767px)").matches;
 			const isAboutMobile = isAboutPage && window.matchMedia("(max-width: 767px)").matches;
+			const isContactMobile =
+				isContactPage && window.matchMedia("(max-width: 767px)").matches;
 			const headerHeight = Math.ceil(header.getBoundingClientRect().height);
 			const top =
-				header.classList.contains("is-scrolled") || isArtistMobile || isAboutMobile
+				header.classList.contains("is-scrolled") || isArtistMobile || isAboutMobile || isContactMobile
 					? headerHeight
 					: 0;
 			const topPx = `${top}px`;
@@ -415,6 +417,15 @@
 			}
 			if (aboutIntroPin) {
 				aboutIntroPin.style.setProperty("--ee-about-intro-sticky-top", topPx);
+			}
+
+			const contactQuickPin = document.querySelector("[data-contact-quick-pin]");
+			const contactQuickUnit = document.querySelector("[data-contact-quick-unit]");
+			if (contactQuickUnit) {
+				contactQuickUnit.style.setProperty("--ee-contact-quick-sticky-top", topPx);
+			}
+			if (contactQuickPin) {
+				contactQuickPin.style.setProperty("--ee-contact-quick-sticky-top", topPx);
 			}
 		};
 
@@ -7907,6 +7918,289 @@
 			refreshAboutReviewsPinLayout();
 			goTo(page, true);
 		}, 250);
+	}
+
+	/* ---------- Contact quick mobile sticky pin + viewport fit ---------- */
+	const contactQuick = document.getElementById("quick-contacts");
+	if (contactQuick) {
+		const contactQuickPin = document.querySelector("[data-contact-quick-pin]");
+		const contactQuickUnit = document.querySelector("[data-contact-quick-unit]");
+		const contactQuickMobileMq = window.matchMedia("(max-width: 767px)");
+		let contactQuickMobileFitLocked = false;
+		let contactQuickMobileFitSnapshot = null;
+		let contactQuickMobileFitWidth = window.innerWidth;
+		let contactQuickResizeTimer = 0;
+
+		const resetContactQuickMobilePin = () => {
+			contactQuickMobileFitLocked = false;
+			contactQuickMobileFitSnapshot = null;
+			contactQuickMobileFitWidth = window.innerWidth;
+		};
+
+		const clearContactQuickViewportFit = () => {
+			[contactQuick, contactQuickUnit].filter(Boolean).forEach((el) => {
+				el.classList.remove("is-viewport-fitted", "is-pinned");
+				el.style.removeProperty("height");
+				el.style.removeProperty("--ee-contact-quick-available-height");
+				el.style.removeProperty("--ee-contact-quick-viewport-height");
+				el.style.removeProperty("--ee-contact-quick-fit-scale");
+				el.style.removeProperty("--ee-contact-quick-fit-pad-top");
+				el.style.removeProperty("--ee-contact-quick-fit-pad-bottom");
+				el.style.removeProperty("--ee-contact-quick-content-height");
+			});
+			if (contactQuickPin) {
+				contactQuickPin.style.height = "";
+			}
+		};
+
+		const getContactQuickStickyTop = () => {
+			const stickyEl = contactQuickUnit || contactQuick;
+			const fromVar =
+				parseFloat(
+					getComputedStyle(stickyEl).getPropertyValue(
+						"--ee-contact-quick-sticky-top"
+					)
+				) || 0;
+			if (fromVar > 0) {
+				return fromVar;
+			}
+			const headerEl = document.querySelector(".site-header");
+			return headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 0;
+		};
+
+		const getContactQuickAvailableHeight = () =>
+			getAboutMobileAvailableHeight(getContactQuickStickyTop());
+
+		const applyContactQuickViewportFit = (snapshot) => {
+			if (!snapshot) {
+				return;
+			}
+
+			const fitEl = contactQuickUnit || contactQuick;
+			if (
+				contactQuickMobileFitLocked &&
+				contactQuickMobileFitSnapshot === snapshot &&
+				fitEl.classList.contains("is-viewport-fitted")
+			) {
+				syncContactQuickPinnedState();
+				return;
+			}
+
+			clearContactQuickViewportFit();
+
+			fitEl.style.setProperty(
+				"--ee-contact-quick-available-height",
+				`${snapshot.availableHeight}px`
+			);
+			fitEl.style.setProperty(
+				"--ee-contact-quick-viewport-height",
+				`${snapshot.availableHeight}px`
+			);
+			fitEl.style.setProperty(
+				"--ee-contact-quick-fit-scale",
+				String(snapshot.fitScale)
+			);
+			fitEl.style.setProperty(
+				"--ee-contact-quick-fit-pad-top",
+				`${snapshot.padTop * snapshot.fitScale}px`
+			);
+			fitEl.style.setProperty(
+				"--ee-contact-quick-fit-pad-bottom",
+				`${snapshot.padBottom * snapshot.fitScale}px`
+			);
+			if (snapshot.contentHeight) {
+				fitEl.style.setProperty(
+					"--ee-contact-quick-content-height",
+					`${snapshot.contentHeight}px`
+				);
+			}
+			fitEl.classList.add("is-viewport-fitted");
+
+			if (contactQuickPin && snapshot.pinHeight) {
+				contactQuickPin.style.height = `${snapshot.pinHeight}px`;
+			}
+
+			syncContactQuickPinnedState();
+		};
+
+		const syncContactQuickMobilePin = () => {
+			if (!contactQuickPin || !contactQuickMobileMq.matches) {
+				return;
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				contactQuickMobileFitLocked &&
+				Math.abs(viewportWidth - contactQuickMobileFitWidth) > 80
+			) {
+				resetContactQuickMobilePin();
+			}
+
+			if (contactQuickMobileFitLocked && contactQuickMobileFitSnapshot) {
+				applyContactQuickViewportFit(contactQuickMobileFitSnapshot);
+				return;
+			}
+
+			if (contactQuickPin) {
+				contactQuickPin.style.height = "auto";
+			}
+			clearContactQuickViewportFit();
+
+			const pad = contactQuickPin.querySelector(".contact-quick__scroll-pad");
+			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const fitTarget = contactQuickUnit || contactQuick;
+			const measure = measureAboutMobileStickyUnit(
+				fitTarget,
+				getContactQuickAvailableHeight
+			);
+			const fittedHeight = Math.ceil(measure.availableHeight);
+			const holdHeight = Math.max(
+				180,
+				Math.round(getAboutMobileViewportHeight() - fittedHeight)
+			);
+			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
+
+			applyContactQuickViewportFit(snapshot);
+
+			if (!contactQuickMobileFitLocked && aboutMobilePinLayoutReady) {
+				contactQuickMobileFitLocked = true;
+				contactQuickMobileFitSnapshot = snapshot;
+				contactQuickMobileFitWidth = viewportWidth;
+			}
+		};
+
+		const syncContactQuickPin = () => {
+			if (!contactQuickMobileMq.matches) {
+				resetContactQuickMobilePin();
+				if (contactQuickPin) {
+					contactQuickPin.style.height = "";
+				}
+				clearContactQuickViewportFit();
+				return;
+			}
+			syncContactQuickMobilePin();
+		};
+
+		const syncContactQuickPinnedState = () => {
+			const stickyEl = contactQuickUnit || contactQuick;
+			if (!contactQuickPin || !contactQuickMobileMq.matches) {
+				stickyEl.classList.remove("is-pinned");
+				return;
+			}
+
+			const stickyTop = getContactQuickStickyTop();
+			const viewportHeight = getAboutMobileViewportHeight();
+			const sectionRect = stickyEl.getBoundingClientRect();
+			const pinRect = contactQuickPin.getBoundingClientRect();
+			const pinned =
+				sectionRect.top <= stickyTop + 1.5 &&
+				pinRect.bottom >
+					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
+			stickyEl.classList.toggle("is-pinned", pinned);
+		};
+
+		const refreshContactQuickPin = () => {
+			window.requestAnimationFrame(() => {
+				syncContactQuickPin();
+				syncContactQuickPinnedState();
+			});
+		};
+
+		const refreshContactQuickPinLayout = () => {
+			if (contactQuickMobileMq.matches) {
+				resetContactQuickMobilePin();
+			}
+			refreshContactQuickPin();
+		};
+
+		if (lenis) {
+			lenis.on("scroll", () =>
+				scheduleAboutMobilePinnedState(syncContactQuickPinnedState)
+			);
+		} else {
+			window.addEventListener(
+				"scroll",
+				() => scheduleAboutMobilePinnedState(syncContactQuickPinnedState),
+				{ passive: true }
+			);
+		}
+
+		window.addEventListener("resize", () => {
+			window.clearTimeout(contactQuickResizeTimer);
+			contactQuickResizeTimer = window.setTimeout(() => {
+				if (contactQuickMobileMq.matches) {
+					if (
+						contactQuickMobileFitLocked &&
+						Math.abs(window.innerWidth - contactQuickMobileFitWidth) > 80
+					) {
+						refreshContactQuickPinLayout();
+						return;
+					}
+					if (!contactQuickMobileFitLocked) {
+						refreshContactQuickPin();
+					} else {
+						syncContactQuickPinnedState();
+					}
+					return;
+				}
+				refreshContactQuickPinLayout();
+			}, 150);
+		}, { passive: true });
+
+		window.addEventListener("load", () => {
+			const fitTarget = contactQuickUnit || contactQuick;
+			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+			const snapNatural = contactQuickMobileFitSnapshot?.naturalSectionHeight;
+			if (
+				!contactQuickMobileFitLocked ||
+				(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+			) {
+				resetContactQuickMobilePin();
+				refreshContactQuickPinLayout();
+			}
+		});
+
+		window.addEventListener("orientationchange", () => {
+			resetContactQuickMobilePin();
+			contactQuickMobileFitWidth = window.innerWidth;
+			window.setTimeout(refreshContactQuickPinLayout, 150);
+		});
+
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (contactQuickMobileMq.matches) {
+				resetContactQuickMobilePin();
+			}
+			refreshContactQuickPinLayout();
+		});
+
+		bindAboutMobilePinViewportGuard(
+			contactQuickMobileMq,
+			resetContactQuickMobilePin,
+			refreshContactQuickPinLayout
+		);
+
+		if (typeof contactQuickMobileMq.addEventListener === "function") {
+			contactQuickMobileMq.addEventListener("change", refreshContactQuickPinLayout);
+		} else if (typeof contactQuickMobileMq.addListener === "function") {
+			contactQuickMobileMq.addListener(refreshContactQuickPinLayout);
+		}
+
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				const fitTarget = contactQuickUnit || contactQuick;
+				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+				const snapNatural = contactQuickMobileFitSnapshot?.naturalSectionHeight;
+				if (
+					!contactQuickMobileFitLocked ||
+					(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+				) {
+					refreshContactQuickPinLayout();
+				}
+			});
+		}
+
+		window.requestAnimationFrame(refreshContactQuickPin);
+		window.setTimeout(refreshContactQuickPinLayout, 250);
 	}
 
 	/* ---------- Package tabs ---------- */

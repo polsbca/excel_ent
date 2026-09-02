@@ -200,7 +200,7 @@ body.page-template-page-contactus .site-main {
 }
 
 body.page-template-page-contactus .contact-page {
-	overflow-x: hidden;
+	overflow-x: clip;
 	max-width: 100%;
 }
 

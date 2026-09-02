@@ -1503,6 +1503,10 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 	</div>
 </section>
 
+<div class="contact-quick-pin" data-contact-quick-pin>
+	<div class="contact-quick__scroll-pad" aria-hidden="true"></div>
+	<div class="contact-quick__unit" data-contact-quick-unit>
+		<div class="contact-quick__unit-inner">
 <section class="contact-quick" id="quick-contacts" aria-label="<?php esc_attr_e( 'Quick contacts', 'excel-ent' ); ?>">
 	<div class="contact-quick__inner">
 		<h2 class="contact-quick__title"><?php esc_html_e( 'Quick contacts', 'excel-ent' ); ?></h2>
@@ -1551,6 +1555,9 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 		</div>
 	</div>
 </section>
+		</div>
+	</div>
+</div>
 
 <section class="contact-inquire" aria-label="<?php esc_attr_e( 'Inquire now', 'excel-ent' ); ?>">
 	<h2 class="contact-inquire__title"><?php esc_html_e( 'Stage Is Ready', 'excel-ent' ); ?></h2>
