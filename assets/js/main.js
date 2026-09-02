@@ -2953,23 +2953,47 @@
 		const venuesPin = document.querySelector("[data-venues-pin]");
 		const panels = Array.from(venuesSection.querySelectorAll("[data-venue-panel]"));
 		const pinMq = window.matchMedia("(min-width: 320px)");
+		let venuesMobilePinInitialized = false;
+
+		const isVenuesMobile = () => window.innerWidth <= 767;
 
 		const syncVenuesPin = () => {
 			if (!venuesPin) {
 				return;
 			}
 			if (!pinMq.matches) {
+				venuesMobilePinInitialized = false;
 				venuesPin.style.height = "";
 				venuesSection.classList.remove("is-pinned");
 				venuesSection.classList.remove("is-viewport-fitted");
 				venuesSection.style.removeProperty("height");
+				venuesSection.style.removeProperty("visibility");
 				venuesSection.style.removeProperty("--ee-venues-viewport-height");
 				venuesSection.style.removeProperty("--ee-venues-fit-scale");
 				venuesSection.style.removeProperty("--ee-venues-fit-pad-top");
 				venuesSection.style.removeProperty("--ee-venues-fit-pad-bottom");
 				return;
 			}
-			venuesPin.style.height = "auto";
+			if (!isVenuesMobile()) {
+				venuesMobilePinInitialized = false;
+			}
+			if (isVenuesMobile() && venuesMobilePinInitialized) {
+				return;
+			}
+			const preservePinLayout =
+				venuesSection.classList.contains("is-viewport-fitted") &&
+				venuesPin.style.height &&
+				venuesPin.style.height !== "auto";
+			if (!preservePinLayout) {
+				venuesPin.style.height = "auto";
+			}
+			if (preservePinLayout) {
+				/*
+				 * Re-measure without collapsing the pin or flashing an unscaled
+				 * layout — both cause visible jerk on mobile while scrolling.
+				 */
+				venuesSection.style.visibility = "hidden";
+			}
 			venuesSection.classList.remove("is-viewport-fitted");
 			venuesSection.style.removeProperty("height");
 			venuesSection.style.removeProperty("--ee-venues-viewport-height");
@@ -2996,6 +3020,12 @@
 			}
 			const holdPx = Math.round(viewportH * 1);
 			venuesPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
+			if (preservePinLayout) {
+				venuesSection.style.visibility = "";
+			}
+			if (isVenuesMobile()) {
+				venuesMobilePinInitialized = true;
+			}
 		};
 
 		const syncVenuesPinnedState = () => {
@@ -3052,16 +3082,19 @@
 			window.addEventListener("scroll", syncVenuesPinnedState, { passive: true });
 		}
 		window.addEventListener("resize", () => {
+			venuesMobilePinInitialized = false;
 			syncVenuesPin();
 			syncVenuesPinnedState();
 		});
 		if (typeof pinMq.addEventListener === "function") {
 			pinMq.addEventListener("change", () => {
+				venuesMobilePinInitialized = false;
 				syncVenuesPin();
 				syncVenuesPinnedState();
 			});
 		} else if (typeof pinMq.addListener === "function") {
 			pinMq.addListener(() => {
+				venuesMobilePinInitialized = false;
 				syncVenuesPin();
 				syncVenuesPinnedState();
 			});
@@ -3071,27 +3104,46 @@
 			syncVenuesPinnedState();
 		});
 		window.addEventListener("load", () => {
-			syncVenuesPin();
+			if (!venuesMobilePinInitialized) {
+				syncVenuesPin();
+			}
 			syncVenuesPinnedState();
 		});
 		window.addEventListener("excel-ent:header-state-change", () => {
+			if (isVenuesMobile() && venuesMobilePinInitialized) {
+				syncVenuesPinnedState();
+				return;
+			}
 			syncVenuesPin();
 			syncVenuesPinnedState();
 		});
 		if (window.visualViewport) {
 			window.visualViewport.addEventListener("resize", () => {
+				/*
+				 * Mobile browser chrome changes viewport height while scrolling.
+				 * Re-fitting here causes the sticky section to jerk; only refresh
+				 * the pinned class, not pin geometry.
+				 */
+				if (isVenuesMobile() && venuesMobilePinInitialized) {
+					syncVenuesPinnedState();
+					return;
+				}
 				syncVenuesPin();
 				syncVenuesPinnedState();
 			});
 		}
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
-				syncVenuesPin();
+				if (!venuesMobilePinInitialized) {
+					syncVenuesPin();
+				}
 				syncVenuesPinnedState();
 			});
 		}
 		window.setTimeout(() => {
-			syncVenuesPin();
+			if (!venuesMobilePinInitialized) {
+				syncVenuesPin();
+			}
 			syncVenuesPinnedState();
 		}, 250);
 	}
