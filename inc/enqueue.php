@@ -257,6 +257,7 @@ function excel_ent_enqueue_assets() {
 				'sending'      => __( 'Sending…', 'excel-ent' ),
 				'genericError' => __( 'Something went wrong. Please try again.', 'excel-ent' ),
 				'submitLabel'  => __( 'Send enquiry', 'excel-ent' ),
+				'submitLabelMobile' => __( 'Start Enquiry', 'excel-ent' ),
 			),
 		)
 	);

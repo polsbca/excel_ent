@@ -493,7 +493,7 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 	</div>
 </div>
 
-<!-- Enquiry modal (Figma desktop 1101:3152 / mobile 1487:13238) -->
+<!-- Enquiry modal (Figma desktop 1101:3152 / mobile 2473:7392) -->
 <div class="package-enquiry" data-package-enquiry-modal hidden>
 	<div class="package-enquiry__backdrop" data-package-enquiry-close tabindex="-1"></div>
 	<div
@@ -503,9 +503,33 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 		aria-labelledby="package-enquiry-title"
 		data-package-enquiry-dialog
 	>
+		<div class="package-enquiry__bar">
+			<button
+				type="button"
+				class="package-enquiry__bar-close-label magnetic"
+				data-package-enquiry-close
+			>
+				<?php esc_html_e( 'Close', 'excel-ent' ); ?>
+			</button>
+			<button
+				type="button"
+				class="package-enquiry__bar-close-icon magnetic"
+				aria-label="<?php esc_attr_e( 'Close enquiry form', 'excel-ent' ); ?>"
+				data-package-enquiry-close
+			>
+				<img
+					src="<?php echo esc_url( $excel_ent_pkg_uri . '/close-x.svg' ); ?>"
+					alt=""
+					width="24"
+					height="24"
+					decoding="async"
+				>
+			</button>
+		</div>
+
 		<button
 			type="button"
-			class="package-enquiry__close magnetic"
+			class="package-enquiry__close package-enquiry__close--floating magnetic"
 			aria-label="<?php esc_attr_e( 'Close enquiry form', 'excel-ent' ); ?>"
 			data-package-enquiry-close
 		>
@@ -534,6 +558,7 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 				>
 			</div>
 
+			<div class="package-enquiry__form-inner">
 			<header class="package-enquiry__header">
 				<h2 id="package-enquiry-title" class="package-enquiry__title">
 					<?php esc_html_e( 'Start your enquiry.', 'excel-ent' ); ?>
@@ -546,12 +571,14 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 			<div class="package-enquiry__fields">
 				<div class="package-enquiry__row">
 					<label class="package-enquiry__field">
-						<span class="package-enquiry__label"><?php esc_html_e( 'Full name', 'excel-ent' ); ?></span>
+						<span class="package-enquiry__label"><?php esc_html_e( 'Full Name', 'excel-ent' ); ?></span>
 						<input
 							class="package-enquiry__input"
 							type="text"
 							name="excel_ent_enquiry_name"
-							placeholder="<?php esc_attr_e( 'Name', 'excel-ent' ); ?>"
+							placeholder="<?php esc_attr_e( 'Alex Johnson', 'excel-ent' ); ?>"
+							data-placeholder-desktop="<?php esc_attr_e( 'Name', 'excel-ent' ); ?>"
+							data-placeholder-mobile="<?php esc_attr_e( 'Alex Johnson', 'excel-ent' ); ?>"
 							autocomplete="name"
 							required
 							aria-invalid="false"
@@ -589,7 +616,14 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 				<div class="package-enquiry__package">
 					<p class="package-enquiry__package-label"><?php esc_html_e( 'Package selected', 'excel-ent' ); ?></p>
 					<div class="package-enquiry__package-value">
-						<span class="package-enquiry__radio" aria-hidden="true"></span>
+						<img
+							class="package-enquiry__radio"
+							src="<?php echo esc_url( $excel_ent_pkg_uri . '/radio-checked.svg' ); ?>"
+							alt=""
+							width="18"
+							height="18"
+							decoding="async"
+						>
 						<span data-package-enquiry-selected><?php esc_html_e( 'Gold from £750', 'excel-ent' ); ?></span>
 					</div>
 					<input type="hidden" name="excel_ent_enquiry_package" value="" data-package-enquiry-package>
@@ -597,14 +631,17 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 
 				<label class="package-enquiry__field package-enquiry__field--notes">
 					<span class="package-enquiry__label package-enquiry__label--desktop"><?php esc_html_e( 'Any additional information', 'excel-ent' ); ?></span>
-					<span class="package-enquiry__label package-enquiry__label--mobile"><?php esc_html_e( 'Are you looking for regular entertainment', 'excel-ent' ); ?></span>
+					<span class="package-enquiry__notes-head">
+						<span class="package-enquiry__label package-enquiry__label--mobile"><?php esc_html_e( 'Are you looking for regular entertainment', 'excel-ent' ); ?></span>
+						<span class="package-enquiry__notes-hint"><?php esc_html_e( 'Add details for recurring bookings.', 'excel-ent' ); ?></span>
+					</span>
 					<textarea
 						class="package-enquiry__input package-enquiry__textarea"
 						name="excel_ent_enquiry_notes"
 						rows="3"
 						placeholder="<?php esc_attr_e( 'this is optional', 'excel-ent' ); ?>"
 						data-placeholder-desktop="<?php esc_attr_e( 'this is optional', 'excel-ent' ); ?>"
-						data-placeholder-mobile="<?php esc_attr_e( 'Add details for recurring bookings.', 'excel-ent' ); ?>"
+						data-placeholder-mobile=""
 						data-package-enquiry-notes
 					></textarea>
 				</label>
@@ -620,8 +657,13 @@ $excel_ent_pkg_uri = EXCEL_ENT_URI . '/assets/images/package-page';
 			></p>
 
 			<button class="package-enquiry__submit magnetic" type="submit" data-package-enquiry-submit>
-				<span data-package-enquiry-submit-label><?php esc_html_e( 'Send enquiry', 'excel-ent' ); ?></span>
+				<span
+					data-package-enquiry-submit-label
+					data-label-desktop="<?php esc_attr_e( 'Send enquiry', 'excel-ent' ); ?>"
+					data-label-mobile="<?php esc_attr_e( 'Start Enquiry', 'excel-ent' ); ?>"
+				><?php esc_html_e( 'Send enquiry', 'excel-ent' ); ?></span>
 			</button>
+			</div>
 		</form>
 	</div>
 </div>

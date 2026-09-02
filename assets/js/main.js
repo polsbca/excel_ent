@@ -699,7 +699,9 @@
 	/** Scale mobile sticky units to exactly fill the available viewport (up or down). */
 	const measureAboutMobileStickyUnit = (unitEl, getAvailableHeight) => {
 		const innerEl =
-			unitEl.querySelector('[class*="__unit-inner"]') || unitEl;
+			unitEl.querySelector('[class*="__unit-inner"]') ||
+			unitEl.querySelector('[class$="__inner"]') ||
+			unitEl;
 		const innerHeight = Math.max(
 			Math.ceil(innerEl.scrollHeight),
 			Math.ceil(innerEl.getBoundingClientRect().height)
@@ -8212,16 +8214,66 @@
 		const packageScrollers = Array.from(packageTabs.querySelectorAll(".package-grid-wrap"));
 		const packageDesktopMq = window.matchMedia("(min-width: 1200px)");
 		const packageIntroFitMq = window.matchMedia("(min-width: 1200px)");
+		const packageIntroMobileMq = window.matchMedia("(max-width: 767px)");
 		let packageIntroFitLocked = false;
+		let packageIntroMobileFitLocked = false;
+		let packageIntroMobileFitSnapshot = null;
+		let packageIntroMobileFitWidth = window.innerWidth;
+
+		const resetPackageIntroMobileFit = () => {
+			packageIntroMobileFitLocked = false;
+			packageIntroMobileFitSnapshot = null;
+			packageIntroMobileFitWidth = window.innerWidth;
+		};
 
 		const clearPackageIntroViewportFit = () => {
 			packageIntroFitLocked = false;
+			resetPackageIntroMobileFit();
 			packageTabs.classList.remove("is-viewport-fitted");
 			packageTabs.style.removeProperty("height");
 			packageTabs.style.removeProperty("--ee-package-intro-viewport-height");
 			packageTabs.style.removeProperty("--ee-package-intro-fit-scale");
 			packageTabs.style.removeProperty("--ee-package-intro-fit-pad-top");
 			packageTabs.style.removeProperty("--ee-package-intro-fit-pad-bottom");
+			packageTabs.style.removeProperty("--ee-package-intro-content-height");
+		};
+
+		const getPackageIntroAvailableHeight = () => {
+			const header = document.querySelector(".site-header");
+			const headerHeight = header
+				? Math.ceil(header.getBoundingClientRect().height)
+				: 0;
+			return getAboutMobileAvailableHeight(headerHeight);
+		};
+
+		const applyPackageIntroMobileViewportFit = (snapshot) => {
+			if (!snapshot) {
+				return;
+			}
+
+			packageTabs.style.setProperty(
+				"--ee-package-intro-viewport-height",
+				`${snapshot.availableHeight}px`
+			);
+			packageTabs.style.setProperty(
+				"--ee-package-intro-fit-scale",
+				String(snapshot.fitScale)
+			);
+			packageTabs.style.setProperty(
+				"--ee-package-intro-fit-pad-top",
+				`${snapshot.padTop * snapshot.fitScale}px`
+			);
+			packageTabs.style.setProperty(
+				"--ee-package-intro-fit-pad-bottom",
+				`${snapshot.padBottom * snapshot.fitScale}px`
+			);
+			if (snapshot.contentHeight) {
+				packageTabs.style.setProperty(
+					"--ee-package-intro-content-height",
+					`${snapshot.contentHeight}px`
+				);
+			}
+			packageTabs.classList.add("is-viewport-fitted");
 		};
 
 		const syncPackageRail = (scroller) => {
@@ -8501,7 +8553,71 @@
 			window.excelEntOpenPackageCompare(id);
 		});
 
+		const syncPackageIntroMobileViewport = (force = false) => {
+			if (!packageIntroMobileMq.matches) {
+				return;
+			}
+
+			if (packageTabs.classList.contains("has-expanded-card")) {
+				return;
+			}
+
+			if (force) {
+				resetPackageIntroMobileFit();
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				packageIntroMobileFitLocked &&
+				Math.abs(viewportWidth - packageIntroMobileFitWidth) > 80
+			) {
+				resetPackageIntroMobileFit();
+			}
+
+			if (
+				!force &&
+				packageIntroMobileFitLocked &&
+				packageIntroMobileFitSnapshot &&
+				packageTabs.classList.contains("is-viewport-fitted")
+			) {
+				applyPackageIntroMobileViewportFit(packageIntroMobileFitSnapshot);
+				return;
+			}
+
+			packageTabs.classList.remove("is-viewport-fitted");
+			packageTabs.style.removeProperty("height");
+			packageTabs.style.removeProperty("--ee-package-intro-viewport-height");
+			packageTabs.style.removeProperty("--ee-package-intro-fit-scale");
+			packageTabs.style.removeProperty("--ee-package-intro-fit-pad-top");
+			packageTabs.style.removeProperty("--ee-package-intro-fit-pad-bottom");
+			packageTabs.style.removeProperty("--ee-package-intro-content-height");
+
+			const measure = measureAboutMobileStickyUnit(
+				packageTabs,
+				getPackageIntroAvailableHeight
+			);
+			const snapshot = buildAboutMobilePinSnapshot(measure, 0, 0);
+
+			if (snapshot.fitScale >= 0.999) {
+				return;
+			}
+
+			applyPackageIntroMobileViewportFit(snapshot);
+
+			if (!packageIntroMobileFitLocked && aboutMobilePinLayoutReady) {
+				packageIntroMobileFitLocked = true;
+				packageIntroMobileFitSnapshot = snapshot;
+				packageIntroMobileFitWidth = viewportWidth;
+				packageIntroFitLocked = true;
+			}
+		};
+
 		const syncPackageIntroViewport = (force = false) => {
+			if (packageIntroMobileMq.matches) {
+				syncPackageIntroMobileViewport(force);
+				return;
+			}
+
 			if (
 				!force &&
 				packageIntroFitLocked &&
@@ -8547,11 +8663,59 @@
 			if (packageTabs.classList.contains("has-expanded-card")) {
 				syncPackageExpandedLayout();
 			}
+			if (packageIntroMobileMq.matches) {
+				if (
+					packageIntroMobileFitLocked &&
+					Math.abs(window.innerWidth - packageIntroMobileFitWidth) > 80
+				) {
+					resetPackageIntroMobileFit();
+				}
+			}
 			syncPackageIntroViewport(true);
 		}, { passive: true });
 
-		window.addEventListener("load", () => syncPackageIntroViewport(true));
+		window.addEventListener("load", () => {
+			if (packageIntroMobileMq.matches) {
+				resetPackageIntroMobileFit();
+			}
+			syncPackageIntroViewport(true);
+		});
+
+		window.addEventListener("orientationchange", () => {
+			if (packageIntroMobileMq.matches) {
+				resetPackageIntroMobileFit();
+				packageIntroMobileFitWidth = window.innerWidth;
+			}
+			window.setTimeout(() => syncPackageIntroViewport(true), 150);
+		});
+
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (packageIntroMobileMq.matches) {
+				resetPackageIntroMobileFit();
+			}
+			syncPackageIntroViewport(true);
+		});
+
+		bindAboutMobilePinViewportGuard(
+			packageIntroMobileMq,
+			resetPackageIntroMobileFit,
+			() => syncPackageIntroViewport(true)
+		);
+
 		window.requestAnimationFrame(() => syncPackageIntroViewport(true));
+		window.setTimeout(() => syncPackageIntroViewport(true), 250);
+
+		if (typeof packageIntroMobileMq.addEventListener === "function") {
+			packageIntroMobileMq.addEventListener("change", () => {
+				resetPackageIntroMobileFit();
+				syncPackageIntroViewport(true);
+			});
+		} else if (typeof packageIntroMobileMq.addListener === "function") {
+			packageIntroMobileMq.addListener(() => {
+				resetPackageIntroMobileFit();
+				syncPackageIntroViewport(true);
+			});
+		}
 
 		if (typeof packageIntroFitMq.addEventListener === "function") {
 			packageIntroFitMq.addEventListener("change", () => {
@@ -8570,7 +8734,21 @@
 		}
 
 		if (document.fonts?.ready) {
-			document.fonts.ready.then(() => syncPackageIntroViewport(true));
+			document.fonts.ready.then(() => {
+				const naturalHeight = Math.ceil(packageTabs.scrollHeight);
+				const snapNatural =
+					packageIntroMobileFitSnapshot?.naturalSectionHeight;
+				if (
+					packageIntroMobileMq.matches &&
+					(!packageIntroMobileFitLocked ||
+						(snapNatural && Math.abs(naturalHeight - snapNatural) > 32))
+				) {
+					resetPackageIntroMobileFit();
+					syncPackageIntroViewport(true);
+				} else if (!packageIntroMobileMq.matches) {
+					syncPackageIntroViewport(true);
+				}
+			});
 		}
 	}
 
@@ -8892,11 +9070,57 @@
 		const cfg = window.excelEnt?.packageEnquiry || {};
 		const ajaxUrl = window.excelEnt?.ajaxUrl || "";
 		const defaultSubmitLabel = submitLabel?.textContent || cfg.submitLabel || "Send enquiry";
+
+		const isEnquiryMobile = () =>
+			window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
+
+		const getEnquirySubmitLabel = () => {
+			if (!submitLabel) {
+				return isEnquiryMobile()
+					? cfg.submitLabelMobile || "Start Enquiry"
+					: defaultSubmitLabel;
+			}
+			const mobile = submitLabel.getAttribute("data-label-mobile");
+			const desktop =
+				submitLabel.getAttribute("data-label-desktop") || defaultSubmitLabel;
+			return isEnquiryMobile()
+				? mobile || cfg.submitLabelMobile || "Start Enquiry"
+				: desktop;
+		};
+
+		const syncEnquiryFieldPlaceholders = (input) => {
+			if (!input) {
+				return;
+			}
+			const key = isEnquiryMobile()
+				? "data-placeholder-mobile"
+				: "data-placeholder-desktop";
+			if (input.hasAttribute(key)) {
+				input.setAttribute("placeholder", input.getAttribute(key) || "");
+			}
+		};
+
+		const syncEnquiryPlaceholders = () => {
+			syncEnquiryFieldPlaceholders(notesInput);
+			syncEnquiryFieldPlaceholders(nameInput);
+			if (submitLabel && !busy) {
+				submitLabel.textContent = getEnquirySubmitLabel();
+			}
+		};
+
 		let lastFocus = null;
 		let busy = false;
 		const enquiryFitMq = window.matchMedia("(min-width: 1200px)");
+		const enquiryMobileMq = window.matchMedia("(max-width: 767px)");
+		const enquiryBar = enquiryModal.querySelector(".package-enquiry__bar");
+		const enquiryFormInner = enquiryModal.querySelector(".package-enquiry__form-inner");
+
+		const getEnquiryViewportHeight = () =>
+			Math.round(window.visualViewport?.height || window.innerHeight);
 
 		const clearEnquiryViewportFit = () => {
+			dialog?.classList.remove("is-viewport-fitted");
+			form?.classList.remove("is-viewport-fitted");
 			dialog?.style.removeProperty("height");
 			form?.style.removeProperty("height");
 			form?.style.removeProperty("max-height");
@@ -8904,11 +9128,69 @@
 			form?.style.removeProperty("flex");
 			form?.style.removeProperty("transform");
 			form?.style.removeProperty("transform-origin");
+			form?.style.removeProperty("--ee-enquiry-available-height");
+			form?.style.removeProperty("--ee-enquiry-fit-scale");
+			form?.style.removeProperty("--ee-enquiry-fit-pad-top");
+			form?.style.removeProperty("--ee-enquiry-fit-pad-bottom");
+			form?.style.removeProperty("--ee-enquiry-content-height");
+			enquiryModal.style.removeProperty("--ee-enquiry-viewport-height");
 		};
 
-		const syncEnquiryViewport = () => {
+		const syncEnquiryMobileViewport = () => {
+			if (!dialog || !form || !enquiryMobileMq.matches || enquiryModal.hidden) {
+				return;
+			}
+
+			clearEnquiryViewportFit();
+
+			const viewportHeight = getEnquiryViewportHeight();
+			enquiryModal.style.setProperty(
+				"--ee-enquiry-viewport-height",
+				`${viewportHeight}px`
+			);
+			dialog.style.height = `${viewportHeight}px`;
+
+			const barHeight = enquiryBar
+				? Math.ceil(enquiryBar.getBoundingClientRect().height)
+				: 0;
+			const availableHeight = Math.max(viewportHeight - barHeight, 0);
+			const styles = getComputedStyle(form);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const measureEl = enquiryFormInner || form;
+			const contentHeight = Math.max(
+				Math.ceil(measureEl.scrollHeight),
+				Math.ceil(measureEl.getBoundingClientRect().height)
+			);
+			const naturalHeight = contentHeight + padTop + padBottom;
+			const fitScale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
+
+			if (!availableHeight || fitScale >= 0.999) {
+				return;
+			}
+
+			form.style.setProperty(
+				"--ee-enquiry-available-height",
+				`${availableHeight}px`
+			);
+			form.style.setProperty("--ee-enquiry-fit-scale", String(fitScale));
+			form.style.setProperty(
+				"--ee-enquiry-fit-pad-top",
+				`${padTop * fitScale}px`
+			);
+			form.style.setProperty(
+				"--ee-enquiry-fit-pad-bottom",
+				`${padBottom * fitScale}px`
+			);
+			form.style.setProperty(
+				"--ee-enquiry-content-height",
+				`${contentHeight}px`
+			);
+			form.classList.add("is-viewport-fitted");
+		};
+
+		const syncEnquiryDesktopViewport = () => {
 			if (!dialog || !form || !enquiryFitMq.matches || enquiryModal.hidden) {
-				clearEnquiryViewportFit();
 				return;
 			}
 
@@ -8928,22 +9210,24 @@
 			}
 		};
 
-		const isEnquiryMobile = () =>
-			window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
+		const syncEnquiryViewport = () => {
+			if (enquiryModal.hidden) {
+				clearEnquiryViewportFit();
+				return;
+			}
+			if (enquiryMobileMq.matches) {
+				syncEnquiryMobileViewport();
+				return;
+			}
+			if (enquiryFitMq.matches) {
+				syncEnquiryDesktopViewport();
+				return;
+			}
+			clearEnquiryViewportFit();
+		};
 
 		const isValidEmail = (value) =>
 			/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
-
-		const syncEnquiryPlaceholders = () => {
-			if (!notesInput) {
-				return;
-			}
-			const key = isEnquiryMobile() ? "data-placeholder-mobile" : "data-placeholder-desktop";
-			const next = notesInput.getAttribute(key);
-			if (next) {
-				notesInput.setAttribute("placeholder", next);
-			}
-		};
 
 		const setStatus = (message, type) => {
 			if (!statusEl) {
@@ -8985,7 +9269,7 @@
 			if (submitLabel) {
 				submitLabel.textContent = nextBusy
 					? cfg.sending || "Sending…"
-					: defaultSubmitLabel;
+					: getEnquirySubmitLabel();
 			}
 		};
 
@@ -9003,13 +9287,20 @@
 			syncEnquiryPlaceholders();
 			enquiryModal.hidden = false;
 			document.body.classList.add("package-enquiry-open");
-			window.requestAnimationFrame(syncEnquiryViewport);
-			window.setTimeout(() => nameInput?.focus(), 40);
+			window.requestAnimationFrame(() => {
+				syncEnquiryViewport();
+				window.requestAnimationFrame(syncEnquiryViewport);
+			});
+			window.setTimeout(() => {
+				syncEnquiryViewport();
+				nameInput?.focus({ preventScroll: true });
+			}, 40);
 		};
 
 		const close = () => {
 			enquiryModal.hidden = true;
 			document.body.classList.remove("package-enquiry-open");
+			clearEnquiryViewportFit();
 			if (lastFocus && typeof lastFocus.focus === "function") {
 				lastFocus.focus();
 			}
@@ -9040,12 +9331,28 @@
 			}
 		});
 
-		window.addEventListener("resize", syncEnquiryViewport, { passive: true });
+		window.addEventListener("resize", () => {
+			syncEnquiryViewport();
+			syncEnquiryPlaceholders();
+		}, { passive: true });
+		window.visualViewport?.addEventListener("resize", () => {
+			if (!enquiryModal.hidden && enquiryMobileMq.matches) {
+				syncEnquiryViewport();
+			}
+		});
+		window.addEventListener("orientationchange", () => {
+			window.setTimeout(syncEnquiryViewport, 150);
+		});
 		window.addEventListener("load", syncEnquiryViewport);
 		if (typeof enquiryFitMq.addEventListener === "function") {
 			enquiryFitMq.addEventListener("change", syncEnquiryViewport);
 		} else if (typeof enquiryFitMq.addListener === "function") {
 			enquiryFitMq.addListener(syncEnquiryViewport);
+		}
+		if (typeof enquiryMobileMq.addEventListener === "function") {
+			enquiryMobileMq.addEventListener("change", syncEnquiryViewport);
+		} else if (typeof enquiryMobileMq.addListener === "function") {
+			enquiryMobileMq.addListener(syncEnquiryViewport);
 		}
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(syncEnquiryViewport);

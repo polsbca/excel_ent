@@ -439,7 +439,7 @@
 		overflow-y: auto;
 	}
 
-	body.page-template-page-package .package-enquiry__close {
+	body.page-template-page-package .package-enquiry__close--floating {
 		top: 0;
 		right: auto;
 		left: calc(100% + 0.68vw);
