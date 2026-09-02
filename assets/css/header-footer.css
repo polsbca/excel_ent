@@ -105,12 +105,14 @@ body.page-template-page-artist .site-header__bar {
 	padding-bottom: 60px;
 }
 
-/* About — bar only, no search strip (Figma 1126:1218) */
+/* About — bar only, no search strip (Figma 1126:1218 / mobile header 2331:5595) */
 body.page-template-page-about .site-header {
 	position: sticky;
 	top: 0;
 	z-index: 50;
 	background: #000;
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
 }
 
 body.page-template-page-about {

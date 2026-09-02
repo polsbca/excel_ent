@@ -89,22 +89,30 @@ for ( $excel_ent_ri = 0; $excel_ent_ri < 12; $excel_ent_ri++ ) {
 $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment+reviews';
 ?>
 
-<!-- Intro -->
-<section class="about-intro" aria-label="<?php esc_attr_e( 'About Excel Entertainment', 'excel-ent' ); ?>">
+<!-- Intro + partner strip = one mobile hero viewport (Figma 2331:5610) -->
+<div class="about-intro-pin" data-about-intro-pin>
+	<div class="about-intro__scroll-pad" aria-hidden="true"></div>
+	<div class="about-intro__unit" data-about-intro-unit>
+		<div class="about-intro__unit-inner">
+<section class="about-intro" aria-label="<?php esc_attr_e( 'About Excel Entertainment', 'excel-ent' ); ?>" data-about-intro>
 	<div class="about-intro__inner">
 	<header class="about-intro__header">
 		<h1 class="about-intro__title"><?php esc_html_e( 'ABOUT US', 'excel-ent' ); ?></h1>
 		<p class="about-intro__eyebrow"><?php esc_html_e( 'Trusted · Experienced · Personal', 'excel-ent' ); ?></p>
 	</header>
 
-	<!-- Mobile media strip — Figma 1023:8503 -->
-	<div class="about-intro__media" aria-hidden="false">
+	<!-- Mobile media strip — Figma 1023:8503 / 2331:5615 -->
+	<div
+		class="about-intro__media"
+		data-about-intro-media
+		aria-label="<?php esc_attr_e( 'About gallery', 'excel-ent' ); ?>"
+	>
 		<figure class="about-intro__media-item">
 			<img
 				src="<?php echo esc_url( $excel_ent_uri . '/hero-mobile-1.jpg' ); ?>"
 				alt=""
 				width="330"
-				height="363"
+				height="263"
 				decoding="async"
 				fetchpriority="high"
 			>
@@ -114,7 +122,7 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 				src="<?php echo esc_url( $excel_ent_uri . '/hero-mobile-2.jpg' ); ?>"
 				alt=""
 				width="330"
-				height="363"
+				height="263"
 				decoding="async"
 				loading="lazy"
 			>
@@ -171,64 +179,74 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 	</div>
 	</div>
 </section>
-
 <?php get_template_part( 'template-parts/section', 'awards' ); ?>
+		</div>
+	</div>
+</div>
 
-<!-- Value -->
+<!-- Value — mobile viewport Figma 2331:5690 / 2331:5691 -->
 <div class="about-value-pin" data-about-value-pin>
 	<div class="about-value__scroll-pad" aria-hidden="true"></div>
-<section class="about-value" aria-label="<?php esc_attr_e( 'How we add value', 'excel-ent' ); ?>" data-about-value>
-	<div class="about-value__inner">
-	<div class="about-value__row">
-		<div class="about-value__media reveal" data-reveal>
-			<img
-				src="<?php echo esc_url( $excel_ent_uri . '/value-venue.jpg' ); ?>"
-				alt=""
-				width="851"
-				height="692"
-				decoding="async"
-				loading="lazy"
-			>
-		</div>
-		<div class="about-value__copy reveal" data-reveal>
-			<h2 class="about-value__title"><?php esc_html_e( 'How We Add Value to Your Venue', 'excel-ent' ); ?></h2>
-			<ul class="about-value__list">
-				<?php foreach ( $excel_ent_value_points as $excel_ent_point ) : ?>
-					<li><?php echo esc_html( $excel_ent_point ); ?></li>
-				<?php endforeach; ?>
-			</ul>
-			<p class="about-value__note">
-				<?php esc_html_e( 'For example, structured entertainment nights such as Weekend Party Nights or Sunday Sessions can significantly improve consistency in trade and customer return rates.', 'excel-ent' ); ?>
-			</p>
-		</div>
-	</div>
-
-	<div class="about-stats">
-		<div class="about-stats__grid stagger">
-			<?php foreach ( $excel_ent_stats as $excel_ent_si => $excel_ent_stat ) : ?>
-				<div
-					class="about-stats__item reveal"
-					data-reveal
-					style="--i: <?php echo esc_attr( (string) $excel_ent_si ); ?>; transition-delay: <?php echo esc_attr( (string) ( $excel_ent_si * 80 ) ); ?>ms"
-				>
-					<p class="about-stats__value"><?php echo esc_html( $excel_ent_stat['value'] ); ?></p>
-					<p class="about-stats__label"><?php echo esc_html( $excel_ent_stat['label'] ); ?></p>
+	<div class="about-value__unit" data-about-value-unit>
+		<div class="about-value__unit-inner">
+			<section class="about-value" aria-label="<?php esc_attr_e( 'How we add value', 'excel-ent' ); ?>" data-about-value>
+				<div class="about-value__inner">
+				<div class="about-value__row">
+					<div class="about-value__media reveal" data-reveal>
+						<img
+							src="<?php echo esc_url( $excel_ent_uri . '/value-venue.jpg' ); ?>"
+							alt=""
+							width="851"
+							height="692"
+							decoding="async"
+							loading="lazy"
+						>
+					</div>
+					<div class="about-value__copy reveal" data-reveal>
+						<h2 class="about-value__title"><?php esc_html_e( 'How We Add Value to Your Venue', 'excel-ent' ); ?></h2>
+						<div class="about-value__details">
+							<ul class="about-value__list">
+								<?php foreach ( $excel_ent_value_points as $excel_ent_point ) : ?>
+									<li><?php echo esc_html( $excel_ent_point ); ?></li>
+								<?php endforeach; ?>
+							</ul>
+							<p class="about-value__note">
+								<?php esc_html_e( 'For example, structured entertainment nights such as Weekend Party Nights or Sunday Sessions can significantly improve consistency in trade and customer return rates.', 'excel-ent' ); ?>
+							</p>
+						</div>
+					</div>
 				</div>
-			<?php endforeach; ?>
+
+				<div class="about-stats">
+					<div class="about-stats__grid stagger">
+						<?php foreach ( $excel_ent_stats as $excel_ent_si => $excel_ent_stat ) : ?>
+							<div
+								class="about-stats__item reveal"
+								data-reveal
+								style="--i: <?php echo esc_attr( (string) $excel_ent_si ); ?>; transition-delay: <?php echo esc_attr( (string) ( $excel_ent_si * 80 ) ); ?>ms"
+							>
+								<p class="about-stats__value"><?php echo esc_html( $excel_ent_stat['value'] ); ?></p>
+								<p class="about-stats__label"><?php echo esc_html( $excel_ent_stat['label'] ); ?></p>
+							</div>
+						<?php endforeach; ?>
+					</div>
+					<ul class="about-stats__venues reveal" data-reveal>
+						<?php foreach ( $excel_ent_venues as $excel_ent_venue ) : ?>
+							<li><?php echo esc_html( $excel_ent_venue ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+				</div>
+			</section>
 		</div>
-		<ul class="about-stats__venues reveal" data-reveal>
-			<?php foreach ( $excel_ent_venues as $excel_ent_venue ) : ?>
-				<li><?php echo esc_html( $excel_ent_venue ); ?></li>
-			<?php endforeach; ?>
-		</ul>
 	</div>
 </div>
-</section>
-</div>
 
-<!-- Why choose -->
+<!-- Why choose — mobile viewport Figma 2331:5728 -->
 <div class="about-why-pin" data-about-why-pin>
 	<div class="about-why__scroll-pad" aria-hidden="true"></div>
+	<div class="about-why__unit" data-about-why-unit>
+		<div class="about-why__unit-inner">
 <section class="about-why" aria-label="<?php esc_attr_e( 'Why venues choose Excel', 'excel-ent' ); ?>" data-about-why>
 	<div class="about-why__inner">
 	<header class="about-why__header reveal" data-reveal>
@@ -251,11 +269,15 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 	</ol>
 	</div>
 </section>
+		</div>
+	</div>
 </div>
 
-<!-- Approach -->
+<!-- Approach — mobile viewport Figma 2331:5756 -->
 <div class="about-approach-pin" data-about-approach-pin>
 	<div class="about-approach__scroll-pad" aria-hidden="true"></div>
+	<div class="about-approach__unit" data-about-approach-unit>
+		<div class="about-approach__unit-inner">
 <section class="about-approach" aria-label="<?php esc_attr_e( 'Our approach to growth', 'excel-ent' ); ?>" data-about-approach>
 	<div class="about-approach__inner">
 	<div class="about-approach__slider reveal" data-reveal>
@@ -292,34 +314,38 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 	<div class="about-approach__body">
 		<div class="about-approach__copy reveal" data-reveal>
 			<h2 class="about-approach__title"><?php esc_html_e( 'Our Approach to Growth', 'excel-ent' ); ?></h2>
-			<div class="about-approach__lede">
-				<p><?php esc_html_e( 'Our goal is to help you build repeat business, stronger event nights, and predictable revenue streams.', 'excel-ent' ); ?></p>
-				<p class="about-approach__lede-strong"><?php esc_html_e( 'We take a strategic view when working with venues:', 'excel-ent' ); ?></p>
-			</div>
+			<p class="about-approach__lede"><?php esc_html_e( 'Our goal is to help you build repeat business, stronger event nights, and predictable revenue streams.', 'excel-ent' ); ?></p>
 		</div>
 		<div class="about-approach__divider" aria-hidden="true"></div>
-		<ul class="about-approach__points stagger">
-			<?php foreach ( $excel_ent_approach as $excel_ent_ai => $excel_ent_point ) : ?>
-				<li
-					class="reveal"
-					data-reveal
-					style="--i: <?php echo esc_attr( (string) $excel_ent_ai ); ?>; transition-delay: <?php echo esc_attr( (string) ( $excel_ent_ai * 80 ) ); ?>ms"
-				>
-					<span class="about-approach__bullet" aria-hidden="true"></span>
-					<span><?php echo esc_html( $excel_ent_point ); ?></span>
-				</li>
-			<?php endforeach; ?>
-		</ul>
+		<div class="about-approach__aside">
+			<p class="about-approach__lede-strong reveal" data-reveal><?php esc_html_e( 'We take a strategic view when working with venues:', 'excel-ent' ); ?></p>
+			<ul class="about-approach__points stagger">
+				<?php foreach ( $excel_ent_approach as $excel_ent_ai => $excel_ent_point ) : ?>
+					<li
+						class="reveal"
+						data-reveal
+						style="--i: <?php echo esc_attr( (string) $excel_ent_ai ); ?>; transition-delay: <?php echo esc_attr( (string) ( $excel_ent_ai * 80 ) ); ?>ms"
+					>
+						<span class="about-approach__bullet" aria-hidden="true"></span>
+						<span><?php echo esc_html( $excel_ent_point ); ?></span>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
 	</div>
 	</div>
 </section>
+		</div>
+	</div>
 </div>
 
 <?php get_template_part( 'template-parts/section', 'newsletter' ); ?>
 
-<!-- Reviews -->
+<!-- Reviews — mobile viewport Figma 2331:5795 -->
 <div class="about-reviews-pin" data-about-reviews-pin>
 	<div class="about-reviews__scroll-pad" aria-hidden="true"></div>
+	<div class="about-reviews__unit" data-about-reviews-unit>
+		<div class="about-reviews__unit-inner">
 <section class="about-reviews" aria-label="<?php esc_attr_e( 'Client reviews', 'excel-ent' ); ?>" data-about-reviews>
 	<div class="about-reviews__inner">
 	<div class="about-reviews__main">
@@ -385,4 +411,6 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 	</div>
 	</div>
 </section>
+		</div>
+	</div>
 </div>

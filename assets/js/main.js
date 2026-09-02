@@ -260,9 +260,12 @@
 
 		const syncArtistsStickyTop = () => {
 			const isArtistMobile = isArtistPage && window.matchMedia("(max-width: 767px)").matches;
+			const isAboutMobile = isAboutPage && window.matchMedia("(max-width: 767px)").matches;
 			const headerHeight = Math.ceil(header.getBoundingClientRect().height);
 			const top =
-				header.classList.contains("is-scrolled") || isArtistMobile ? headerHeight : 0;
+				header.classList.contains("is-scrolled") || isArtistMobile || isAboutMobile
+					? headerHeight
+					: 0;
 			const topPx = `${top}px`;
 			if (isArtistPage && primary) {
 				primary.style.paddingTop = header.classList.contains("is-scrolled") ? topPx : "";
@@ -315,8 +318,12 @@
 
 			const aboutValuePin = document.querySelector("[data-about-value-pin]");
 			const aboutValue = document.querySelector("[data-about-value]");
+			const aboutValueUnit = document.querySelector("[data-about-value-unit]");
 			if (aboutValue) {
 				aboutValue.style.setProperty("--ee-about-value-sticky-top", topPx);
+			}
+			if (aboutValueUnit) {
+				aboutValueUnit.style.setProperty("--ee-about-value-sticky-top", topPx);
 			}
 			if (aboutValuePin) {
 				aboutValuePin.style.setProperty("--ee-about-value-sticky-top", topPx);
@@ -324,8 +331,12 @@
 
 			const aboutReviewsPin = document.querySelector("[data-about-reviews-pin]");
 			const aboutReviews = document.querySelector("[data-about-reviews]");
+			const aboutReviewsUnit = document.querySelector("[data-about-reviews-unit]");
 			if (aboutReviews) {
 				aboutReviews.style.setProperty("--ee-about-reviews-sticky-top", topPx);
+			}
+			if (aboutReviewsUnit) {
+				aboutReviewsUnit.style.setProperty("--ee-about-reviews-sticky-top", topPx);
 			}
 			if (aboutReviewsPin) {
 				aboutReviewsPin.style.setProperty("--ee-about-reviews-sticky-top", topPx);
@@ -333,8 +344,12 @@
 
 			const aboutWhyPin = document.querySelector("[data-about-why-pin]");
 			const aboutWhy = document.querySelector("[data-about-why]");
+			const aboutWhyUnit = document.querySelector("[data-about-why-unit]");
 			if (aboutWhy) {
 				aboutWhy.style.setProperty("--ee-about-why-sticky-top", topPx);
+			}
+			if (aboutWhyUnit) {
+				aboutWhyUnit.style.setProperty("--ee-about-why-sticky-top", topPx);
 			}
 			if (aboutWhyPin) {
 				aboutWhyPin.style.setProperty("--ee-about-why-sticky-top", topPx);
@@ -342,8 +357,12 @@
 
 			const aboutApproachPin = document.querySelector("[data-about-approach-pin]");
 			const aboutApproach = document.querySelector("[data-about-approach]");
+			const aboutApproachUnit = document.querySelector("[data-about-approach-unit]");
 			if (aboutApproach) {
 				aboutApproach.style.setProperty("--ee-about-approach-sticky-top", topPx);
+			}
+			if (aboutApproachUnit) {
+				aboutApproachUnit.style.setProperty("--ee-about-approach-sticky-top", topPx);
 			}
 			if (aboutApproachPin) {
 				aboutApproachPin.style.setProperty("--ee-about-approach-sticky-top", topPx);
@@ -383,6 +402,19 @@
 			}
 			if (artistSimilarPin) {
 				artistSimilarPin.style.setProperty("--ee-artist-similar-sticky-top", topPx);
+			}
+
+			const aboutIntroPin = document.querySelector("[data-about-intro-pin]");
+			const aboutIntroEl = document.querySelector("[data-about-intro]");
+			const aboutIntroUnit = document.querySelector("[data-about-intro-unit]");
+			if (aboutIntroEl) {
+				aboutIntroEl.style.setProperty("--ee-about-intro-sticky-top", topPx);
+			}
+			if (aboutIntroUnit) {
+				aboutIntroUnit.style.setProperty("--ee-about-intro-sticky-top", topPx);
+			}
+			if (aboutIntroPin) {
+				aboutIntroPin.style.setProperty("--ee-about-intro-sticky-top", topPx);
 			}
 		};
 
@@ -590,57 +622,585 @@
 		);
 	}
 
-	/* ---------- About intro viewport fitting ---------- */
+	/* ---------- About page mobile pin helpers (stable layout, no scroll jerk) ---------- */
+	const aboutMobilePinViewport = {
+		width: window.innerWidth,
+		height: window.innerHeight,
+	};
+
+	const shouldRelayoutAboutMobilePinViewport = () => {
+		const width = window.innerWidth;
+		const height = window.innerHeight;
+		const widthDelta = Math.abs(width - aboutMobilePinViewport.width);
+		const heightDelta = Math.abs(height - aboutMobilePinViewport.height);
+		if (widthDelta >= 80 || heightDelta >= 160) {
+			aboutMobilePinViewport.width = width;
+			aboutMobilePinViewport.height = height;
+			return true;
+		}
+		return false;
+	};
+
+	const bindAboutMobilePinViewportGuard = (mobileMq, resetFn, refreshFn) => {
+		let timer = 0;
+		const onViewportChange = () => {
+			if (!mobileMq.matches || !shouldRelayoutAboutMobilePinViewport()) {
+				return;
+			}
+			window.clearTimeout(timer);
+			timer = window.setTimeout(() => {
+				resetFn();
+				refreshFn();
+			}, 280);
+		};
+		window.visualViewport?.addEventListener("resize", onViewportChange);
+	};
+
+	const aboutMobilePinStateFrame = { id: 0, pending: new Set() };
+	const scheduleAboutMobilePinnedState = (fn) => {
+		aboutMobilePinStateFrame.pending.add(fn);
+		if (aboutMobilePinStateFrame.id) {
+			return;
+		}
+		aboutMobilePinStateFrame.id = window.requestAnimationFrame(() => {
+			aboutMobilePinStateFrame.id = 0;
+			aboutMobilePinStateFrame.pending.forEach((syncFn) => syncFn());
+			aboutMobilePinStateFrame.pending.clear();
+		});
+	};
+
+	const getAboutMobileAvailableHeight = (stickyTop) =>
+		Math.max(window.innerHeight - stickyTop, 0);
+
+	/** Scale mobile sticky units to exactly fill the available viewport (up or down). */
+	const measureAboutMobileStickyUnit = (unitEl, getAvailableHeight) => {
+		const sectionH = Math.ceil(unitEl.getBoundingClientRect().height);
+		const availableHeight = getAvailableHeight();
+		const fitScale = availableHeight / Math.max(sectionH, 1);
+		const styles = getComputedStyle(unitEl);
+		const padTop = parseFloat(styles.paddingTop) || 0;
+		const padBottom = parseFloat(styles.paddingBottom) || 0;
+		return {
+			sectionH,
+			availableHeight,
+			fitScale,
+			padTop,
+			padBottom,
+			useFit: true,
+		};
+	};
+
+	const buildAboutMobilePinSnapshot = (measure, padHeight, holdHeight) => {
+		const displaySectionHeight = Math.ceil(measure.sectionH * measure.fitScale);
+		return {
+			availableHeight: measure.availableHeight,
+			fitScale: measure.fitScale,
+			padTop: measure.padTop,
+			padBottom: measure.padBottom,
+			contentHeight: Math.max(measure.sectionH - measure.padTop - measure.padBottom, 0),
+			naturalSectionHeight: measure.sectionH,
+			useFit: measure.useFit,
+			displaySectionHeight,
+			pinHeight: padHeight + displaySectionHeight + holdHeight,
+		};
+	};
+
+	/* ---------- About intro viewport fitting + mobile sticky pin ---------- */
 	if (aboutIntro) {
-		const aboutIntroFitMq = window.matchMedia("(min-width: 1200px)");
+		const aboutIntroPin = document.querySelector("[data-about-intro-pin]");
+		const aboutIntroUnit = document.querySelector("[data-about-intro-unit]");
+		const aboutIntroFitDesktopMq = window.matchMedia("(min-width: 1200px)");
+		const aboutIntroPinMobileMq = window.matchMedia("(max-width: 767px)");
+		let aboutIntroMobileFitLocked = false;
+		let aboutIntroMobileFitSnapshot = null;
+		let aboutIntroMobileFitWidth = window.innerWidth;
+		let aboutIntroMobilePinReady = false;
+		let aboutIntroResizeTimer = 0;
 
-		const syncAboutIntroViewport = () => {
-			aboutIntro.classList.remove("is-viewport-fitted");
-			aboutIntro.style.removeProperty("height");
-			aboutIntro.style.removeProperty("--ee-about-intro-viewport-height");
-			aboutIntro.style.removeProperty("--ee-about-intro-fit-scale");
-			aboutIntro.style.removeProperty("--ee-about-intro-fit-pad-top");
-			aboutIntro.style.removeProperty("--ee-about-intro-fit-pad-bottom");
+		const resetAboutIntroMobilePin = () => {
+			aboutIntroMobileFitLocked = false;
+			aboutIntroMobileFitSnapshot = null;
+			aboutIntroMobileFitWidth = window.innerWidth;
+		};
 
-			if (!aboutIntroFitMq.matches) {
+		const getAboutIntroFitEl = () =>
+			aboutIntroPinMobileMq.matches && aboutIntroUnit ? aboutIntroUnit : aboutIntro;
+
+		const clearAboutIntroViewportFit = () => {
+			[aboutIntro, aboutIntroUnit].filter(Boolean).forEach((el) => {
+				el.classList.remove("is-viewport-fitted", "is-mobile-fill", "is-pinned");
+				el.style.removeProperty("height");
+				el.style.removeProperty("--ee-about-intro-available-height");
+				el.style.removeProperty("--ee-about-intro-viewport-height");
+				el.style.removeProperty("--ee-about-intro-fit-scale");
+				el.style.removeProperty("--ee-about-intro-fit-pad-top");
+				el.style.removeProperty("--ee-about-intro-fit-pad-bottom");
+				el.style.removeProperty("--ee-about-intro-content-height");
+			});
+		};
+
+		const getAboutIntroStickyTop = () => {
+			const stickyEl = aboutIntroUnit || aboutIntro;
+			const fromVar =
+				parseFloat(
+					getComputedStyle(stickyEl).getPropertyValue(
+						"--ee-about-intro-sticky-top"
+					)
+				) || 0;
+			if (fromVar > 0) {
+				return fromVar;
+			}
+			const headerEl = document.querySelector(".site-header");
+			return headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 0;
+		};
+
+		const getAboutIntroAvailableHeight = () =>
+			getAboutMobileAvailableHeight(getAboutIntroStickyTop());
+
+		const applyAboutIntroViewportFit = (snapshot) => {
+			if (!snapshot) {
 				return;
 			}
 
-			const naturalHeight = Math.ceil(aboutIntro.getBoundingClientRect().height);
-			const header = document.querySelector(".site-header");
-			const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+			const fitEl = getAboutIntroFitEl();
+			if (
+				aboutIntroMobileFitLocked &&
+				aboutIntroMobileFitSnapshot === snapshot &&
+				((snapshot.useFit && fitEl.classList.contains("is-viewport-fitted")) ||
+					(snapshot.useFill && fitEl.classList.contains("is-mobile-fill")) ||
+					(!snapshot.useFit &&
+						!snapshot.useFill &&
+						!fitEl.classList.contains("is-viewport-fitted") &&
+						!fitEl.classList.contains("is-mobile-fill")))
+			) {
+				syncAboutIntroPinnedState();
+				return;
+			}
+
+			clearAboutIntroViewportFit();
+
+			if (snapshot.useFill || snapshot.useFit) {
+				fitEl.style.setProperty(
+					"--ee-about-intro-available-height",
+					`${snapshot.availableHeight}px`
+				);
+			}
+
+			if (snapshot.useFit) {
+				fitEl.style.setProperty(
+					"--ee-about-intro-viewport-height",
+					`${snapshot.displaySectionHeight}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-intro-fit-scale",
+					String(snapshot.fitScale)
+				);
+				fitEl.style.setProperty(
+					"--ee-about-intro-fit-pad-top",
+					`${snapshot.padTop * snapshot.fitScale}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-intro-fit-pad-bottom",
+					`${snapshot.padBottom * snapshot.fitScale}px`
+				);
+				if (fitEl === aboutIntro && snapshot.contentHeight) {
+					fitEl.style.setProperty(
+						"--ee-about-intro-content-height",
+						`${snapshot.contentHeight}px`
+					);
+				}
+				fitEl.classList.add("is-viewport-fitted");
+			} else if (snapshot.useFill) {
+				fitEl.classList.add("is-mobile-fill");
+			}
+
+			if (aboutIntroPin && snapshot.pinHeight) {
+				aboutIntroPin.style.height = `${snapshot.pinHeight}px`;
+			}
+
+			syncAboutIntroPinnedState();
+		};
+
+		const syncAboutIntroDesktopViewport = () => {
+			if (!aboutIntroFitDesktopMq.matches || aboutIntroPinMobileMq.matches) {
+				return;
+			}
+
+			clearAboutIntroViewportFit();
+			if (aboutIntroPin) {
+				aboutIntroPin.style.height = "";
+			}
+
+			const naturalHeight = Math.ceil(aboutIntro.scrollHeight);
+			const headerEl = document.querySelector(".site-header");
+			const headerHeight = headerEl
+				? Math.ceil(headerEl.getBoundingClientRect().height)
+				: 0;
 			const availableHeight = Math.max(window.innerHeight - headerHeight, 0);
 			const fitScale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
 
-			if (fitScale >= 1) {
+			if (fitScale >= 0.999 || !availableHeight) {
 				return;
 			}
 
 			const styles = getComputedStyle(aboutIntro);
 			const padTop = parseFloat(styles.paddingTop) || 0;
 			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const contentHeight = Math.max(naturalHeight - padTop - padBottom, 0);
 
-			aboutIntro.style.setProperty("--ee-about-intro-viewport-height", `${availableHeight}px`);
-			aboutIntro.style.setProperty("--ee-about-intro-fit-scale", String(fitScale));
-			aboutIntro.style.setProperty("--ee-about-intro-fit-pad-top", `${padTop * fitScale}px`);
-			aboutIntro.style.setProperty("--ee-about-intro-fit-pad-bottom", `${padBottom * fitScale}px`);
-			aboutIntro.classList.add("is-viewport-fitted");
+			applyAboutIntroViewportFit({
+				availableHeight,
+				fitScale,
+				padTop,
+				padBottom,
+				contentHeight,
+				useFit: true,
+			});
 		};
 
-		window.addEventListener("resize", syncAboutIntroViewport);
-		window.addEventListener("load", syncAboutIntroViewport);
-		window.addEventListener("excel-ent:header-state-change", syncAboutIntroViewport);
-		window.requestAnimationFrame(syncAboutIntroViewport);
+		const getAboutIntroMobileHoldHeight = () => 0;
 
-		if (typeof aboutIntroFitMq.addEventListener === "function") {
-			aboutIntroFitMq.addEventListener("change", syncAboutIntroViewport);
-		} else if (typeof aboutIntroFitMq.addListener === "function") {
-			aboutIntroFitMq.addListener(syncAboutIntroViewport);
+		const syncAboutIntroMobilePin = () => {
+			if (!aboutIntroPin || !aboutIntroPinMobileMq.matches) {
+				return;
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				aboutIntroMobileFitLocked &&
+				Math.abs(viewportWidth - aboutIntroMobileFitWidth) > 80
+			) {
+				resetAboutIntroMobilePin();
+			}
+
+			if (aboutIntroMobileFitLocked && aboutIntroMobileFitSnapshot) {
+				applyAboutIntroViewportFit(aboutIntroMobileFitSnapshot);
+				return;
+			}
+
+			aboutIntroPin.style.height = "auto";
+			clearAboutIntroViewportFit();
+
+			const pad = aboutIntroPin.querySelector(".about-intro__scroll-pad");
+			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const fitTarget = aboutIntroUnit || aboutIntro;
+			const measure = measureAboutMobileStickyUnit(
+				fitTarget,
+				getAboutIntroAvailableHeight
+			);
+			const holdHeight = getAboutIntroMobileHoldHeight();
+			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
+
+			applyAboutIntroViewportFit(snapshot);
+
+			if (!aboutIntroMobileFitLocked) {
+				aboutIntroMobileFitLocked = true;
+				aboutIntroMobileFitSnapshot = snapshot;
+				aboutIntroMobileFitWidth = viewportWidth;
+			}
+		};
+
+		const syncAboutIntroViewport = () => {
+			if (aboutIntroPinMobileMq.matches) {
+				syncAboutIntroMobilePin();
+				return;
+			}
+
+			resetAboutIntroMobilePin();
+			if (aboutIntroPin) {
+				aboutIntroPin.style.height = "";
+			}
+			syncAboutIntroDesktopViewport();
+		};
+
+		const syncAboutIntroPinnedState = () => {
+			const stickyEl = aboutIntroUnit || aboutIntro;
+			if (!aboutIntroPin || !aboutIntroPinMobileMq.matches) {
+				stickyEl.classList.remove("is-pinned");
+				return;
+			}
+
+			const stickyTop = getAboutIntroStickyTop();
+			const viewportHeight = window.innerHeight;
+			const sectionRect = stickyEl.getBoundingClientRect();
+			const pinRect = aboutIntroPin.getBoundingClientRect();
+			const pinned =
+				sectionRect.top <= stickyTop + 1.5 &&
+				pinRect.bottom >
+					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
+			stickyEl.classList.toggle("is-pinned", pinned);
+		};
+
+		const refreshAboutIntroPin = () => {
+			window.requestAnimationFrame(() => {
+				syncAboutIntroViewport();
+				syncAboutIntroPinnedState();
+			});
+		};
+
+		const refreshAboutIntroPinLayout = () => {
+			if (aboutIntroPinMobileMq.matches) {
+				resetAboutIntroMobilePin();
+			}
+			refreshAboutIntroPin();
+		};
+
+		if (lenis) {
+			lenis.on("scroll", () => scheduleAboutMobilePinnedState(syncAboutIntroPinnedState));
+		} else {
+			window.addEventListener(
+				"scroll",
+				() => scheduleAboutMobilePinnedState(syncAboutIntroPinnedState),
+				{ passive: true }
+			);
 		}
+
+		window.addEventListener("resize", () => {
+			window.clearTimeout(aboutIntroResizeTimer);
+			aboutIntroResizeTimer = window.setTimeout(() => {
+				if (aboutIntroPinMobileMq.matches) {
+					if (
+						aboutIntroMobileFitLocked &&
+						Math.abs(window.innerWidth - aboutIntroMobileFitWidth) > 80
+					) {
+						refreshAboutIntroPinLayout();
+						return;
+					}
+					if (!aboutIntroMobileFitLocked) {
+						refreshAboutIntroPin();
+					} else {
+						syncAboutIntroPinnedState();
+					}
+					return;
+				}
+				refreshAboutIntroPinLayout();
+			}, 150);
+		}, { passive: true });
+
+		window.addEventListener("load", () => {
+			aboutIntroMobilePinReady = true;
+			const fitTarget = aboutIntroUnit || aboutIntro;
+			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+			const snapNatural = aboutIntroMobileFitSnapshot?.naturalSectionHeight;
+			if (
+				!aboutIntroMobileFitLocked ||
+				(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+			) {
+				resetAboutIntroMobilePin();
+				refreshAboutIntroPinLayout();
+			}
+		});
+
+		window.addEventListener("orientationchange", () => {
+			resetAboutIntroMobilePin();
+			aboutIntroMobileFitWidth = window.innerWidth;
+			window.setTimeout(refreshAboutIntroPinLayout, 150);
+		});
+
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (aboutIntroPinMobileMq.matches) {
+				resetAboutIntroMobilePin();
+				refreshAboutIntroPin();
+				return;
+			}
+			refreshAboutIntroPinLayout();
+		});
+
+		bindAboutMobilePinViewportGuard(
+			aboutIntroPinMobileMq,
+			resetAboutIntroMobilePin,
+			refreshAboutIntroPinLayout
+		);
+
+		if (typeof aboutIntroFitDesktopMq.addEventListener === "function") {
+			aboutIntroFitDesktopMq.addEventListener("change", refreshAboutIntroPinLayout);
+			aboutIntroPinMobileMq.addEventListener("change", refreshAboutIntroPinLayout);
+		} else if (typeof aboutIntroFitDesktopMq.addListener === "function") {
+			aboutIntroFitDesktopMq.addListener(refreshAboutIntroPinLayout);
+			aboutIntroPinMobileMq.addListener(refreshAboutIntroPinLayout);
+		}
+
+		window.requestAnimationFrame(refreshAboutIntroPin);
+		aboutIntroPin?.querySelectorAll("img, object").forEach((asset) => {
+			asset.addEventListener("load", () => {
+				if (aboutIntroPinMobileMq.matches && aboutIntroMobileFitLocked) {
+					resetAboutIntroMobilePin();
+				}
+				refreshAboutIntroPin();
+			});
+		});
 
 		if (document.fonts?.ready) {
-			document.fonts.ready.then(syncAboutIntroViewport);
+			document.fonts.ready.then(() => {
+				const fitTarget = aboutIntroUnit || aboutIntro;
+				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+				const snapNatural = aboutIntroMobileFitSnapshot?.naturalSectionHeight;
+				if (
+					!aboutIntroMobileFitLocked ||
+					(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+				) {
+					refreshAboutIntroPinLayout();
+				}
+			});
 		}
+	}
+
+	/* ---------- About intro mobile media swipe ---------- */
+	const aboutIntroMedia = document.querySelector("[data-about-intro-media]");
+	if (aboutIntroMedia) {
+		const aboutIntroMediaMq = window.matchMedia("(max-width: 767px)");
+		let mediaActive = false;
+		let mediaAxis = null;
+		let mediaStartX = 0;
+		let mediaStartY = 0;
+		let mediaStartScrollLeft = 0;
+		let mediaPointerId = null;
+		let mediaLenisPaused = false;
+
+		const pauseAboutIntroMediaLenis = () => {
+			if (!mediaLenisPaused && window.excelEntLenis) {
+				window.excelEntLenis.stop();
+				mediaLenisPaused = true;
+			}
+		};
+
+		const resumeAboutIntroMediaLenis = () => {
+			if (mediaLenisPaused && window.excelEntLenis) {
+				window.excelEntLenis.start();
+				mediaLenisPaused = false;
+			}
+		};
+
+		const getAboutIntroMediaStep = () => {
+			const item = aboutIntroMedia.querySelector(".about-intro__media-item");
+			if (!item) {
+				return aboutIntroMedia.clientWidth;
+			}
+			const gap = parseFloat(getComputedStyle(aboutIntroMedia).gap) || 10;
+			return item.offsetWidth + gap;
+		};
+
+		const snapAboutIntroMedia = (smooth = true) => {
+			const step = getAboutIntroMediaStep();
+			if (!step) {
+				return;
+			}
+			const index = Math.round(aboutIntroMedia.scrollLeft / step);
+			const left = Math.max(0, index * step);
+			aboutIntroMedia.scrollTo({
+				left,
+				behavior: smooth && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+					? "smooth"
+					: "auto",
+			});
+		};
+
+		const releaseAboutIntroMediaPointer = (pointerId) => {
+			if (pointerId == null) {
+				return;
+			}
+			try {
+				aboutIntroMedia.releasePointerCapture(pointerId);
+			} catch (err) {
+				/* ignore */
+			}
+		};
+
+		const finishAboutIntroMediaGesture = (event) => {
+			const wasHorizontal = mediaAxis === "x";
+			if (event?.pointerId != null) {
+				releaseAboutIntroMediaPointer(event.pointerId);
+			}
+			mediaActive = false;
+			mediaAxis = null;
+			mediaPointerId = null;
+			aboutIntroMedia.classList.remove("is-dragging");
+			resumeAboutIntroMediaLenis();
+			if (wasHorizontal) {
+				snapAboutIntroMedia(true);
+			}
+		};
+
+		aboutIntroMedia.addEventListener(
+			"pointerdown",
+			(e) => {
+				if (!aboutIntroMediaMq.matches || e.button > 0) {
+					return;
+				}
+				mediaActive = true;
+				mediaAxis = null;
+				mediaPointerId = e.pointerId;
+				mediaStartX = e.clientX;
+				mediaStartY = e.clientY;
+				mediaStartScrollLeft = aboutIntroMedia.scrollLeft;
+			},
+			{ passive: true }
+		);
+
+		aboutIntroMedia.addEventListener(
+			"pointermove",
+			(e) => {
+				if (!mediaActive || e.pointerId !== mediaPointerId) {
+					return;
+				}
+
+				const dx = e.clientX - mediaStartX;
+				const dy = e.clientY - mediaStartY;
+
+				if (!mediaAxis) {
+					if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+						return;
+					}
+					/* Vertical — yield to page scroll; never pause Lenis or capture pointer */
+					if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
+						mediaActive = false;
+						mediaPointerId = null;
+						return;
+					}
+					if (Math.abs(dx) >= Math.abs(dy)) {
+						mediaAxis = "x";
+						aboutIntroMedia.classList.add("is-dragging");
+						pauseAboutIntroMediaLenis();
+						try {
+							aboutIntroMedia.setPointerCapture(e.pointerId);
+						} catch (err) {
+							/* ignore */
+						}
+					} else {
+						return;
+					}
+				}
+
+				if (mediaAxis !== "x") {
+					return;
+				}
+
+				aboutIntroMedia.scrollLeft = mediaStartScrollLeft - dx;
+				if (e.cancelable) {
+					e.preventDefault();
+				}
+			},
+			{ passive: false }
+		);
+
+		aboutIntroMedia.addEventListener("pointerup", finishAboutIntroMediaGesture);
+		aboutIntroMedia.addEventListener("pointercancel", finishAboutIntroMediaGesture);
+
+		if (typeof aboutIntroMediaMq.addEventListener === "function") {
+			aboutIntroMediaMq.addEventListener("change", () => {
+				finishAboutIntroMediaGesture();
+				aboutIntroMedia.scrollLeft = 0;
+			});
+		} else if (typeof aboutIntroMediaMq.addListener === "function") {
+			aboutIntroMediaMq.addListener(() => {
+				finishAboutIntroMediaGesture();
+				aboutIntroMedia.scrollLeft = 0;
+			});
+		}
+
+		aboutIntroMedia.querySelectorAll("img").forEach((img) => {
+			img.setAttribute("draggable", "false");
+		});
 	}
 
 	/* ---------- Artist hero viewport fitting ---------- */
@@ -2419,115 +2979,349 @@
 	const aboutValue = document.querySelector("[data-about-value]");
 	if (aboutValue) {
 		const aboutValuePin = document.querySelector("[data-about-value-pin]");
-		const pinMq = window.matchMedia("(min-width: 768px)");
-		const fitMq = window.matchMedia("(min-width: 1200px)");
+		const aboutValueUnit = document.querySelector("[data-about-value-unit]");
+		const aboutValuePinMobileMq = window.matchMedia("(max-width: 767px)");
+		const aboutValuePinDesktopMq = window.matchMedia("(min-width: 768px)");
+		const aboutValueFitDesktopMq = window.matchMedia("(min-width: 1200px)");
+		let aboutValueMobileFitLocked = false;
+		let aboutValueMobileFitSnapshot = null;
+		let aboutValueMobileFitWidth = window.innerWidth;
+		let aboutValueMobilePinReady = false;
+		let aboutValueResizeTimer = 0;
 
-		const syncAboutValuePin = () => {
-			if (!aboutValuePin) {
+		const resetAboutValueMobilePin = () => {
+			aboutValueMobileFitLocked = false;
+			aboutValueMobileFitSnapshot = null;
+			aboutValueMobileFitWidth = window.innerWidth;
+		};
+
+		const getAboutValueFitEl = () =>
+			aboutValuePinMobileMq.matches && aboutValueUnit ? aboutValueUnit : aboutValue;
+
+		const clearAboutValueViewportFit = () => {
+			[aboutValue, aboutValueUnit].filter(Boolean).forEach((el) => {
+				el.classList.remove("is-viewport-fitted", "is-mobile-fill", "is-pinned");
+				el.style.removeProperty("height");
+				el.style.removeProperty("--ee-about-value-available-height");
+				el.style.removeProperty("--ee-about-value-viewport-height");
+				el.style.removeProperty("--ee-about-value-fit-scale");
+				el.style.removeProperty("--ee-about-value-fit-pad-top");
+				el.style.removeProperty("--ee-about-value-fit-pad-bottom");
+				el.style.removeProperty("--ee-about-value-content-height");
+			});
+		};
+
+		const getAboutValueStickyTop = () => {
+			const stickyEl = aboutValueUnit || aboutValue;
+			const fromVar =
+				parseFloat(
+					getComputedStyle(stickyEl).getPropertyValue(
+						"--ee-about-value-sticky-top"
+					)
+				) || 0;
+			if (fromVar > 0) {
+				return fromVar;
+			}
+			const headerEl = document.querySelector(".site-header");
+			return headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 0;
+		};
+
+		const getAboutValueAvailableHeight = () =>
+			getAboutMobileAvailableHeight(getAboutValueStickyTop());
+
+		const applyAboutValueViewportFit = (snapshot) => {
+			if (!snapshot) {
 				return;
 			}
-			if (!pinMq.matches) {
-				aboutValuePin.style.height = "";
-				aboutValue.classList.remove("is-pinned", "is-viewport-fitted");
-				aboutValue.style.removeProperty("height");
-				aboutValue.style.removeProperty("--ee-about-value-viewport-height");
-				aboutValue.style.removeProperty("--ee-about-value-fit-scale");
-				aboutValue.style.removeProperty("--ee-about-value-fit-pad-top");
-				aboutValue.style.removeProperty("--ee-about-value-fit-pad-bottom");
+
+			const fitEl = getAboutValueFitEl();
+			if (
+				aboutValueMobileFitLocked &&
+				aboutValueMobileFitSnapshot === snapshot &&
+				((snapshot.useFit && fitEl.classList.contains("is-viewport-fitted")) ||
+					(snapshot.useFill && fitEl.classList.contains("is-mobile-fill")) ||
+					(!snapshot.useFit &&
+						!snapshot.useFill &&
+						!fitEl.classList.contains("is-viewport-fitted") &&
+						!fitEl.classList.contains("is-mobile-fill")))
+			) {
+				syncAboutValuePinnedState();
 				return;
 			}
+
+			clearAboutValueViewportFit();
+
+			if (snapshot.useFill || snapshot.useFit) {
+				fitEl.style.setProperty(
+					"--ee-about-value-available-height",
+					`${snapshot.availableHeight}px`
+				);
+			}
+
+			if (snapshot.useFit) {
+				fitEl.style.setProperty(
+					"--ee-about-value-viewport-height",
+					`${snapshot.displaySectionHeight}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-value-fit-scale",
+					String(snapshot.fitScale)
+				);
+				fitEl.style.setProperty(
+					"--ee-about-value-fit-pad-top",
+					`${snapshot.padTop * snapshot.fitScale}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-value-fit-pad-bottom",
+					`${snapshot.padBottom * snapshot.fitScale}px`
+				);
+				if (fitEl === aboutValue && snapshot.contentHeight) {
+					fitEl.style.setProperty(
+						"--ee-about-value-content-height",
+						`${snapshot.contentHeight}px`
+					);
+				}
+				fitEl.classList.add("is-viewport-fitted");
+			} else if (snapshot.useFill) {
+				fitEl.classList.add("is-mobile-fill");
+			}
+
+			if (aboutValuePin && snapshot.pinHeight) {
+				aboutValuePin.style.height = `${snapshot.pinHeight}px`;
+			}
+
+			syncAboutValuePinnedState();
+		};
+
+		const syncAboutValueDesktopPin = () => {
+			if (!aboutValuePin || !aboutValuePinDesktopMq.matches) {
+				return;
+			}
+
 			aboutValuePin.style.height = "auto";
-			aboutValue.classList.remove("is-viewport-fitted");
-			aboutValue.style.removeProperty("height");
-			aboutValue.style.removeProperty("--ee-about-value-viewport-height");
-			aboutValue.style.removeProperty("--ee-about-value-fit-scale");
-			aboutValue.style.removeProperty("--ee-about-value-fit-pad-top");
-			aboutValue.style.removeProperty("--ee-about-value-fit-pad-bottom");
+			clearAboutValueViewportFit();
+
 			const pad = aboutValuePin.querySelector(".about-value__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(aboutValue.getBoundingClientRect().height);
-			const stickyTop =
-				parseFloat(getComputedStyle(aboutValue).getPropertyValue("--ee-about-value-sticky-top")) || 0;
+			const stickyTop = getAboutValueStickyTop();
 			const availableH = Math.max(window.innerHeight - stickyTop, 0);
-			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
+			const fitScale = aboutValueFitDesktopMq.matches
+				? Math.min(1, availableH / Math.max(sectionH, 1))
+				: 1;
 
 			if (fitScale < 1) {
 				const styles = getComputedStyle(aboutValue);
 				const padTop = parseFloat(styles.paddingTop) || 0;
 				const padBottom = parseFloat(styles.paddingBottom) || 0;
-				aboutValue.style.setProperty("--ee-about-value-viewport-height", `${availableH}px`);
-				aboutValue.style.setProperty("--ee-about-value-fit-scale", String(fitScale));
-				aboutValue.style.setProperty("--ee-about-value-fit-pad-top", `${padTop * fitScale}px`);
-				aboutValue.style.setProperty("--ee-about-value-fit-pad-bottom", `${padBottom * fitScale}px`);
-				aboutValue.classList.add("is-viewport-fitted");
+				const contentHeight = Math.max(sectionH - padTop - padBottom, 0);
+
+				applyAboutValueViewportFit({
+					availableHeight: availableH,
+					fitScale,
+					padTop,
+					padBottom,
+					contentHeight,
+					useFit: true,
+					displaySectionHeight: Math.ceil(sectionH * fitScale),
+					pinHeight: padH + Math.ceil(sectionH * fitScale) + Math.round(window.innerHeight),
+				});
+				return;
 			}
 
 			const holdPx = Math.round(window.innerHeight * 1);
-			aboutValuePin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
+			aboutValuePin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const getAboutValueMobileHoldHeight = (viewportHeight) =>
+			Math.round(viewportHeight);
+
+		const syncAboutValueMobilePin = () => {
+			if (!aboutValuePin || !aboutValuePinMobileMq.matches) {
+				return;
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				aboutValueMobileFitLocked &&
+				Math.abs(viewportWidth - aboutValueMobileFitWidth) > 80
+			) {
+				resetAboutValueMobilePin();
+			}
+
+			if (aboutValueMobileFitLocked && aboutValueMobileFitSnapshot) {
+				applyAboutValueViewportFit(aboutValueMobileFitSnapshot);
+				return;
+			}
+
+			aboutValuePin.style.height = "auto";
+			clearAboutValueViewportFit();
+
+			const pad = aboutValuePin.querySelector(".about-value__scroll-pad");
+			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const fitTarget = aboutValueUnit || aboutValue;
+			const measure = measureAboutMobileStickyUnit(
+				fitTarget,
+				getAboutValueAvailableHeight
+			);
+			const holdHeight = getAboutValueMobileHoldHeight(window.innerHeight);
+			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
+
+			applyAboutValueViewportFit(snapshot);
+
+			if (!aboutValueMobileFitLocked) {
+				aboutValueMobileFitLocked = true;
+				aboutValueMobileFitSnapshot = snapshot;
+				aboutValueMobileFitWidth = viewportWidth;
+			}
+		};
+
+		const syncAboutValuePin = () => {
+			if (aboutValuePinMobileMq.matches) {
+				syncAboutValueMobilePin();
+				return;
+			}
+
+			resetAboutValueMobilePin();
+			syncAboutValueDesktopPin();
 		};
 
 		const syncAboutValuePinnedState = () => {
-			if (!aboutValuePin || !pinMq.matches) {
-				aboutValue.classList.remove("is-pinned");
+			const stickyEl =
+				aboutValuePinMobileMq.matches && aboutValueUnit
+					? aboutValueUnit
+					: aboutValue;
+			const pinActive =
+				aboutValuePinMobileMq.matches || aboutValuePinDesktopMq.matches;
+
+			if (!aboutValuePin || !pinActive) {
+				stickyEl.classList.remove("is-pinned");
 				return;
 			}
-			const stickyTop =
-				parseFloat(getComputedStyle(aboutValue).getPropertyValue("--ee-about-value-sticky-top")) || 0;
-			const rect = aboutValue.getBoundingClientRect();
+
+			const stickyTop = getAboutValueStickyTop();
+			const viewportHeight = window.innerHeight;
+			const sectionRect = stickyEl.getBoundingClientRect();
 			const pinRect = aboutValuePin.getBoundingClientRect();
 			const pinned =
-				rect.top <= stickyTop + 1.5 &&
-				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
-			aboutValue.classList.toggle("is-pinned", pinned);
+				sectionRect.top <= stickyTop + 1.5 &&
+				pinRect.bottom >
+					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
+			stickyEl.classList.toggle("is-pinned", pinned);
+		};
+
+		const refreshAboutValuePin = () => {
+			window.requestAnimationFrame(() => {
+				syncAboutValuePin();
+				syncAboutValuePinnedState();
+			});
+		};
+
+		const refreshAboutValuePinLayout = () => {
+			if (aboutValuePinMobileMq.matches) {
+				resetAboutValueMobilePin();
+			}
+			refreshAboutValuePin();
 		};
 
 		if (lenis) {
-			lenis.on("scroll", syncAboutValuePinnedState);
+			lenis.on("scroll", () => scheduleAboutMobilePinnedState(syncAboutValuePinnedState));
 		} else {
-			window.addEventListener("scroll", syncAboutValuePinnedState, { passive: true });
+			window.addEventListener(
+				"scroll",
+				() => scheduleAboutMobilePinnedState(syncAboutValuePinnedState),
+				{ passive: true }
+			);
 		}
+
 		window.addEventListener("resize", () => {
-			syncAboutValuePin();
-			syncAboutValuePinnedState();
-		});
-		if (typeof pinMq.addEventListener === "function") {
-			pinMq.addEventListener("change", () => {
-				syncAboutValuePin();
-				syncAboutValuePinnedState();
-			});
-		} else if (typeof pinMq.addListener === "function") {
-			pinMq.addListener(() => {
-				syncAboutValuePin();
-				syncAboutValuePinnedState();
-			});
-		}
-		window.requestAnimationFrame(() => {
-			syncAboutValuePin();
-			syncAboutValuePinnedState();
-		});
+			window.clearTimeout(aboutValueResizeTimer);
+			aboutValueResizeTimer = window.setTimeout(() => {
+				if (aboutValuePinMobileMq.matches) {
+					if (
+						aboutValueMobileFitLocked &&
+						Math.abs(window.innerWidth - aboutValueMobileFitWidth) > 80
+					) {
+						refreshAboutValuePinLayout();
+						return;
+					}
+					if (!aboutValueMobileFitLocked) {
+						refreshAboutValuePin();
+					} else {
+						syncAboutValuePinnedState();
+					}
+					return;
+				}
+				refreshAboutValuePinLayout();
+			}, 150);
+		}, { passive: true });
+
 		window.addEventListener("load", () => {
-			syncAboutValuePin();
-			syncAboutValuePinnedState();
+			aboutValueMobilePinReady = true;
+			const fitTarget = aboutValueUnit || aboutValue;
+			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+			const snapNatural = aboutValueMobileFitSnapshot?.naturalSectionHeight;
+			if (
+				!aboutValueMobileFitLocked ||
+				(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+			) {
+				resetAboutValueMobilePin();
+				refreshAboutValuePinLayout();
+			}
 		});
+
+		window.addEventListener("orientationchange", () => {
+			resetAboutValueMobilePin();
+			aboutValueMobileFitWidth = window.innerWidth;
+			window.setTimeout(refreshAboutValuePinLayout, 150);
+		});
+
 		window.addEventListener("excel-ent:header-state-change", () => {
-			syncAboutValuePin();
-			syncAboutValuePinnedState();
+			if (aboutValuePinMobileMq.matches) {
+				resetAboutValueMobilePin();
+				refreshAboutValuePin();
+				return;
+			}
+			refreshAboutValuePinLayout();
 		});
+
+		bindAboutMobilePinViewportGuard(
+			aboutValuePinMobileMq,
+			resetAboutValueMobilePin,
+			refreshAboutValuePinLayout
+		);
+
+		if (typeof aboutValuePinDesktopMq.addEventListener === "function") {
+			aboutValuePinDesktopMq.addEventListener("change", refreshAboutValuePinLayout);
+			aboutValuePinMobileMq.addEventListener("change", refreshAboutValuePinLayout);
+			aboutValueFitDesktopMq.addEventListener("change", refreshAboutValuePinLayout);
+		} else if (typeof aboutValuePinDesktopMq.addListener === "function") {
+			aboutValuePinDesktopMq.addListener(refreshAboutValuePinLayout);
+			aboutValuePinMobileMq.addListener(refreshAboutValuePinLayout);
+			aboutValueFitDesktopMq.addListener(refreshAboutValuePinLayout);
+		}
+
+		window.requestAnimationFrame(refreshAboutValuePin);
+		aboutValuePin?.querySelectorAll("img").forEach((img) => {
+			img.addEventListener("load", () => {
+				if (aboutValuePinMobileMq.matches && aboutValueMobileFitLocked) {
+					resetAboutValueMobilePin();
+				}
+				refreshAboutValuePin();
+			});
+		});
+
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
-				syncAboutValuePin();
-				syncAboutValuePinnedState();
-			});
-		}
-		if (typeof fitMq.addEventListener === "function") {
-			fitMq.addEventListener("change", () => {
-				syncAboutValuePin();
-				syncAboutValuePinnedState();
-			});
-		} else if (typeof fitMq.addListener === "function") {
-			fitMq.addListener(() => {
-				syncAboutValuePin();
-				syncAboutValuePinnedState();
+				const fitTarget = aboutValueUnit || aboutValue;
+				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+				const snapNatural = aboutValueMobileFitSnapshot?.naturalSectionHeight;
+				if (
+					!aboutValueMobileFitLocked ||
+					(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+				) {
+					refreshAboutValuePinLayout();
+				}
 			});
 		}
 	}
@@ -2536,244 +3330,682 @@
 	const aboutWhy = document.querySelector("[data-about-why]");
 	if (aboutWhy) {
 		const aboutWhyPin = document.querySelector("[data-about-why-pin]");
-		const pinMq = window.matchMedia("(min-width: 768px)");
-		const fitMq = window.matchMedia("(min-width: 1200px)");
+		const aboutWhyUnit = document.querySelector("[data-about-why-unit]");
+		const aboutWhyPinMobileMq = window.matchMedia("(max-width: 767px)");
+		const aboutWhyPinDesktopMq = window.matchMedia("(min-width: 768px)");
+		const aboutWhyFitDesktopMq = window.matchMedia("(min-width: 1200px)");
+		let aboutWhyMobileFitLocked = false;
+		let aboutWhyMobileFitSnapshot = null;
+		let aboutWhyMobileFitWidth = window.innerWidth;
+		let aboutWhyMobilePinReady = false;
+		let aboutWhyResizeTimer = 0;
 
-		const syncAboutWhyPin = () => {
-			if (!aboutWhyPin) {
+		const resetAboutWhyMobilePin = () => {
+			aboutWhyMobileFitLocked = false;
+			aboutWhyMobileFitSnapshot = null;
+			aboutWhyMobileFitWidth = window.innerWidth;
+		};
+
+		const getAboutWhyFitEl = () =>
+			aboutWhyPinMobileMq.matches && aboutWhyUnit ? aboutWhyUnit : aboutWhy;
+
+		const clearAboutWhyViewportFit = () => {
+			[aboutWhy, aboutWhyUnit].filter(Boolean).forEach((el) => {
+				el.classList.remove("is-viewport-fitted", "is-mobile-fill", "is-pinned");
+				el.style.removeProperty("height");
+				el.style.removeProperty("--ee-about-why-available-height");
+				el.style.removeProperty("--ee-about-why-viewport-height");
+				el.style.removeProperty("--ee-about-why-fit-scale");
+				el.style.removeProperty("--ee-about-why-fit-pad-top");
+				el.style.removeProperty("--ee-about-why-fit-pad-bottom");
+				el.style.removeProperty("--ee-about-why-content-height");
+			});
+		};
+
+		const getAboutWhyStickyTop = () => {
+			const stickyEl = aboutWhyUnit || aboutWhy;
+			const fromVar =
+				parseFloat(
+					getComputedStyle(stickyEl).getPropertyValue(
+						"--ee-about-why-sticky-top"
+					)
+				) || 0;
+			if (fromVar > 0) {
+				return fromVar;
+			}
+			const headerEl = document.querySelector(".site-header");
+			return headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 0;
+		};
+
+		const getAboutWhyAvailableHeight = () =>
+			getAboutMobileAvailableHeight(getAboutWhyStickyTop());
+
+		const applyAboutWhyViewportFit = (snapshot) => {
+			if (!snapshot) {
 				return;
 			}
-			if (!pinMq.matches) {
-				aboutWhyPin.style.height = "";
-				aboutWhy.classList.remove("is-pinned", "is-viewport-fitted");
-				aboutWhy.style.removeProperty("height");
-				aboutWhy.style.removeProperty("--ee-about-why-viewport-height");
-				aboutWhy.style.removeProperty("--ee-about-why-fit-scale");
-				aboutWhy.style.removeProperty("--ee-about-why-fit-pad-top");
-				aboutWhy.style.removeProperty("--ee-about-why-fit-pad-bottom");
+
+			const fitEl = getAboutWhyFitEl();
+			if (
+				aboutWhyMobileFitLocked &&
+				aboutWhyMobileFitSnapshot === snapshot &&
+				((snapshot.useFit && fitEl.classList.contains("is-viewport-fitted")) ||
+					(!snapshot.useFit &&
+						!fitEl.classList.contains("is-viewport-fitted")))
+			) {
+				syncAboutWhyPinnedState();
+				return;
+			}
+
+			clearAboutWhyViewportFit();
+
+			if (snapshot.useFit) {
+				fitEl.style.setProperty(
+					"--ee-about-why-available-height",
+					`${snapshot.availableHeight}px`
+				);
+			}
+
+			if (snapshot.useFit) {
+				fitEl.style.setProperty(
+					"--ee-about-why-viewport-height",
+					`${snapshot.displaySectionHeight}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-why-fit-scale",
+					String(snapshot.fitScale)
+				);
+				fitEl.style.setProperty(
+					"--ee-about-why-fit-pad-top",
+					`${snapshot.padTop * snapshot.fitScale}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-why-fit-pad-bottom",
+					`${snapshot.padBottom * snapshot.fitScale}px`
+				);
+				if (fitEl === aboutWhy && snapshot.contentHeight) {
+					fitEl.style.setProperty(
+						"--ee-about-why-content-height",
+						`${snapshot.contentHeight}px`
+					);
+				}
+				fitEl.classList.add("is-viewport-fitted");
+			}
+
+			if (aboutWhyPin && snapshot.pinHeight) {
+				aboutWhyPin.style.height = `${snapshot.pinHeight}px`;
+			}
+
+			syncAboutWhyPinnedState();
+		};
+
+		const getAboutWhyMobileHoldHeight = (viewportHeight) =>
+			Math.round(viewportHeight);
+
+		const syncAboutWhyDesktopPin = () => {
+			if (!aboutWhyPin || !aboutWhyPinDesktopMq.matches) {
 				return;
 			}
 
 			aboutWhyPin.style.height = "auto";
-			aboutWhy.classList.remove("is-viewport-fitted");
-			aboutWhy.style.removeProperty("height");
-			aboutWhy.style.removeProperty("--ee-about-why-viewport-height");
-			aboutWhy.style.removeProperty("--ee-about-why-fit-scale");
-			aboutWhy.style.removeProperty("--ee-about-why-fit-pad-top");
-			aboutWhy.style.removeProperty("--ee-about-why-fit-pad-bottom");
+			clearAboutWhyViewportFit();
+
 			const pad = aboutWhyPin.querySelector(".about-why__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(aboutWhy.getBoundingClientRect().height);
-			const stickyTop =
-				parseFloat(getComputedStyle(aboutWhy).getPropertyValue("--ee-about-why-sticky-top")) || 0;
+			const stickyTop = getAboutWhyStickyTop();
 			const availableH = Math.max(window.innerHeight - stickyTop, 0);
-			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
+			const fitScale = aboutWhyFitDesktopMq.matches
+				? Math.min(1, availableH / Math.max(sectionH, 1))
+				: 1;
 
 			if (fitScale < 1) {
 				const styles = getComputedStyle(aboutWhy);
 				const padTop = parseFloat(styles.paddingTop) || 0;
 				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				const contentHeight = Math.max(sectionH - padTop - padBottom, 0);
 
-				aboutWhy.style.setProperty("--ee-about-why-viewport-height", `${availableH}px`);
-				aboutWhy.style.setProperty("--ee-about-why-fit-scale", String(fitScale));
-				aboutWhy.style.setProperty("--ee-about-why-fit-pad-top", `${padTop * fitScale}px`);
-				aboutWhy.style.setProperty("--ee-about-why-fit-pad-bottom", `${padBottom * fitScale}px`);
-				aboutWhy.classList.add("is-viewport-fitted");
-			}
-
-			const holdPx = Math.round(window.innerHeight * 1);
-
-			aboutWhyPin.style.height = `${padH + sectionH * fitScale + holdPx}px`;
-		};
-
-		const syncAboutWhyPinnedState = () => {
-			if (!aboutWhyPin || !pinMq.matches) {
-				aboutWhy.classList.remove("is-pinned");
+				applyAboutWhyViewportFit({
+					availableHeight: availableH,
+					fitScale,
+					padTop,
+					padBottom,
+					contentHeight,
+					useFit: true,
+					displaySectionHeight: Math.ceil(sectionH * fitScale),
+					pinHeight: padH + Math.ceil(sectionH * fitScale) + Math.round(window.innerHeight),
+				});
 				return;
 			}
 
-			const stickyTop =
-				parseFloat(getComputedStyle(aboutWhy).getPropertyValue("--ee-about-why-sticky-top")) || 0;
-			const rect = aboutWhy.getBoundingClientRect();
+			const holdPx = Math.round(window.innerHeight);
+			aboutWhyPin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncAboutWhyMobilePin = () => {
+			if (!aboutWhyPin || !aboutWhyPinMobileMq.matches) {
+				return;
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				aboutWhyMobileFitLocked &&
+				Math.abs(viewportWidth - aboutWhyMobileFitWidth) > 80
+			) {
+				resetAboutWhyMobilePin();
+			}
+
+			if (aboutWhyMobileFitLocked && aboutWhyMobileFitSnapshot) {
+				applyAboutWhyViewportFit(aboutWhyMobileFitSnapshot);
+				return;
+			}
+
+			aboutWhyPin.style.height = "auto";
+			clearAboutWhyViewportFit();
+
+			const pad = aboutWhyPin.querySelector(".about-why__scroll-pad");
+			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const fitTarget = aboutWhyUnit || aboutWhy;
+			const measure = measureAboutMobileStickyUnit(
+				fitTarget,
+				getAboutWhyAvailableHeight
+			);
+			const holdHeight = getAboutWhyMobileHoldHeight(window.innerHeight);
+			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
+
+			applyAboutWhyViewportFit(snapshot);
+
+			if (!aboutWhyMobileFitLocked) {
+				aboutWhyMobileFitLocked = true;
+				aboutWhyMobileFitSnapshot = snapshot;
+				aboutWhyMobileFitWidth = viewportWidth;
+			}
+		};
+
+		const syncAboutWhyPin = () => {
+			if (aboutWhyPinMobileMq.matches) {
+				syncAboutWhyMobilePin();
+				return;
+			}
+
+			resetAboutWhyMobilePin();
+			syncAboutWhyDesktopPin();
+		};
+
+		const syncAboutWhyPinnedState = () => {
+			const stickyEl =
+				aboutWhyPinMobileMq.matches && aboutWhyUnit ? aboutWhyUnit : aboutWhy;
+			const pinActive =
+				aboutWhyPinMobileMq.matches || aboutWhyPinDesktopMq.matches;
+
+			if (!aboutWhyPin || !pinActive) {
+				stickyEl.classList.remove("is-pinned");
+				return;
+			}
+
+			const stickyTop = getAboutWhyStickyTop();
+			const viewportHeight = window.innerHeight;
+			const sectionRect = stickyEl.getBoundingClientRect();
 			const pinRect = aboutWhyPin.getBoundingClientRect();
 			const pinned =
-				rect.top <= stickyTop + 1.5 &&
-				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+				sectionRect.top <= stickyTop + 1.5 &&
+				pinRect.bottom >
+					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
+			stickyEl.classList.toggle("is-pinned", pinned);
+		};
 
-			aboutWhy.classList.toggle("is-pinned", pinned);
+		const refreshAboutWhyPin = () => {
+			window.requestAnimationFrame(() => {
+				syncAboutWhyPin();
+				syncAboutWhyPinnedState();
+			});
+		};
+
+		const refreshAboutWhyPinLayout = () => {
+			if (aboutWhyPinMobileMq.matches) {
+				resetAboutWhyMobilePin();
+			}
+			refreshAboutWhyPin();
 		};
 
 		if (lenis) {
-			lenis.on("scroll", syncAboutWhyPinnedState);
+			lenis.on("scroll", () => scheduleAboutMobilePinnedState(syncAboutWhyPinnedState));
 		} else {
-			window.addEventListener("scroll", syncAboutWhyPinnedState, { passive: true });
+			window.addEventListener(
+				"scroll",
+				() => scheduleAboutMobilePinnedState(syncAboutWhyPinnedState),
+				{ passive: true }
+			);
 		}
+
 		window.addEventListener("resize", () => {
-			syncAboutWhyPin();
-			syncAboutWhyPinnedState();
+			window.clearTimeout(aboutWhyResizeTimer);
+			aboutWhyResizeTimer = window.setTimeout(() => {
+				if (aboutWhyPinMobileMq.matches) {
+					if (
+						aboutWhyMobileFitLocked &&
+						Math.abs(window.innerWidth - aboutWhyMobileFitWidth) > 80
+					) {
+						resetAboutWhyMobilePin();
+					}
+					if (!aboutWhyMobileFitLocked) {
+						syncAboutWhyPin();
+					} else {
+						syncAboutWhyPinnedState();
+					}
+					return;
+				}
+				refreshAboutWhyPinLayout();
+			}, 120);
 		});
-		if (typeof pinMq.addEventListener === "function") {
-			pinMq.addEventListener("change", () => {
-				syncAboutWhyPin();
-				syncAboutWhyPinnedState();
-			});
-		} else if (typeof pinMq.addListener === "function") {
-			pinMq.addListener(() => {
-				syncAboutWhyPin();
-				syncAboutWhyPinnedState();
-			});
+
+		if (typeof aboutWhyPinMobileMq.addEventListener === "function") {
+			aboutWhyPinMobileMq.addEventListener("change", refreshAboutWhyPinLayout);
+		} else if (typeof aboutWhyPinMobileMq.addListener === "function") {
+			aboutWhyPinMobileMq.addListener(refreshAboutWhyPinLayout);
 		}
-		if (typeof fitMq.addEventListener === "function") {
-			fitMq.addEventListener("change", () => {
-				syncAboutWhyPin();
-				syncAboutWhyPinnedState();
-			});
-		} else if (typeof fitMq.addListener === "function") {
-			fitMq.addListener(() => {
-				syncAboutWhyPin();
-				syncAboutWhyPinnedState();
-			});
+
+		if (typeof aboutWhyPinDesktopMq.addEventListener === "function") {
+			aboutWhyPinDesktopMq.addEventListener("change", refreshAboutWhyPinLayout);
+		} else if (typeof aboutWhyPinDesktopMq.addListener === "function") {
+			aboutWhyPinDesktopMq.addListener(refreshAboutWhyPinLayout);
 		}
-		window.requestAnimationFrame(() => {
-			syncAboutWhyPin();
-			syncAboutWhyPinnedState();
-		});
+
+		if (typeof aboutWhyFitDesktopMq.addEventListener === "function") {
+			aboutWhyFitDesktopMq.addEventListener("change", refreshAboutWhyPin);
+		} else if (typeof aboutWhyFitDesktopMq.addListener === "function") {
+			aboutWhyFitDesktopMq.addListener(refreshAboutWhyPin);
+		}
+
 		window.addEventListener("load", () => {
-			syncAboutWhyPin();
-			syncAboutWhyPinnedState();
+			aboutWhyMobilePinReady = true;
+			const fitTarget = aboutWhyUnit || aboutWhy;
+			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+			const snapNatural = aboutWhyMobileFitSnapshot?.naturalSectionHeight;
+			if (
+				!aboutWhyMobileFitLocked ||
+				(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+			) {
+				resetAboutWhyMobilePin();
+				refreshAboutWhyPinLayout();
+			}
 		});
+
 		window.addEventListener("excel-ent:header-state-change", () => {
-			syncAboutWhyPin();
-			syncAboutWhyPinnedState();
+			if (aboutWhyPinMobileMq.matches) {
+				resetAboutWhyMobilePin();
+			}
+			refreshAboutWhyPinLayout();
 		});
+
+		bindAboutMobilePinViewportGuard(
+			aboutWhyPinMobileMq,
+			resetAboutWhyMobilePin,
+			refreshAboutWhyPinLayout
+		);
+
+		aboutWhy.querySelectorAll("img").forEach((img) => {
+			if (img.complete) {
+				return;
+			}
+			img.addEventListener("load", refreshAboutWhyPinLayout, { once: true });
+		});
+
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
-				syncAboutWhyPin();
-				syncAboutWhyPinnedState();
+				const fitTarget = aboutWhyUnit || aboutWhy;
+				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+				const snapNatural = aboutWhyMobileFitSnapshot?.naturalSectionHeight;
+				if (
+					!aboutWhyMobileFitLocked ||
+					(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+				) {
+					refreshAboutWhyPinLayout();
+				}
 			});
 		}
+
+		window.setTimeout(refreshAboutWhyPinLayout, 250);
 	}
 
 	/* ---------- About approach sticky pin ---------- */
 	const aboutApproachSticky = document.querySelector("[data-about-approach]");
 	if (aboutApproachSticky) {
 		const aboutApproachPin = document.querySelector("[data-about-approach-pin]");
-		const pinMq = window.matchMedia("(min-width: 768px)");
-		const fitMq = window.matchMedia("(min-width: 1200px)");
+		const aboutApproachUnit = document.querySelector("[data-about-approach-unit]");
+		const aboutApproachPinMobileMq = window.matchMedia("(max-width: 767px)");
+		const aboutApproachPinDesktopMq = window.matchMedia("(min-width: 768px)");
+		const aboutApproachFitDesktopMq = window.matchMedia("(min-width: 1200px)");
+		let aboutApproachMobileFitLocked = false;
+		let aboutApproachMobileFitSnapshot = null;
+		let aboutApproachMobileFitWidth = window.innerWidth;
+		let aboutApproachMobilePinReady = false;
+		let aboutApproachResizeTimer = 0;
 
-		const syncAboutApproachPin = () => {
-			if (!aboutApproachPin) {
+		const resetAboutApproachMobilePin = () => {
+			aboutApproachMobileFitLocked = false;
+			aboutApproachMobileFitSnapshot = null;
+			aboutApproachMobileFitWidth = window.innerWidth;
+		};
+
+		const getAboutApproachFitEl = () =>
+			aboutApproachPinMobileMq.matches && aboutApproachUnit
+				? aboutApproachUnit
+				: aboutApproachSticky;
+
+		const clearAboutApproachViewportFit = () => {
+			[aboutApproachSticky, aboutApproachUnit].filter(Boolean).forEach((el) => {
+				el.classList.remove("is-viewport-fitted", "is-mobile-fill", "is-pinned");
+				el.style.removeProperty("height");
+				el.style.removeProperty("--ee-about-approach-available-height");
+				el.style.removeProperty("--ee-about-approach-viewport-height");
+				el.style.removeProperty("--ee-about-approach-fit-scale");
+				el.style.removeProperty("--ee-about-approach-fit-pad-top");
+				el.style.removeProperty("--ee-about-approach-fit-pad-bottom");
+				el.style.removeProperty("--ee-about-approach-content-height");
+			});
+		};
+
+		const getAboutApproachStickyTop = () => {
+			const stickyEl = aboutApproachUnit || aboutApproachSticky;
+			const fromVar =
+				parseFloat(
+					getComputedStyle(stickyEl).getPropertyValue(
+						"--ee-about-approach-sticky-top"
+					)
+				) || 0;
+			if (fromVar > 0) {
+				return fromVar;
+			}
+			const headerEl = document.querySelector(".site-header");
+			return headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 0;
+		};
+
+		const getAboutApproachAvailableHeight = () =>
+			getAboutMobileAvailableHeight(getAboutApproachStickyTop());
+
+		const applyAboutApproachViewportFit = (snapshot) => {
+			if (!snapshot) {
 				return;
 			}
-			if (!pinMq.matches) {
-				aboutApproachPin.style.height = "";
-				aboutApproachSticky.classList.remove("is-pinned", "is-viewport-fitted");
-				aboutApproachSticky.style.removeProperty("height");
-				aboutApproachSticky.style.removeProperty("--ee-about-approach-viewport-height");
-				aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-scale");
-				aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-pad-top");
-				aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-pad-bottom");
+
+			const fitEl = getAboutApproachFitEl();
+			if (
+				aboutApproachMobileFitLocked &&
+				aboutApproachMobileFitSnapshot === snapshot &&
+				((snapshot.useFit && fitEl.classList.contains("is-viewport-fitted")) ||
+					(!snapshot.useFit && !fitEl.classList.contains("is-viewport-fitted")))
+			) {
+				syncAboutApproachPinnedState();
+				return;
+			}
+
+			clearAboutApproachViewportFit();
+
+			if (snapshot.useFit) {
+				fitEl.style.setProperty(
+					"--ee-about-approach-viewport-height",
+					`${snapshot.displaySectionHeight}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-approach-fit-scale",
+					String(snapshot.fitScale)
+				);
+				fitEl.style.setProperty(
+					"--ee-about-approach-fit-pad-top",
+					`${snapshot.padTop * snapshot.fitScale}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-approach-fit-pad-bottom",
+					`${snapshot.padBottom * snapshot.fitScale}px`
+				);
+				if (fitEl === aboutApproachSticky && snapshot.contentHeight) {
+					fitEl.style.setProperty(
+						"--ee-about-approach-content-height",
+						`${snapshot.contentHeight}px`
+					);
+				}
+				fitEl.classList.add("is-viewport-fitted");
+			}
+
+			if (aboutApproachPin && snapshot.pinHeight) {
+				aboutApproachPin.style.height = `${snapshot.pinHeight}px`;
+			}
+
+			syncAboutApproachPinnedState();
+		};
+
+		const getAboutApproachMobileHoldHeight = (viewportHeight) =>
+			Math.round(viewportHeight);
+
+		const syncAboutApproachDesktopPin = () => {
+			if (!aboutApproachPin || !aboutApproachPinDesktopMq.matches) {
 				return;
 			}
 
 			aboutApproachPin.style.height = "auto";
-			aboutApproachSticky.classList.remove("is-viewport-fitted");
-			aboutApproachSticky.style.removeProperty("height");
-			aboutApproachSticky.style.removeProperty("--ee-about-approach-viewport-height");
-			aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-scale");
-			aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-pad-top");
-			aboutApproachSticky.style.removeProperty("--ee-about-approach-fit-pad-bottom");
+			clearAboutApproachViewportFit();
 
 			const pad = aboutApproachPin.querySelector(".about-approach__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(aboutApproachSticky.getBoundingClientRect().height);
-			const stickyTop =
-				parseFloat(getComputedStyle(aboutApproachSticky).getPropertyValue("--ee-about-approach-sticky-top")) || 0;
+			const stickyTop = getAboutApproachStickyTop();
 			const availableH = Math.max(window.innerHeight - stickyTop, 0);
-			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
+			const fitScale = aboutApproachFitDesktopMq.matches
+				? Math.min(1, availableH / Math.max(sectionH, 1))
+				: 1;
 
 			if (fitScale < 1) {
 				const styles = getComputedStyle(aboutApproachSticky);
 				const padTop = parseFloat(styles.paddingTop) || 0;
 				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				const contentHeight = Math.max(sectionH - padTop - padBottom, 0);
 
-				aboutApproachSticky.style.setProperty("--ee-about-approach-viewport-height", `${availableH}px`);
-				aboutApproachSticky.style.setProperty("--ee-about-approach-fit-scale", String(fitScale));
-				aboutApproachSticky.style.setProperty("--ee-about-approach-fit-pad-top", `${padTop * fitScale}px`);
-				aboutApproachSticky.style.setProperty("--ee-about-approach-fit-pad-bottom", `${padBottom * fitScale}px`);
-				aboutApproachSticky.classList.add("is-viewport-fitted");
-			}
-
-			const holdPx = Math.round(window.innerHeight * 1);
-			aboutApproachPin.style.height = `${padH + sectionH * fitScale + holdPx}px`;
-		};
-
-		const syncAboutApproachPinnedState = () => {
-			if (!aboutApproachPin || !pinMq.matches) {
-				aboutApproachSticky.classList.remove("is-pinned");
+				applyAboutApproachViewportFit({
+					availableHeight: availableH,
+					fitScale,
+					padTop,
+					padBottom,
+					contentHeight,
+					useFit: true,
+					displaySectionHeight: Math.ceil(sectionH * fitScale),
+					pinHeight: padH + Math.ceil(sectionH * fitScale) + Math.round(window.innerHeight),
+				});
 				return;
 			}
 
-			const stickyTop =
-				parseFloat(getComputedStyle(aboutApproachSticky).getPropertyValue("--ee-about-approach-sticky-top")) || 0;
-			const rect = aboutApproachSticky.getBoundingClientRect();
+			const holdPx = Math.round(window.innerHeight);
+			aboutApproachPin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncAboutApproachMobilePin = () => {
+			if (!aboutApproachPin || !aboutApproachPinMobileMq.matches) {
+				return;
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				aboutApproachMobileFitLocked &&
+				Math.abs(viewportWidth - aboutApproachMobileFitWidth) > 80
+			) {
+				resetAboutApproachMobilePin();
+			}
+
+			if (aboutApproachMobileFitLocked && aboutApproachMobileFitSnapshot) {
+				applyAboutApproachViewportFit(aboutApproachMobileFitSnapshot);
+				return;
+			}
+
+			aboutApproachPin.style.height = "auto";
+			clearAboutApproachViewportFit();
+
+			const pad = aboutApproachPin.querySelector(".about-approach__scroll-pad");
+			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const fitTarget = aboutApproachUnit || aboutApproachSticky;
+			const measure = measureAboutMobileStickyUnit(
+				fitTarget,
+				getAboutApproachAvailableHeight
+			);
+			const holdHeight = getAboutApproachMobileHoldHeight(window.innerHeight);
+			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
+
+			applyAboutApproachViewportFit(snapshot);
+
+			if (!aboutApproachMobileFitLocked) {
+				aboutApproachMobileFitLocked = true;
+				aboutApproachMobileFitSnapshot = snapshot;
+				aboutApproachMobileFitWidth = viewportWidth;
+			}
+		};
+
+		const syncAboutApproachPin = () => {
+			if (aboutApproachPinMobileMq.matches) {
+				syncAboutApproachMobilePin();
+				return;
+			}
+
+			resetAboutApproachMobilePin();
+			syncAboutApproachDesktopPin();
+		};
+
+		const syncAboutApproachPinnedState = () => {
+			const stickyEl =
+				aboutApproachPinMobileMq.matches && aboutApproachUnit
+					? aboutApproachUnit
+					: aboutApproachSticky;
+			const pinActive =
+				aboutApproachPinMobileMq.matches || aboutApproachPinDesktopMq.matches;
+
+			if (!aboutApproachPin || !pinActive) {
+				stickyEl.classList.remove("is-pinned");
+				return;
+			}
+
+			const stickyTop = getAboutApproachStickyTop();
+			const viewportHeight = window.innerHeight;
+			const sectionRect = stickyEl.getBoundingClientRect();
 			const pinRect = aboutApproachPin.getBoundingClientRect();
 			const pinned =
-				rect.top <= stickyTop + 1.5 &&
-				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+				sectionRect.top <= stickyTop + 1.5 &&
+				pinRect.bottom >
+					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
+			stickyEl.classList.toggle("is-pinned", pinned);
+		};
 
-			aboutApproachSticky.classList.toggle("is-pinned", pinned);
+		const refreshAboutApproachPin = () => {
+			window.requestAnimationFrame(() => {
+				syncAboutApproachPin();
+				syncAboutApproachPinnedState();
+			});
+		};
+
+		const refreshAboutApproachPinLayout = () => {
+			if (aboutApproachPinMobileMq.matches) {
+				resetAboutApproachMobilePin();
+			}
+			refreshAboutApproachPin();
 		};
 
 		if (lenis) {
-			lenis.on("scroll", syncAboutApproachPinnedState);
+			lenis.on("scroll", () =>
+				scheduleAboutMobilePinnedState(syncAboutApproachPinnedState)
+			);
 		} else {
-			window.addEventListener("scroll", syncAboutApproachPinnedState, { passive: true });
+			window.addEventListener(
+				"scroll",
+				() => scheduleAboutMobilePinnedState(syncAboutApproachPinnedState),
+				{ passive: true }
+			);
 		}
+
 		window.addEventListener("resize", () => {
-			syncAboutApproachPin();
-			syncAboutApproachPinnedState();
+			window.clearTimeout(aboutApproachResizeTimer);
+			aboutApproachResizeTimer = window.setTimeout(() => {
+				if (aboutApproachPinMobileMq.matches) {
+					if (
+						aboutApproachMobileFitLocked &&
+						Math.abs(window.innerWidth - aboutApproachMobileFitWidth) > 80
+					) {
+						resetAboutApproachMobilePin();
+					}
+					if (!aboutApproachMobileFitLocked) {
+						syncAboutApproachPin();
+					} else {
+						syncAboutApproachPinnedState();
+					}
+					return;
+				}
+				refreshAboutApproachPinLayout();
+			}, 120);
 		});
-		if (typeof pinMq.addEventListener === "function") {
-			pinMq.addEventListener("change", () => {
-				syncAboutApproachPin();
-				syncAboutApproachPinnedState();
-			});
-		} else if (typeof pinMq.addListener === "function") {
-			pinMq.addListener(() => {
-				syncAboutApproachPin();
-				syncAboutApproachPinnedState();
-			});
+
+		if (typeof aboutApproachPinMobileMq.addEventListener === "function") {
+			aboutApproachPinMobileMq.addEventListener("change", refreshAboutApproachPinLayout);
+		} else if (typeof aboutApproachPinMobileMq.addListener === "function") {
+			aboutApproachPinMobileMq.addListener(refreshAboutApproachPinLayout);
 		}
-		if (typeof fitMq.addEventListener === "function") {
-			fitMq.addEventListener("change", () => {
-				syncAboutApproachPin();
-				syncAboutApproachPinnedState();
-			});
-		} else if (typeof fitMq.addListener === "function") {
-			fitMq.addListener(() => {
-				syncAboutApproachPin();
-				syncAboutApproachPinnedState();
-			});
+
+		if (typeof aboutApproachPinDesktopMq.addEventListener === "function") {
+			aboutApproachPinDesktopMq.addEventListener("change", refreshAboutApproachPinLayout);
+		} else if (typeof aboutApproachPinDesktopMq.addListener === "function") {
+			aboutApproachPinDesktopMq.addListener(refreshAboutApproachPinLayout);
 		}
-		window.requestAnimationFrame(() => {
-			syncAboutApproachPin();
-			syncAboutApproachPinnedState();
-		});
+
+		if (typeof aboutApproachFitDesktopMq.addEventListener === "function") {
+			aboutApproachFitDesktopMq.addEventListener("change", refreshAboutApproachPin);
+		} else if (typeof aboutApproachFitDesktopMq.addListener === "function") {
+			aboutApproachFitDesktopMq.addListener(refreshAboutApproachPin);
+		}
+
 		window.addEventListener("load", () => {
-			syncAboutApproachPin();
-			syncAboutApproachPinnedState();
+			aboutApproachMobilePinReady = true;
+			const fitTarget = aboutApproachUnit || aboutApproachSticky;
+			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+			const snapNatural = aboutApproachMobileFitSnapshot?.naturalSectionHeight;
+			if (
+				!aboutApproachMobileFitLocked ||
+				(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+			) {
+				resetAboutApproachMobilePin();
+				refreshAboutApproachPinLayout();
+			}
 		});
+
 		window.addEventListener("excel-ent:header-state-change", () => {
-			syncAboutApproachPin();
-			syncAboutApproachPinnedState();
+			if (aboutApproachPinMobileMq.matches) {
+				resetAboutApproachMobilePin();
+			}
+			refreshAboutApproachPinLayout();
 		});
+
+		bindAboutMobilePinViewportGuard(
+			aboutApproachPinMobileMq,
+			resetAboutApproachMobilePin,
+			refreshAboutApproachPinLayout
+		);
+
+		aboutApproachSticky.querySelectorAll("img").forEach((img) => {
+			if (img.complete) {
+				return;
+			}
+			img.addEventListener("load", refreshAboutApproachPinLayout, { once: true });
+		});
+
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
-				syncAboutApproachPin();
-				syncAboutApproachPinnedState();
+				const fitTarget = aboutApproachUnit || aboutApproachSticky;
+				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+				const snapNatural = aboutApproachMobileFitSnapshot?.naturalSectionHeight;
+				if (
+					!aboutApproachMobileFitLocked ||
+					(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+				) {
+					refreshAboutApproachPinLayout();
+				}
 			});
 		}
+
+		window.setTimeout(refreshAboutApproachPinLayout, 250);
 	}
 
 	/* ---------- Explore Artists filters ---------- */
@@ -3487,7 +4719,10 @@
 
 		const isVenueSwipe = () => venueSwipeMq.matches;
 
-		const getVenueTrackStep = () => Math.max(artistVenue.offsetWidth || 0, 1);
+		const venueFrame = artistVenue.querySelector(".artist-performance__gallery-frame");
+
+		const getVenueTrackStep = () =>
+			Math.max((venueFrame || artistVenue).offsetWidth || 0, 1);
 
 		const rubberVenueTrack = (offset) => {
 			if (offset < 0) {
@@ -3539,7 +4774,8 @@
 				venueTrack = document.createElement("div");
 				venueTrack.className = "artist-performance__venue-track";
 				venueTrack.setAttribute("data-venue-track", "");
-				artistVenue.insertBefore(venueTrack, artistVenue.firstChild);
+				const trackHost = venueFrame || artistVenue;
+				trackHost.insertBefore(venueTrack, trackHost.firstChild);
 			}
 
 			venueTrack.replaceChildren();
@@ -4140,18 +5376,26 @@
 				return;
 			}
 
-			artistSetlist.classList.remove("is-viewport-fitted");
+			artistSetlist.classList.remove("is-viewport-fitted", "is-mobile-fill");
 			artistSetlist.style.removeProperty("height");
+			artistSetlist.style.removeProperty("--ee-artist-setlist-available-height");
 			artistSetlist.style.removeProperty("--ee-artist-setlist-viewport-height");
 			artistSetlist.style.removeProperty("--ee-artist-setlist-fit-scale");
 			artistSetlist.style.removeProperty("--ee-artist-setlist-fit-pad-top");
 			artistSetlist.style.removeProperty("--ee-artist-setlist-fit-pad-bottom");
 			artistSetlist.style.removeProperty("--ee-artist-setlist-content-height");
 
+			if (snapshot.useFill || snapshot.useFit) {
+				artistSetlist.style.setProperty(
+					"--ee-artist-setlist-available-height",
+					`${snapshot.availableHeight}px`
+				);
+			}
+
 			if (snapshot.useFit) {
 				artistSetlist.style.setProperty(
 					"--ee-artist-setlist-viewport-height",
-					`${snapshot.fittedSectionHeight}px`
+					`${snapshot.displaySectionHeight}px`
 				);
 				artistSetlist.style.setProperty(
 					"--ee-artist-setlist-fit-scale",
@@ -4170,6 +5414,8 @@
 					`${snapshot.contentHeight}px`
 				);
 				artistSetlist.classList.add("is-viewport-fitted");
+			} else if (snapshot.useFill) {
+				artistSetlist.classList.add("is-mobile-fill");
 			}
 
 			artistSetlistPin.style.height = `${snapshot.pinHeight}px`;
@@ -4183,8 +5429,9 @@
 			if (!isArtistSetlistPinActive()) {
 				resetSetlistMobilePin();
 				artistSetlistPin.style.height = "";
-				artistSetlist.classList.remove("is-pinned", "is-viewport-fitted");
+				artistSetlist.classList.remove("is-pinned", "is-viewport-fitted", "is-mobile-fill");
 				artistSetlist.style.removeProperty("height");
+				artistSetlist.style.removeProperty("--ee-artist-setlist-available-height");
 				artistSetlist.style.removeProperty("--ee-artist-setlist-viewport-height");
 				artistSetlist.style.removeProperty("--ee-artist-setlist-fit-scale");
 				artistSetlist.style.removeProperty("--ee-artist-setlist-fit-pad-top");
@@ -4216,8 +5463,9 @@
 			}
 
 			artistSetlistPin.style.height = "auto";
-			artistSetlist.classList.remove("is-viewport-fitted");
+			artistSetlist.classList.remove("is-viewport-fitted", "is-mobile-fill");
 			artistSetlist.style.removeProperty("height");
+			artistSetlist.style.removeProperty("--ee-artist-setlist-available-height");
 			artistSetlist.style.removeProperty("--ee-artist-setlist-viewport-height");
 			artistSetlist.style.removeProperty("--ee-artist-setlist-fit-scale");
 			artistSetlist.style.removeProperty("--ee-artist-setlist-fit-pad-top");
@@ -4229,7 +5477,7 @@
 			const pinStyles = getComputedStyle(artistSetlistPin);
 			const pinPadTop = parseFloat(pinStyles.paddingTop) || 0;
 			const pinPadBottom = parseFloat(pinStyles.paddingBottom) || 0;
-			const sectionHeight = Math.ceil(artistSetlist.scrollHeight);
+			const naturalSectionHeight = Math.ceil(artistSetlist.scrollHeight);
 			const stickyTop =
 				parseFloat(
 					getComputedStyle(artistSetlist).getPropertyValue(
@@ -4239,14 +5487,20 @@
 			const viewportHeight = window.visualViewport?.height || window.innerHeight;
 			const availableHeight = Math.max(viewportHeight - stickyTop, 0);
 			const fitScale = isArtistSetlistPinActive()
-				? Math.min(1, availableHeight / Math.max(sectionHeight, 1))
+				? Math.min(1, availableHeight / Math.max(naturalSectionHeight, 1))
 				: 1;
 			const styles = getComputedStyle(artistSetlist);
 			const padTop = parseFloat(styles.paddingTop) || 0;
 			const padBottom = parseFloat(styles.paddingBottom) || 0;
-			const contentHeight = Math.max(sectionHeight - padTop - padBottom, 0);
+			const contentHeight = Math.max(naturalSectionHeight - padTop - padBottom, 0);
 			const useFit = fitScale < 0.999;
-			const fittedSectionHeight = Math.ceil(sectionHeight * fitScale);
+			const useFill =
+				pinMobileMq.matches && setlistMobilePinReady && !useFit;
+			const displaySectionHeight = useFit
+				? Math.ceil(naturalSectionHeight * fitScale)
+				: useFill
+					? availableHeight
+					: naturalSectionHeight;
 			const holdHeight = Math.round(viewportHeight);
 			const snapshot = {
 				availableHeight,
@@ -4254,19 +5508,21 @@
 				padTop,
 				padBottom,
 				contentHeight,
-				fittedSectionHeight,
+				naturalSectionHeight,
+				displaySectionHeight,
 				pinHeight:
 					padHeight +
 					pinPadTop +
 					pinPadBottom +
-					fittedSectionHeight +
+					displaySectionHeight +
 					holdHeight,
 				useFit,
+				useFill,
 			};
 
 			applySetlistViewportFit(snapshot);
 
-			if (pinMobileMq.matches && setlistMobilePinReady && useFit) {
+			if (pinMobileMq.matches && setlistMobilePinReady) {
 				setlistMobileFitLocked = true;
 				setlistMobileFitSnapshot = snapshot;
 				setlistMobileFitWidth = viewportWidth;
@@ -5673,9 +6929,11 @@
 	/* ---------- About approach slider ---------- */
 	const aboutApproach = document.querySelector("[data-about-approach]");
 	if (aboutApproach) {
+		const viewport = aboutApproach.querySelector(".about-approach__viewport");
 		const track = aboutApproach.querySelector("[data-about-approach-track]");
 		const slides = Array.from(aboutApproach.querySelectorAll("[data-about-approach-slide]"));
 		const dots = Array.from(aboutApproach.querySelectorAll("[data-about-approach-dot]"));
+		const approachSwipeMq = window.matchMedia("(max-width: 767px)");
 		let index = 0;
 		let timer = 0;
 
@@ -5701,6 +6959,11 @@
 			timer = window.setInterval(() => goTo(index + 1), 5000);
 		};
 
+		const stop = () => {
+			window.clearInterval(timer);
+			timer = 0;
+		};
+
 		dots.forEach((dot, i) => {
 			dot.addEventListener("click", () => {
 				goTo(i);
@@ -5710,6 +6973,161 @@
 
 		goTo(0);
 		start();
+
+		if (viewport && track && slides.length > 1) {
+			let swipeActive = false;
+			let swipeAxis = null;
+			let swipeStartX = 0;
+			let swipeStartY = 0;
+			let swipeDeltaX = 0;
+			let swipePointerId = null;
+			let swipeLenisPaused = false;
+
+			const pauseApproachSwipeLenis = () => {
+				if (!swipeLenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.stop();
+					swipeLenisPaused = true;
+				}
+			};
+
+			const resumeApproachSwipeLenis = () => {
+				if (swipeLenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.start();
+					swipeLenisPaused = false;
+				}
+			};
+
+			const getApproachViewportWidth = () => viewport.offsetWidth || 0;
+
+			const applyApproachDragTransform = (deltaX) => {
+				const width = getApproachViewportWidth();
+				track.style.transition = "none";
+				track.style.transform = `translateX(${-(index * width) + deltaX}px)`;
+			};
+
+			const releaseApproachSwipePointer = (pointerId) => {
+				if (pointerId == null) {
+					return;
+				}
+				try {
+					viewport.releasePointerCapture(pointerId);
+				} catch (err) {
+					/* ignore */
+				}
+			};
+
+			const finishApproachSwipeGesture = (event) => {
+				const wasHorizontal = swipeAxis === "x";
+				if (event?.pointerId != null) {
+					releaseApproachSwipePointer(event.pointerId);
+				}
+
+				track.style.transition = "";
+				viewport.classList.remove("is-dragging");
+				swipeActive = false;
+				swipeAxis = null;
+				swipePointerId = null;
+				resumeApproachSwipeLenis();
+
+				if (wasHorizontal) {
+					const width = getApproachViewportWidth();
+					const threshold = Math.min(48, Math.max(width * 0.15, 24));
+					if (Math.abs(swipeDeltaX) > threshold) {
+						goTo(index + (swipeDeltaX < 0 ? 1 : -1));
+					} else {
+						goTo(index);
+					}
+					start();
+				}
+				swipeDeltaX = 0;
+			};
+
+			viewport.addEventListener(
+				"pointerdown",
+				(e) => {
+					if (!approachSwipeMq.matches || e.button > 0) {
+						return;
+					}
+					stop();
+					swipeActive = true;
+					swipeAxis = null;
+					swipePointerId = e.pointerId;
+					swipeStartX = e.clientX;
+					swipeStartY = e.clientY;
+					swipeDeltaX = 0;
+				},
+				{ passive: true }
+			);
+
+			viewport.addEventListener(
+				"pointermove",
+				(e) => {
+					if (!swipeActive || e.pointerId !== swipePointerId) {
+						return;
+					}
+
+					const dx = e.clientX - swipeStartX;
+					const dy = e.clientY - swipeStartY;
+
+					if (!swipeAxis) {
+						if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+							return;
+						}
+						if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
+							swipeActive = false;
+							swipePointerId = null;
+							start();
+							return;
+						}
+						if (Math.abs(dx) >= Math.abs(dy)) {
+							swipeAxis = "x";
+							viewport.classList.add("is-dragging");
+							pauseApproachSwipeLenis();
+							try {
+								viewport.setPointerCapture(e.pointerId);
+							} catch (err) {
+								/* ignore */
+							}
+						} else {
+							return;
+						}
+					}
+
+					if (swipeAxis !== "x") {
+						return;
+					}
+
+					swipeDeltaX = dx;
+					applyApproachDragTransform(dx);
+					if (e.cancelable) {
+						e.preventDefault();
+					}
+				},
+				{ passive: false }
+			);
+
+			viewport.addEventListener("pointerup", finishApproachSwipeGesture);
+			viewport.addEventListener("pointercancel", finishApproachSwipeGesture);
+
+			if (typeof approachSwipeMq.addEventListener === "function") {
+				approachSwipeMq.addEventListener("change", () => {
+					finishApproachSwipeGesture();
+					goTo(index);
+				});
+			} else if (typeof approachSwipeMq.addListener === "function") {
+				approachSwipeMq.addListener(() => {
+					finishApproachSwipeGesture();
+					goTo(index);
+				});
+			}
+
+			slides.forEach((slide) => {
+				const img = slide.querySelector("img");
+				if (img) {
+					img.setAttribute("draggable", "false");
+				}
+			});
+		}
 	}
 
 	/* ---------- About reviews carousel + sticky pin ---------- */
@@ -5721,71 +7139,256 @@
 		const cards = Array.from(aboutReviews.querySelectorAll(".about-reviews__card"));
 		const pages = Array.from(aboutReviews.querySelectorAll("[data-about-reviews-page]"));
 		const scrollCarouselMq = window.matchMedia("(max-width: 1199px)");
-		const pinMq = window.matchMedia("(min-width: 768px)");
-		const fitMq = window.matchMedia("(min-width: 1200px)");
+		const aboutReviewsPinMobileMq = window.matchMedia("(max-width: 767px)");
+		const aboutReviewsPinDesktopMq = window.matchMedia("(min-width: 768px)");
+		const aboutReviewsFitDesktopMq = window.matchMedia("(min-width: 1200px)");
+		let aboutReviewsMobileFitLocked = false;
+		let aboutReviewsMobileFitSnapshot = null;
+		let aboutReviewsMobileFitWidth = window.innerWidth;
+		let aboutReviewsMobilePinReady = false;
+		let aboutReviewsResizeTimer = 0;
 		let page = 0;
 
-		const syncAboutReviewsPin = () => {
-			if (!aboutReviewsPin) {
+		const resetAboutReviewsMobilePin = () => {
+			aboutReviewsMobileFitLocked = false;
+			aboutReviewsMobileFitSnapshot = null;
+			aboutReviewsMobileFitWidth = window.innerWidth;
+		};
+
+		const aboutReviewsUnit = document.querySelector("[data-about-reviews-unit]");
+
+		const getAboutReviewsFitEl = () =>
+			aboutReviewsPinMobileMq.matches && aboutReviewsUnit
+				? aboutReviewsUnit
+				: aboutReviews;
+
+		const clearAboutReviewsViewportFit = () => {
+			[aboutReviews, aboutReviewsUnit].filter(Boolean).forEach((el) => {
+				el.classList.remove("is-viewport-fitted", "is-mobile-fill", "is-pinned");
+				el.style.removeProperty("height");
+				el.style.removeProperty("--ee-about-reviews-available-height");
+				el.style.removeProperty("--ee-about-reviews-viewport-height");
+				el.style.removeProperty("--ee-about-reviews-fit-scale");
+				el.style.removeProperty("--ee-about-reviews-fit-pad-top");
+				el.style.removeProperty("--ee-about-reviews-fit-pad-bottom");
+				el.style.removeProperty("--ee-about-reviews-content-height");
+			});
+		};
+
+		const getAboutReviewsStickyTop = () => {
+			const stickyEl = aboutReviewsUnit || aboutReviews;
+			const fromVar =
+				parseFloat(
+					getComputedStyle(stickyEl).getPropertyValue(
+						"--ee-about-reviews-sticky-top"
+					)
+				) || 0;
+			if (fromVar > 0) {
+				return fromVar;
+			}
+			const headerEl = document.querySelector(".site-header");
+			return headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 0;
+		};
+
+		const getAboutReviewsAvailableHeight = () =>
+			getAboutMobileAvailableHeight(getAboutReviewsStickyTop());
+
+		const applyAboutReviewsViewportFit = (snapshot) => {
+			if (!snapshot) {
 				return;
 			}
-			if (!pinMq.matches) {
-				aboutReviewsPin.style.height = "";
-				aboutReviews.classList.remove("is-pinned", "is-viewport-fitted");
-				aboutReviews.style.removeProperty("height");
-				aboutReviews.style.removeProperty("--ee-about-reviews-viewport-height");
-				aboutReviews.style.removeProperty("--ee-about-reviews-fit-scale");
-				aboutReviews.style.removeProperty("--ee-about-reviews-fit-pad-top");
-				aboutReviews.style.removeProperty("--ee-about-reviews-fit-pad-bottom");
+
+			const fitEl = getAboutReviewsFitEl();
+			if (
+				aboutReviewsMobileFitLocked &&
+				aboutReviewsMobileFitSnapshot === snapshot &&
+				((snapshot.useFit && fitEl.classList.contains("is-viewport-fitted")) ||
+					(snapshot.useFill && fitEl.classList.contains("is-mobile-fill")) ||
+					(!snapshot.useFit &&
+						!snapshot.useFill &&
+						!fitEl.classList.contains("is-viewport-fitted") &&
+						!fitEl.classList.contains("is-mobile-fill")))
+			) {
+				syncAboutReviewsPinnedState();
+				return;
+			}
+
+			clearAboutReviewsViewportFit();
+
+			if (snapshot.useFit || snapshot.useFill) {
+				fitEl.style.setProperty(
+					"--ee-about-reviews-available-height",
+					`${snapshot.availableHeight}px`
+				);
+			}
+
+			if (snapshot.useFit) {
+				fitEl.style.setProperty(
+					"--ee-about-reviews-viewport-height",
+					`${snapshot.displaySectionHeight}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-reviews-fit-scale",
+					String(snapshot.fitScale)
+				);
+				fitEl.style.setProperty(
+					"--ee-about-reviews-fit-pad-top",
+					`${snapshot.padTop * snapshot.fitScale}px`
+				);
+				fitEl.style.setProperty(
+					"--ee-about-reviews-fit-pad-bottom",
+					`${snapshot.padBottom * snapshot.fitScale}px`
+				);
+				if (fitEl === aboutReviews && snapshot.contentHeight) {
+					fitEl.style.setProperty(
+						"--ee-about-reviews-content-height",
+						`${snapshot.contentHeight}px`
+					);
+				}
+				fitEl.classList.add("is-viewport-fitted");
+			} else if (snapshot.useFill) {
+				fitEl.classList.add("is-mobile-fill");
+			}
+
+			if (aboutReviewsPin && snapshot.pinHeight) {
+				aboutReviewsPin.style.height = `${snapshot.pinHeight}px`;
+			}
+
+			syncAboutReviewsPinnedState();
+		};
+
+		const getAboutReviewsMobileHoldHeight = (viewportHeight) =>
+			Math.round(viewportHeight);
+
+		const syncAboutReviewsDesktopPin = () => {
+			if (!aboutReviewsPin || !aboutReviewsPinDesktopMq.matches) {
 				return;
 			}
 
 			aboutReviewsPin.style.height = "auto";
-			aboutReviews.classList.remove("is-viewport-fitted");
-			aboutReviews.style.removeProperty("height");
-			aboutReviews.style.removeProperty("--ee-about-reviews-viewport-height");
-			aboutReviews.style.removeProperty("--ee-about-reviews-fit-scale");
-			aboutReviews.style.removeProperty("--ee-about-reviews-fit-pad-top");
-			aboutReviews.style.removeProperty("--ee-about-reviews-fit-pad-bottom");
+			clearAboutReviewsViewportFit();
+
 			const pad = aboutReviewsPin.querySelector(".about-reviews__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(aboutReviews.getBoundingClientRect().height);
-			const stickyTop =
-				parseFloat(getComputedStyle(aboutReviews).getPropertyValue("--ee-about-reviews-sticky-top")) || 0;
+			const stickyTop = getAboutReviewsStickyTop();
 			const availableH = Math.max(window.innerHeight - stickyTop, 0);
-			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
+			const fitScale = aboutReviewsFitDesktopMq.matches
+				? Math.min(1, availableH / Math.max(sectionH, 1))
+				: 1;
 
 			if (fitScale < 1) {
 				const styles = getComputedStyle(aboutReviews);
 				const padTop = parseFloat(styles.paddingTop) || 0;
 				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				const contentHeight = Math.max(sectionH - padTop - padBottom, 0);
 
-				aboutReviews.style.setProperty("--ee-about-reviews-viewport-height", `${availableH}px`);
-				aboutReviews.style.setProperty("--ee-about-reviews-fit-scale", String(fitScale));
-				aboutReviews.style.setProperty("--ee-about-reviews-fit-pad-top", `${padTop * fitScale}px`);
-				aboutReviews.style.setProperty("--ee-about-reviews-fit-pad-bottom", `${padBottom * fitScale}px`);
-				aboutReviews.classList.add("is-viewport-fitted");
+				applyAboutReviewsViewportFit({
+					availableHeight: availableH,
+					fitScale,
+					padTop,
+					padBottom,
+					contentHeight,
+					useFit: true,
+					displaySectionHeight: Math.ceil(sectionH * fitScale),
+					pinHeight: padH + Math.ceil(sectionH * fitScale) + Math.round(window.innerHeight),
+				});
+				return;
 			}
 
-			const holdPx = Math.round(window.innerHeight * 1);
-			aboutReviewsPin.style.height = `${padH + sectionH * fitScale + holdPx}px`;
+			const holdPx = Math.round(window.innerHeight);
+			aboutReviewsPin.style.height = `${padH + sectionH + holdPx}px`;
+		};
+
+		const syncAboutReviewsMobilePin = () => {
+			if (!aboutReviewsPin || !aboutReviewsPinMobileMq.matches) {
+				return;
+			}
+
+			const viewportWidth = window.innerWidth;
+			if (
+				aboutReviewsMobileFitLocked &&
+				Math.abs(viewportWidth - aboutReviewsMobileFitWidth) > 80
+			) {
+				resetAboutReviewsMobilePin();
+			}
+
+			if (aboutReviewsMobileFitLocked && aboutReviewsMobileFitSnapshot) {
+				applyAboutReviewsViewportFit(aboutReviewsMobileFitSnapshot);
+				return;
+			}
+
+			aboutReviewsPin.style.height = "auto";
+			clearAboutReviewsViewportFit();
+
+			const pad = aboutReviewsPin.querySelector(".about-reviews__scroll-pad");
+			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+			const fitTarget = aboutReviewsUnit || aboutReviews;
+			const measure = measureAboutMobileStickyUnit(
+				fitTarget,
+				getAboutReviewsAvailableHeight
+			);
+			const holdHeight = getAboutReviewsMobileHoldHeight(window.innerHeight);
+			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
+
+			applyAboutReviewsViewportFit(snapshot);
+
+			if (!aboutReviewsMobileFitLocked) {
+				aboutReviewsMobileFitLocked = true;
+				aboutReviewsMobileFitSnapshot = snapshot;
+				aboutReviewsMobileFitWidth = viewportWidth;
+			}
+		};
+
+		const syncAboutReviewsPin = () => {
+			if (aboutReviewsPinMobileMq.matches) {
+				syncAboutReviewsMobilePin();
+				return;
+			}
+
+			resetAboutReviewsMobilePin();
+			syncAboutReviewsDesktopPin();
 		};
 
 		const syncAboutReviewsPinnedState = () => {
-			if (!aboutReviewsPin || !pinMq.matches) {
-				aboutReviews.classList.remove("is-pinned");
+			const stickyEl =
+				aboutReviewsPinMobileMq.matches && aboutReviewsUnit
+					? aboutReviewsUnit
+					: aboutReviews;
+			const pinActive =
+				aboutReviewsPinMobileMq.matches || aboutReviewsPinDesktopMq.matches;
+
+			if (!aboutReviewsPin || !pinActive) {
+				stickyEl.classList.remove("is-pinned");
 				return;
 			}
-			const stickyTop =
-				parseFloat(getComputedStyle(aboutReviews).getPropertyValue("--ee-about-reviews-sticky-top")) || 0;
-			const rect = aboutReviews.getBoundingClientRect();
+
+			const stickyTop = getAboutReviewsStickyTop();
+			const viewportHeight = window.innerHeight;
+			const sectionRect = stickyEl.getBoundingClientRect();
 			const pinRect = aboutReviewsPin.getBoundingClientRect();
 			const pinned =
-				rect.top <= stickyTop + 1.5 &&
-				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
-			aboutReviews.classList.toggle("is-pinned", pinned);
+				sectionRect.top <= stickyTop + 1.5 &&
+				pinRect.bottom >
+					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
+			stickyEl.classList.toggle("is-pinned", pinned);
 		};
-		const getPerPage = () => 3;
+
+		const refreshAboutReviewsPin = () => {
+			window.requestAnimationFrame(() => {
+				syncAboutReviewsPin();
+				syncAboutReviewsPinnedState();
+			});
+		};
+
+		const refreshAboutReviewsPinLayout = () => {
+			if (aboutReviewsPinMobileMq.matches) {
+				resetAboutReviewsMobilePin();
+			}
+			refreshAboutReviewsPin();
+		};
+
+		const getPerPage = () => (scrollCarouselMq.matches ? 1 : 3);
 
 		const getPageCount = () => Math.max(1, Math.ceil(cards.length / getPerPage()));
 
@@ -5881,7 +7484,9 @@
 					closest = i;
 				}
 			});
-			syncPager(Math.floor(closest / getPerPage()));
+			syncPager(
+				getPerPage() === 1 ? closest : Math.floor(closest / getPerPage())
+			);
 		};
 
 		track?.addEventListener("mousedown", onPointerDown);
@@ -5892,6 +7497,143 @@
 		window.addEventListener("touchend", onPointerUp);
 		viewport?.addEventListener("scroll", onScrollCarousel, { passive: true });
 
+		if (viewport && cards.length > 1) {
+			let reviewsSwipeActive = false;
+			let reviewsSwipeAxis = null;
+			let reviewsSwipeStartX = 0;
+			let reviewsSwipeStartY = 0;
+			let reviewsSwipeStartScrollLeft = 0;
+			let reviewsSwipePointerId = null;
+			let reviewsSwipeLenisPaused = false;
+
+			const pauseReviewsSwipeLenis = () => {
+				if (!reviewsSwipeLenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.stop();
+					reviewsSwipeLenisPaused = true;
+				}
+			};
+
+			const resumeReviewsSwipeLenis = () => {
+				if (reviewsSwipeLenisPaused && window.excelEntLenis) {
+					window.excelEntLenis.start();
+					reviewsSwipeLenisPaused = false;
+				}
+			};
+
+			const releaseReviewsSwipePointer = (pointerId) => {
+				if (pointerId == null) {
+					return;
+				}
+				try {
+					viewport.releasePointerCapture(pointerId);
+				} catch (err) {
+					/* ignore */
+				}
+			};
+
+			const snapReviewsViewport = (smooth = true) => {
+				if (!scrollCarouselMq.matches || !cards.length) {
+					return;
+				}
+				const left = viewport.scrollLeft;
+				const pad = getTrackPad();
+				let closest = 0;
+				let closestDist = Infinity;
+				cards.forEach((card, i) => {
+					const targetLeft = Math.max(0, card.offsetLeft - pad);
+					const dist = Math.abs(targetLeft - left);
+					if (dist < closestDist) {
+						closestDist = dist;
+						closest = i;
+					}
+				});
+				goTo(closest, !smooth);
+			};
+
+			const finishReviewsSwipeGesture = (event) => {
+				const wasHorizontal = reviewsSwipeAxis === "x";
+				if (event?.pointerId != null) {
+					releaseReviewsSwipePointer(event.pointerId);
+				}
+				reviewsSwipeActive = false;
+				reviewsSwipeAxis = null;
+				reviewsSwipePointerId = null;
+				viewport.classList.remove("is-dragging");
+				resumeReviewsSwipeLenis();
+				if (wasHorizontal) {
+					snapReviewsViewport(true);
+				}
+			};
+
+			viewport.addEventListener(
+				"pointerdown",
+				(e) => {
+					if (!scrollCarouselMq.matches || e.button > 0) {
+						return;
+					}
+					reviewsSwipeActive = true;
+					reviewsSwipeAxis = null;
+					reviewsSwipePointerId = e.pointerId;
+					reviewsSwipeStartX = e.clientX;
+					reviewsSwipeStartY = e.clientY;
+					reviewsSwipeStartScrollLeft = viewport.scrollLeft;
+				},
+				{ passive: true }
+			);
+
+			viewport.addEventListener(
+				"pointermove",
+				(e) => {
+					if (!reviewsSwipeActive || e.pointerId !== reviewsSwipePointerId) {
+						return;
+					}
+
+					const dx = e.clientX - reviewsSwipeStartX;
+					const dy = e.clientY - reviewsSwipeStartY;
+
+					if (!reviewsSwipeAxis) {
+						if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+							return;
+						}
+						if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 12) {
+							reviewsSwipeActive = false;
+							reviewsSwipePointerId = null;
+							return;
+						}
+						if (Math.abs(dx) >= Math.abs(dy)) {
+							reviewsSwipeAxis = "x";
+							viewport.classList.add("is-dragging");
+							pauseReviewsSwipeLenis();
+							try {
+								viewport.setPointerCapture(e.pointerId);
+							} catch (err) {
+								/* ignore */
+							}
+						} else {
+							return;
+						}
+					}
+
+					if (reviewsSwipeAxis !== "x") {
+						return;
+					}
+
+					const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+					viewport.scrollLeft = Math.min(
+						maxScroll,
+						Math.max(0, reviewsSwipeStartScrollLeft - dx)
+					);
+					if (e.cancelable) {
+						e.preventDefault();
+					}
+				},
+				{ passive: false }
+			);
+
+			viewport.addEventListener("pointerup", finishReviewsSwipeGesture);
+			viewport.addEventListener("pointercancel", finishReviewsSwipeGesture);
+		}
+
 		const onResize = () => {
 			if (scrollCarouselMq.matches) {
 				if (track) {
@@ -5901,49 +7643,95 @@
 			} else {
 				goTo(page);
 			}
-			syncAboutReviewsPin();
-			syncAboutReviewsPinnedState();
+			if (aboutReviewsPinMobileMq.matches && aboutReviewsMobileFitLocked) {
+				if (Math.abs(window.innerWidth - aboutReviewsMobileFitWidth) > 80) {
+					refreshAboutReviewsPinLayout();
+				} else {
+					syncAboutReviewsPinnedState();
+				}
+				return;
+			}
+			refreshAboutReviewsPinLayout();
 		};
 		scrollCarouselMq.addEventListener("change", onResize);
-		window.addEventListener("resize", onResize, { passive: true });
+		window.addEventListener("resize", () => {
+			window.clearTimeout(aboutReviewsResizeTimer);
+			aboutReviewsResizeTimer = window.setTimeout(onResize, 120);
+		}, { passive: true });
+
+		if (typeof aboutReviewsPinMobileMq.addEventListener === "function") {
+			aboutReviewsPinMobileMq.addEventListener("change", refreshAboutReviewsPinLayout);
+		} else if (typeof aboutReviewsPinMobileMq.addListener === "function") {
+			aboutReviewsPinMobileMq.addListener(refreshAboutReviewsPinLayout);
+		}
+
+		if (typeof aboutReviewsPinDesktopMq.addEventListener === "function") {
+			aboutReviewsPinDesktopMq.addEventListener("change", refreshAboutReviewsPinLayout);
+		} else if (typeof aboutReviewsPinDesktopMq.addListener === "function") {
+			aboutReviewsPinDesktopMq.addListener(refreshAboutReviewsPinLayout);
+		}
+
+		if (typeof aboutReviewsFitDesktopMq.addEventListener === "function") {
+			aboutReviewsFitDesktopMq.addEventListener("change", refreshAboutReviewsPin);
+		} else if (typeof aboutReviewsFitDesktopMq.addListener === "function") {
+			aboutReviewsFitDesktopMq.addListener(refreshAboutReviewsPin);
+		}
 
 		if (lenis) {
-			lenis.on("scroll", syncAboutReviewsPinnedState);
+			lenis.on("scroll", () =>
+				scheduleAboutMobilePinnedState(syncAboutReviewsPinnedState)
+			);
 		} else {
-			window.addEventListener("scroll", syncAboutReviewsPinnedState, { passive: true });
+			window.addEventListener(
+				"scroll",
+				() => scheduleAboutMobilePinnedState(syncAboutReviewsPinnedState),
+				{ passive: true }
+			);
 		}
-		if (typeof pinMq.addEventListener === "function") {
-			pinMq.addEventListener("change", () => {
-				syncAboutReviewsPin();
-				syncAboutReviewsPinnedState();
-			});
-		} else if (typeof pinMq.addListener === "function") {
-			pinMq.addListener(() => {
-				syncAboutReviewsPin();
-				syncAboutReviewsPinnedState();
-			});
-		}
-		if (typeof fitMq.addEventListener === "function") {
-			fitMq.addEventListener("change", () => {
-				syncAboutReviewsPin();
-				syncAboutReviewsPinnedState();
-			});
-		} else if (typeof fitMq.addListener === "function") {
-			fitMq.addListener(() => {
-				syncAboutReviewsPin();
-				syncAboutReviewsPinnedState();
+
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (aboutReviewsPinMobileMq.matches) {
+				resetAboutReviewsMobilePin();
+			}
+			refreshAboutReviewsPinLayout();
+		});
+
+		bindAboutMobilePinViewportGuard(
+			aboutReviewsPinMobileMq,
+			resetAboutReviewsMobilePin,
+			refreshAboutReviewsPinLayout
+		);
+
+		goTo(0, true);
+		window.addEventListener("load", () => {
+			aboutReviewsMobilePinReady = true;
+			const fitTarget = aboutReviewsUnit || aboutReviews;
+			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+			const snapNatural = aboutReviewsMobileFitSnapshot?.naturalSectionHeight;
+			if (
+				!aboutReviewsMobileFitLocked ||
+				(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+			) {
+				resetAboutReviewsMobilePin();
+				refreshAboutReviewsPinLayout();
+			}
+		});
+
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				const fitTarget = aboutReviewsUnit || aboutReviews;
+				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
+				const snapNatural = aboutReviewsMobileFitSnapshot?.naturalSectionHeight;
+				if (
+					!aboutReviewsMobileFitLocked ||
+					(snapNatural && Math.abs(naturalHeight - snapNatural) > 32)
+				) {
+					refreshAboutReviewsPinLayout();
+				}
 			});
 		}
 
-		goTo(0, true);
-		window.requestAnimationFrame(() => {
-			syncAboutReviewsPin();
-			syncAboutReviewsPinnedState();
-		});
-		window.addEventListener("load", () => {
-			syncAboutReviewsPin();
-			syncAboutReviewsPinnedState();
-		});
+		window.setTimeout(refreshAboutReviewsPinLayout, 250);
 	}
 
 	/* ---------- Package tabs ---------- */

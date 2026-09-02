@@ -257,6 +257,7 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 	</div>
 
 	<div class="artist-performance__gallery reveal" data-reveal data-artist-venue>
+		<div class="artist-performance__gallery-frame">
 		<script type="application/json" data-venue-slides>
 			<?php
 			echo wp_json_encode(
@@ -306,6 +307,7 @@ for ( $excel_ent_similar_index = count( $excel_ent_similar ); $excel_ent_similar
 			<button class="artist-performance__arrow magnetic" type="button" data-venue-next aria-label="<?php esc_attr_e( 'Next venue', 'excel-ent' ); ?>">
 				<img src="<?php echo esc_url( $excel_ent_uri . '/arrow-right.svg' ); ?>" alt="" width="55" height="55" decoding="async">
 			</button>
+		</div>
 		</div>
 	</div>
 	</div>

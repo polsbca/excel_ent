@@ -523,21 +523,21 @@
 	}
 
 	.about-approach__lede {
-		display: flex;
-		flex-direction: column;
-		gap: 36px;
-		font-size: 16px;
-		line-height: 1.6;
-	}
-
-	.about-approach__lede p {
 		margin: 0;
 		font-size: 16px;
 		line-height: 1.6;
 	}
 
+	.about-approach__aside {
+		display: flex;
+		flex-direction: column;
+		gap: 32px;
+		min-width: 0;
+		width: 100%;
+	}
+
 	.about-approach__lede-strong {
-		margin-top: 0 !important;
+		margin: 0;
 		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 		font-variation-settings: "wdth" 75;
 		font-weight: 700;
@@ -655,12 +655,19 @@
 		scrollbar-width: none;
 		scroll-snap-type: x mandatory;
 		scroll-padding-left: 40px;
-		touch-action: pan-x;
+		touch-action: pan-y;
+		cursor: grab;
 		width: 100%;
 		max-width: 100%;
 		min-width: 0;
 		box-sizing: border-box;
 		overscroll-behavior-x: contain;
+	}
+
+	.about-page .about-reviews__viewport.is-dragging {
+		touch-action: none;
+		cursor: grabbing;
+		scroll-snap-type: none;
 	}
 
 	.about-page .about-reviews__viewport::-webkit-scrollbar {
