@@ -11729,22 +11729,42 @@
 		let busy = false;
 		let pending = null;
 		let activeId = featured?.getAttribute("data-service-id") || "";
+		let servicesMobilePinInitialized = false;
+
+		const isServicesMobile = () => window.innerWidth <= 767;
 
 		const syncServicesPin = () => {
 			if (!servicesPin) {
 				return;
 			}
 			if (!pinMq.matches) {
+				servicesMobilePinInitialized = false;
 				servicesPin.style.height = "";
 				servicesSwap.classList.remove("is-pinned", "is-viewport-fitted");
 				servicesSwap.style.removeProperty("height");
+				servicesSwap.style.removeProperty("visibility");
 				servicesSwap.style.removeProperty("--ee-services-viewport-height");
 				servicesSwap.style.removeProperty("--ee-services-fit-scale");
 				servicesSwap.style.removeProperty("--ee-services-fit-pad-top");
 				servicesSwap.style.removeProperty("--ee-services-fit-pad-bottom");
 				return;
 			}
-			servicesPin.style.height = "auto";
+			if (!isServicesMobile()) {
+				servicesMobilePinInitialized = false;
+			}
+			if (isServicesMobile() && servicesMobilePinInitialized) {
+				return;
+			}
+			const preservePinLayout =
+				servicesSwap.classList.contains("is-viewport-fitted") &&
+				servicesPin.style.height &&
+				servicesPin.style.height !== "auto";
+			if (!preservePinLayout) {
+				servicesPin.style.height = "auto";
+			}
+			if (preservePinLayout) {
+				servicesSwap.style.visibility = "hidden";
+			}
 			servicesSwap.classList.remove("is-viewport-fitted");
 			servicesSwap.style.removeProperty("height");
 			servicesSwap.style.removeProperty("--ee-services-viewport-height");
@@ -11756,7 +11776,8 @@
 			const sectionH = Math.ceil(servicesSwap.getBoundingClientRect().height);
 			const stickyTop =
 				parseFloat(getComputedStyle(servicesSwap).getPropertyValue("--ee-services-sticky-top")) || 0;
-			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const viewportH = window.visualViewport?.height ?? window.innerHeight;
+			const availableH = Math.max(viewportH - stickyTop, 0);
 			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
 			if (fitScale < 1) {
 				const styles = getComputedStyle(servicesSwap);
@@ -11768,8 +11789,14 @@
 				servicesSwap.style.setProperty("--ee-services-fit-pad-bottom", `${padBottom * fitScale}px`);
 				servicesSwap.classList.add("is-viewport-fitted");
 			}
-			const holdPx = Math.round(window.innerHeight * 1);
+			const holdPx = Math.round(viewportH * 1);
 			servicesPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
+			if (preservePinLayout) {
+				servicesSwap.style.visibility = "";
+			}
+			if (isServicesMobile()) {
+				servicesMobilePinInitialized = true;
+			}
 		};
 
 		const syncServicesPinnedState = () => {
@@ -11789,6 +11816,10 @@
 
 		const remountServicesPin = () => {
 			window.requestAnimationFrame(() => {
+				if (isServicesMobile() && servicesMobilePinInitialized) {
+					syncServicesPinnedState();
+					return;
+				}
 				syncServicesPin();
 				syncServicesPinnedState();
 			});
@@ -12013,27 +12044,32 @@
 			window.addEventListener("scroll", syncServicesPinnedState, { passive: true });
 		}
 		window.addEventListener("resize", () => {
+			servicesMobilePinInitialized = false;
 			syncServicesPin();
 			syncServicesPinnedState();
 		});
 		if (typeof pinMq.addEventListener === "function") {
 			pinMq.addEventListener("change", () => {
+				servicesMobilePinInitialized = false;
 				syncServicesPin();
 				syncServicesPinnedState();
 			});
 		} else if (typeof pinMq.addListener === "function") {
 			pinMq.addListener(() => {
+				servicesMobilePinInitialized = false;
 				syncServicesPin();
 				syncServicesPinnedState();
 			});
 		}
 		if (typeof fitMq.addEventListener === "function") {
 			fitMq.addEventListener("change", () => {
+				servicesMobilePinInitialized = false;
 				syncServicesPin();
 				syncServicesPinnedState();
 			});
 		} else if (typeof fitMq.addListener === "function") {
 			fitMq.addListener(() => {
+				servicesMobilePinInitialized = false;
 				syncServicesPin();
 				syncServicesPinnedState();
 			});
@@ -12043,21 +12079,41 @@
 			syncServicesPinnedState();
 		});
 		window.addEventListener("load", () => {
-			syncServicesPin();
+			if (!servicesMobilePinInitialized) {
+				syncServicesPin();
+			}
 			syncServicesPinnedState();
 		});
 		window.addEventListener("excel-ent:header-state-change", () => {
+			if (isServicesMobile() && servicesMobilePinInitialized) {
+				syncServicesPinnedState();
+				return;
+			}
 			syncServicesPin();
 			syncServicesPinnedState();
 		});
-		if (document.fonts?.ready) {
-			document.fonts.ready.then(() => {
+		if (window.visualViewport) {
+			window.visualViewport.addEventListener("resize", () => {
+				if (isServicesMobile() && servicesMobilePinInitialized) {
+					syncServicesPinnedState();
+					return;
+				}
 				syncServicesPin();
 				syncServicesPinnedState();
 			});
 		}
+		if (document.fonts?.ready) {
+			document.fonts.ready.then(() => {
+				if (!servicesMobilePinInitialized) {
+					syncServicesPin();
+				}
+				syncServicesPinnedState();
+			});
+		}
 		window.setTimeout(() => {
-			syncServicesPin();
+			if (!servicesMobilePinInitialized) {
+				syncServicesPin();
+			}
 			syncServicesPinnedState();
 		}, 250);
 	}
