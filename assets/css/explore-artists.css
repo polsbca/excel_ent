@@ -3129,3 +3129,37 @@
 		box-sizing: border-box;
 	}
 }
+
+.explore-artists__results-section {
+	width: 100%;
+}
+
+.explore-artists__empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	width: 100%;
+	padding: 80px 40px 120px;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.explore-artists__empty-title {
+	margin: 0;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-weight: 700;
+	font-size: clamp(32px, 5vw, 54px);
+	line-height: 1.1;
+	color: #000;
+}
+
+.explore-artists__empty-lede {
+	margin: 0;
+	max-width: 720px;
+	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
+	font-size: 18px;
+	line-height: 1.5;
+	color: rgba(0, 0, 0, 0.72);
+}

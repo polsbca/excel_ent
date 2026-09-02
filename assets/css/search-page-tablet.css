@@ -52,13 +52,23 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 120px;
+		justify-content: flex-start;
+		gap: 0;
 		width: 100%;
 		/* Figma 1114:11423 — ~100px white before CTA (Contact at y=1016 after empty at 916) */
 		padding: 60px 0 100px;
 		background: #fff;
 		box-sizing: border-box;
 		text-align: center;
+	}
+
+	body.search .search-page .search-empty__inner,
+	.search-page .search-empty__inner {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 120px;
+		width: 100%;
 	}
 
 	body.search .search-page .search-empty__visual,

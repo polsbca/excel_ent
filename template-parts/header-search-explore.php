@@ -7,9 +7,18 @@
 
 $excel_ent_ea_uri = EXCEL_ENT_URI . '/assets/images/explore-artists';
 $excel_ent_search_action = is_search() ? home_url( '/' ) : home_url( '/explore-artists/' );
-$excel_ent_search_selected_tags = is_search() && isset( $_GET['occasion'] )
-	? array_values( array_filter( array_map( 'sanitize_key', explode( ',', sanitize_text_field( wp_unslash( $_GET['occasion'] ) ) ) ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	: array();
+$excel_ent_search_selected_tags = array();
+if ( is_search() ) {
+	if ( isset( $_GET['sub_category'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$excel_ent_search_selected_tags = excel_ent_parse_sub_category_param(
+			sanitize_text_field( wp_unslash( $_GET['sub_category'] ) )
+		);
+	} elseif ( isset( $_GET['occasion'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$excel_ent_search_selected_tags = excel_ent_parse_sub_category_param(
+			sanitize_text_field( wp_unslash( $_GET['occasion'] ) )
+		);
+	}
+}
 
 $excel_ent_ea_filters = array(
 	'artist-type' => array(
@@ -331,7 +340,7 @@ $excel_ent_render_filter_panel = static function ( $id, $group ) use ( $excel_en
 					type="search"
 					name="s"
 					placeholder="<?php esc_attr_e( 'By Artists, Djs, Bands...', 'excel-ent' ); ?>"
-					value="<?php echo esc_attr( get_search_query() ); ?>"
+					value="<?php echo esc_attr( excel_ent_get_artist_search_query() ); ?>"
 				>
 			</label>
 			<button class="explore-artists-search__submit magnetic" type="submit" aria-label="<?php esc_attr_e( 'Search', 'excel-ent' ); ?>">

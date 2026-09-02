@@ -252,10 +252,32 @@
 			if ((!isSearchPage && !isExplorePage) || !primary) {
 				return;
 			}
-			primary.style.setProperty(
-				"--ee-search-sticky-offset",
-				header.classList.contains("is-scrolled") ? `${header.offsetHeight}px` : "0px"
+			if (!header.classList.contains("is-scrolled")) {
+				primary.style.setProperty("--ee-search-sticky-offset", "0px");
+				return;
+			}
+
+			/* Use compact bar height so padding doesn't wait on the search collapse animation. */
+			const searchOpen =
+				header.classList.contains("is-search-open") ||
+				header.classList.contains("is-panel-open") ||
+				header.classList.contains("is-explore-filter-open");
+			if (searchOpen) {
+				primary.style.setProperty("--ee-search-sticky-offset", `${header.offsetHeight}px`);
+				return;
+			}
+
+			const bar = header.querySelector(".site-header__bar");
+			const inner = header.querySelector(".site-header__inner");
+			const padY = inner
+				? (parseFloat(getComputedStyle(inner).paddingTop) || 0) +
+				  (parseFloat(getComputedStyle(inner).paddingBottom) || 0)
+				: 0;
+			const compact = Math.max(
+				Math.ceil((bar?.getBoundingClientRect().height || 0) + padY),
+				1
 			);
+			primary.style.setProperty("--ee-search-sticky-offset", `${compact}px`);
 		};
 
 		const syncArtistsStickyTop = () => {
@@ -1462,57 +1484,94 @@
 		}
 	}
 
-	/* ---------- Search empty-state viewport fitting ---------- */
+	/* ---------- Search empty-state: fill desktop viewport (Figma 2202:31547) ---------- */
 	const searchEmpty = document.querySelector(".search-empty");
 	if (searchEmpty) {
 		const searchEmptyFitMq = window.matchMedia("(min-width: 1200px)");
+		const searchEmptyInner = searchEmpty.querySelector(".search-empty__inner");
+		/* Lock after first measure so scroll/resize thrash cannot change height mid-scroll. */
+		let searchEmptyLock = null;
 
-		const syncSearchEmptyViewport = () => {
+		const clearSearchEmptyFit = () => {
 			searchEmpty.classList.remove("is-viewport-fitted");
 			searchEmpty.style.removeProperty("height");
-			searchEmpty.style.removeProperty("--ee-search-empty-viewport-height");
+			searchEmpty.style.removeProperty("--ee-search-empty-min-height");
 			searchEmpty.style.removeProperty("--ee-search-empty-fit-scale");
-			searchEmpty.style.removeProperty("--ee-search-empty-fit-pad-top");
-			searchEmpty.style.removeProperty("--ee-search-empty-fit-pad-bottom");
+			searchEmptyLock = null;
+		};
 
-			if (!searchEmptyFitMq.matches) {
+		const applySearchEmptyLock = (lock) => {
+			searchEmpty.style.setProperty("--ee-search-empty-min-height", `${lock.height}px`);
+			if (lock.scale < 0.999) {
+				searchEmpty.style.setProperty("--ee-search-empty-fit-scale", String(lock.scale));
+				searchEmpty.classList.add("is-viewport-fitted");
+			} else {
+				searchEmpty.classList.remove("is-viewport-fitted");
+				searchEmpty.style.removeProperty("--ee-search-empty-fit-scale");
+				searchEmpty.style.removeProperty("height");
+			}
+		};
+
+		const syncSearchEmptyViewport = (force = false) => {
+			if (!searchEmptyFitMq.matches || !searchEmptyInner) {
+				clearSearchEmptyFit();
 				return;
 			}
 
-			const naturalHeight = Math.ceil(searchEmpty.getBoundingClientRect().height);
-			const sectionTop = Math.max(searchEmpty.getBoundingClientRect().top, 0);
-			const availableHeight = Math.max(window.innerHeight - sectionTop, 0);
-			const fitScale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
-
-			if (fitScale >= 1 || !availableHeight) {
+			const width = window.innerWidth;
+			if (!force && searchEmptyLock && searchEmptyLock.width === width) {
+				applySearchEmptyLock(searchEmptyLock);
 				return;
 			}
+
+			const scroll = window.excelEntLenis?.scroll ?? window.scrollY ?? 0;
+			/* Document-relative top — stable while scrolling (unlike viewport top alone). */
+			const topOffset = Math.round(searchEmpty.getBoundingClientRect().top + scroll);
+			const availableHeight = Math.max(Math.floor(window.innerHeight - topOffset), 0);
+			if (!availableHeight) {
+				return;
+			}
+
+			searchEmpty.style.setProperty("--ee-search-empty-min-height", `${availableHeight}px`);
+			searchEmpty.classList.remove("is-viewport-fitted");
+			searchEmpty.style.removeProperty("--ee-search-empty-fit-scale");
+			searchEmpty.style.removeProperty("height");
 
 			const styles = getComputedStyle(searchEmpty);
 			const padTop = parseFloat(styles.paddingTop) || 0;
 			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const contentHeight = Math.ceil(searchEmptyInner.getBoundingClientRect().height);
+			const naturalHeight = contentHeight + padTop + padBottom;
+			const fitScale = Math.min(1, availableHeight / Math.max(naturalHeight, 1));
 
-			searchEmpty.style.setProperty("--ee-search-empty-viewport-height", `${availableHeight}px`);
-			searchEmpty.style.setProperty("--ee-search-empty-fit-scale", String(fitScale));
-			searchEmpty.style.setProperty("--ee-search-empty-fit-pad-top", `${padTop * fitScale}px`);
-			searchEmpty.style.setProperty("--ee-search-empty-fit-pad-bottom", `${padBottom * fitScale}px`);
-			searchEmpty.classList.add("is-viewport-fitted");
+			searchEmptyLock = {
+				width,
+				height: availableHeight,
+				scale: fitScale,
+			};
+			applySearchEmptyLock(searchEmptyLock);
 		};
 
-		window.addEventListener("resize", syncSearchEmptyViewport);
-		window.addEventListener("load", syncSearchEmptyViewport);
-		window.requestAnimationFrame(syncSearchEmptyViewport);
+		window.addEventListener("resize", () => {
+			const width = window.innerWidth;
+			if (searchEmptyLock && searchEmptyLock.width === width) {
+				return;
+			}
+			syncSearchEmptyViewport(true);
+		});
+		window.addEventListener("load", () => syncSearchEmptyViewport(true));
+		window.requestAnimationFrame(() => syncSearchEmptyViewport(true));
 
-		searchEmpty.querySelector("img")?.addEventListener("load", syncSearchEmptyViewport);
+		searchEmpty.querySelector("img")?.addEventListener("load", () => syncSearchEmptyViewport(true));
 
 		if (typeof searchEmptyFitMq.addEventListener === "function") {
-			searchEmptyFitMq.addEventListener("change", syncSearchEmptyViewport);
+			searchEmptyFitMq.addEventListener("change", () => syncSearchEmptyViewport(true));
 		} else if (typeof searchEmptyFitMq.addListener === "function") {
-			searchEmptyFitMq.addListener(syncSearchEmptyViewport);
+			searchEmptyFitMq.addListener(() => syncSearchEmptyViewport(true));
 		}
 
 		if (document.fonts?.ready) {
-			document.fonts.ready.then(syncSearchEmptyViewport);
+			document.fonts.ready.then(() => syncSearchEmptyViewport(true));
 		}
 	}
 
@@ -4428,6 +4487,80 @@
 			});
 			setExploreFilterOverlay(anyOpen && isExploreMobile());
 			setExploreFilterPinned(anyOpen);
+			if (commit) {
+				navigateExploreFilters();
+			}
+		};
+
+		let exploreFiltersReady = false;
+
+		const buildExploreSearchParams = () => {
+			const params = new URLSearchParams();
+			const searchInput = exploreSearch?.querySelector('input[name="s"]');
+			const q = (searchInput?.value || "").trim();
+			if (q) {
+				params.set("s", q);
+			}
+
+			const categories = [];
+			const tags = [];
+			let sort = "";
+
+			scopedGroups.forEach((group) => {
+				if (group && !categories.includes(group)) {
+					categories.push(group);
+				}
+			});
+
+			filterWraps.forEach((wrap) => {
+				const group = wrap.getAttribute("data-explore-filter") || "";
+				if (!group) return;
+				const selected = Array.from(
+					getFilterPanel(wrap)?.querySelectorAll("[data-explore-filter-tag].is-selected") || []
+				);
+				if (group === "sort") {
+					const value = selected[0]?.getAttribute("data-value") || "";
+					if (value && value !== "recommended") {
+						sort = value;
+					}
+					return;
+				}
+				selected.forEach((tag) => {
+					const value = tag.getAttribute("data-value") || "";
+					if (value && !tags.includes(value)) {
+						tags.push(value);
+					}
+				});
+				if (selected.length && !categories.includes(group)) {
+					categories.push(group);
+				}
+			});
+
+			if (categories.length) {
+				params.set("category", categories.join(","));
+			}
+			if (tags.length) {
+				params.set("sub_category", tags.join(","));
+			}
+			if (sort) {
+				params.set("sort", sort);
+			}
+
+			return params;
+		};
+
+		const navigateExploreFilters = () => {
+			if (!exploreFiltersReady) {
+				return;
+			}
+			const params = buildExploreSearchParams();
+			const query = params.toString();
+			const next = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+			const current = `${window.location.pathname}${window.location.search}`;
+			if (next === current) {
+				return;
+			}
+			window.location.assign(next);
 		};
 
 		const syncAllActive = () => {
@@ -4685,6 +4818,7 @@
 			}
 			syncChipBar();
 			syncAllActive();
+			navigateExploreFilters();
 		});
 
 		clearBtn?.addEventListener("click", () => {
@@ -4699,6 +4833,11 @@
 			syncChipBar();
 			syncAllActive();
 			closeExploreFilters(null, { commit: true });
+		});
+
+		exploreSearch?.querySelector(".explore-artists-search__form")?.addEventListener("submit", (e) => {
+			e.preventDefault();
+			navigateExploreFilters();
 		});
 
 		document.addEventListener("click", (e) => {
@@ -4739,8 +4878,10 @@
 
 		const applyExploreCategoriesFromUrl = () => {
 			const params = new URLSearchParams(window.location.search);
-			const raw = params.get("categories") || params.get("category") || "";
-			const rawTags = params.get("tags") || params.get("tag") || "";
+			const raw = params.get("category") || params.get("categories") || "";
+			const rawTags =
+				params.get("sub_category") || params.get("tags") || params.get("tag") || "";
+			const sortValue = params.get("sort") || "";
 
 			const requested = raw
 				.split(",")
@@ -4751,7 +4892,7 @@
 				.map((item) => item.trim())
 				.filter(Boolean);
 
-			if (!requested.length && !requestedTags.length) return;
+			if (!requested.length && !requestedTags.length && !sortValue) return;
 
 			const wantsArtistType = requested.includes("artist-type");
 			const wantsTribute = requested.includes("tribute");
@@ -4803,12 +4944,25 @@
 				upsertChip(group, tagValue, tagLabel(tag));
 			});
 
+			if (sortValue) {
+				const sortWrap = exploreSearch?.querySelector('[data-explore-filter="sort"]');
+				const sortPanel = getFilterPanel(sortWrap);
+				sortPanel?.querySelectorAll("[data-explore-filter-tag]").forEach((tag) => {
+					const on = tag.getAttribute("data-value") === sortValue;
+					setTagSelected(tag, on);
+					if (on) {
+						upsertChip("sort", sortValue, tagLabel(tag), true);
+					}
+				});
+			}
+
 			exploreSearch?.classList.remove("is-showing-all-cats");
 			syncAllActive();
-			closeExploreFilters(null, { commit: true });
+			closeExploreFilters(null, { commit: false });
 		};
 
 		applyExploreCategoriesFromUrl();
+		exploreFiltersReady = true;
 
 		document.querySelectorAll("[data-explore-fav]").forEach((btn) => {
 			btn.addEventListener("click", () => {
@@ -10789,22 +10943,42 @@
 	document.querySelectorAll("[data-header-categories]").forEach((wrap) => {
 		const trigger = wrap.querySelector("[data-header-categories-trigger]");
 		const panel = wrap.querySelector("[data-header-categories-panel]");
-		const input = wrap.querySelector("[data-header-categories-input]");
+		const categoryInput = wrap.querySelector("[data-header-category-input]");
+		const subCategoryInput = wrap.querySelector("[data-header-sub-category-input]");
 		const meta = wrap.querySelector("[data-header-categories-meta]");
 		const defaultMeta = meta?.getAttribute("data-default-meta") || "";
 		const groupBtns = Array.from(wrap.querySelectorAll("[data-header-categories-group]"));
 		const groupPanels = Array.from(wrap.querySelectorAll("[data-header-categories-panel-group]"));
 		const tags = Array.from(wrap.querySelectorAll("[data-header-categories-tag]"));
 		const confirmBtn = wrap.querySelector("[data-header-categories-confirm]");
-		if (!trigger || !panel || !input) return;
+		if (!trigger || !panel || !categoryInput || !subCategoryInput) return;
 
-		let selectedValues = (input.value || "")
-			.split(",")
-			.map((item) => item.trim())
-			.filter(Boolean);
-		let pendingValues = [...selectedValues];
+		const parseValues = (raw) =>
+			(raw || "")
+				.split(",")
+				.map((item) => item.trim())
+				.filter(Boolean);
+
+		let selectedCategory = categoryInput.value || groupBtns[0]?.getAttribute("data-group") || "";
+		let selectedSubValues = parseValues(subCategoryInput.value);
+		let activeGroup = selectedCategory;
+		let pendingSubValues = [...selectedSubValues];
+
+		const filterValuesForGroup = (values, groupId) => {
+			const groupTagValues = new Set(
+				tags
+					.filter((tag) => {
+						const pane = tag.closest("[data-header-categories-panel-group]");
+						return pane?.getAttribute("data-header-categories-panel-group") === groupId;
+					})
+					.map((tag) => tag.getAttribute("data-value") || "")
+					.filter(Boolean)
+			);
+			return values.filter((value) => groupTagValues.has(value));
+		};
 
 		const setGroup = (groupId) => {
+			activeGroup = groupId;
 			groupBtns.forEach((btn) => {
 				const on = btn.getAttribute("data-group") === groupId;
 				btn.classList.toggle("is-active", on);
@@ -10815,19 +10989,23 @@
 				pane.classList.toggle("is-active", on);
 				pane.hidden = !on;
 			});
+			pendingSubValues = filterValuesForGroup(selectedSubValues, groupId);
+			syncTags();
 		};
 
 		const syncTags = () => {
 			tags.forEach((tag) => {
+				const pane = tag.closest("[data-header-categories-panel-group]");
+				const groupId = pane?.getAttribute("data-header-categories-panel-group") || "";
 				const value = tag.getAttribute("data-value") || "";
-				const on = pendingValues.includes(value);
+				const on = groupId === activeGroup && pendingSubValues.includes(value);
 				tag.classList.toggle("is-selected", on);
 				tag.setAttribute("aria-selected", on ? "true" : "false");
 			});
 		};
 
 		const syncTrigger = () => {
-			const labels = selectedValues
+			const labels = selectedSubValues
 				.map((value) => tags.find((tag) => tag.getAttribute("data-value") === value)?.getAttribute("data-label") || "")
 				.filter(Boolean);
 			if (meta) {
@@ -10851,8 +11029,9 @@
 
 		const open = () => {
 			closeHeaderPanels(wrap);
-			pendingValues = [...selectedValues];
-			syncTags();
+			activeGroup = selectedCategory || groupBtns[0]?.getAttribute("data-group") || "";
+			pendingSubValues = filterValuesForGroup(selectedSubValues, activeGroup);
+			setGroup(activeGroup);
 			panel.hidden = false;
 			wrap.classList.add("is-open");
 			trigger.setAttribute("aria-expanded", "true");
@@ -10882,12 +11061,15 @@
 			btn.addEventListener("click", (e) => {
 				e.preventDefault();
 				e.stopPropagation();
+				const pane = btn.closest("[data-header-categories-panel-group]");
+				const groupId = pane?.getAttribute("data-header-categories-panel-group") || "";
+				if (groupId !== activeGroup) return;
 				const value = btn.getAttribute("data-value") || "";
 				if (!value) return;
-				if (pendingValues.includes(value)) {
-					pendingValues = pendingValues.filter((item) => item !== value);
+				if (pendingSubValues.includes(value)) {
+					pendingSubValues = pendingSubValues.filter((item) => item !== value);
 				} else {
-					pendingValues.push(value);
+					pendingSubValues.push(value);
 				}
 				syncTags();
 			});
@@ -10896,8 +11078,10 @@
 		confirmBtn?.addEventListener("click", (e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			selectedValues = [...pendingValues];
-			input.value = selectedValues.join(",");
+			selectedSubValues = [...pendingSubValues];
+			selectedCategory = selectedSubValues.length ? activeGroup : "";
+			categoryInput.value = selectedCategory;
+			subCategoryInput.value = selectedSubValues.join(",");
 			syncTrigger();
 			close();
 		});
@@ -11064,8 +11248,9 @@
 		const locationCard = root.querySelector('[data-msm-card="location"]');
 		const dateCard = root.querySelector('[data-msm-card="date"]');
 		const budgetCard = root.querySelector('[data-msm-card="budget"]');
-		const occasionInput = root.querySelector("[data-msm-occasion-input]");
-		const occasionChecks = Array.from(root.querySelectorAll("[data-msm-occasion-check]"));
+		const categoryInput = root.querySelector("[data-msm-category-input]");
+		const subCategoryInput = root.querySelector("[data-msm-sub-category-input]");
+		const subCategoryChecks = Array.from(root.querySelectorAll("[data-msm-sub-category-check]"));
 		const locationInput = root.querySelector("[data-msm-location-input]");
 		const dateInput = root.querySelector("[data-msm-date-input]");
 		const budgetInput = root.querySelector("[data-msm-budget-input]");
@@ -11135,9 +11320,20 @@
 			card.classList.toggle("is-filled", Boolean(filled));
 		};
 
+		const getActiveCategoryKey = () =>
+			catTabs.find((tab) => tab.classList.contains("is-active"))?.getAttribute("data-msm-cat-tab") || "";
+
+		const getActiveCategoryChecks = () => {
+			const activeKey = getActiveCategoryKey();
+			const activePanel = catPanels.find((pane) => pane.getAttribute("data-msm-cat-panel") === activeKey);
+			return activePanel
+				? Array.from(activePanel.querySelectorAll("[data-msm-sub-category-check].is-checked"))
+				: [];
+		};
+
 		const getTriggerFilterStates = () => ({
 			artist: Boolean((artistSearch?.value || "").trim()),
-			categories: occasionChecks.some((btn) => btn.classList.contains("is-checked")),
+			categories: Boolean((subCategoryInput?.value || "").trim()) || subCategoryChecks.some((btn) => btn.classList.contains("is-checked")),
 			location: Boolean((locationInput?.value || "").trim()),
 			date: Boolean(selectedISO),
 			budget: Boolean(budgetInput?.value),
@@ -11152,9 +11348,16 @@
 				: "";
 
 		const getFilterDisplayValues = () => {
-			const selectedOccasions = occasionChecks.filter((btn) => btn.classList.contains("is-checked"));
-			const categoryLabels = selectedOccasions
-				.map((btn) => btn.getAttribute("data-label") || "")
+			const subValues = (subCategoryInput?.value || "")
+				.split(",")
+				.map((value) => value.trim())
+				.filter(Boolean);
+			const categoryLabels = subValues
+				.map(
+					(value) =>
+						subCategoryChecks.find((btn) => btn.getAttribute("data-value") === value)?.getAttribute("data-label") ||
+						""
+				)
 				.filter(Boolean);
 
 			return {
@@ -11196,11 +11399,13 @@
 				filterArtists();
 				syncArtistSummary();
 			} else if (key === "categories") {
-				occasionChecks.forEach((btn) => {
+				subCategoryChecks.forEach((btn) => {
 					btn.classList.remove("is-checked");
 					btn.setAttribute("aria-pressed", "false");
 				});
-				syncOccasionInput();
+				if (categoryInput) categoryInput.value = "";
+				if (subCategoryInput) subCategoryInput.value = "";
+				syncCategoryInputs();
 			} else if (key === "location") {
 				if (locationInput) locationInput.value = "";
 				syncLocationSummary();
@@ -11262,11 +11467,13 @@
 			syncTriggerHints();
 		};
 
-		const syncOccasionInput = () => {
-			const selected = occasionChecks.filter((btn) => btn.classList.contains("is-checked"));
+		const syncCategoryInputs = () => {
+			const activeKey = getActiveCategoryKey();
+			const selected = getActiveCategoryChecks();
 			const values = selected.map((btn) => btn.getAttribute("data-value") || "").filter(Boolean);
 			const labels = selected.map((btn) => btn.getAttribute("data-label") || "").filter(Boolean);
-			if (occasionInput) occasionInput.value = values.join(",");
+			if (categoryInput) categoryInput.value = labels.length ? activeKey : "";
+			if (subCategoryInput) subCategoryInput.value = values.join(",");
 			if (labels.length === 1) {
 				setCardMeta(categoriesCard, true, labels[0]);
 			} else if (labels.length > 1) {
@@ -11603,22 +11810,23 @@
 				catPanels.forEach((catPanel) => {
 					catPanel.hidden = catPanel.getAttribute("data-msm-cat-panel") !== key;
 				});
+				syncCategoryInputs();
 			});
 		});
 
-		occasionChecks.forEach((btn) => {
+		subCategoryChecks.forEach((btn) => {
 			btn.addEventListener("click", (e) => {
 				e.preventDefault();
 				const on = !btn.classList.contains("is-checked");
 				btn.classList.toggle("is-checked", on);
 				btn.setAttribute("aria-pressed", on ? "true" : "false");
-				syncOccasionInput();
+				syncCategoryInputs();
 			});
 		});
 
 		root.querySelector("[data-msm-confirm='categories']")?.addEventListener("click", (e) => {
 			e.preventDefault();
-			syncOccasionInput();
+			syncCategoryInputs();
 			collapsePanels();
 		});
 
@@ -11692,11 +11900,13 @@
 			filterArtists();
 			syncArtistSummary();
 
-			occasionChecks.forEach((btn) => {
+			subCategoryChecks.forEach((btn) => {
 				btn.classList.remove("is-checked");
 				btn.setAttribute("aria-pressed", "false");
 			});
-			syncOccasionInput();
+			if (categoryInput) categoryInput.value = "";
+			if (subCategoryInput) subCategoryInput.value = "";
+			syncCategoryInputs();
 
 			if (locationInput) locationInput.value = "";
 			syncLocationSummary();
@@ -12126,7 +12336,7 @@
 	}
 
 	const chipsWrap = chipsBar.querySelector(".search-page__chips");
-	const filterKeys = new Set(["s", "occasion", "location", "event_date", "budget"]);
+	const filterKeys = new Set(["s", "category", "sub_category", "location", "event_date", "budget"]);
 
 	const syncChipBar = () => {
 		const remaining = chipsWrap?.querySelectorAll("[data-search-chip]").length || 0;
@@ -12139,6 +12349,9 @@
 		}
 		const url = new URL(window.location.href);
 		url.searchParams.delete(key);
+		if ("sub_category" === key) {
+			url.searchParams.delete("category");
+		}
 		window.history.replaceState({}, "", url);
 	};
 
@@ -12150,6 +12363,7 @@
 				removeUrlParam(chip.getAttribute("data-chip-key"));
 				chip.remove();
 			});
+			removeUrlParam("category");
 			syncChipBar();
 			return;
 		}

@@ -3379,8 +3379,19 @@
 	}
 
 	.search-empty {
-		gap: 6.25vw;
+		justify-content: center;
+		gap: 0;
+		min-height: var(--ee-search-empty-min-height, calc(100vh - 14.58vw));
+		min-height: var(--ee-search-empty-min-height, calc(100dvh - 14.58vw));
 		padding: 3.125vw 8.33vw;
+	}
+
+	.search-empty__inner {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6.25vw;
+		width: 100%;
 	}
 
 	.search-empty__visual {
@@ -3414,21 +3425,14 @@
 	}
 
 	.search-empty.is-viewport-fitted {
-		height: var(--ee-search-empty-viewport-height);
-		min-height: 0;
-		padding-top: var(--ee-search-empty-fit-pad-top);
-		padding-bottom: var(--ee-search-empty-fit-pad-bottom);
+		height: var(--ee-search-empty-min-height);
+		min-height: var(--ee-search-empty-min-height);
 		overflow: hidden;
 	}
 
 	.search-empty.is-viewport-fitted .search-empty__inner {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 6.25vw;
-		width: 100%;
-		transform: scale(var(--ee-search-empty-fit-scale));
-		transform-origin: top center;
+		transform: scale(var(--ee-search-empty-fit-scale, 1));
+		transform-origin: center center;
 	}
 
 	.about-reviews {

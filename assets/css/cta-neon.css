@@ -145,10 +145,6 @@
 	transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.cta-neon__social-icon--light-bg {
-	display: none;
-}
-
 .cta-neon__social-icon,
 .cta-neon__social img {
 	width: 32px;
@@ -161,7 +157,12 @@
 	opacity: 0.6;
 }
 
-.cta-neon__social-icon--hover {
+/* Beat `.cta-neon__social img { display: block }` or default + light-bg both show. */
+.cta-neon__social img.cta-neon__social-icon--light-bg {
+	display: none;
+}
+
+.cta-neon__social img.cta-neon__social-icon--hover {
 	position: absolute;
 	inset: 0;
 	margin: auto;
@@ -507,8 +508,8 @@
 		display: none !important;
 	}
 
-	body.home .cta-neon__social-icon--light-bg,
-	body.front-page .cta-neon__social-icon--light-bg {
+	body.home .cta-neon__social img.cta-neon__social-icon--light-bg,
+	body.front-page .cta-neon__social img.cta-neon__social-icon--light-bg {
 		display: block;
 		opacity: 1;
 	}

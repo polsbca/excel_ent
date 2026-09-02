@@ -8,9 +8,63 @@
 get_header();
 
 $excel_ent_search_uri = EXCEL_ENT_URI . '/assets/images/search';
-$excel_ent_query      = get_search_query();
+$excel_ent_query      = excel_ent_get_artist_search_query();
 
-$excel_ent_occasion   = isset( $_GET['occasion'] ) ? sanitize_text_field( wp_unslash( $_GET['occasion'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$excel_ent_category_groups = array(
+	'artists-tributes'     => array(
+		'label' => __( 'Artists & Tributes', 'excel-ent' ),
+		'tags'  => array(
+			'bands'           => __( 'Bands', 'excel-ent' ),
+			'big-band'        => __( 'Big Band', 'excel-ent' ),
+			'djs'             => __( "DJ's", 'excel-ent' ),
+			'duo-tributes'    => __( 'Duo Tributes', 'excel-ent' ),
+			'duos'            => __( 'Duos', 'excel-ent' ),
+			'female-solo'     => __( 'Female Solo', 'excel-ent' ),
+			'female-tributes' => __( 'Female Tributes', 'excel-ent' ),
+			'male-solo'       => __( 'Male Solo', 'excel-ent' ),
+			'male-tributes'   => __( 'Male Tributes', 'excel-ent' ),
+			'tribute'         => __( 'Tribute', 'excel-ent' ),
+			'celebrity-acts'  => __( 'Celebrity Act', 'excel-ent' ),
+		),
+	),
+	'decades'              => array(
+		'label' => __( 'Decades', 'excel-ent' ),
+		'tags'  => array(
+			'60s'   => __( "60's", 'excel-ent' ),
+			'70s'   => __( "70's", 'excel-ent' ),
+			'80s'   => __( "80's", 'excel-ent' ),
+			'90s'   => __( "90's", 'excel-ent' ),
+			'2000s' => __( "00's", 'excel-ent' ),
+			'2010s' => __( "10's", 'excel-ent' ),
+		),
+	),
+	'entertainment-events' => array(
+		'label' => __( 'Entertainment & Events', 'excel-ent' ),
+		'tags'  => array(
+			'celebrity-acts'       => __( 'Celebrity Act', 'excel-ent' ),
+			'comedy'               => __( 'Comedy', 'excel-ent' ),
+			'corporate'            => __( 'Corporate', 'excel-ent' ),
+			'wedding'              => __( 'Weddings', 'excel-ent' ),
+			'shows'                => __( 'Shows', 'excel-ent' ),
+			'magicians-hypnotists' => __( 'Magicians & Hypnotists', 'excel-ent' ),
+		),
+	),
+	'genres-music'         => array(
+		'label' => __( 'Music Genre', 'excel-ent' ),
+		'tags'  => array(
+			'pop'    => __( 'Pop', 'excel-ent' ),
+			'rock'   => __( 'Rock', 'excel-ent' ),
+			'soul'   => __( 'Soul', 'excel-ent' ),
+			'jazz'   => __( 'Jazz', 'excel-ent' ),
+			'dance'  => __( 'Dance', 'excel-ent' ),
+			'covers' => __( 'Covers', 'excel-ent' ),
+		),
+	),
+);
+
+$excel_ent_category_state = excel_ent_resolve_search_category_state( $excel_ent_category_groups );
+$excel_ent_sub_category   = $excel_ent_category_state['sub_values'];
+
 $excel_ent_location   = isset( $_GET['location'] ) ? sanitize_text_field( wp_unslash( $_GET['location'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $excel_ent_event_date = isset( $_GET['event_date'] ) ? sanitize_text_field( wp_unslash( $_GET['event_date'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $excel_ent_budget     = isset( $_GET['budget'] ) ? sanitize_text_field( wp_unslash( $_GET['budget'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -67,14 +121,26 @@ $excel_ent_category_labels = array(
 	'festival'             => __( 'Festival', 'excel-ent' ),
 );
 
+$excel_ent_tag_labels = array();
+foreach ( $excel_ent_category_groups as $excel_ent_group ) {
+	foreach ( $excel_ent_group['tags'] as $excel_ent_tag_value => $excel_ent_tag_label ) {
+		$excel_ent_tag_labels[ $excel_ent_tag_value ] = $excel_ent_tag_label;
+	}
+}
+
 $excel_ent_chips = array();
 
-if ( $excel_ent_occasion ) {
+foreach ( $excel_ent_sub_category as $excel_ent_sub_tag ) {
+	if ( ! $excel_ent_sub_tag ) {
+		continue;
+	}
 	$excel_ent_chips[] = array(
-		'key'   => 'occasion',
-		'label' => isset( $excel_ent_category_labels[ $excel_ent_occasion ] )
-			? $excel_ent_category_labels[ $excel_ent_occasion ]
-			: $excel_ent_occasion,
+		'key'   => 'sub_category',
+		'label' => isset( $excel_ent_tag_labels[ $excel_ent_sub_tag ] )
+			? $excel_ent_tag_labels[ $excel_ent_sub_tag ]
+			: ( isset( $excel_ent_category_labels[ $excel_ent_sub_tag ] )
+				? $excel_ent_category_labels[ $excel_ent_sub_tag ]
+				: $excel_ent_sub_tag ),
 	);
 }
 
@@ -125,19 +191,16 @@ if ( $excel_ent_query ) {
 	);
 }
 
-/* Figma empty state always shows filter chips. */
-if ( empty( $excel_ent_chips ) ) {
-	$excel_ent_chips = array(
-		array( 'key' => 'demo-1', 'label' => __( 'Solo male', 'excel-ent' ) ),
-		array( 'key' => 'demo-2', 'label' => __( 'budget :High to low', 'excel-ent' ) ),
-		array( 'key' => 'demo-3', 'label' => __( 'Most booked', 'excel-ent' ) ),
-	);
-}
+$excel_ent_search_result = excel_ent_search_artists( excel_ent_get_artist_search_args_from_request() );
+$excel_ent_artists       = $excel_ent_search_result['artists'];
+$excel_ent_pagination    = $excel_ent_search_result['pagination'];
+$excel_ent_has_results   = ! empty( $excel_ent_artists );
+$excel_ent_chips_class   = empty( $excel_ent_chips ) ? 'search-page__chips-bar is-empty' : 'search-page__chips-bar';
 
 ?>
 
 <div class="search-page">
-	<div class="search-page__chips-bar" data-search-chips-bar aria-label="<?php esc_attr_e( 'Active filters', 'excel-ent' ); ?>">
+	<div class="<?php echo esc_attr( $excel_ent_chips_class ); ?>" data-search-chips-bar aria-label="<?php esc_attr_e( 'Active filters', 'excel-ent' ); ?>">
 		<div class="search-page__chips">
 			<?php foreach ( $excel_ent_chips as $excel_ent_chip ) : ?>
 				<button
@@ -170,27 +233,47 @@ if ( empty( $excel_ent_chips ) ) {
 		</button>
 	</div>
 
-	<section class="search-empty" aria-label="<?php esc_attr_e( 'No search results', 'excel-ent' ); ?>">
-		<p class="search-empty__eyebrow"><?php esc_html_e( 'No Results found', 'excel-ent' ); ?></p>
-		<div class="search-empty__inner">
-			<div class="search-empty__visual">
-				<img
-					class="search-empty__illustration"
-					src="<?php echo esc_url( $excel_ent_search_uri . '/empty-dog.jpg' ); ?>"
-					alt="<?php esc_attr_e( 'Sad dog illustration indicating no results', 'excel-ent' ); ?>"
-					width="376"
-					height="339"
-					decoding="async"
-				>
+	<?php if ( $excel_ent_has_results ) : ?>
+		<?php
+		get_template_part(
+			'template-parts/artist-results-grid',
+			null,
+			array(
+				'artists'    => $excel_ent_artists,
+				'pagination' => $excel_ent_pagination,
+				'context'    => 'search',
+			)
+		);
+		?>
+	<?php else : ?>
+		<section class="search-empty" aria-label="<?php esc_attr_e( 'No search results', 'excel-ent' ); ?>">
+			<p class="search-empty__eyebrow"><?php esc_html_e( 'No Results found', 'excel-ent' ); ?></p>
+			<div class="search-empty__inner">
+				<div class="search-empty__visual">
+					<img
+						class="search-empty__illustration"
+						src="<?php echo esc_url( $excel_ent_search_uri . '/empty-dog.jpg' ); ?>"
+						alt="<?php esc_attr_e( 'Sad dog illustration indicating no results', 'excel-ent' ); ?>"
+						width="376"
+						height="339"
+						decoding="async"
+					>
+				</div>
+				<div class="search-empty__copy">
+					<h1 class="search-empty__title"><?php esc_html_e( "Sorry, We Couldn't Find Any Matching Artists", 'excel-ent' ); ?></h1>
+					<p class="search-empty__lede">
+						<?php
+						if ( 'missing_api_key' === $excel_ent_search_result['error'] ) {
+							esc_html_e( 'Artist search is not configured yet. Please add the API key in wp-config.php.', 'excel-ent' );
+						} else {
+							esc_html_e( "We couldn't find any artists that match your search or filters. Try adjusting your search, exploring another category, or broadening your location or date.", 'excel-ent' );
+						}
+						?>
+					</p>
+				</div>
 			</div>
-			<div class="search-empty__copy">
-				<h1 class="search-empty__title"><?php esc_html_e( "Sorry, We Couldn't Find Any Matching Artists", 'excel-ent' ); ?></h1>
-				<p class="search-empty__lede">
-					<?php esc_html_e( "We couldn't find any artists that match your search or filters. Try adjusting your search, exploring another category, or broadening your location or date.", 'excel-ent' ); ?>
-				</p>
-			</div>
-		</div>
-	</section>
+		</section>
+	<?php endif; ?>
 </div>
 
 <?php

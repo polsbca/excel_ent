@@ -5,7 +5,6 @@
  * @package Excel_Ent
  */
 
-$excel_ent_occasion   = isset( $_GET['occasion'] ) ? sanitize_text_field( wp_unslash( $_GET['occasion'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $excel_ent_location   = isset( $_GET['location'] ) ? sanitize_text_field( wp_unslash( $_GET['location'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $excel_ent_event_date = isset( $_GET['event_date'] ) ? sanitize_text_field( wp_unslash( $_GET['event_date'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $excel_ent_budget     = isset( $_GET['budget'] ) ? sanitize_text_field( wp_unslash( $_GET['budget'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -42,15 +41,6 @@ $excel_ent_location_options = array(
 );
 
 /* Figma 1669:6537 / 6613 / 6682 / 6747 — Browse Categories groups + tags */
-$excel_ent_occasion_values = array_values(
-	array_filter(
-		array_map(
-			'trim',
-			explode( ',', $excel_ent_occasion )
-		)
-	)
-);
-
 $excel_ent_category_groups = array(
 	'artists-tributes'    => array(
 		'label'   => __( 'Artists & Tributes', 'excel-ent' ),
@@ -137,6 +127,12 @@ $excel_ent_category_groups = array(
 	),
 );
 
+$excel_ent_category_state = excel_ent_resolve_search_category_state( $excel_ent_category_groups );
+$excel_ent_category       = $excel_ent_category_state['category'];
+$excel_ent_sub_category   = $excel_ent_category_state['sub_category'];
+$excel_ent_category_tags  = $excel_ent_category_state['sub_values'];
+$excel_ent_category_group = $excel_ent_category ? $excel_ent_category : 'artists-tributes';
+
 $excel_ent_budget_value = isset( $excel_ent_budget_options[ $excel_ent_budget ] )
 	? $excel_ent_budget_options[ $excel_ent_budget ]
 	: '';
@@ -148,29 +144,7 @@ if ( $excel_ent_location ) {
 		: $excel_ent_location;
 }
 
-$excel_ent_category_value  = '';
-$excel_ent_category_group  = 'artists-tributes';
-$excel_ent_category_tags   = array();
-foreach ( $excel_ent_category_groups as $excel_ent_group_key => $excel_ent_group ) {
-	foreach ( $excel_ent_occasion_values as $excel_ent_selected_tag ) {
-		if ( isset( $excel_ent_group['tags'][ $excel_ent_selected_tag ] ) ) {
-			$excel_ent_category_group = $excel_ent_group_key;
-			break 2;
-		}
-	}
-}
-
-foreach ( $excel_ent_occasion_values as $excel_ent_selected_tag ) {
-	foreach ( $excel_ent_category_groups as $excel_ent_group ) {
-		if ( isset( $excel_ent_group['tags'][ $excel_ent_selected_tag ] ) ) {
-			$excel_ent_category_tags[] = $excel_ent_selected_tag;
-			break;
-		}
-	}
-}
-
-$excel_ent_category_tags = array_values( array_unique( $excel_ent_category_tags ) );
-
+$excel_ent_category_value = '';
 $excel_ent_category_labels_selected = array();
 foreach ( $excel_ent_category_tags as $excel_ent_selected_tag ) {
 	foreach ( $excel_ent_category_groups as $excel_ent_group ) {
@@ -354,12 +328,20 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 			</span>
 		</button>
 		<input
-			id="header-search-occasion"
+			id="header-search-category"
 			class="header-search__input screen-reader-text"
 			type="hidden"
-			name="occasion"
-			value="<?php echo esc_attr( $excel_ent_occasion ); ?>"
-			data-header-categories-input
+			name="category"
+			value="<?php echo esc_attr( $excel_ent_category ); ?>"
+			data-header-category-input
+		>
+		<input
+			id="header-search-sub-category"
+			class="header-search__input screen-reader-text"
+			type="hidden"
+			name="sub_category"
+			value="<?php echo esc_attr( $excel_ent_sub_category ); ?>"
+			data-header-sub-category-input
 		>
 		<div
 			id="header-categories-panel"

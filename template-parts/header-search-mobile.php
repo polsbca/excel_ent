@@ -8,17 +8,10 @@
 $excel_ent_icons        = EXCEL_ENT_URI . '/assets/images/search-mobile';
 $excel_ent_legacy_icons = EXCEL_ENT_URI . '/assets/images/icons';
 
-$excel_ent_occasion   = isset( $_GET['occasion'] ) ? sanitize_text_field( wp_unslash( $_GET['occasion'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $excel_ent_location   = isset( $_GET['location'] ) ? sanitize_text_field( wp_unslash( $_GET['location'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $excel_ent_event_date = isset( $_GET['event_date'] ) ? sanitize_text_field( wp_unslash( $_GET['event_date'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $excel_ent_budget     = isset( $_GET['budget'] ) ? sanitize_text_field( wp_unslash( $_GET['budget'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $excel_ent_artist_q   = get_search_query();
-
-$excel_ent_selected_occasions = array_values(
-	array_filter(
-		array_map( 'trim', explode( ',', $excel_ent_occasion ) )
-	)
-);
 
 $excel_ent_budget_options = array(
 	'under-500' => __( 'Under £500', 'excel-ent' ),
@@ -80,6 +73,12 @@ $excel_ent_category_groups = array(
 	),
 );
 
+$excel_ent_category_state   = excel_ent_resolve_search_category_state( $excel_ent_category_groups );
+$excel_ent_category         = $excel_ent_category_state['category'];
+$excel_ent_category_group   = $excel_ent_category ? $excel_ent_category : 'artists-tributes';
+$excel_ent_sub_category     = $excel_ent_category_state['sub_category'];
+$excel_ent_selected_subcats = $excel_ent_category_state['sub_values'];
+
 $excel_ent_artist_avatar  = $excel_ent_legacy_icons . '/artist-search-avatar.jpg';
 $excel_ent_artist_results = array(
 	array(
@@ -107,17 +106,17 @@ foreach ( $excel_ent_category_groups as $excel_ent_group ) {
 	}
 }
 
-$excel_ent_occasion_meta = __( 'Any categories', 'excel-ent' );
+$excel_ent_categories_meta = __( 'Any categories', 'excel-ent' );
 $excel_ent_occasion_filled = false;
-if ( $excel_ent_selected_occasions ) {
+if ( $excel_ent_selected_subcats ) {
 	$excel_ent_occasion_names = array();
-	foreach ( $excel_ent_selected_occasions as $excel_ent_selected_tag ) {
+	foreach ( $excel_ent_selected_subcats as $excel_ent_selected_tag ) {
 		if ( isset( $excel_ent_tag_labels[ $excel_ent_selected_tag ] ) ) {
 			$excel_ent_occasion_names[] = $excel_ent_tag_labels[ $excel_ent_selected_tag ];
 		}
 	}
 	if ( $excel_ent_occasion_names ) {
-		$excel_ent_occasion_meta   = implode( ', ', $excel_ent_occasion_names );
+		$excel_ent_categories_meta = implode( ', ', $excel_ent_occasion_names );
 		$excel_ent_occasion_filled = true;
 	}
 }
@@ -182,7 +181,7 @@ $excel_ent_chip_types = array(
 );
 $excel_ent_chip_values = array(
 	'artist'     => $excel_ent_artist_filled ? $excel_ent_artist_meta : '',
-	'categories' => $excel_ent_occasion_filled ? $excel_ent_occasion_meta : '',
+	'categories' => $excel_ent_occasion_filled ? $excel_ent_categories_meta : '',
 	'location'   => $excel_ent_location_filled ? $excel_ent_location_meta : '',
 	'date'       => $excel_ent_chip_date_value,
 	'budget'     => $excel_ent_budget_filled ? $excel_ent_budget_meta : '',
@@ -394,7 +393,7 @@ $excel_ent_chip_active = array(
 							<img class="header-search-mobile__card-icon header-search-mobile__card-icon--sm" src="<?php echo esc_url( $excel_ent_icons . '/browse-categories.svg' ); ?>" alt="" width="18" height="18" decoding="async">
 							<span class="header-search-mobile__card-copy">
 								<span class="header-search-mobile__card-title"><?php esc_html_e( 'Browse Categories', 'excel-ent' ); ?></span>
-								<span class="header-search-mobile__card-meta" data-msm-summary-meta data-placeholder="<?php esc_attr_e( 'Any categories', 'excel-ent' ); ?>"><?php echo esc_html( $excel_ent_occasion_meta ); ?></span>
+								<span class="header-search-mobile__card-meta" data-msm-summary-meta data-placeholder="<?php esc_attr_e( 'Any categories', 'excel-ent' ); ?>"><?php echo esc_html( $excel_ent_categories_meta ); ?></span>
 							</span>
 						</button>
 						<div class="header-search-mobile__card-panel" data-msm-panel hidden>
@@ -402,43 +401,37 @@ $excel_ent_chip_active = array(
 								<img src="<?php echo esc_url( $excel_ent_icons . '/browse-categories.svg' ); ?>" alt="" width="18" height="18" decoding="async">
 								<span><?php esc_html_e( 'Browse Categories', 'excel-ent' ); ?></span>
 							</button>
-							<input type="hidden" name="occasion" value="<?php echo esc_attr( $excel_ent_occasion ); ?>" data-msm-occasion-input>
+							<input type="hidden" name="category" value="<?php echo esc_attr( $excel_ent_category ); ?>" data-msm-category-input>
+							<input type="hidden" name="sub_category" value="<?php echo esc_attr( $excel_ent_sub_category ); ?>" data-msm-sub-category-input>
 							<div class="header-search-mobile__cat-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Category groups', 'excel-ent' ); ?>">
-								<?php
-								$excel_ent_group_index = 0;
-								foreach ( $excel_ent_category_groups as $excel_ent_group_key => $excel_ent_group ) :
-									?>
+								<?php foreach ( $excel_ent_category_groups as $excel_ent_group_key => $excel_ent_group ) : ?>
+									<?php $excel_ent_tab_active = ( (string) $excel_ent_group_key === (string) $excel_ent_category_group ); ?>
 									<button
 										type="button"
-										class="header-search-mobile__cat-tab<?php echo 0 === $excel_ent_group_index ? ' is-active' : ''; ?>"
+										class="header-search-mobile__cat-tab<?php echo $excel_ent_tab_active ? ' is-active' : ''; ?>"
 										role="tab"
-										aria-selected="<?php echo 0 === $excel_ent_group_index ? 'true' : 'false'; ?>"
+										aria-selected="<?php echo $excel_ent_tab_active ? 'true' : 'false'; ?>"
 										data-msm-cat-tab="<?php echo esc_attr( $excel_ent_group_key ); ?>"
 									>
 										<?php echo esc_html( $excel_ent_group['label'] ); ?>
 									</button>
-									<?php
-									++$excel_ent_group_index;
-								endforeach;
-								?>
+								<?php endforeach; ?>
 							</div>
 							<div class="header-search-mobile__cat-box">
-								<?php
-								$excel_ent_group_index = 0;
-								foreach ( $excel_ent_category_groups as $excel_ent_group_key => $excel_ent_group ) :
-									?>
+								<?php foreach ( $excel_ent_category_groups as $excel_ent_group_key => $excel_ent_group ) : ?>
+									<?php $excel_ent_panel_active = ( (string) $excel_ent_group_key === (string) $excel_ent_category_group ); ?>
 									<ul
 										class="header-search-mobile__checks"
 										data-msm-cat-panel="<?php echo esc_attr( $excel_ent_group_key ); ?>"
-										<?php echo 0 === $excel_ent_group_index ? '' : ' hidden'; ?>
+										<?php echo $excel_ent_panel_active ? '' : ' hidden'; ?>
 									>
 										<?php foreach ( $excel_ent_group['tags'] as $excel_ent_tag_value => $excel_ent_tag_label ) : ?>
-											<?php $excel_ent_tag_on = in_array( (string) $excel_ent_tag_value, $excel_ent_selected_occasions, true ); ?>
+											<?php $excel_ent_tag_on = in_array( (string) $excel_ent_tag_value, $excel_ent_selected_subcats, true ); ?>
 											<li>
 												<button
 													type="button"
 													class="header-search-mobile__check<?php echo $excel_ent_tag_on ? ' is-checked' : ''; ?>"
-													data-msm-occasion-check
+													data-msm-sub-category-check
 													data-value="<?php echo esc_attr( $excel_ent_tag_value ); ?>"
 													data-label="<?php echo esc_attr( $excel_ent_tag_label ); ?>"
 													aria-pressed="<?php echo $excel_ent_tag_on ? 'true' : 'false'; ?>"
@@ -450,10 +443,7 @@ $excel_ent_chip_active = array(
 											</li>
 										<?php endforeach; ?>
 									</ul>
-									<?php
-									++$excel_ent_group_index;
-								endforeach;
-								?>
+								<?php endforeach; ?>
 							</div>
 							<button type="button" class="header-search-mobile__confirm-outline" data-msm-confirm="categories">
 								<?php esc_html_e( 'Confirm Selection', 'excel-ent' ); ?>
