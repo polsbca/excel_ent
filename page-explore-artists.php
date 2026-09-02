@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Explore Artists
- * Explore Artists listing — Figma desktop 2202:32051 / tablet 1099:2920 / mobile 1023:6857
+ * Explore Artists listing — Figma desktop 2202:32051 / tablet 1099:2920 / mobile 1023:6857 / CTA 2473:10613
  *
  * @package Excel_Ent
  */

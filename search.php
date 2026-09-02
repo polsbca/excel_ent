@@ -1,6 +1,6 @@
 <?php
 /**
- * Search results template — Figma desktop 1299:11348 / empty 1299:11417 / tablet 1114:11425 / mobile 1053:4365.
+ * Search results template — Figma desktop 1299:11348 / empty 1299:11417 / tablet 1114:11425 / mobile 1053:4365 / CTA 2473:10613.
  *
  * @package Excel_Ent
  */

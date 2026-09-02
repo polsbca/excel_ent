@@ -2437,7 +2437,8 @@
 			const sectionH = Math.ceil(excelWay.getBoundingClientRect().height);
 			const stickyTop =
 				parseFloat(getComputedStyle(excelWay).getPropertyValue("--ee-excel-way-sticky-top")) || 0;
-			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const viewportH = window.visualViewport?.height ?? window.innerHeight;
+			const availableH = Math.max(viewportH - stickyTop, 0);
 			const fitScale = Math.min(1, availableH / Math.max(sectionH, 1));
 			if (fitScale < 1) {
 				const styles = getComputedStyle(excelWay);
@@ -2449,7 +2450,7 @@
 				excelWay.style.setProperty("--ee-excel-way-fit-pad-bottom", `${padBottom * fitScale}px`);
 				excelWay.classList.add("is-viewport-fitted");
 			}
-			const holdPx = Math.round(window.innerHeight * 1);
+			const holdPx = Math.round(viewportH * 1);
 			excelWayPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
 			if (preservePinLayout) {
 				excelWay.style.visibility = "";
@@ -2472,7 +2473,7 @@
 		};
 
 		const setTab = (id) => {
-			tabs.forEach((tab) => {
+			excelWay.querySelectorAll("[data-excel-way-tab]").forEach((tab) => {
 				const on = tab.getAttribute("data-excel-way-tab") === id;
 				tab.classList.toggle("excel-way-tab--active", on);
 				tab.setAttribute("aria-selected", on ? "true" : "false");
@@ -2482,6 +2483,11 @@
 				const on = panel.getAttribute("data-excel-way-panel") === id;
 				panel.classList.toggle("is-hidden", !on);
 				panel.hidden = !on;
+			});
+
+			excelWay.querySelectorAll("[data-excel-way-accordion-item]").forEach((item) => {
+				const on = item.getAttribute("data-excel-way-accordion-item") === id;
+				item.classList.toggle("is-open", on);
 			});
 
 			window.requestAnimationFrame(() => {
@@ -2495,6 +2501,7 @@
 		)
 			.map((panel) => {
 				const scroller =
+					panel.querySelector(".excel-way__steps--how.excel-way__steps--mobile") ||
 					panel.querySelector(".excel-way__steps--cancel") ||
 					panel.querySelector(".excel-way-about__list--mobile");
 				const pagination = panel.querySelector("[data-excel-way-pagination]");
@@ -2601,6 +2608,12 @@
 			syncExcelWayPin();
 			syncExcelWayPinnedState();
 		});
+		if (window.visualViewport) {
+			window.visualViewport.addEventListener("resize", () => {
+				syncExcelWayPin();
+				syncExcelWayPinnedState();
+			});
+		}
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
 				syncExcelWayPin();
@@ -2968,7 +2981,8 @@
 			const sectionH = Math.ceil(venuesSection.getBoundingClientRect().height);
 			const stickyTop =
 				parseFloat(getComputedStyle(venuesSection).getPropertyValue("--ee-venues-sticky-top")) || 0;
-			const availableH = Math.max(window.innerHeight - stickyTop, 0);
+			const viewportH = window.visualViewport?.height ?? window.innerHeight;
+			const availableH = Math.max(viewportH - stickyTop, 0);
 			const fitScale = Math.min(1, availableH / Math.max(sectionH, 1));
 			if (fitScale < 1) {
 				const styles = getComputedStyle(venuesSection);
@@ -2980,7 +2994,7 @@
 				venuesSection.style.setProperty("--ee-venues-fit-pad-bottom", `${padBottom * fitScale}px`);
 				venuesSection.classList.add("is-viewport-fitted");
 			}
-			const holdPx = Math.round(window.innerHeight * 1);
+			const holdPx = Math.round(viewportH * 1);
 			venuesPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
 		};
 
@@ -3064,6 +3078,12 @@
 			syncVenuesPin();
 			syncVenuesPinnedState();
 		});
+		if (window.visualViewport) {
+			window.visualViewport.addEventListener("resize", () => {
+				syncVenuesPin();
+				syncVenuesPinnedState();
+			});
+		}
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
 				syncVenuesPin();
@@ -12058,6 +12078,17 @@
 			null;
 		const status = form.querySelector("[data-newsletter-status]");
 		const defaultLabel = label?.textContent || cfg.submitLabel || "Subscribe";
+
+		if (input?.dataset.placeholderMobile) {
+			const desktopPlaceholder = input.getAttribute("placeholder") || "";
+			const mobilePlaceholder = input.dataset.placeholderMobile;
+			const placeholderMq = window.matchMedia("(max-width: 767px)");
+			const syncNewsletterPlaceholder = () => {
+				input.placeholder = placeholderMq.matches ? mobilePlaceholder : desktopPlaceholder;
+			};
+			syncNewsletterPlaceholder();
+			placeholderMq.addEventListener("change", syncNewsletterPlaceholder);
+		}
 
 		const setStatus = (message, type) => {
 			if (!status) {

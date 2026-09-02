@@ -859,10 +859,11 @@
 	}
 }
 
-/* Homepage mobile venues section — Figma 2331:2778 */
+/* Homepage mobile venues section — Figma 2473:4915 */
 @media (max-width: 767px) {
 	.venues-section-pin {
 		background: #fff;
+		overflow-x: clip;
 	}
 
 	.venues-section__scroll-pad {
@@ -877,7 +878,7 @@
 		min-height: 0;
 		padding: 34px 24px;
 		box-sizing: border-box;
-		overflow: hidden;
+		overflow-x: clip;
 	}
 
 	.venues-section.is-viewport-fitted {
@@ -885,7 +886,8 @@
 		min-height: 0;
 		padding-top: var(--ee-venues-fit-pad-top);
 		padding-bottom: var(--ee-venues-fit-pad-bottom);
-		overflow: hidden;
+		overflow-x: clip;
+		overflow-y: hidden;
 	}
 
 	.venues-section.is-viewport-fitted .venues-section__inner {
@@ -915,13 +917,17 @@
 		font-size: 32px;
 		line-height: 34px;
 		letter-spacing: 1px;
-		max-width: 309px;
+		max-width: none;
+		width: 100%;
 	}
 
 	.venues-section__lede {
-		font-size: 12px;
-		line-height: 16px;
-		letter-spacing: 1px;
+		display: block;
+		font-size: 14px;
+		line-height: 1.5;
+		letter-spacing: 0;
+		font-weight: 400;
+		opacity: 0.7;
 	}
 
 	.venues-section__eyebrow {
@@ -930,6 +936,11 @@
 
 	.venues-section__eyebrow span {
 		font-size: 12px;
+		font-weight: 800;
+	}
+
+	.venues-section__types {
+		width: 100%;
 	}
 
 	.venue-panel {
@@ -938,8 +949,8 @@
 
 	.venue-panel:not(.is-active),
 	.venue-panel:not(.is-active)[data-venue-id="hotels"] {
-		height: 61px;
-		flex-basis: 61px;
+		height: 66px;
+		flex-basis: 66px;
 	}
 
 	.venue-panel.is-active {
@@ -948,10 +959,19 @@
 		flex-basis: 187px;
 	}
 
+	.venue-panel.is-active .venue-panel__overlay {
+		background: rgba(0, 0, 0, 0.3);
+	}
+
 	.venue-panel.is-active .venue-panel__body {
 		justify-content: flex-end;
 		gap: 0;
 		padding: 36px 16px;
+	}
+
+	.venue-panel__collapsed-title {
+		left: 16px;
+		right: 16px;
 	}
 
 	.venue-panel__content {
@@ -965,12 +985,15 @@
 	.venue-panel__title,
 	.venue-panel__collapsed-title {
 		font-size: 24px;
+		font-weight: 600;
 		line-height: normal;
+		letter-spacing: 1px;
 	}
 
 	.venue-panel__text {
 		font-size: 14px;
 		line-height: normal;
-		letter-spacing: 1px;
+		letter-spacing: 0;
+		font-weight: 400;
 	}
 }

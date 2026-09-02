@@ -7463,11 +7463,18 @@ body.front-page .site-header.is-scrolled.is-panel-open .header-search-icon {
 	}
 }
 
-/* Homepage mobile footer — Figma 2331:2931 */
+/* Homepage mobile footer — Figma 2473:4878 */
 @media (max-width: 767px) {
+	body.home .site-main,
+	body.front-page .site-main {
+		padding-bottom: 0;
+		margin-bottom: 0;
+	}
+
 	body.home .site-footer,
 	body.front-page .site-footer {
-		padding: 0 24px 20px;
+		margin-top: -1px;
+		padding: 41px 24px 20px;
 		background: #000;
 	}
 

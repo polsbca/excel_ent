@@ -1,4 +1,4 @@
-/* Excel Ent — Newsletter CTA (Figma 2202:36025, desktop) */
+/* Excel Ent — Newsletter CTA (Figma 2202:36025 desktop, 2473:4746 mobile) */
 
 .newsletter-cta {
 	background: #000;
@@ -272,27 +272,100 @@
 }
 
 @media (max-width: 767px) {
+	/* Figma 2473:4746 — Need a Last-Minute Performer? (mobile) */
 	.newsletter-cta {
-		padding: 48px 24px;
+		padding: 60px 24px;
+	}
+
+	.newsletter-cta__inner {
+		gap: 24px;
+		align-items: center;
+	}
+
+	.newsletter-cta__copy {
+		gap: 30px;
+		width: 100%;
 	}
 
 	.newsletter-cta__title {
-		font-size: 32px;
+		font-size: 40px;
+		line-height: 1.03;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
 	}
 
 	.newsletter-cta__lede {
 		font-size: 14px;
-		line-height: 1.5;
+		line-height: 1.56;
+		letter-spacing: 0.14px;
+		opacity: 0.7;
+		text-box-trim: trim-both;
+		text-box-edge: cap alphabetic;
+	}
+
+	.newsletter-cta__form {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 30px;
+	}
+
+	.newsletter-cta__field {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		width: 100%;
+		padding: 14px 0;
+		border: 0;
+		border-bottom: 1px solid #fff;
+		box-shadow: 0 4px 4px rgba(155, 77, 255, 0.5);
+		box-sizing: border-box;
+	}
+
+	.newsletter-cta__mail {
+		display: block;
+		width: 18px;
+		height: 18px;
+		flex-shrink: 0;
 	}
 
 	.newsletter-cta__input {
-		height: 56px;
-		padding: 16px 20px;
+		flex: 1 1 auto;
+		width: auto;
+		height: auto;
+		min-height: 0;
+		padding: 0;
+		border: 0;
+		box-shadow: none;
+		background: transparent;
+		font-weight: 400;
 		font-size: 14px;
+		line-height: 1;
+		letter-spacing: 0.07px;
+		text-transform: none;
+	}
+
+	.newsletter-cta__input::placeholder {
+		color: #fff;
+		opacity: 0.6;
 	}
 
 	.newsletter-cta__submit {
-		padding: 16px 20px;
-		font-size: 14px;
+		width: 100%;
+		height: auto;
+		min-height: 0;
+		padding: 20px;
+		border: 0;
+		border-bottom: 2px solid #f89a42;
+		background-image: linear-gradient(
+			270deg,
+			#f8a742 0%,
+			#f1634c 19.712%,
+			#ee4250 44.231%,
+			#eb2055 72.115%
+		);
+		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
+		font-size: 16px;
+		font-weight: 800;
+		letter-spacing: 1px;
 	}
 }

@@ -49,7 +49,7 @@ $excel_ent_hero_slides = excel_ent_get_hero_slides();
 						<?php esc_html_e( 'Book an Artist', 'excel-ent' ); ?>
 					</a>
 					<a class="btn-hero btn-hero--outline magnetic" href="<?php echo esc_url( $excel_ent_join ); ?>">
-						<?php esc_html_e( 'Register as an Artist', 'excel-ent' ); ?>
+						<?php esc_html_e( 'Join as an Artist', 'excel-ent' ); ?>
 					</a>
 				</div>
 			</div>

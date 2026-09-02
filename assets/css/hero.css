@@ -556,7 +556,7 @@
 	}
 }
 
-/* Phone — Figma 1023:20995 */
+/* Phone — Figma 2473:4513 */
 @media (max-width: 767px) {
 	.hero {
 		height: calc(100svh - 100px);
@@ -567,13 +567,14 @@
 		height: 100%;
 		min-height: 0;
 		padding: 180px 24px 20px;
-		gap: 0;
+		gap: 22px;
 		justify-content: space-between;
 	}
 
 	.hero__main {
 		flex-direction: column;
-		gap: 40px;
+		gap: 0;
+		width: 100%;
 	}
 
 	.hero__copy {
@@ -582,13 +583,13 @@
 
 	.hero__intro {
 		order: 1;
-		gap: 25px;
+		gap: 17px;
 		max-width: none;
 	}
 
 	.hero__title {
 		font-size: 40px;
-		line-height: 1;
+		line-height: 30px;
 		letter-spacing: 1px;
 		font-weight: 700;
 	}
@@ -604,7 +605,7 @@
 	.hero__lede {
 		max-width: none;
 		font-size: 14px;
-		line-height: 20px;
+		line-height: 22px;
 		letter-spacing: 1px;
 	}
 
@@ -614,50 +615,67 @@
 		flex-direction: row;
 		align-items: flex-start;
 		justify-content: space-between;
-		gap: 8px;
+		gap: 0;
 		width: 100%;
-		margin-top: 0;
-		margin-bottom: 0;
+		margin-top: 28px;
+		margin-bottom: 32px;
 	}
 
 	.hero-stat {
-		flex: 1 1 0;
+		flex: 0 1 auto;
 		min-width: 0;
-		gap: 16px;
+		gap: 12px;
+	}
+
+	.hero-stat:last-child {
+		flex: 0 0 68px;
+		max-width: 68px;
 	}
 
 	.hero-stat__num {
 		font-size: 20px;
 		font-weight: 700;
+		line-height: normal;
 		letter-spacing: 1px;
 	}
 
 	.hero-stat__label {
 		font-size: 10px;
-		line-height: 1.2;
+		line-height: normal;
 		letter-spacing: 0;
 	}
 
 	.hero__actions {
 		order: 3;
-		flex-direction: column;
+		flex-direction: row;
 		align-items: stretch;
-		width: 222px;
-		max-width: 100%;
-		gap: 24px;
+		width: 100%;
+		max-width: none;
+		gap: 16px;
+	}
+
+	.hero__actions .btn-hero--outline {
+		order: 1;
+	}
+
+	.hero__actions .btn-hero--primary {
+		order: 2;
 	}
 
 	.btn-hero {
+		flex: 1 1 0;
 		min-width: 0;
-		width: 100%;
+		width: auto;
 		height: 51px;
 		min-height: 51px;
 		padding: 20px;
 		font-size: 16px;
+		font-weight: 700;
+		white-space: nowrap;
 	}
 
 	.btn-hero--primary {
-		box-shadow: 0 4px 4px rgba(155, 77, 255, 0.5);
+		box-shadow: 0 4px 2px rgba(155, 77, 255, 0.5);
 	}
 
 	.btn-hero--outline {
@@ -671,18 +689,27 @@
 		width: auto;
 		gap: 0;
 		margin-top: 0;
+		flex-shrink: 0;
 	}
 
 	.hero-carousel__dots {
 		width: 51px;
 		height: 9px;
-		gap: 2px;
+		gap: 5px;
+		justify-content: center;
 	}
 
 	.hero-carousel__dot {
 		flex: 0 0 9px;
 		width: 9px;
 		height: 9px;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.29);
+	}
+
+	.hero-carousel__dot.is-active {
+		border: 1px solid #f8a742;
+		background: linear-gradient(180deg, #f89a42, #eb2055);
 	}
 
 	.hero-carousel__nav,

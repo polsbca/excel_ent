@@ -211,7 +211,7 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 		<header class="excel-way__header reveal" data-reveal>
 			<h2 class="excel-way__title"><?php esc_html_e( 'THE EXCEL WAY', 'excel-ent' ); ?></h2>
 
-			<div class="excel-way__tabs" role="tablist" aria-label="<?php esc_attr_e( 'Excel Way topics', 'excel-ent' ); ?>">
+			<div class="excel-way__tabs excel-way__tabs--desktop" role="tablist" aria-label="<?php esc_attr_e( 'Excel Way topics', 'excel-ent' ); ?>">
 				<?php foreach ( $excel_ent_way_tabs as $excel_ent_tab ) : ?>
 					<button
 						type="button"
@@ -228,6 +228,40 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 			</div>
 		</header>
 
+		<div class="excel-way__accordion">
+			<?php foreach ( $excel_ent_way_tabs as $excel_ent_tab ) : ?>
+				<div class="excel-way-accordion__item<?php echo ! empty( $excel_ent_tab['active'] ) ? ' is-open' : ''; ?>" data-excel-way-accordion-item="<?php echo esc_attr( $excel_ent_tab['id'] ); ?>">
+					<button
+						type="button"
+						class="excel-way-tab excel-way-accordion__trigger magnetic<?php echo ! empty( $excel_ent_tab['active'] ) ? ' excel-way-tab--active' : ''; ?>"
+						id="excel-way-accordion-tab-<?php echo esc_attr( $excel_ent_tab['id'] ); ?>"
+						data-excel-way-tab="<?php echo esc_attr( $excel_ent_tab['id'] ); ?>"
+						role="tab"
+						aria-selected="<?php echo ! empty( $excel_ent_tab['active'] ) ? 'true' : 'false'; ?>"
+						aria-controls="excel-way-panel-<?php echo esc_attr( $excel_ent_tab['id'] ); ?>"
+					>
+						<span class="excel-way-tab__label"><?php echo esc_html( $excel_ent_tab['label'] ); ?></span>
+						<span class="excel-way-tab__icon" aria-hidden="true">
+							<img
+								class="excel-way-tab__icon-plus"
+								src="<?php echo esc_url( $excel_ent_way_uri . '/icon-plus.svg' ); ?>"
+								alt=""
+								width="20"
+								height="20"
+								decoding="async"
+							>
+							<img
+								class="excel-way-tab__icon-minus"
+								src="<?php echo esc_url( $excel_ent_way_uri . '/icon-minus.svg' ); ?>"
+								alt=""
+								width="20"
+								height="20"
+								decoding="async"
+							>
+						</span>
+					</button>
+					<div class="excel-way-accordion__body">
+			<?php if ( 'how-it-works' === $excel_ent_tab['id'] ) : ?>
 		<div
 			class="excel-way__panel"
 			id="excel-way-panel-how-it-works"
@@ -238,7 +272,7 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 			<div class="excel-way__stack excel-way__stack--how">
 				<div class="excel-way__intro reveal" data-reveal>
 					<p class="excel-way__subtitle excel-way__subtitle--desktop"><?php esc_html_e( 'Five Step Process', 'excel-ent' ); ?></p>
-					<p class="excel-way__subtitle excel-way__subtitle--mobile"><?php esc_html_e( 'Simple 4-Step Process', 'excel-ent' ); ?></p>
+					<p class="excel-way__subtitle excel-way__subtitle--mobile"><?php esc_html_e( 'Simple Process', 'excel-ent' ); ?></p>
 					<p class="excel-way__lede">
 						<?php esc_html_e( 'We handle every detail so you can focus on enjoying the event. Booking a top act has never been this straightforward.', 'excel-ent' ); ?>
 					</p>
@@ -273,6 +307,13 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 						<?php endforeach; ?>
 					</div>
 
+					<div class="excel-way__mobile-pagination" data-excel-way-pagination data-total="5">
+						<span class="excel-way__mobile-pagination-track">
+							<span class="excel-way__mobile-pagination-fill"></span>
+						</span>
+						<span class="excel-way__mobile-pagination-count"><span data-excel-way-current>1</span>/5</span>
+					</div>
+
 					<div class="excel-way__badges excel-way__badges--how-mobile">
 						<?php
 						foreach ( $excel_ent_way_badges as $badge ) :
@@ -303,7 +344,7 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 				<?php $excel_ent_render_badges( $excel_ent_way_badges, $excel_ent_way_uri ); ?>
 			</div>
 		</div>
-
+			<?php elseif ( 'cancellation' === $excel_ent_tab['id'] ) : ?>
 		<div
 			class="excel-way__panel is-hidden"
 			id="excel-way-panel-cancellation"
@@ -359,7 +400,7 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 				</a>
 			</div>
 		</div>
-
+			<?php elseif ( 'who-we-are' === $excel_ent_tab['id'] ) : ?>
 		<div
 			class="excel-way__panel is-hidden"
 			id="excel-way-panel-who-we-are"
@@ -439,6 +480,11 @@ $excel_ent_render_badges = static function ( $badges, $way_uri ) {
 					<?php esc_html_e( 'Get a quote now', 'excel-ent' ); ?>
 				</a>
 			</div>
+		</div>
+			<?php endif; ?>
+					</div>
+				</div>
+			<?php endforeach; ?>
 		</div>
 	</div>
 </section>

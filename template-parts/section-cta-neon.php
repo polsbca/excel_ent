@@ -1,6 +1,6 @@
 <?php
 /**
- * Neon CTA strip (Figma 2202:36071 / mobile 1041:2036).
+ * Neon CTA strip (Figma 2202:36071 desktop, 2473:4863 mobile front page).
  *
  * @package Excel_Ent
  */
@@ -21,21 +21,24 @@ $excel_ent_cta_socials = array(
 	array(
 		'label'       => __( 'Instagram', 'excel-ent' ),
 		'icon'        => 'instagram.svg',
+		'icon_light'  => 'instagram-light.svg',
 		'icon_hover'  => 'instagram-hover.svg',
 		'mod'         => 'instagram',
 		'url'         => 'https://www.instagram.com/',
 	),
 	array(
-		'label' => __( 'Facebook', 'excel-ent' ),
-		'icon'  => 'facebook.svg',
-		'mod'   => 'facebook',
-		'url'   => 'https://www.facebook.com/',
+		'label'      => __( 'Facebook', 'excel-ent' ),
+		'icon'       => 'facebook.svg',
+		'icon_light' => 'facebook-light.svg',
+		'mod'        => 'facebook',
+		'url'        => 'https://www.facebook.com/',
 	),
 	array(
-		'label' => __( 'LinkedIn', 'excel-ent' ),
-		'icon'  => 'linkedin.svg',
-		'mod'   => 'linkedin',
-		'url'   => 'https://www.linkedin.com/',
+		'label'      => __( 'LinkedIn', 'excel-ent' ),
+		'icon'       => 'linkedin.svg',
+		'icon_light' => 'linkedin-light.svg',
+		'mod'        => 'linkedin',
+		'url'        => 'https://www.linkedin.com/',
 	),
 );
 ?>
@@ -79,6 +82,16 @@ $excel_ent_cta_socials = array(
 							height="32"
 							decoding="async"
 						>
+						<?php if ( ! empty( $excel_ent_social['icon_light'] ) ) : ?>
+							<img
+								class="cta-neon__social-icon cta-neon__social-icon--light-bg"
+								src="<?php echo esc_url( $excel_ent_cta_uri . '/' . $excel_ent_social['icon_light'] ); ?>"
+								alt=""
+								width="20"
+								height="20"
+								decoding="async"
+							>
+						<?php endif; ?>
 						<?php if ( ! empty( $excel_ent_social['icon_hover'] ) ) : ?>
 							<img
 								class="cta-neon__social-icon cta-neon__social-icon--hover"

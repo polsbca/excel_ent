@@ -1,6 +1,6 @@
 <?php
 /**
- * Newsletter / last-minute performer CTA (Figma 2202:36025).
+ * Newsletter / last-minute performer CTA (Figma 2202:36025 desktop, 2473:4746 mobile).
  *
  * @package Excel_Ent
  */
@@ -47,10 +47,10 @@
 			<div class="newsletter-cta__field">
 				<img
 					class="newsletter-cta__mail"
-					src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/mail-line.svg' ); ?>"
+					src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/envelope-simple.svg' ); ?>"
 					alt=""
-					width="14"
-					height="14"
+					width="18"
+					height="18"
 					decoding="async"
 				>
 				<input
@@ -59,6 +59,7 @@
 					type="email"
 					name="email"
 					placeholder="<?php esc_attr_e( 'ADD YOUR EMAIL', 'excel-ent' ); ?>"
+					data-placeholder-mobile="<?php esc_attr_e( 'name@example.com', 'excel-ent' ); ?>"
 					autocomplete="email"
 					inputmode="email"
 					required

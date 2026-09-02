@@ -1,6 +1,6 @@
 <?php
 /**
- * Latest from the Blog section + detail modal (Figma 2202:30748).
+ * Latest from the Blog section + detail modal (Figma 2202:30748 desktop, 2473:4807 mobile).
  *
  * @package Excel_Ent
  */
@@ -110,6 +110,11 @@ $excel_ent_blog_total = count( $excel_ent_blog_posts );
 					</div>
 
 					<div class="blog-card__meta">
+						<p class="blog-card__meta-compact">
+							<span><?php echo esc_html( $excel_ent_post['date'] ); ?></span>
+							<span aria-hidden="true"> • </span>
+							<span><?php echo esc_html( $excel_ent_post['read'] ); ?></span>
+						</p>
 						<span class="blog-card__meta-item">
 							<img class="blog-card__icon blog-card__icon--light" src="<?php echo esc_url( $excel_ent_blog_uri . '/calendar-fill.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 							<img class="blog-card__icon blog-card__icon--dark" src="<?php echo esc_url( $excel_ent_blog_uri . '/calendar-fill-dark.svg' ); ?>" alt="" width="24" height="24" decoding="async">
