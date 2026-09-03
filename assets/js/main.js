@@ -3336,7 +3336,14 @@
 			);
 			venuesPinObserver.observe(venuesPin);
 		}
+		let venuesMobileLastWidth = window.innerWidth;
 		window.addEventListener("resize", () => {
+			const w = window.innerWidth;
+			if (isVenuesMobile() && venuesMobilePinInitialized && w === venuesMobileLastWidth) {
+				syncVenuesPinnedState();
+				return;
+			}
+			venuesMobileLastWidth = w;
 			venuesMobilePinInitialized = false;
 			scheduleVenuesPinSync();
 		});
@@ -3357,7 +3364,10 @@
 			venuesFillMq.addListener(scheduleVenuesPinSync);
 		}
 		scheduleVenuesPinSync();
-		window.addEventListener("load", scheduleVenuesPinSync);
+		window.addEventListener("load", () => {
+			if (isVenuesMobile() && venuesMobilePinInitialized) return;
+			scheduleVenuesPinSync();
+		});
 		window.addEventListener("excel-ent:header-state-change", () => {
 			if (isVenuesMobile() && venuesMobilePinInitialized) {
 				syncVenuesPinnedState();
@@ -3365,7 +3375,10 @@
 			}
 			scheduleVenuesPinSync();
 		});
-		document.addEventListener("excel-ent:ready", scheduleVenuesPinSync);
+		document.addEventListener("excel-ent:ready", () => {
+			if (isVenuesMobile() && venuesMobilePinInitialized) return;
+			scheduleVenuesPinSync();
+		});
 		if (window.visualViewport) {
 			window.visualViewport.addEventListener("resize", () => {
 				if (isVenuesMobile() && venuesMobilePinInitialized) {
