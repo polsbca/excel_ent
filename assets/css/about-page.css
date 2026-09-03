@@ -1419,7 +1419,7 @@
 		justify-content: flex-start;
 		width: calc(100% / var(--ee-about-intro-fit-scale, 1));
 		max-width: calc(100% / var(--ee-about-intro-fit-scale, 1));
-		height: var(--ee-about-intro-content-height, auto);
+		height: auto;
 		transform: scale(var(--ee-about-intro-fit-scale, 1));
 		transform-origin: top left;
 		flex: none;
@@ -1841,7 +1841,7 @@
 		gap: 0;
 		width: calc(100% / var(--ee-about-value-fit-scale, 1));
 		max-width: calc(100% / var(--ee-about-value-fit-scale, 1));
-		height: var(--ee-about-value-content-height, auto);
+		height: auto;
 		transform: scale(var(--ee-about-value-fit-scale, 1));
 		transform-origin: top left;
 		flex: none;
@@ -2079,7 +2079,7 @@
 		gap: 0;
 		width: calc(100% / var(--ee-about-why-fit-scale, 1));
 		max-width: calc(100% / var(--ee-about-why-fit-scale, 1));
-		height: var(--ee-about-why-content-height, auto);
+		height: auto;
 		transform: scale(var(--ee-about-why-fit-scale, 1));
 		transform-origin: top left;
 		flex: none;
@@ -2291,7 +2291,7 @@
 		gap: 0;
 		width: calc(100% / var(--ee-about-approach-fit-scale, 1));
 		max-width: calc(100% / var(--ee-about-approach-fit-scale, 1));
-		height: var(--ee-about-approach-content-height, auto);
+		height: auto;
 		transform: scale(var(--ee-about-approach-fit-scale, 1));
 		transform-origin: top left;
 		flex: none;
@@ -2605,7 +2605,7 @@
 		gap: 0;
 		width: calc(100% / var(--ee-about-reviews-fit-scale, 1));
 		max-width: calc(100% / var(--ee-about-reviews-fit-scale, 1));
-		height: var(--ee-about-reviews-content-height, auto);
+		height: auto;
 		transform: scale(var(--ee-about-reviews-fit-scale, 1));
 		transform-origin: top left;
 		flex: none;

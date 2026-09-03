@@ -684,10 +684,14 @@
 	}
 
 	/* ---------- About page mobile pin helpers (stable layout, no scroll jerk) ---------- */
-	const getAboutMobileViewportHeight = () =>
-		window.innerWidth <= 767
-			? window.innerHeight
-			: window.visualViewport?.height || window.innerHeight;
+	const getAboutMobileViewportHeight = () => {
+		const inner = window.innerHeight;
+		if (window.innerWidth > 767) {
+			return window.visualViewport?.height || inner;
+		}
+		const visual = window.visualViewport?.height;
+		return visual ? Math.round(Math.min(visual, inner)) : inner;
+	};
 
 	const aboutMobilePinViewport = {
 		width: window.innerWidth,
@@ -750,23 +754,15 @@
 			unitEl.querySelector('[class*="__unit-inner"]') ||
 			unitEl.querySelector('[class$="__inner"]') ||
 			unitEl;
-		const innerHeight = Math.max(
-			Math.ceil(innerEl.scrollHeight),
-			Math.ceil(innerEl.getBoundingClientRect().height)
-		);
-		const sectionH = Math.max(
-			Math.ceil(unitEl.scrollHeight),
-			Math.ceil(unitEl.getBoundingClientRect().height),
-			innerHeight
-		);
+		const sectionH = Math.max(Math.ceil(innerEl.scrollHeight), 1);
 		const availableHeight = getAvailableHeight();
-		const fitScale = availableHeight / Math.max(sectionH, 1);
+		const fitScale = availableHeight / sectionH;
 		const styles = getComputedStyle(unitEl);
 		const padTop = parseFloat(styles.paddingTop) || 0;
 		const padBottom = parseFloat(styles.paddingBottom) || 0;
 		return {
 			sectionH,
-			innerHeight,
+			innerHeight: sectionH,
 			availableHeight,
 			fitScale,
 			padTop,
