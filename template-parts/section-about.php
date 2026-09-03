@@ -22,7 +22,7 @@ $excel_ent_stats = array(
 	),
 	array(
 		'value' => '100%',
-		'label' => __( 'Verified Artists', 'excel-ent' ),
+		'label' => __( "Verified\nArtists", 'excel-ent' ),
 	),
 	array(
 		'value' => 'PLI',
@@ -37,12 +37,12 @@ $excel_ent_stats = array(
 $excel_ent_venues = array(
 	__( 'HOTELS', 'excel-ent' ),
 	__( 'GOLF CLUBS', 'excel-ent' ),
-	__( 'SOCIAL CLUBS', 'excel-ent' ),
-	__( 'BARS', 'excel-ent' ),
+	__( 'GOLF CLUBS', 'excel-ent' ),
+	__( 'GOLF CLUBS', 'excel-ent' ),
 	__( 'WEDDING VENUES', 'excel-ent' ),
-	__( 'COMMUNITY CENTRES', 'excel-ent' ),
-	__( 'PARKS', 'excel-ent' ),
-	__( 'PUBS', 'excel-ent' ),
+	__( 'HOTELS', 'excel-ent' ),
+	__( 'DJs', 'excel-ent' ),
+	__( 'CORPORATE EVENTS', 'excel-ent' ),
 );
 
 $excel_ent_value_points = array(

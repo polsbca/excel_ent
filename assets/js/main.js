@@ -755,17 +755,23 @@
 			unitEl.querySelector('[class$="__inner"]') ||
 			unitEl;
 		void unitEl.offsetHeight;
-		const sectionH = Math.max(Math.ceil(innerEl.scrollHeight), 1);
-		const availableHeight = getAvailableHeight();
-		const fitScale = availableHeight / Math.max(sectionH, 1);
-		const useFit = availableHeight > 0 && fitScale < 0.999;
-		const useFill = availableHeight > 0 && !useFit && availableHeight > sectionH;
 		const styles = getComputedStyle(unitEl);
 		const padTop = parseFloat(styles.paddingTop) || 0;
 		const padBottom = parseFloat(styles.paddingBottom) || 0;
+		/*
+		 * Include unit padding in the natural height. Scaling against the inner
+		 * alone left padTop+padBottom unaccounted for, which clipped the last
+		 * lines on shorter phones (overflow:hidden on the fitted unit).
+		 */
+		const innerHeight = Math.max(Math.ceil(innerEl.scrollHeight), 1);
+		const sectionH = innerHeight + Math.ceil(padTop) + Math.ceil(padBottom);
+		const availableHeight = getAvailableHeight();
+		const fitScale = Math.min(1, (availableHeight - 2) / Math.max(sectionH, 1));
+		const useFit = availableHeight > 0 && fitScale < 0.999;
+		const useFill = availableHeight > 0 && !useFit && availableHeight > sectionH + 1;
 		return {
 			sectionH,
-			innerHeight: sectionH,
+			innerHeight,
 			availableHeight,
 			fitScale: useFit ? fitScale : 1,
 			padTop,
@@ -777,16 +783,12 @@
 
 	const buildAboutMobilePinSnapshot = (measure, padHeight, holdHeight) => {
 		const displaySectionHeight = Math.ceil(measure.availableHeight);
-		const contentHeight = Math.max(
-			measure.sectionH - measure.padTop - measure.padBottom,
-			0
-		);
 		return {
 			availableHeight: measure.availableHeight,
 			fitScale: measure.fitScale,
 			padTop: measure.padTop,
 			padBottom: measure.padBottom,
-			contentHeight,
+			contentHeight: measure.innerHeight,
 			naturalSectionHeight: measure.sectionH,
 			useFit: measure.useFit,
 			useFill: measure.useFill,
@@ -869,6 +871,11 @@
 
 			clearAboutIntroViewportFit();
 
+			fitEl.style.setProperty(
+				"--ee-about-intro-fit-scale",
+				String(snapshot.fitScale || 1)
+			);
+
 			if (snapshot.useFill || snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-intro-available-height",
@@ -882,10 +889,6 @@
 					`${snapshot.availableHeight}px`
 				);
 				fitEl.style.setProperty(
-					"--ee-about-intro-fit-scale",
-					String(snapshot.fitScale)
-				);
-				fitEl.style.setProperty(
 					"--ee-about-intro-fit-pad-top",
 					`${snapshot.padTop * snapshot.fitScale}px`
 				);
@@ -893,12 +896,6 @@
 					"--ee-about-intro-fit-pad-bottom",
 					`${snapshot.padBottom * snapshot.fitScale}px`
 				);
-				if (snapshot.contentHeight) {
-					fitEl.style.setProperty(
-						"--ee-about-intro-content-height",
-						`${snapshot.contentHeight}px`
-					);
-				}
 				fitEl.classList.add("is-viewport-fitted");
 			} else if (snapshot.useFill) {
 				fitEl.classList.add("is-mobile-fill");
@@ -974,14 +971,49 @@
 			const pad = aboutIntroPin.querySelector(".about-intro__scroll-pad");
 			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const fitTarget = aboutIntroUnit || aboutIntro;
+			fitTarget.style.setProperty("--ee-about-intro-fit-scale", "1");
+			void fitTarget.offsetHeight;
+
 			const measure = measureAboutMobileStickyUnit(
 				fitTarget,
 				getAboutIntroAvailableHeight
 			);
 			const holdHeight = getAboutIntroMobileHoldHeight();
-			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
+			let snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
 
 			applyAboutIntroViewportFit(snapshot);
+
+			/*
+			 * Font/media/awards calc() reflows. If logos/content still overflow the
+			 * locked viewport after the first scale, refine against post-reflow height.
+			 */
+			if (snapshot.useFit) {
+				void fitTarget.offsetHeight;
+				const innerEl =
+					fitTarget.querySelector(".about-intro__unit-inner") ||
+					fitTarget.querySelector(".about-intro__inner") ||
+					fitTarget;
+				const styles = getComputedStyle(fitTarget);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				const h2 =
+					Math.ceil(innerEl.scrollHeight) +
+					Math.ceil(padTop) +
+					Math.ceil(padBottom);
+				if (h2 > snapshot.availableHeight + 2) {
+					const refined = Math.max(
+						0.55,
+						snapshot.fitScale * ((snapshot.availableHeight - 2) / h2)
+					);
+					snapshot = {
+						...snapshot,
+						fitScale: refined,
+						useFit: true,
+						useFill: false,
+					};
+					applyAboutIntroViewportFit(snapshot);
+				}
+			}
 
 			if (!aboutIntroMobileFitLocked && aboutMobilePinLayoutReady) {
 				aboutIntroMobileFitLocked = true;
@@ -3514,6 +3546,11 @@
 
 			clearAboutValueViewportFit();
 
+			fitEl.style.setProperty(
+				"--ee-about-value-fit-scale",
+				String(snapshot.fitScale || 1)
+			);
+
 			if (snapshot.useFill || snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-value-available-height",
@@ -3527,10 +3564,6 @@
 					`${snapshot.availableHeight}px`
 				);
 				fitEl.style.setProperty(
-					"--ee-about-value-fit-scale",
-					String(snapshot.fitScale)
-				);
-				fitEl.style.setProperty(
 					"--ee-about-value-fit-pad-top",
 					`${snapshot.padTop * snapshot.fitScale}px`
 				);
@@ -3538,12 +3571,6 @@
 					"--ee-about-value-fit-pad-bottom",
 					`${snapshot.padBottom * snapshot.fitScale}px`
 				);
-				if (snapshot.contentHeight) {
-					fitEl.style.setProperty(
-						"--ee-about-value-content-height",
-						`${snapshot.contentHeight}px`
-					);
-				}
 				fitEl.classList.add("is-viewport-fitted");
 			} else if (snapshot.useFill) {
 				fitEl.classList.add("is-mobile-fill");
@@ -3877,6 +3904,11 @@
 
 			clearAboutWhyViewportFit();
 
+			fitEl.style.setProperty(
+				"--ee-about-why-fit-scale",
+				String(snapshot.fitScale || 1)
+			);
+
 			if (snapshot.useFill || snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-why-available-height",
@@ -3889,24 +3921,6 @@
 					"--ee-about-why-viewport-height",
 					`${snapshot.availableHeight}px`
 				);
-				fitEl.style.setProperty(
-					"--ee-about-why-fit-scale",
-					String(snapshot.fitScale)
-				);
-				fitEl.style.setProperty(
-					"--ee-about-why-fit-pad-top",
-					`${snapshot.padTop * snapshot.fitScale}px`
-				);
-				fitEl.style.setProperty(
-					"--ee-about-why-fit-pad-bottom",
-					`${snapshot.padBottom * snapshot.fitScale}px`
-				);
-				if (snapshot.contentHeight) {
-					fitEl.style.setProperty(
-						"--ee-about-why-content-height",
-						`${snapshot.contentHeight}px`
-					);
-				}
 				fitEl.classList.add("is-viewport-fitted");
 			} else if (snapshot.useFill) {
 				fitEl.classList.add("is-mobile-fill");
@@ -3986,14 +4000,49 @@
 			const pad = aboutWhyPin.querySelector(".about-why__scroll-pad");
 			const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const fitTarget = aboutWhyUnit || aboutWhy;
+			fitTarget.style.setProperty("--ee-about-why-fit-scale", "1");
+			void fitTarget.offsetHeight;
+
 			const measure = measureAboutMobileStickyUnit(
 				fitTarget,
 				getAboutWhyAvailableHeight
 			);
-			const holdHeight = getAboutWhyMobileHoldHeight(getAboutMobileViewportHeight());
-			const snapshot = buildAboutMobilePinSnapshot(measure, padHeight, holdHeight);
+			let snapshot = buildAboutMobilePinSnapshot(measure, padHeight, getAboutWhyMobileHoldHeight(getAboutMobileViewportHeight()));
 
 			applyAboutWhyViewportFit(snapshot);
+
+			/*
+			 * Font-size calc() reflows text. If wrapping still overflows after the
+			 * first scale pass, refine the scale against the post-reflow height.
+			 */
+			if (snapshot.useFit) {
+				void fitTarget.offsetHeight;
+				const innerEl =
+					fitTarget.querySelector(".about-why__unit-inner") ||
+					fitTarget.querySelector(".about-why__inner") ||
+					fitTarget;
+				const styles = getComputedStyle(fitTarget);
+				const padTop = parseFloat(styles.paddingTop) || 0;
+				const padBottom = parseFloat(styles.paddingBottom) || 0;
+				const h2 =
+					Math.ceil(innerEl.scrollHeight) +
+					Math.ceil(padTop) +
+					Math.ceil(padBottom);
+				if (h2 > snapshot.availableHeight + 2) {
+					const refined = Math.max(
+						0.55,
+						snapshot.fitScale * ((snapshot.availableHeight - 2) / h2)
+					);
+					snapshot = {
+						...snapshot,
+						fitScale: refined,
+						useFit: true,
+						useFill: false,
+					};
+					aboutWhyMobileFitLocked = false;
+					applyAboutWhyViewportFit(snapshot);
+				}
+			}
 
 			if (!aboutWhyMobileFitLocked && aboutMobilePinLayoutReady) {
 				aboutWhyMobileFitLocked = true;
@@ -4265,6 +4314,11 @@
 
 			clearAboutApproachViewportFit();
 
+			fitEl.style.setProperty(
+				"--ee-about-approach-fit-scale",
+				String(snapshot.fitScale || 1)
+			);
+
 			if (snapshot.useFill || snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-approach-available-height",
@@ -4278,10 +4332,6 @@
 					`${snapshot.availableHeight}px`
 				);
 				fitEl.style.setProperty(
-					"--ee-about-approach-fit-scale",
-					String(snapshot.fitScale)
-				);
-				fitEl.style.setProperty(
 					"--ee-about-approach-fit-pad-top",
 					`${snapshot.padTop * snapshot.fitScale}px`
 				);
@@ -4289,12 +4339,6 @@
 					"--ee-about-approach-fit-pad-bottom",
 					`${snapshot.padBottom * snapshot.fitScale}px`
 				);
-				if (snapshot.contentHeight) {
-					fitEl.style.setProperty(
-						"--ee-about-approach-content-height",
-						`${snapshot.contentHeight}px`
-					);
-				}
 				fitEl.classList.add("is-viewport-fitted");
 			} else if (snapshot.useFill) {
 				fitEl.classList.add("is-mobile-fill");
@@ -7897,6 +7941,11 @@
 
 			clearAboutReviewsViewportFit();
 
+			fitEl.style.setProperty(
+				"--ee-about-reviews-fit-scale",
+				String(snapshot.fitScale || 1)
+			);
+
 			if (snapshot.useFit || snapshot.useFill) {
 				fitEl.style.setProperty(
 					"--ee-about-reviews-available-height",
@@ -7909,24 +7958,6 @@
 					"--ee-about-reviews-viewport-height",
 					`${snapshot.availableHeight}px`
 				);
-				fitEl.style.setProperty(
-					"--ee-about-reviews-fit-scale",
-					String(snapshot.fitScale)
-				);
-				fitEl.style.setProperty(
-					"--ee-about-reviews-fit-pad-top",
-					`${snapshot.padTop * snapshot.fitScale}px`
-				);
-				fitEl.style.setProperty(
-					"--ee-about-reviews-fit-pad-bottom",
-					`${snapshot.padBottom * snapshot.fitScale}px`
-				);
-				if (snapshot.contentHeight) {
-					fitEl.style.setProperty(
-						"--ee-about-reviews-content-height",
-						`${snapshot.contentHeight}px`
-					);
-				}
 				fitEl.classList.add("is-viewport-fitted");
 			} else if (snapshot.useFill) {
 				fitEl.classList.add("is-mobile-fill");
