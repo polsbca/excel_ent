@@ -34,11 +34,9 @@
 	inset: 0;
 	z-index: 10000;
 	display: flex;
-	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: 22px;
-	background: var(--ee-motion-ink);
+	background: #000;
 	transition: opacity 0.7s var(--ee-ease), visibility 0.7s var(--ee-ease);
 }
 
@@ -48,42 +46,65 @@
 	pointer-events: none;
 }
 
-.ee-loader__logo {
-	font-family: "Open Sans", sans-serif;
-	font-variation-settings: "wdth" 75;
-	font-weight: 800;
-	font-size: 15px;
-	letter-spacing: 0.5em;
-	color: var(--ee-motion-cream);
+.ee-loader__mark {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 18px;
 	opacity: 0;
-	animation: ee-loader-fade 0.6s var(--ee-ease) 0.3s forwards;
+	transform: scale(0.96);
+	animation: ee-loader-in 0.5s var(--ee-ease) forwards;
+}
+
+/* Figma 2621:828 — Excel Ent Logo-01 */
+.ee-loader__logo {
+	display: block;
+	width: min(220px, 62vw);
+	margin: 0;
+	padding: 0;
+}
+
+.ee-loader__logo img {
+	display: block;
+	width: 100%;
+	height: auto;
+	max-width: 220px;
+	aspect-ratio: 190 / 119;
+	object-fit: contain;
+	pointer-events: none;
+	user-select: none;
 }
 
 .ee-loader__wave {
 	display: flex;
 	align-items: flex-end;
-	gap: 5px;
-	height: 40px;
+	justify-content: center;
+	gap: 8px;
+	height: 64px;
 }
 
 .ee-loader__wave span {
-	width: 4px;
-	border-radius: 3px;
+	width: 7px;
+	border-radius: 4px;
 	background: var(--ee-motion-grad);
 	animation: ee-wave-beat 1.1s ease-in-out infinite;
 	transform-origin: center bottom;
 }
 
-.ee-loader__wave span:nth-child(1) { height: 14px; animation-delay: 0s; }
-.ee-loader__wave span:nth-child(2) { height: 34px; animation-delay: 0.1s; }
-.ee-loader__wave span:nth-child(3) { height: 20px; animation-delay: 0.2s; }
-.ee-loader__wave span:nth-child(4) { height: 40px; animation-delay: 0.3s; }
-.ee-loader__wave span:nth-child(5) { height: 16px; animation-delay: 0.4s; }
-.ee-loader__wave span:nth-child(6) { height: 30px; animation-delay: 0.5s; }
-.ee-loader__wave span:nth-child(7) { height: 10px; animation-delay: 0.6s; }
+.ee-loader__wave span:nth-child(1) { height: 24px; animation-delay: 0s; }
+.ee-loader__wave span:nth-child(2) { height: 48px; animation-delay: 0.1s; }
+.ee-loader__wave span:nth-child(3) { height: 34px; animation-delay: 0.2s; }
+.ee-loader__wave span:nth-child(4) { height: 64px; animation-delay: 0.3s; }
+.ee-loader__wave span:nth-child(5) { height: 28px; animation-delay: 0.4s; }
+.ee-loader__wave span:nth-child(6) { height: 44px; animation-delay: 0.5s; }
+.ee-loader__wave span:nth-child(7) { height: 18px; animation-delay: 0.6s; }
 
-@keyframes ee-loader-fade {
-	to { opacity: 1; }
+@keyframes ee-loader-in {
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
 }
 
 @keyframes ee-wave-beat {
@@ -353,6 +374,7 @@ body:not(.ee-ready) [data-reveal] {
 	.ee-loader,
 	.ee-spotlight,
 	.ee-cursor,
+	.ee-loader__mark,
 	.ee-loader__wave span,
 	.ee-loader__logo,
 	.reveal,

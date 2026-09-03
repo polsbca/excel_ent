@@ -267,3 +267,14 @@ function excel_ent_enqueue_assets() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'excel_ent_enqueue_assets' );
+
+/**
+ * Preload loader logo so wave + mark appear together.
+ */
+function excel_ent_preload_loader_logo() {
+	printf(
+		'<link rel="preload" as="image" href="%s" fetchpriority="high">' . "\n",
+		esc_url( EXCEL_ENT_URI . '/assets/images/logo/logo-loader.png' )
+	);
+}
+add_action( 'wp_head', 'excel_ent_preload_loader_logo', 1 );
