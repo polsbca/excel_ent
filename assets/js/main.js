@@ -2458,6 +2458,71 @@
 		const tabs = Array.from(excelWay.querySelectorAll("[data-excel-way-tab]"));
 		const panels = Array.from(excelWay.querySelectorAll("[data-excel-way-panel]"));
 		const pinMq = window.matchMedia("(min-width: 320px)");
+		/* Desktop sticky sections should always occupy the remaining viewport. */
+		const excelWayFillMq = window.matchMedia("(min-width: 768px)");
+		let excelWayWasPinned = false;
+		let lastExcelWayFillStickyTop = -1;
+		let excelWayPinSyncQueued = false;
+
+		const isExcelWayFrontDesktop = () =>
+			excelWayFillMq.matches &&
+			(document.body.classList.contains("home") ||
+				document.body.classList.contains("front-page"));
+
+		const getExcelWayStickyTop = () => {
+			const fromVar =
+				parseFloat(
+					getComputedStyle(excelWay).getPropertyValue("--ee-excel-way-sticky-top")
+				) || 0;
+			if (fromVar > 0) {
+				return fromVar;
+			}
+			const headerEl = document.querySelector(".site-header");
+			if (headerEl?.classList.contains("is-scrolled")) {
+				return Math.ceil(headerEl.getBoundingClientRect().height);
+			}
+			return 0;
+		};
+
+		const getExcelWayCompactStickyTop = () => {
+			const headerEl = document.querySelector(".site-header");
+			if (!headerEl) {
+				return 0;
+			}
+			if (headerEl.classList.contains("is-scrolled")) {
+				return Math.ceil(headerEl.getBoundingClientRect().height);
+			}
+			const bar = headerEl.querySelector(".site-header__bar");
+			const inner = headerEl.querySelector(".site-header__inner");
+			const padY = inner
+				? (parseFloat(getComputedStyle(inner).paddingTop) || 0) +
+				  (parseFloat(getComputedStyle(inner).paddingBottom) || 0)
+				: 0;
+			return Math.max(Math.ceil((bar?.getBoundingClientRect().height || 0) + padY), 1);
+		};
+
+		const getExcelWayFillStickyTop = () =>
+			isExcelWayFrontDesktop() ? getExcelWayCompactStickyTop() : getExcelWayStickyTop();
+
+		const measureExcelWayNaturalHeight = () => {
+			const inner = excelWay.querySelector(".excel-way__inner");
+			const styles = getComputedStyle(excelWay);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const innerH = inner
+				? Math.ceil(inner.getBoundingClientRect().height)
+				: Math.ceil(excelWay.scrollHeight);
+			return innerH + padTop + padBottom;
+		};
+
+		const clearExcelWayViewportFit = () => {
+			excelWay.classList.remove("is-viewport-fitted", "is-viewport-filled");
+			excelWay.style.removeProperty("height");
+			excelWay.style.removeProperty("--ee-excel-way-viewport-height");
+			excelWay.style.removeProperty("--ee-excel-way-fit-scale");
+			excelWay.style.removeProperty("--ee-excel-way-fit-pad-top");
+			excelWay.style.removeProperty("--ee-excel-way-fit-pad-bottom");
+		};
 
 		const syncExcelWayPin = () => {
 			if (!excelWayPin) {
@@ -2466,7 +2531,7 @@
 			if (!pinMq.matches) {
 				excelWayPin.style.height = "";
 				excelWay.classList.remove("is-pinned");
-				excelWay.classList.remove("is-viewport-fitted");
+				clearExcelWayViewportFit();
 				return;
 			}
 			const preservePinLayout =
@@ -2485,41 +2550,68 @@
 				 */
 				excelWay.style.visibility = "hidden";
 			}
-			excelWay.classList.remove("is-viewport-fitted");
-			excelWay.style.removeProperty("height");
-			excelWay.style.removeProperty("--ee-excel-way-viewport-height");
-			excelWay.style.removeProperty("--ee-excel-way-fit-scale");
-			excelWay.style.removeProperty("--ee-excel-way-fit-pad-top");
-			excelWay.style.removeProperty("--ee-excel-way-fit-pad-bottom");
+			clearExcelWayViewportFit();
+			void excelWay.offsetHeight;
 			const pad = excelWayPin.querySelector(".excel-way__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-			const sectionH = Math.ceil(excelWay.getBoundingClientRect().height);
-			const stickyTop =
-				parseFloat(getComputedStyle(excelWay).getPropertyValue("--ee-excel-way-sticky-top")) || 0;
+			const sectionH = measureExcelWayNaturalHeight();
+			const stickyTop = getExcelWayFillStickyTop();
 			const viewportH = window.visualViewport?.height ?? window.innerHeight;
 			const availableH = Math.max(viewportH - stickyTop, 0);
 			const fitScale = Math.min(1, availableH / Math.max(sectionH, 1));
-			if (fitScale < 1) {
-				const styles = getComputedStyle(excelWay);
-				const padTop = parseFloat(styles.paddingTop) || 0;
-				const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const styles = getComputedStyle(excelWay);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			let displayH = sectionH * fitScale;
+
+			if (availableH > 0 && fitScale < 0.999) {
+				/* Content taller than viewport — scale down to fit. */
 				excelWay.style.setProperty("--ee-excel-way-viewport-height", `${availableH}px`);
 				excelWay.style.setProperty("--ee-excel-way-fit-scale", String(fitScale));
 				excelWay.style.setProperty("--ee-excel-way-fit-pad-top", `${padTop * fitScale}px`);
 				excelWay.style.setProperty("--ee-excel-way-fit-pad-bottom", `${padBottom * fitScale}px`);
 				excelWay.classList.add("is-viewport-fitted");
+				displayH = availableH;
+			} else if (excelWayFillMq.matches && availableH > sectionH + 1) {
+				/*
+				 * Content shorter than the remaining viewport — expand the sticky
+				 * frame so desktop doesn't leave a dead black band under the CTA.
+				 */
+				excelWay.style.setProperty("--ee-excel-way-viewport-height", `${availableH}px`);
+				excelWay.style.setProperty("--ee-excel-way-fit-scale", "1");
+				excelWay.style.setProperty("--ee-excel-way-fit-pad-top", `${padTop}px`);
+				excelWay.style.setProperty("--ee-excel-way-fit-pad-bottom", `${padBottom}px`);
+				excelWay.classList.add("is-viewport-fitted", "is-viewport-filled");
+				displayH = availableH;
 			}
+
 			const holdPx = Math.round(viewportH * 1);
-			excelWayPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
+			excelWayPin.style.height = `${padH + displayH + holdPx}px`;
 			if (preservePinLayout) {
 				excelWay.style.visibility = "";
 			}
+			lastExcelWayFillStickyTop = stickyTop;
+		};
+
+		const scheduleExcelWayPinSync = () => {
+			if (excelWayPinSyncQueued) {
+				return;
+			}
+			excelWayPinSyncQueued = true;
+			window.requestAnimationFrame(() => {
+				window.requestAnimationFrame(() => {
+					excelWayPinSyncQueued = false;
+					syncExcelWayPin();
+					syncExcelWayPinnedState();
+					excelWayWasPinned = excelWay.classList.contains("is-pinned");
+				});
+			});
 		};
 
 		const syncExcelWayPinnedState = () => {
 			if (!excelWayPin || !pinMq.matches) {
 				excelWay.classList.remove("is-pinned");
-				return;
+				return false;
 			}
 			const stickyTop =
 				parseFloat(getComputedStyle(excelWay).getPropertyValue("--ee-excel-way-sticky-top")) || 0;
@@ -2529,6 +2621,21 @@
 				rect.top <= stickyTop + 1.5 &&
 				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
 			excelWay.classList.toggle("is-pinned", pinned);
+			return pinned;
+		};
+
+		const onExcelWayScroll = () => {
+			const pinned = syncExcelWayPinnedState();
+			if (!excelWayFillMq.matches) {
+				return;
+			}
+			const fillStickyTop = getExcelWayFillStickyTop();
+			const stickyChanged = Math.abs(fillStickyTop - lastExcelWayFillStickyTop) > 1;
+			const pinnedChanged = pinned !== excelWayWasPinned;
+			if (stickyChanged || pinnedChanged) {
+				excelWayWasPinned = pinned;
+				scheduleExcelWayPinSync();
+			}
 		};
 
 		const setTab = (id) => {
@@ -2549,10 +2656,7 @@
 				item.classList.toggle("is-open", on);
 			});
 
-			window.requestAnimationFrame(() => {
-				syncExcelWayPin();
-				syncExcelWayPinnedState();
-			});
+			scheduleExcelWayPinSync();
 		};
 
 		const mobileExcelWayCarousels = Array.from(
@@ -2636,49 +2740,61 @@
 		};
 
 		if (lenis) {
-			lenis.on("scroll", syncExcelWayPinnedState);
+			lenis.on("scroll", onExcelWayScroll);
 		} else {
-			window.addEventListener("scroll", syncExcelWayPinnedState, { passive: true });
+			window.addEventListener("scroll", onExcelWayScroll, { passive: true });
 		}
-		window.addEventListener("resize", () => {
-			syncExcelWayPin();
-			syncExcelWayPinnedState();
+		if (typeof IntersectionObserver === "function" && excelWayPin) {
+			let excelWayPinInView = false;
+			const excelWayPinObserver = new IntersectionObserver(
+				(entries) => {
+					const inView = entries.some((entry) => entry.isIntersecting);
+					if (inView && !excelWayPinInView) {
+						scheduleExcelWayPinSync();
+					}
+					excelWayPinInView = inView;
+				},
+				{ threshold: [0, 0.12] }
+			);
+			excelWayPinObserver.observe(excelWayPin);
+		}
+		excelWay.querySelectorAll("[data-reveal], .reveal").forEach((item) => {
+			const revealObserver = new IntersectionObserver(
+				(entries, obs) => {
+					entries.forEach((entry) => {
+						if (!entry.isIntersecting) {
+							return;
+						}
+						scheduleExcelWayPinSync();
+						obs.unobserve(entry.target);
+					});
+				},
+				{ threshold: 0.2, rootMargin: "0px 0px -5% 0px" }
+			);
+			revealObserver.observe(item);
 		});
+		window.addEventListener("resize", scheduleExcelWayPinSync);
 		if (typeof pinMq.addEventListener === "function") {
-			pinMq.addEventListener("change", () => {
-				syncExcelWayPin();
-				syncExcelWayPinnedState();
-			});
+			pinMq.addEventListener("change", scheduleExcelWayPinSync);
 		} else if (typeof pinMq.addListener === "function") {
-			pinMq.addListener(() => {
-				syncExcelWayPin();
-				syncExcelWayPinnedState();
-			});
+			pinMq.addListener(scheduleExcelWayPinSync);
 		}
-		window.requestAnimationFrame(() => {
-			syncExcelWayPin();
-			syncExcelWayPinnedState();
-		});
-		window.addEventListener("load", () => {
-			syncExcelWayPin();
-			syncExcelWayPinnedState();
-		});
-		window.addEventListener("excel-ent:header-state-change", () => {
-			syncExcelWayPin();
-			syncExcelWayPinnedState();
-		});
+		if (typeof excelWayFillMq.addEventListener === "function") {
+			excelWayFillMq.addEventListener("change", scheduleExcelWayPinSync);
+		} else if (typeof excelWayFillMq.addListener === "function") {
+			excelWayFillMq.addListener(scheduleExcelWayPinSync);
+		}
+		scheduleExcelWayPinSync();
+		window.addEventListener("load", scheduleExcelWayPinSync);
+		window.addEventListener("excel-ent:header-state-change", scheduleExcelWayPinSync);
+		document.addEventListener("excel-ent:ready", scheduleExcelWayPinSync);
 		if (window.visualViewport) {
-			window.visualViewport.addEventListener("resize", () => {
-				syncExcelWayPin();
-				syncExcelWayPinnedState();
-			});
+			window.visualViewport.addEventListener("resize", scheduleExcelWayPinSync);
 		}
 		if (document.fonts?.ready) {
-			document.fonts.ready.then(() => {
-				syncExcelWayPin();
-				syncExcelWayPinnedState();
-			});
+			document.fonts.ready.then(scheduleExcelWayPinSync);
 		}
+		window.setTimeout(scheduleExcelWayPinSync, 250);
 
 		window.setTimeout(applyExcelWayHash, 80);
 		window.addEventListener("hashchange", applyExcelWayHash);
@@ -3012,9 +3128,52 @@
 		const venuesPin = document.querySelector("[data-venues-pin]");
 		const panels = Array.from(venuesSection.querySelectorAll("[data-venue-panel]"));
 		const pinMq = window.matchMedia("(min-width: 320px)");
+		const venuesFillMq = window.matchMedia("(min-width: 768px)");
 		let venuesMobilePinInitialized = false;
+		let venuesWasPinned = false;
+		let lastVenuesFillStickyTop = -1;
+		let venuesPinSyncQueued = false;
 
 		const isVenuesMobile = () => window.innerWidth <= 767;
+
+		const isVenuesFrontDesktop = () =>
+			venuesFillMq.matches &&
+			(document.body.classList.contains("home") ||
+				document.body.classList.contains("front-page"));
+
+		const getVenuesCompactStickyTop = () => {
+			const headerEl = document.querySelector(".site-header");
+			if (!headerEl) {
+				return 0;
+			}
+			if (headerEl.classList.contains("is-scrolled")) {
+				return Math.ceil(headerEl.getBoundingClientRect().height);
+			}
+			const bar = headerEl.querySelector(".site-header__bar");
+			const inner = headerEl.querySelector(".site-header__inner");
+			const padY = inner
+				? (parseFloat(getComputedStyle(inner).paddingTop) || 0) +
+				  (parseFloat(getComputedStyle(inner).paddingBottom) || 0)
+				: 0;
+			return Math.max(Math.ceil((bar?.getBoundingClientRect().height || 0) + padY), 1);
+		};
+
+		const getVenuesFillStickyTop = () => {
+			if (isVenuesFrontDesktop()) {
+				return getVenuesCompactStickyTop();
+			}
+			return parseFloat(getComputedStyle(venuesSection).getPropertyValue("--ee-venues-sticky-top")) || 0;
+		};
+
+		const clearVenuesViewportFit = () => {
+			venuesSection.classList.remove("is-viewport-fitted", "is-viewport-filled");
+			venuesSection.style.removeProperty("height");
+			venuesSection.style.removeProperty("visibility");
+			venuesSection.style.removeProperty("--ee-venues-viewport-height");
+			venuesSection.style.removeProperty("--ee-venues-fit-scale");
+			venuesSection.style.removeProperty("--ee-venues-fit-pad-top");
+			venuesSection.style.removeProperty("--ee-venues-fit-pad-bottom");
+		};
 
 		const syncVenuesPin = () => {
 			if (!venuesPin) {
@@ -3024,13 +3183,7 @@
 				venuesMobilePinInitialized = false;
 				venuesPin.style.height = "";
 				venuesSection.classList.remove("is-pinned");
-				venuesSection.classList.remove("is-viewport-fitted");
-				venuesSection.style.removeProperty("height");
-				venuesSection.style.removeProperty("visibility");
-				venuesSection.style.removeProperty("--ee-venues-viewport-height");
-				venuesSection.style.removeProperty("--ee-venues-fit-scale");
-				venuesSection.style.removeProperty("--ee-venues-fit-pad-top");
-				venuesSection.style.removeProperty("--ee-venues-fit-pad-bottom");
+				clearVenuesViewportFit();
 				return;
 			}
 			if (!isVenuesMobile()) {
@@ -3047,50 +3200,72 @@
 				venuesPin.style.height = "auto";
 			}
 			if (preservePinLayout) {
-				/*
-				 * Re-measure without collapsing the pin or flashing an unscaled
-				 * layout — both cause visible jerk on mobile while scrolling.
-				 */
 				venuesSection.style.visibility = "hidden";
 			}
-			venuesSection.classList.remove("is-viewport-fitted");
-			venuesSection.style.removeProperty("height");
-			venuesSection.style.removeProperty("--ee-venues-viewport-height");
-			venuesSection.style.removeProperty("--ee-venues-fit-scale");
-			venuesSection.style.removeProperty("--ee-venues-fit-pad-top");
-			venuesSection.style.removeProperty("--ee-venues-fit-pad-bottom");
+			clearVenuesViewportFit();
+			void venuesSection.offsetHeight;
 			const pad = venuesPin.querySelector(".venues-section__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-			const sectionH = Math.ceil(venuesSection.getBoundingClientRect().height);
-			const stickyTop =
-				parseFloat(getComputedStyle(venuesSection).getPropertyValue("--ee-venues-sticky-top")) || 0;
+			const inner = venuesSection.querySelector(".venues-section__inner");
+			const styles = getComputedStyle(venuesSection);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const innerH = inner
+				? Math.ceil(inner.getBoundingClientRect().height)
+				: Math.ceil(venuesSection.scrollHeight);
+			const sectionH = innerH + padTop + padBottom;
+			const stickyTop = getVenuesFillStickyTop();
 			const viewportH = window.visualViewport?.height ?? window.innerHeight;
 			const availableH = Math.max(viewportH - stickyTop, 0);
 			const fitScale = Math.min(1, availableH / Math.max(sectionH, 1));
-			if (fitScale < 1) {
-				const styles = getComputedStyle(venuesSection);
-				const padTop = parseFloat(styles.paddingTop) || 0;
-				const padBottom = parseFloat(styles.paddingBottom) || 0;
+			let displayH = sectionH * fitScale;
+
+			if (availableH > 0 && fitScale < 0.999) {
 				venuesSection.style.setProperty("--ee-venues-viewport-height", `${availableH}px`);
 				venuesSection.style.setProperty("--ee-venues-fit-scale", String(fitScale));
 				venuesSection.style.setProperty("--ee-venues-fit-pad-top", `${padTop * fitScale}px`);
 				venuesSection.style.setProperty("--ee-venues-fit-pad-bottom", `${padBottom * fitScale}px`);
 				venuesSection.classList.add("is-viewport-fitted");
+				displayH = availableH;
+			} else if (venuesFillMq.matches && availableH > sectionH + 1) {
+				venuesSection.style.setProperty("--ee-venues-viewport-height", `${availableH}px`);
+				venuesSection.style.setProperty("--ee-venues-fit-scale", "1");
+				venuesSection.style.setProperty("--ee-venues-fit-pad-top", `${padTop}px`);
+				venuesSection.style.setProperty("--ee-venues-fit-pad-bottom", `${padBottom}px`);
+				venuesSection.classList.add("is-viewport-fitted", "is-viewport-filled");
+				displayH = availableH;
 			}
+
 			const holdPx = Math.round(viewportH * 1);
-			venuesPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
+			venuesPin.style.height = `${padH + displayH + holdPx}px`;
 			if (preservePinLayout) {
 				venuesSection.style.visibility = "";
 			}
 			if (isVenuesMobile()) {
 				venuesMobilePinInitialized = true;
 			}
+			lastVenuesFillStickyTop = stickyTop;
+		};
+
+		const scheduleVenuesPinSync = () => {
+			if (venuesPinSyncQueued) {
+				return;
+			}
+			venuesPinSyncQueued = true;
+			window.requestAnimationFrame(() => {
+				window.requestAnimationFrame(() => {
+					venuesPinSyncQueued = false;
+					syncVenuesPin();
+					syncVenuesPinnedState();
+					venuesWasPinned = venuesSection.classList.contains("is-pinned");
+				});
+			});
 		};
 
 		const syncVenuesPinnedState = () => {
 			if (!venuesPin || !pinMq.matches) {
 				venuesSection.classList.remove("is-pinned");
-				return;
+				return false;
 			}
 			const stickyTop =
 				parseFloat(getComputedStyle(venuesSection).getPropertyValue("--ee-venues-sticky-top")) || 0;
@@ -3100,6 +3275,21 @@
 				rect.top <= stickyTop + 1.5 &&
 				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
 			venuesSection.classList.toggle("is-pinned", pinned);
+			return pinned;
+		};
+
+		const onVenuesScroll = () => {
+			const pinned = syncVenuesPinnedState();
+			if (!venuesFillMq.matches) {
+				return;
+			}
+			const fillStickyTop = getVenuesFillStickyTop();
+			const stickyChanged = Math.abs(fillStickyTop - lastVenuesFillStickyTop) > 1;
+			const pinnedChanged = pinned !== venuesWasPinned;
+			if (stickyChanged || pinnedChanged) {
+				venuesWasPinned = pinned;
+				scheduleVenuesPinSync();
+			}
 		};
 
 		const setActive = (panel) => {
@@ -3136,75 +3326,61 @@
 		});
 
 		if (lenis) {
-			lenis.on("scroll", syncVenuesPinnedState);
+			lenis.on("scroll", onVenuesScroll);
 		} else {
-			window.addEventListener("scroll", syncVenuesPinnedState, { passive: true });
+			window.addEventListener("scroll", onVenuesScroll, { passive: true });
+		}
+		if (typeof IntersectionObserver === "function" && venuesPin) {
+			let venuesPinInView = false;
+			const venuesPinObserver = new IntersectionObserver(
+				(entries) => {
+					const inView = entries.some((entry) => entry.isIntersecting);
+					if (inView && !venuesPinInView) {
+						scheduleVenuesPinSync();
+					}
+					venuesPinInView = inView;
+				},
+				{ threshold: [0, 0.12] }
+			);
+			venuesPinObserver.observe(venuesPin);
 		}
 		window.addEventListener("resize", () => {
 			venuesMobilePinInitialized = false;
-			syncVenuesPin();
-			syncVenuesPinnedState();
+			scheduleVenuesPinSync();
 		});
 		if (typeof pinMq.addEventListener === "function") {
 			pinMq.addEventListener("change", () => {
 				venuesMobilePinInitialized = false;
-				syncVenuesPin();
-				syncVenuesPinnedState();
+				scheduleVenuesPinSync();
 			});
 		} else if (typeof pinMq.addListener === "function") {
 			pinMq.addListener(() => {
 				venuesMobilePinInitialized = false;
-				syncVenuesPin();
-				syncVenuesPinnedState();
+				scheduleVenuesPinSync();
 			});
 		}
-		window.requestAnimationFrame(() => {
-			syncVenuesPin();
-			syncVenuesPinnedState();
-		});
-		window.addEventListener("load", () => {
-			if (!venuesMobilePinInitialized) {
-				syncVenuesPin();
-			}
-			syncVenuesPinnedState();
-		});
-		window.addEventListener("excel-ent:header-state-change", () => {
-			if (isVenuesMobile() && venuesMobilePinInitialized) {
-				syncVenuesPinnedState();
-				return;
-			}
-			syncVenuesPin();
-			syncVenuesPinnedState();
-		});
+		if (typeof venuesFillMq.addEventListener === "function") {
+			venuesFillMq.addEventListener("change", scheduleVenuesPinSync);
+		} else if (typeof venuesFillMq.addListener === "function") {
+			venuesFillMq.addListener(scheduleVenuesPinSync);
+		}
+		scheduleVenuesPinSync();
+		window.addEventListener("load", scheduleVenuesPinSync);
+		window.addEventListener("excel-ent:header-state-change", scheduleVenuesPinSync);
+		document.addEventListener("excel-ent:ready", scheduleVenuesPinSync);
 		if (window.visualViewport) {
 			window.visualViewport.addEventListener("resize", () => {
-				/*
-				 * Mobile browser chrome changes viewport height while scrolling.
-				 * Re-fitting here causes the sticky section to jerk; only refresh
-				 * the pinned class, not pin geometry.
-				 */
 				if (isVenuesMobile() && venuesMobilePinInitialized) {
 					syncVenuesPinnedState();
 					return;
 				}
-				syncVenuesPin();
-				syncVenuesPinnedState();
+				scheduleVenuesPinSync();
 			});
 		}
 		if (document.fonts?.ready) {
-			document.fonts.ready.then(() => {
-				if (!venuesMobilePinInitialized) {
-					syncVenuesPin();
-				}
-				syncVenuesPinnedState();
-			});
+			document.fonts.ready.then(scheduleVenuesPinSync);
 		}
-		window.setTimeout(() => {
-			if (!venuesMobilePinInitialized) {
-				syncVenuesPin();
-			}
-			syncVenuesPinnedState();
-		}, 250);
+		window.setTimeout(scheduleVenuesPinSync, 250);
 	}
 
 	/* ---------- About value sticky pin ---------- */
