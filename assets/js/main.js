@@ -657,7 +657,9 @@
 
 	/* ---------- About page mobile pin helpers (stable layout, no scroll jerk) ---------- */
 	const getAboutMobileViewportHeight = () =>
-		window.visualViewport?.height || window.innerHeight;
+		window.innerWidth <= 767
+			? window.innerHeight
+			: window.visualViewport?.height || window.innerHeight;
 
 	const aboutMobilePinViewport = {
 		width: window.innerWidth,
@@ -752,8 +754,7 @@
 	const buildAboutMobilePinSnapshot = (measure, padHeight, holdHeight) => {
 		const displaySectionHeight = Math.ceil(measure.availableHeight);
 		const contentHeight = Math.max(
-			measure.innerHeight ||
-				measure.sectionH - measure.padTop - measure.padBottom,
+			measure.sectionH - measure.padTop - measure.padBottom,
 			0
 		);
 		return {
@@ -767,6 +768,65 @@
 			displaySectionHeight,
 			pinHeight: padHeight + displaySectionHeight + holdHeight,
 		};
+	};
+
+	const reconcileAboutMobileLockedSnapshot = (snapshot, options) => {
+		const { getAvailableHeight, getHoldHeight, padHeight } = options;
+		if (!snapshot?.useFit || !snapshot.naturalSectionHeight) {
+			return snapshot;
+		}
+
+		const availableHeight = getAvailableHeight();
+		if (Math.abs(availableHeight - snapshot.availableHeight) < 2) {
+			return snapshot;
+		}
+
+		const sectionH = snapshot.naturalSectionHeight;
+		const fitScale = availableHeight / Math.max(sectionH, 1);
+		const contentHeight = Math.max(sectionH - snapshot.padTop - snapshot.padBottom, 0);
+		const holdHeight = getHoldHeight ? getHoldHeight() : 0;
+
+		return {
+			...snapshot,
+			availableHeight,
+			fitScale,
+			contentHeight,
+			displaySectionHeight: Math.ceil(availableHeight),
+			pinHeight: padHeight + Math.ceil(availableHeight) + holdHeight,
+		};
+	};
+
+	const applyAboutMobileLockedVars = (fitEl, pinEl, snapshot, cssKey) => {
+		if (!fitEl || !snapshot?.useFit) {
+			return;
+		}
+
+		fitEl.style.setProperty(
+			`--ee-${cssKey}-available-height`,
+			`${snapshot.availableHeight}px`
+		);
+		fitEl.style.setProperty(
+			`--ee-${cssKey}-viewport-height`,
+			`${snapshot.availableHeight}px`
+		);
+		fitEl.style.setProperty(`--ee-${cssKey}-fit-scale`, String(snapshot.fitScale));
+		fitEl.style.setProperty(
+			`--ee-${cssKey}-fit-pad-top`,
+			`${snapshot.padTop * snapshot.fitScale}px`
+		);
+		fitEl.style.setProperty(
+			`--ee-${cssKey}-fit-pad-bottom`,
+			`${snapshot.padBottom * snapshot.fitScale}px`
+		);
+		if (snapshot.contentHeight) {
+			fitEl.style.setProperty(
+				`--ee-${cssKey}-content-height`,
+				`${snapshot.contentHeight}px`
+			);
+		}
+		if (pinEl && snapshot.pinHeight) {
+			pinEl.style.height = `${snapshot.pinHeight}px`;
+		}
 	};
 
 	/* ---------- About intro viewport fitting + mobile sticky pin ---------- */
@@ -984,6 +1044,25 @@
 				return;
 			}
 
+			if (aboutIntroMobileFitLocked && aboutIntroMobileFitSnapshot) {
+				const pad = aboutIntroPin.querySelector(".about-intro__scroll-pad");
+				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+				const updated = reconcileAboutMobileLockedSnapshot(aboutIntroMobileFitSnapshot, {
+					getAvailableHeight: getAboutIntroAvailableHeight,
+					getHoldHeight: getAboutIntroMobileHoldHeight,
+					padHeight,
+				});
+				if (updated !== aboutIntroMobileFitSnapshot) {
+					applyAboutMobileLockedVars(
+						getAboutIntroFitEl(),
+						aboutIntroPin,
+						updated,
+						"about-intro"
+					);
+					aboutIntroMobileFitSnapshot = updated;
+				}
+			}
+
 			const stickyTop = getAboutIntroStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -1020,7 +1099,14 @@
 			);
 		}
 
+		let aboutIntroLastResizeWidth = window.innerWidth;
 		window.addEventListener("resize", () => {
+			const w = window.innerWidth;
+			if (aboutIntroPinMobileMq.matches && aboutIntroMobileFitLocked && w === aboutIntroLastResizeWidth) {
+				syncAboutIntroPinnedState();
+				return;
+			}
+			aboutIntroLastResizeWidth = w;
 			window.clearTimeout(aboutIntroResizeTimer);
 			aboutIntroResizeTimer = window.setTimeout(() => {
 				if (aboutIntroPinMobileMq.matches) {
@@ -1044,6 +1130,7 @@
 
 		window.addEventListener("load", () => {
 			aboutIntroMobilePinReady = true;
+			if (aboutIntroPinMobileMq.matches && aboutIntroMobileFitLocked) return;
 			const fitTarget = aboutIntroUnit || aboutIntro;
 			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 			const snapNatural = aboutIntroMobileFitSnapshot?.naturalSectionHeight;
@@ -1063,8 +1150,11 @@
 		});
 
 		window.addEventListener("excel-ent:header-state-change", () => {
+			if (aboutIntroPinMobileMq.matches && aboutIntroMobileFitLocked) {
+				syncAboutIntroPinnedState();
+				return;
+			}
 			if (aboutIntroPinMobileMq.matches) {
-				resetAboutIntroMobilePin();
 				refreshAboutIntroPin();
 				return;
 			}
@@ -1089,7 +1179,8 @@
 		aboutIntroPin?.querySelectorAll("img, object").forEach((asset) => {
 			asset.addEventListener("load", () => {
 				if (aboutIntroPinMobileMq.matches && aboutIntroMobileFitLocked) {
-					resetAboutIntroMobilePin();
+					syncAboutIntroPinnedState();
+					return;
 				}
 				refreshAboutIntroPin();
 			});
@@ -1097,6 +1188,7 @@
 
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
+				if (aboutIntroPinMobileMq.matches && aboutIntroMobileFitLocked) return;
 				const fitTarget = aboutIntroUnit || aboutIntro;
 				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 				const snapNatural = aboutIntroMobileFitSnapshot?.naturalSectionHeight;
@@ -3624,6 +3716,26 @@
 				return;
 			}
 
+			if (aboutValuePinMobileMq.matches && aboutValueMobileFitLocked && aboutValueMobileFitSnapshot) {
+				const pad = aboutValuePin.querySelector(".about-value__scroll-pad");
+				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+				const updated = reconcileAboutMobileLockedSnapshot(aboutValueMobileFitSnapshot, {
+					getAvailableHeight: getAboutValueAvailableHeight,
+					getHoldHeight: () =>
+						getAboutValueMobileHoldHeight(getAboutMobileViewportHeight()),
+					padHeight,
+				});
+				if (updated !== aboutValueMobileFitSnapshot) {
+					applyAboutMobileLockedVars(
+						getAboutValueFitEl(),
+						aboutValuePin,
+						updated,
+						"about-value"
+					);
+					aboutValueMobileFitSnapshot = updated;
+				}
+			}
+
 			const stickyTop = getAboutValueStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -3659,7 +3771,14 @@
 			);
 		}
 
+		let aboutValueLastResizeWidth = window.innerWidth;
 		window.addEventListener("resize", () => {
+			const w = window.innerWidth;
+			if (aboutValuePinMobileMq.matches && aboutValueMobileFitLocked && w === aboutValueLastResizeWidth) {
+				syncAboutValuePinnedState();
+				return;
+			}
+			aboutValueLastResizeWidth = w;
 			window.clearTimeout(aboutValueResizeTimer);
 			aboutValueResizeTimer = window.setTimeout(() => {
 				if (aboutValuePinMobileMq.matches) {
@@ -3683,6 +3802,7 @@
 
 		window.addEventListener("load", () => {
 			aboutValueMobilePinReady = true;
+			if (aboutValuePinMobileMq.matches && aboutValueMobileFitLocked) return;
 			const fitTarget = aboutValueUnit || aboutValue;
 			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 			const snapNatural = aboutValueMobileFitSnapshot?.naturalSectionHeight;
@@ -3702,8 +3822,11 @@
 		});
 
 		window.addEventListener("excel-ent:header-state-change", () => {
+			if (aboutValuePinMobileMq.matches && aboutValueMobileFitLocked) {
+				syncAboutValuePinnedState();
+				return;
+			}
 			if (aboutValuePinMobileMq.matches) {
-				resetAboutValueMobilePin();
 				refreshAboutValuePin();
 				return;
 			}
@@ -3730,7 +3853,8 @@
 		aboutValuePin?.querySelectorAll("img").forEach((img) => {
 			img.addEventListener("load", () => {
 				if (aboutValuePinMobileMq.matches && aboutValueMobileFitLocked) {
-					resetAboutValueMobilePin();
+					syncAboutValuePinnedState();
+					return;
 				}
 				refreshAboutValuePin();
 			});
@@ -3738,6 +3862,7 @@
 
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
+				if (aboutValuePinMobileMq.matches && aboutValueMobileFitLocked) return;
 				const fitTarget = aboutValueUnit || aboutValue;
 				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 				const snapNatural = aboutValueMobileFitSnapshot?.naturalSectionHeight;
@@ -3968,6 +4093,26 @@
 				return;
 			}
 
+			if (aboutWhyPinMobileMq.matches && aboutWhyMobileFitLocked && aboutWhyMobileFitSnapshot) {
+				const pad = aboutWhyPin.querySelector(".about-why__scroll-pad");
+				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+				const updated = reconcileAboutMobileLockedSnapshot(aboutWhyMobileFitSnapshot, {
+					getAvailableHeight: getAboutWhyAvailableHeight,
+					getHoldHeight: () =>
+						getAboutWhyMobileHoldHeight(getAboutMobileViewportHeight()),
+					padHeight,
+				});
+				if (updated !== aboutWhyMobileFitSnapshot) {
+					applyAboutMobileLockedVars(
+						getAboutWhyFitEl(),
+						aboutWhyPin,
+						updated,
+						"about-why"
+					);
+					aboutWhyMobileFitSnapshot = updated;
+				}
+			}
+
 			const stickyTop = getAboutWhyStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -4003,7 +4148,14 @@
 			);
 		}
 
+		let aboutWhyLastResizeWidth = window.innerWidth;
 		window.addEventListener("resize", () => {
+			const w = window.innerWidth;
+			if (aboutWhyPinMobileMq.matches && aboutWhyMobileFitLocked && w === aboutWhyLastResizeWidth) {
+				syncAboutWhyPinnedState();
+				return;
+			}
+			aboutWhyLastResizeWidth = w;
 			window.clearTimeout(aboutWhyResizeTimer);
 			aboutWhyResizeTimer = window.setTimeout(() => {
 				if (aboutWhyPinMobileMq.matches) {
@@ -4044,6 +4196,7 @@
 
 		window.addEventListener("load", () => {
 			aboutWhyMobilePinReady = true;
+			if (aboutWhyPinMobileMq.matches && aboutWhyMobileFitLocked) return;
 			const fitTarget = aboutWhyUnit || aboutWhy;
 			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 			const snapNatural = aboutWhyMobileFitSnapshot?.naturalSectionHeight;
@@ -4057,6 +4210,10 @@
 		});
 
 		window.addEventListener("excel-ent:header-state-change", () => {
+			if (aboutWhyPinMobileMq.matches && aboutWhyMobileFitLocked) {
+				syncAboutWhyPinnedState();
+				return;
+			}
 			if (aboutWhyPinMobileMq.matches) {
 				resetAboutWhyMobilePin();
 			}
@@ -4073,11 +4230,18 @@
 			if (img.complete) {
 				return;
 			}
-			img.addEventListener("load", refreshAboutWhyPinLayout, { once: true });
+			img.addEventListener("load", () => {
+				if (aboutWhyPinMobileMq.matches && aboutWhyMobileFitLocked) {
+					syncAboutWhyPinnedState();
+					return;
+				}
+				refreshAboutWhyPinLayout();
+			}, { once: true });
 		});
 
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
+				if (aboutWhyPinMobileMq.matches && aboutWhyMobileFitLocked) return;
 				const fitTarget = aboutWhyUnit || aboutWhy;
 				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 				const snapNatural = aboutWhyMobileFitSnapshot?.naturalSectionHeight;
@@ -4090,7 +4254,10 @@
 			});
 		}
 
-		window.setTimeout(refreshAboutWhyPinLayout, 250);
+		window.setTimeout(() => {
+			if (aboutWhyPinMobileMq.matches && aboutWhyMobileFitLocked) return;
+			refreshAboutWhyPinLayout();
+		}, 250);
 	}
 
 	/* ---------- About approach sticky pin ---------- */
@@ -4340,6 +4507,30 @@
 				return;
 			}
 
+			if (
+				aboutApproachPinMobileMq.matches &&
+				aboutApproachMobileFitLocked &&
+				aboutApproachMobileFitSnapshot
+			) {
+				const pad = aboutApproachPin.querySelector(".about-approach__scroll-pad");
+				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+				const updated = reconcileAboutMobileLockedSnapshot(aboutApproachMobileFitSnapshot, {
+					getAvailableHeight: getAboutApproachAvailableHeight,
+					getHoldHeight: () =>
+						getAboutApproachMobileHoldHeight(getAboutMobileViewportHeight()),
+					padHeight,
+				});
+				if (updated !== aboutApproachMobileFitSnapshot) {
+					applyAboutMobileLockedVars(
+						getAboutApproachFitEl(),
+						aboutApproachPin,
+						updated,
+						"about-approach"
+					);
+					aboutApproachMobileFitSnapshot = updated;
+				}
+			}
+
 			const stickyTop = getAboutApproachStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -4380,7 +4571,14 @@
 			);
 		}
 
+		let aboutApproachLastResizeWidth = window.innerWidth;
 		window.addEventListener("resize", () => {
+			const w = window.innerWidth;
+			if (aboutApproachPinMobileMq.matches && aboutApproachMobileFitLocked && w === aboutApproachLastResizeWidth) {
+				syncAboutApproachPinnedState();
+				return;
+			}
+			aboutApproachLastResizeWidth = w;
 			window.clearTimeout(aboutApproachResizeTimer);
 			aboutApproachResizeTimer = window.setTimeout(() => {
 				if (aboutApproachPinMobileMq.matches) {
@@ -4421,6 +4619,7 @@
 
 		window.addEventListener("load", () => {
 			aboutApproachMobilePinReady = true;
+			if (aboutApproachPinMobileMq.matches && aboutApproachMobileFitLocked) return;
 			const fitTarget = aboutApproachUnit || aboutApproachSticky;
 			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 			const snapNatural = aboutApproachMobileFitSnapshot?.naturalSectionHeight;
@@ -4434,6 +4633,10 @@
 		});
 
 		window.addEventListener("excel-ent:header-state-change", () => {
+			if (aboutApproachPinMobileMq.matches && aboutApproachMobileFitLocked) {
+				syncAboutApproachPinnedState();
+				return;
+			}
 			if (aboutApproachPinMobileMq.matches) {
 				resetAboutApproachMobilePin();
 			}
@@ -4450,7 +4653,11 @@
 			const approachPinObserver = new IntersectionObserver(
 				(entries) => {
 					if (entries.some((e) => e.isIntersecting)) {
-						refreshAboutApproachPinLayout();
+						if (aboutApproachPinMobileMq.matches && aboutApproachMobileFitLocked) {
+							syncAboutApproachPinnedState();
+						} else {
+							refreshAboutApproachPinLayout();
+						}
 					}
 				},
 				{ threshold: 0 }
@@ -4462,11 +4669,18 @@
 			if (img.complete) {
 				return;
 			}
-			img.addEventListener("load", refreshAboutApproachPinLayout, { once: true });
+			img.addEventListener("load", () => {
+				if (aboutApproachPinMobileMq.matches && aboutApproachMobileFitLocked) {
+					syncAboutApproachPinnedState();
+					return;
+				}
+				refreshAboutApproachPinLayout();
+			}, { once: true });
 		});
 
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
+				if (aboutApproachPinMobileMq.matches && aboutApproachMobileFitLocked) return;
 				const fitTarget = aboutApproachUnit || aboutApproachSticky;
 				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 				const snapNatural = aboutApproachMobileFitSnapshot?.naturalSectionHeight;
@@ -4479,7 +4693,10 @@
 			});
 		}
 
-		window.setTimeout(refreshAboutApproachPinLayout, 250);
+		window.setTimeout(() => {
+			if (aboutApproachPinMobileMq.matches && aboutApproachMobileFitLocked) return;
+			refreshAboutApproachPinLayout();
+		}, 250);
 	}
 
 	/* ---------- Explore Artists filters ---------- */
@@ -7932,6 +8149,30 @@
 				return;
 			}
 
+			if (
+				aboutReviewsPinMobileMq.matches &&
+				aboutReviewsMobileFitLocked &&
+				aboutReviewsMobileFitSnapshot
+			) {
+				const pad = aboutReviewsPin.querySelector(".about-reviews__scroll-pad");
+				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+				const updated = reconcileAboutMobileLockedSnapshot(aboutReviewsMobileFitSnapshot, {
+					getAvailableHeight: getAboutReviewsAvailableHeight,
+					getHoldHeight: () =>
+						getAboutReviewsMobileHoldHeight(getAboutMobileViewportHeight()),
+					padHeight,
+				});
+				if (updated !== aboutReviewsMobileFitSnapshot) {
+					applyAboutMobileLockedVars(
+						getAboutReviewsFitEl(),
+						aboutReviewsPin,
+						updated,
+						"about-reviews"
+					);
+					aboutReviewsMobileFitSnapshot = updated;
+				}
+			}
+
 			const stickyTop = getAboutReviewsStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -8305,7 +8546,14 @@
 			refreshAboutReviewsPinLayout();
 		};
 		scrollCarouselMq.addEventListener("change", onResize);
+		let aboutReviewsLastResizeWidth = window.innerWidth;
 		window.addEventListener("resize", () => {
+			const w = window.innerWidth;
+			if (aboutReviewsPinMobileMq.matches && aboutReviewsMobileFitLocked && w === aboutReviewsLastResizeWidth) {
+				syncAboutReviewsPinnedState();
+				return;
+			}
+			aboutReviewsLastResizeWidth = w;
 			window.clearTimeout(aboutReviewsResizeTimer);
 			aboutReviewsResizeTimer = window.setTimeout(onResize, 120);
 		}, { passive: true });
@@ -8341,6 +8589,10 @@
 		}
 
 		window.addEventListener("excel-ent:header-state-change", () => {
+			if (aboutReviewsPinMobileMq.matches && aboutReviewsMobileFitLocked) {
+				syncAboutReviewsPinnedState();
+				return;
+			}
 			if (aboutReviewsPinMobileMq.matches) {
 				resetAboutReviewsMobilePin();
 			}
@@ -8356,6 +8608,7 @@
 		goTo(0, true);
 		window.addEventListener("load", () => {
 			aboutReviewsMobilePinReady = true;
+			if (aboutReviewsPinMobileMq.matches && aboutReviewsMobileFitLocked) return;
 			const fitTarget = aboutReviewsUnit || aboutReviews;
 			const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 			const snapNatural = aboutReviewsMobileFitSnapshot?.naturalSectionHeight;
@@ -8371,6 +8624,10 @@
 
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(() => {
+				if (aboutReviewsPinMobileMq.matches && aboutReviewsMobileFitLocked) {
+					goTo(page, true);
+					return;
+				}
 				const fitTarget = aboutReviewsUnit || aboutReviews;
 				const naturalHeight = Math.ceil(fitTarget.scrollHeight);
 				const snapNatural = aboutReviewsMobileFitSnapshot?.naturalSectionHeight;
@@ -8385,6 +8642,10 @@
 		}
 
 		window.setTimeout(() => {
+			if (aboutReviewsPinMobileMq.matches && aboutReviewsMobileFitLocked) {
+				goTo(page, true);
+				return;
+			}
 			refreshAboutReviewsPinLayout();
 			goTo(page, true);
 		}, 250);
