@@ -12247,16 +12247,7 @@
 			if (isServicesMobile() && servicesMobilePinInitialized) {
 				return;
 			}
-			const preservePinLayout =
-				servicesSwap.classList.contains("is-viewport-fitted") &&
-				servicesPin.style.height &&
-				servicesPin.style.height !== "auto";
-			if (!preservePinLayout) {
-				servicesPin.style.height = "auto";
-			}
-			if (preservePinLayout) {
-				servicesSwap.style.visibility = "hidden";
-			}
+			servicesPin.style.height = "auto";
 			clearServicesViewportFit();
 			void servicesSwap.offsetHeight;
 			const pad = servicesPin.querySelector(".services-section__scroll-pad");
@@ -12293,9 +12284,6 @@
 
 			const holdPx = Math.round(viewportH * 1);
 			servicesPin.style.height = `${padH + displayH + holdPx}px`;
-			if (preservePinLayout) {
-				servicesSwap.style.visibility = "";
-			}
 			if (isServicesMobile()) {
 				servicesMobilePinInitialized = true;
 			}
@@ -12579,7 +12567,11 @@
 				(entries) => {
 					const inView = entries.some((entry) => entry.isIntersecting);
 					if (inView && !servicesPinInView) {
-						scheduleServicesPinSync();
+						if (isServicesMobile() && servicesMobilePinInitialized) {
+							syncServicesPinnedState();
+						} else {
+							scheduleServicesPinSync();
+						}
 					}
 					servicesPinInView = inView;
 				},
@@ -12587,7 +12579,14 @@
 			);
 			servicesPinObserver.observe(servicesPin);
 		}
+		let servicesMobileLastWidth = window.innerWidth;
 		window.addEventListener("resize", () => {
+			const w = window.innerWidth;
+			if (isServicesMobile() && servicesMobilePinInitialized && w === servicesMobileLastWidth) {
+				syncServicesPinnedState();
+				return;
+			}
+			servicesMobileLastWidth = w;
 			servicesMobilePinInitialized = false;
 			scheduleServicesPinSync();
 		});
@@ -12619,9 +12618,21 @@
 			servicesFillMq.addListener(scheduleServicesPinSync);
 		}
 		scheduleServicesPinSync();
-		window.addEventListener("load", scheduleServicesPinSync);
-		window.addEventListener("excel-ent:header-state-change", scheduleServicesPinSync);
-		document.addEventListener("excel-ent:ready", scheduleServicesPinSync);
+		window.addEventListener("load", () => {
+			if (isServicesMobile() && servicesMobilePinInitialized) return;
+			scheduleServicesPinSync();
+		});
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (isServicesMobile() && servicesMobilePinInitialized) {
+				syncServicesPinnedState();
+				return;
+			}
+			scheduleServicesPinSync();
+		});
+		document.addEventListener("excel-ent:ready", () => {
+			if (isServicesMobile() && servicesMobilePinInitialized) return;
+			scheduleServicesPinSync();
+		});
 		if (window.visualViewport) {
 			window.visualViewport.addEventListener("resize", () => {
 				if (isServicesMobile() && servicesMobilePinInitialized) {
@@ -12632,9 +12643,15 @@
 			});
 		}
 		if (document.fonts?.ready) {
-			document.fonts.ready.then(scheduleServicesPinSync);
+			document.fonts.ready.then(() => {
+				if (isServicesMobile() && servicesMobilePinInitialized) return;
+				scheduleServicesPinSync();
+			});
 		}
-		window.setTimeout(scheduleServicesPinSync, 250);
+		window.setTimeout(() => {
+			if (isServicesMobile() && servicesMobilePinInitialized) return;
+			scheduleServicesPinSync();
+		}, 250);
 	}
 })();
 
