@@ -754,9 +754,12 @@
 			unitEl.querySelector('[class*="__unit-inner"]') ||
 			unitEl.querySelector('[class$="__inner"]') ||
 			unitEl;
+		void unitEl.offsetHeight;
 		const sectionH = Math.max(Math.ceil(innerEl.scrollHeight), 1);
 		const availableHeight = getAvailableHeight();
-		const fitScale = availableHeight / sectionH;
+		const fitScale = availableHeight / Math.max(sectionH, 1);
+		const useFit = availableHeight > 0 && fitScale < 0.999;
+		const useFill = availableHeight > 0 && !useFit && availableHeight > sectionH;
 		const styles = getComputedStyle(unitEl);
 		const padTop = parseFloat(styles.paddingTop) || 0;
 		const padBottom = parseFloat(styles.paddingBottom) || 0;
@@ -764,10 +767,11 @@
 			sectionH,
 			innerHeight: sectionH,
 			availableHeight,
-			fitScale,
+			fitScale: useFit ? fitScale : 1,
 			padTop,
 			padBottom,
-			useFit: true,
+			useFit,
+			useFill,
 		};
 	};
 
@@ -785,6 +789,7 @@
 			contentHeight,
 			naturalSectionHeight: measure.sectionH,
 			useFit: measure.useFit,
+			useFill: measure.useFill,
 			displaySectionHeight,
 			pinHeight: padHeight + displaySectionHeight + holdHeight,
 		};
@@ -3860,8 +3865,11 @@
 				aboutWhyMobileFitLocked &&
 				aboutWhyMobileFitSnapshot === snapshot &&
 				((snapshot.useFit && fitEl.classList.contains("is-viewport-fitted")) ||
+					(snapshot.useFill && fitEl.classList.contains("is-mobile-fill")) ||
 					(!snapshot.useFit &&
-						!fitEl.classList.contains("is-viewport-fitted")))
+						!snapshot.useFill &&
+						!fitEl.classList.contains("is-viewport-fitted") &&
+						!fitEl.classList.contains("is-mobile-fill")))
 			) {
 				syncAboutWhyPinnedState();
 				return;
@@ -3869,7 +3877,7 @@
 
 			clearAboutWhyViewportFit();
 
-			if (snapshot.useFit) {
+			if (snapshot.useFill || snapshot.useFit) {
 				fitEl.style.setProperty(
 					"--ee-about-why-available-height",
 					`${snapshot.availableHeight}px`
@@ -3900,6 +3908,8 @@
 					);
 				}
 				fitEl.classList.add("is-viewport-fitted");
+			} else if (snapshot.useFill) {
+				fitEl.classList.add("is-mobile-fill");
 			}
 
 			if (aboutWhyPin && snapshot.pinHeight) {
@@ -4243,13 +4253,24 @@
 				aboutApproachMobileFitLocked &&
 				aboutApproachMobileFitSnapshot === snapshot &&
 				((snapshot.useFit && fitEl.classList.contains("is-viewport-fitted")) ||
-					(!snapshot.useFit && !fitEl.classList.contains("is-viewport-fitted")))
+					(snapshot.useFill && fitEl.classList.contains("is-mobile-fill")) ||
+					(!snapshot.useFit &&
+						!snapshot.useFill &&
+						!fitEl.classList.contains("is-viewport-fitted") &&
+						!fitEl.classList.contains("is-mobile-fill")))
 			) {
 				syncAboutApproachPinnedState();
 				return;
 			}
 
 			clearAboutApproachViewportFit();
+
+			if (snapshot.useFill || snapshot.useFit) {
+				fitEl.style.setProperty(
+					"--ee-about-approach-available-height",
+					`${snapshot.availableHeight}px`
+				);
+			}
 
 			if (snapshot.useFit) {
 				fitEl.style.setProperty(
@@ -4275,6 +4296,8 @@
 					);
 				}
 				fitEl.classList.add("is-viewport-fitted");
+			} else if (snapshot.useFill) {
+				fitEl.classList.add("is-mobile-fill");
 			}
 
 			if (aboutApproachPin && snapshot.pinHeight) {
