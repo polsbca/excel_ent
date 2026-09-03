@@ -280,6 +280,32 @@
 			primary.style.setProperty("--ee-search-sticky-offset", `${compact}px`);
 		};
 
+		const getHeaderCompactHeight = () => {
+			if (header.classList.contains("is-scrolled")) {
+				return Math.ceil(header.getBoundingClientRect().height);
+			}
+			const bar = header.querySelector(".site-header__bar");
+			const inner = header.querySelector(".site-header__inner");
+			const padY = inner
+				? (parseFloat(getComputedStyle(inner).paddingTop) || 0) +
+				  (parseFloat(getComputedStyle(inner).paddingBottom) || 0)
+				: 0;
+			return Math.max(Math.ceil((bar?.getBoundingClientRect().height || 0) + padY), 1);
+		};
+
+		let aboutMobileStickyTop = 0;
+		let aboutMobileStickyWidth = window.innerWidth;
+
+		const getAboutMobileStickyTop = () => {
+			const width = window.innerWidth;
+			if (aboutMobileStickyTop > 0 && width === aboutMobileStickyWidth) {
+				return aboutMobileStickyTop;
+			}
+			aboutMobileStickyWidth = width;
+			aboutMobileStickyTop = getHeaderCompactHeight();
+			return aboutMobileStickyTop;
+		};
+
 		const syncArtistsStickyTop = () => {
 			const isArtistMobile = isArtistPage && window.matchMedia("(max-width: 767px)").matches;
 			const isAboutMobile = isAboutPage && window.matchMedia("(max-width: 767px)").matches;
@@ -287,9 +313,11 @@
 				isContactPage && window.matchMedia("(max-width: 767px)").matches;
 			const headerHeight = Math.ceil(header.getBoundingClientRect().height);
 			const top =
-				header.classList.contains("is-scrolled") || isArtistMobile || isAboutMobile || isContactMobile
-					? headerHeight
-					: 0;
+				isAboutMobile
+					? getAboutMobileStickyTop()
+					: header.classList.contains("is-scrolled") || isArtistMobile || isContactMobile
+						? headerHeight
+						: 0;
 			const topPx = `${top}px`;
 			if (isArtistPage && primary) {
 				primary.style.paddingTop = header.classList.contains("is-scrolled") ? topPx : "";
@@ -676,13 +704,10 @@
 
 	const shouldRelayoutAboutMobilePinViewport = () => {
 		const width = window.innerWidth;
-		const height = getAboutMobileViewportHeight();
 		const widthDelta = Math.abs(width - aboutMobilePinViewport.width);
-		const heightDelta = Math.abs(height - aboutMobilePinViewport.height);
-		const heightThreshold = width <= 767 ? 40 : 160;
-		if (widthDelta >= 80 || heightDelta >= heightThreshold) {
+		if (widthDelta >= 80) {
 			aboutMobilePinViewport.width = width;
-			aboutMobilePinViewport.height = height;
+			aboutMobilePinViewport.height = getAboutMobileViewportHeight();
 			return true;
 		}
 		return false;
@@ -700,8 +725,7 @@
 				refreshFn();
 			}, 280);
 		};
-		window.visualViewport?.addEventListener("resize", onViewportChange);
-		window.visualViewport?.addEventListener("scroll", onViewportChange);
+		window.addEventListener("resize", onViewportChange, { passive: true });
 	};
 
 	const aboutMobilePinStateFrame = { id: 0, pending: new Set() };
@@ -768,65 +792,6 @@
 			displaySectionHeight,
 			pinHeight: padHeight + displaySectionHeight + holdHeight,
 		};
-	};
-
-	const reconcileAboutMobileLockedSnapshot = (snapshot, options) => {
-		const { getAvailableHeight, getHoldHeight, padHeight } = options;
-		if (!snapshot?.useFit || !snapshot.naturalSectionHeight) {
-			return snapshot;
-		}
-
-		const availableHeight = getAvailableHeight();
-		if (Math.abs(availableHeight - snapshot.availableHeight) < 2) {
-			return snapshot;
-		}
-
-		const sectionH = snapshot.naturalSectionHeight;
-		const fitScale = availableHeight / Math.max(sectionH, 1);
-		const contentHeight = Math.max(sectionH - snapshot.padTop - snapshot.padBottom, 0);
-		const holdHeight = getHoldHeight ? getHoldHeight() : 0;
-
-		return {
-			...snapshot,
-			availableHeight,
-			fitScale,
-			contentHeight,
-			displaySectionHeight: Math.ceil(availableHeight),
-			pinHeight: padHeight + Math.ceil(availableHeight) + holdHeight,
-		};
-	};
-
-	const applyAboutMobileLockedVars = (fitEl, pinEl, snapshot, cssKey) => {
-		if (!fitEl || !snapshot?.useFit) {
-			return;
-		}
-
-		fitEl.style.setProperty(
-			`--ee-${cssKey}-available-height`,
-			`${snapshot.availableHeight}px`
-		);
-		fitEl.style.setProperty(
-			`--ee-${cssKey}-viewport-height`,
-			`${snapshot.availableHeight}px`
-		);
-		fitEl.style.setProperty(`--ee-${cssKey}-fit-scale`, String(snapshot.fitScale));
-		fitEl.style.setProperty(
-			`--ee-${cssKey}-fit-pad-top`,
-			`${snapshot.padTop * snapshot.fitScale}px`
-		);
-		fitEl.style.setProperty(
-			`--ee-${cssKey}-fit-pad-bottom`,
-			`${snapshot.padBottom * snapshot.fitScale}px`
-		);
-		if (snapshot.contentHeight) {
-			fitEl.style.setProperty(
-				`--ee-${cssKey}-content-height`,
-				`${snapshot.contentHeight}px`
-			);
-		}
-		if (pinEl && snapshot.pinHeight) {
-			pinEl.style.height = `${snapshot.pinHeight}px`;
-		}
 	};
 
 	/* ---------- About intro viewport fitting + mobile sticky pin ---------- */
@@ -1044,25 +1009,6 @@
 				return;
 			}
 
-			if (aboutIntroMobileFitLocked && aboutIntroMobileFitSnapshot) {
-				const pad = aboutIntroPin.querySelector(".about-intro__scroll-pad");
-				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-				const updated = reconcileAboutMobileLockedSnapshot(aboutIntroMobileFitSnapshot, {
-					getAvailableHeight: getAboutIntroAvailableHeight,
-					getHoldHeight: getAboutIntroMobileHoldHeight,
-					padHeight,
-				});
-				if (updated !== aboutIntroMobileFitSnapshot) {
-					applyAboutMobileLockedVars(
-						getAboutIntroFitEl(),
-						aboutIntroPin,
-						updated,
-						"about-intro"
-					);
-					aboutIntroMobileFitSnapshot = updated;
-				}
-			}
-
 			const stickyTop = getAboutIntroStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -1151,7 +1097,6 @@
 
 		window.addEventListener("excel-ent:header-state-change", () => {
 			if (aboutIntroPinMobileMq.matches && aboutIntroMobileFitLocked) {
-				syncAboutIntroPinnedState();
 				return;
 			}
 			if (aboutIntroPinMobileMq.matches) {
@@ -3716,26 +3661,6 @@
 				return;
 			}
 
-			if (aboutValuePinMobileMq.matches && aboutValueMobileFitLocked && aboutValueMobileFitSnapshot) {
-				const pad = aboutValuePin.querySelector(".about-value__scroll-pad");
-				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-				const updated = reconcileAboutMobileLockedSnapshot(aboutValueMobileFitSnapshot, {
-					getAvailableHeight: getAboutValueAvailableHeight,
-					getHoldHeight: () =>
-						getAboutValueMobileHoldHeight(getAboutMobileViewportHeight()),
-					padHeight,
-				});
-				if (updated !== aboutValueMobileFitSnapshot) {
-					applyAboutMobileLockedVars(
-						getAboutValueFitEl(),
-						aboutValuePin,
-						updated,
-						"about-value"
-					);
-					aboutValueMobileFitSnapshot = updated;
-				}
-			}
-
 			const stickyTop = getAboutValueStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -3823,7 +3748,6 @@
 
 		window.addEventListener("excel-ent:header-state-change", () => {
 			if (aboutValuePinMobileMq.matches && aboutValueMobileFitLocked) {
-				syncAboutValuePinnedState();
 				return;
 			}
 			if (aboutValuePinMobileMq.matches) {
@@ -4093,26 +4017,6 @@
 				return;
 			}
 
-			if (aboutWhyPinMobileMq.matches && aboutWhyMobileFitLocked && aboutWhyMobileFitSnapshot) {
-				const pad = aboutWhyPin.querySelector(".about-why__scroll-pad");
-				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-				const updated = reconcileAboutMobileLockedSnapshot(aboutWhyMobileFitSnapshot, {
-					getAvailableHeight: getAboutWhyAvailableHeight,
-					getHoldHeight: () =>
-						getAboutWhyMobileHoldHeight(getAboutMobileViewportHeight()),
-					padHeight,
-				});
-				if (updated !== aboutWhyMobileFitSnapshot) {
-					applyAboutMobileLockedVars(
-						getAboutWhyFitEl(),
-						aboutWhyPin,
-						updated,
-						"about-why"
-					);
-					aboutWhyMobileFitSnapshot = updated;
-				}
-			}
-
 			const stickyTop = getAboutWhyStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -4211,7 +4115,6 @@
 
 		window.addEventListener("excel-ent:header-state-change", () => {
 			if (aboutWhyPinMobileMq.matches && aboutWhyMobileFitLocked) {
-				syncAboutWhyPinnedState();
 				return;
 			}
 			if (aboutWhyPinMobileMq.matches) {
@@ -4507,30 +4410,6 @@
 				return;
 			}
 
-			if (
-				aboutApproachPinMobileMq.matches &&
-				aboutApproachMobileFitLocked &&
-				aboutApproachMobileFitSnapshot
-			) {
-				const pad = aboutApproachPin.querySelector(".about-approach__scroll-pad");
-				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-				const updated = reconcileAboutMobileLockedSnapshot(aboutApproachMobileFitSnapshot, {
-					getAvailableHeight: getAboutApproachAvailableHeight,
-					getHoldHeight: () =>
-						getAboutApproachMobileHoldHeight(getAboutMobileViewportHeight()),
-					padHeight,
-				});
-				if (updated !== aboutApproachMobileFitSnapshot) {
-					applyAboutMobileLockedVars(
-						getAboutApproachFitEl(),
-						aboutApproachPin,
-						updated,
-						"about-approach"
-					);
-					aboutApproachMobileFitSnapshot = updated;
-				}
-			}
-
 			const stickyTop = getAboutApproachStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -4634,7 +4513,6 @@
 
 		window.addEventListener("excel-ent:header-state-change", () => {
 			if (aboutApproachPinMobileMq.matches && aboutApproachMobileFitLocked) {
-				syncAboutApproachPinnedState();
 				return;
 			}
 			if (aboutApproachPinMobileMq.matches) {
@@ -4654,10 +4532,9 @@
 				(entries) => {
 					if (entries.some((e) => e.isIntersecting)) {
 						if (aboutApproachPinMobileMq.matches && aboutApproachMobileFitLocked) {
-							syncAboutApproachPinnedState();
-						} else {
-							refreshAboutApproachPinLayout();
+							return;
 						}
+						refreshAboutApproachPinLayout();
 					}
 				},
 				{ threshold: 0 }
@@ -8149,30 +8026,6 @@
 				return;
 			}
 
-			if (
-				aboutReviewsPinMobileMq.matches &&
-				aboutReviewsMobileFitLocked &&
-				aboutReviewsMobileFitSnapshot
-			) {
-				const pad = aboutReviewsPin.querySelector(".about-reviews__scroll-pad");
-				const padHeight = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-				const updated = reconcileAboutMobileLockedSnapshot(aboutReviewsMobileFitSnapshot, {
-					getAvailableHeight: getAboutReviewsAvailableHeight,
-					getHoldHeight: () =>
-						getAboutReviewsMobileHoldHeight(getAboutMobileViewportHeight()),
-					padHeight,
-				});
-				if (updated !== aboutReviewsMobileFitSnapshot) {
-					applyAboutMobileLockedVars(
-						getAboutReviewsFitEl(),
-						aboutReviewsPin,
-						updated,
-						"about-reviews"
-					);
-					aboutReviewsMobileFitSnapshot = updated;
-				}
-			}
-
 			const stickyTop = getAboutReviewsStickyTop();
 			const viewportHeight = getAboutMobileViewportHeight();
 			const sectionRect = stickyEl.getBoundingClientRect();
@@ -8590,7 +8443,6 @@
 
 		window.addEventListener("excel-ent:header-state-change", () => {
 			if (aboutReviewsPinMobileMq.matches && aboutReviewsMobileFitLocked) {
-				syncAboutReviewsPinnedState();
 				return;
 			}
 			if (aboutReviewsPinMobileMq.matches) {
