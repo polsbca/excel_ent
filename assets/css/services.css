@@ -555,6 +555,12 @@
 	.services-section.is-viewport-fitted .services-grid {
 		width: calc(27.66vw / var(--ee-services-fit-scale));
 	}
+
+	.services-section.is-viewport-filled .services-section__inner {
+		height: 100%;
+		min-height: 100%;
+		align-content: space-between;
+	}
 }
 
 @media (min-width: 1200px) and (max-width: 1599px) {

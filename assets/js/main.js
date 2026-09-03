@@ -3192,16 +3192,7 @@
 			if (isVenuesMobile() && venuesMobilePinInitialized) {
 				return;
 			}
-			const preservePinLayout =
-				venuesSection.classList.contains("is-viewport-fitted") &&
-				venuesPin.style.height &&
-				venuesPin.style.height !== "auto";
-			if (!preservePinLayout) {
-				venuesPin.style.height = "auto";
-			}
-			if (preservePinLayout) {
-				venuesSection.style.visibility = "hidden";
-			}
+			venuesPin.style.height = "auto";
 			clearVenuesViewportFit();
 			void venuesSection.offsetHeight;
 			const pad = venuesPin.querySelector(".venues-section__scroll-pad");
@@ -3238,9 +3229,6 @@
 
 			const holdPx = Math.round(viewportH * 1);
 			venuesPin.style.height = `${padH + displayH + holdPx}px`;
-			if (preservePinLayout) {
-				venuesSection.style.visibility = "";
-			}
 			if (isVenuesMobile()) {
 				venuesMobilePinInitialized = true;
 			}
@@ -3336,7 +3324,11 @@
 				(entries) => {
 					const inView = entries.some((entry) => entry.isIntersecting);
 					if (inView && !venuesPinInView) {
-						scheduleVenuesPinSync();
+						if (isVenuesMobile() && venuesMobilePinInitialized) {
+							syncVenuesPinnedState();
+						} else {
+							scheduleVenuesPinSync();
+						}
 					}
 					venuesPinInView = inView;
 				},
@@ -3366,7 +3358,13 @@
 		}
 		scheduleVenuesPinSync();
 		window.addEventListener("load", scheduleVenuesPinSync);
-		window.addEventListener("excel-ent:header-state-change", scheduleVenuesPinSync);
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (isVenuesMobile() && venuesMobilePinInitialized) {
+				syncVenuesPinnedState();
+				return;
+			}
+			scheduleVenuesPinSync();
+		});
 		document.addEventListener("excel-ent:ready", scheduleVenuesPinSync);
 		if (window.visualViewport) {
 			window.visualViewport.addEventListener("resize", () => {
@@ -3378,9 +3376,15 @@
 			});
 		}
 		if (document.fonts?.ready) {
-			document.fonts.ready.then(scheduleVenuesPinSync);
+			document.fonts.ready.then(() => {
+				if (isVenuesMobile() && venuesMobilePinInitialized) return;
+				scheduleVenuesPinSync();
+			});
 		}
-		window.setTimeout(scheduleVenuesPinSync, 250);
+		window.setTimeout(() => {
+			if (isVenuesMobile() && venuesMobilePinInitialized) return;
+			scheduleVenuesPinSync();
+		}, 250);
 	}
 
 	/* ---------- About value sticky pin ---------- */
@@ -4103,7 +4107,7 @@
 
 		const clearAboutApproachViewportFit = () => {
 			[aboutApproachSticky, aboutApproachUnit].filter(Boolean).forEach((el) => {
-				el.classList.remove("is-viewport-fitted", "is-mobile-fill", "is-pinned");
+				el.classList.remove("is-viewport-fitted", "is-viewport-filled", "is-mobile-fill", "is-pinned");
 				el.style.removeProperty("height");
 				el.style.removeProperty("--ee-about-approach-available-height");
 				el.style.removeProperty("--ee-about-approach-viewport-height");
@@ -4128,6 +4132,24 @@
 			const headerEl = document.querySelector(".site-header");
 			return headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 0;
 		};
+
+		const getAboutApproachCompactStickyTop = () => {
+			const headerEl = document.querySelector(".site-header");
+			if (!headerEl) return 0;
+			if (headerEl.classList.contains("is-scrolled")) {
+				return Math.ceil(headerEl.getBoundingClientRect().height);
+			}
+			const bar = headerEl.querySelector(".site-header__bar");
+			const inner = headerEl.querySelector(".site-header__inner");
+			const padY = inner
+				? (parseFloat(getComputedStyle(inner).paddingTop) || 0) +
+				  (parseFloat(getComputedStyle(inner).paddingBottom) || 0)
+				: 0;
+			return Math.max(Math.ceil((bar?.getBoundingClientRect().height || 0) + padY), 1);
+		};
+
+		const getAboutApproachFillStickyTop = () =>
+			aboutApproachPinDesktopMq.matches ? getAboutApproachCompactStickyTop() : getAboutApproachStickyTop();
 
 		const getAboutApproachAvailableHeight = () =>
 			getAboutMobileAvailableHeight(getAboutApproachStickyTop());
@@ -4186,6 +4208,12 @@
 		const getAboutApproachMobileHoldHeight = (viewportHeight) =>
 			Math.round(viewportHeight);
 
+		const forceAboutApproachReveals = () => {
+			aboutApproachSticky.querySelectorAll(".reveal:not(.is-visible), [data-reveal]:not(.is-visible)").forEach((el) => {
+				el.classList.add("is-visible", "in");
+			});
+		};
+
 		const syncAboutApproachDesktopPin = () => {
 			if (!aboutApproachPin || !aboutApproachPinDesktopMq.matches) {
 				return;
@@ -4197,7 +4225,7 @@
 			const pad = aboutApproachPin.querySelector(".about-approach__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
 			const sectionH = Math.ceil(aboutApproachSticky.getBoundingClientRect().height);
-			const stickyTop = getAboutApproachStickyTop();
+			const stickyTop = getAboutApproachFillStickyTop();
 			const availableH = Math.max(window.innerHeight - stickyTop, 0);
 			const fitScale = aboutApproachFitDesktopMq.matches
 				? Math.min(1, availableH / Math.max(sectionH, 1))
@@ -4219,7 +4247,17 @@
 					displaySectionHeight: Math.ceil(sectionH * fitScale),
 					pinHeight: padH + Math.ceil(sectionH * fitScale) + Math.round(window.innerHeight),
 				});
+				forceAboutApproachReveals();
 				return;
+			}
+
+			if (availableH > sectionH) {
+				aboutApproachSticky.classList.add("is-viewport-fitted", "is-viewport-filled");
+				aboutApproachSticky.style.setProperty(
+					"--ee-about-approach-viewport-height",
+					`${availableH}px`
+				);
+				forceAboutApproachReveals();
 			}
 
 			const holdPx = Math.round(window.innerHeight);
@@ -4298,6 +4336,9 @@
 				pinRect.bottom >
 					stickyTop + Math.min(sectionRect.height, viewportHeight - stickyTop) + 4;
 			stickyEl.classList.toggle("is-pinned", pinned);
+			if (pinned) {
+				forceAboutApproachReveals();
+			}
 		};
 
 		const refreshAboutApproachPin = () => {
@@ -4391,6 +4432,18 @@
 			resetAboutApproachMobilePin,
 			refreshAboutApproachPinLayout
 		);
+
+		if (typeof IntersectionObserver === "function" && aboutApproachPin) {
+			const approachPinObserver = new IntersectionObserver(
+				(entries) => {
+					if (entries.some((e) => e.isIntersecting)) {
+						refreshAboutApproachPinLayout();
+					}
+				},
+				{ threshold: 0 }
+			);
+			approachPinObserver.observe(aboutApproachPin);
+		}
 
 		aboutApproachSticky.querySelectorAll("img").forEach((img) => {
 			if (img.complete) {
@@ -8842,11 +8895,13 @@
 
 		const expandPackageCard = (card) => {
 			const panel = card.closest("[data-package-panel]");
-			panel?.querySelectorAll("[data-package-card].is-expanded").forEach((item) => {
-				if (item !== card) {
-					collapsePackageCard(item);
-				}
-			});
+			if (!isPackageDesktopExpandMode()) {
+				panel?.querySelectorAll("[data-package-card].is-expanded").forEach((item) => {
+					if (item !== card) {
+						collapsePackageCard(item);
+					}
+				});
+			}
 			clearPackageIntroViewportFit();
 			const introHeight = Math.ceil(packageTabs.offsetHeight);
 			setPackageCardExpanded(card, true);
@@ -12112,12 +12167,55 @@
 		const swapMs = reduced ? 0 : 680;
 		const pinMq = window.matchMedia("(min-width: 320px)");
 		const fitMq = window.matchMedia("(min-width: 320px)");
+		const servicesFillMq = window.matchMedia("(min-width: 768px)");
 		let busy = false;
 		let pending = null;
 		let activeId = featured?.getAttribute("data-service-id") || "";
 		let servicesMobilePinInitialized = false;
+		let servicesWasPinned = false;
+		let lastServicesFillStickyTop = -1;
+		let servicesPinSyncQueued = false;
 
 		const isServicesMobile = () => window.innerWidth <= 767;
+
+		const isServicesFrontDesktop = () =>
+			servicesFillMq.matches &&
+			(document.body.classList.contains("home") ||
+				document.body.classList.contains("front-page"));
+
+		const getServicesCompactStickyTop = () => {
+			const headerEl = document.querySelector(".site-header");
+			if (!headerEl) {
+				return 0;
+			}
+			if (headerEl.classList.contains("is-scrolled")) {
+				return Math.ceil(headerEl.getBoundingClientRect().height);
+			}
+			const bar = headerEl.querySelector(".site-header__bar");
+			const inner = headerEl.querySelector(".site-header__inner");
+			const padY = inner
+				? (parseFloat(getComputedStyle(inner).paddingTop) || 0) +
+				  (parseFloat(getComputedStyle(inner).paddingBottom) || 0)
+				: 0;
+			return Math.max(Math.ceil((bar?.getBoundingClientRect().height || 0) + padY), 1);
+		};
+
+		const getServicesFillStickyTop = () => {
+			if (isServicesFrontDesktop()) {
+				return getServicesCompactStickyTop();
+			}
+			return parseFloat(getComputedStyle(servicesSwap).getPropertyValue("--ee-services-sticky-top")) || 0;
+		};
+
+		const clearServicesViewportFit = () => {
+			servicesSwap.classList.remove("is-viewport-fitted", "is-viewport-filled");
+			servicesSwap.style.removeProperty("height");
+			servicesSwap.style.removeProperty("visibility");
+			servicesSwap.style.removeProperty("--ee-services-viewport-height");
+			servicesSwap.style.removeProperty("--ee-services-fit-scale");
+			servicesSwap.style.removeProperty("--ee-services-fit-pad-top");
+			servicesSwap.style.removeProperty("--ee-services-fit-pad-bottom");
+		};
 
 		const syncServicesPin = () => {
 			if (!servicesPin) {
@@ -12126,13 +12224,8 @@
 			if (!pinMq.matches) {
 				servicesMobilePinInitialized = false;
 				servicesPin.style.height = "";
-				servicesSwap.classList.remove("is-pinned", "is-viewport-fitted");
-				servicesSwap.style.removeProperty("height");
-				servicesSwap.style.removeProperty("visibility");
-				servicesSwap.style.removeProperty("--ee-services-viewport-height");
-				servicesSwap.style.removeProperty("--ee-services-fit-scale");
-				servicesSwap.style.removeProperty("--ee-services-fit-pad-top");
-				servicesSwap.style.removeProperty("--ee-services-fit-pad-bottom");
+				servicesSwap.classList.remove("is-pinned");
+				clearServicesViewportFit();
 				return;
 			}
 			if (!isServicesMobile()) {
@@ -12151,44 +12244,70 @@
 			if (preservePinLayout) {
 				servicesSwap.style.visibility = "hidden";
 			}
-			servicesSwap.classList.remove("is-viewport-fitted");
-			servicesSwap.style.removeProperty("height");
-			servicesSwap.style.removeProperty("--ee-services-viewport-height");
-			servicesSwap.style.removeProperty("--ee-services-fit-scale");
-			servicesSwap.style.removeProperty("--ee-services-fit-pad-top");
-			servicesSwap.style.removeProperty("--ee-services-fit-pad-bottom");
+			clearServicesViewportFit();
+			void servicesSwap.offsetHeight;
 			const pad = servicesPin.querySelector(".services-section__scroll-pad");
 			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-			const sectionH = Math.ceil(servicesSwap.getBoundingClientRect().height);
-			const stickyTop =
-				parseFloat(getComputedStyle(servicesSwap).getPropertyValue("--ee-services-sticky-top")) || 0;
+			const inner = servicesSwap.querySelector(".services-section__inner");
+			const styles = getComputedStyle(servicesSwap);
+			const padTop = parseFloat(styles.paddingTop) || 0;
+			const padBottom = parseFloat(styles.paddingBottom) || 0;
+			const innerH = inner
+				? Math.ceil(inner.getBoundingClientRect().height)
+				: Math.ceil(servicesSwap.scrollHeight);
+			const sectionH = innerH + padTop + padBottom;
+			const stickyTop = getServicesFillStickyTop();
 			const viewportH = window.visualViewport?.height ?? window.innerHeight;
 			const availableH = Math.max(viewportH - stickyTop, 0);
 			const fitScale = fitMq.matches ? Math.min(1, availableH / Math.max(sectionH, 1)) : 1;
-			if (fitScale < 1) {
-				const styles = getComputedStyle(servicesSwap);
-				const padTop = parseFloat(styles.paddingTop) || 0;
-				const padBottom = parseFloat(styles.paddingBottom) || 0;
+			let displayH = sectionH * fitScale;
+
+			if (availableH > 0 && fitScale < 0.999) {
 				servicesSwap.style.setProperty("--ee-services-viewport-height", `${availableH}px`);
 				servicesSwap.style.setProperty("--ee-services-fit-scale", String(fitScale));
 				servicesSwap.style.setProperty("--ee-services-fit-pad-top", `${padTop * fitScale}px`);
 				servicesSwap.style.setProperty("--ee-services-fit-pad-bottom", `${padBottom * fitScale}px`);
 				servicesSwap.classList.add("is-viewport-fitted");
+				displayH = availableH;
+			} else if (servicesFillMq.matches && availableH > sectionH) {
+				servicesSwap.style.setProperty("--ee-services-viewport-height", `${availableH}px`);
+				servicesSwap.style.setProperty("--ee-services-fit-scale", "1");
+				servicesSwap.style.setProperty("--ee-services-fit-pad-top", `${padTop}px`);
+				servicesSwap.style.setProperty("--ee-services-fit-pad-bottom", `${padBottom}px`);
+				servicesSwap.classList.add("is-viewport-fitted", "is-viewport-filled");
+				displayH = availableH;
 			}
+
 			const holdPx = Math.round(viewportH * 1);
-			servicesPin.style.height = `${padH + (sectionH * fitScale) + holdPx}px`;
+			servicesPin.style.height = `${padH + displayH + holdPx}px`;
 			if (preservePinLayout) {
 				servicesSwap.style.visibility = "";
 			}
 			if (isServicesMobile()) {
 				servicesMobilePinInitialized = true;
 			}
+			lastServicesFillStickyTop = stickyTop;
+		};
+
+		const scheduleServicesPinSync = () => {
+			if (servicesPinSyncQueued) {
+				return;
+			}
+			servicesPinSyncQueued = true;
+			window.requestAnimationFrame(() => {
+				window.requestAnimationFrame(() => {
+					servicesPinSyncQueued = false;
+					syncServicesPin();
+					syncServicesPinnedState();
+					servicesWasPinned = servicesSwap.classList.contains("is-pinned");
+				});
+			});
 		};
 
 		const syncServicesPinnedState = () => {
 			if (!servicesPin || !pinMq.matches) {
 				servicesSwap.classList.remove("is-pinned");
-				return;
+				return false;
 			}
 			const stickyTop =
 				parseFloat(getComputedStyle(servicesSwap).getPropertyValue("--ee-services-sticky-top")) || 0;
@@ -12198,17 +12317,29 @@
 				rect.top <= stickyTop + 1.5 &&
 				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
 			servicesSwap.classList.toggle("is-pinned", pinned);
+			return pinned;
+		};
+
+		const onServicesScroll = () => {
+			const pinned = syncServicesPinnedState();
+			if (!servicesFillMq.matches) {
+				return;
+			}
+			const fillStickyTop = getServicesFillStickyTop();
+			const stickyChanged = Math.abs(fillStickyTop - lastServicesFillStickyTop) > 1;
+			const pinnedChanged = pinned !== servicesWasPinned;
+			if (stickyChanged || pinnedChanged) {
+				servicesWasPinned = pinned;
+				scheduleServicesPinSync();
+			}
 		};
 
 		const remountServicesPin = () => {
-			window.requestAnimationFrame(() => {
-				if (isServicesMobile() && servicesMobilePinInitialized) {
-					syncServicesPinnedState();
-					return;
-				}
-				syncServicesPin();
+			if (isServicesMobile() && servicesMobilePinInitialized) {
 				syncServicesPinnedState();
-			});
+				return;
+			}
+			scheduleServicesPinSync();
 		};
 		const readData = (el) => ({
 			id: el.getAttribute("data-service-id") || "",
@@ -12425,83 +12556,72 @@
 		});
 
 		if (lenis) {
-			lenis.on("scroll", syncServicesPinnedState);
+			lenis.on("scroll", onServicesScroll);
 		} else {
-			window.addEventListener("scroll", syncServicesPinnedState, { passive: true });
+			window.addEventListener("scroll", onServicesScroll, { passive: true });
+		}
+		if (typeof IntersectionObserver === "function" && servicesPin) {
+			let servicesPinInView = false;
+			const servicesPinObserver = new IntersectionObserver(
+				(entries) => {
+					const inView = entries.some((entry) => entry.isIntersecting);
+					if (inView && !servicesPinInView) {
+						scheduleServicesPinSync();
+					}
+					servicesPinInView = inView;
+				},
+				{ threshold: [0, 0.12] }
+			);
+			servicesPinObserver.observe(servicesPin);
 		}
 		window.addEventListener("resize", () => {
 			servicesMobilePinInitialized = false;
-			syncServicesPin();
-			syncServicesPinnedState();
+			scheduleServicesPinSync();
 		});
 		if (typeof pinMq.addEventListener === "function") {
 			pinMq.addEventListener("change", () => {
 				servicesMobilePinInitialized = false;
-				syncServicesPin();
-				syncServicesPinnedState();
+				scheduleServicesPinSync();
 			});
 		} else if (typeof pinMq.addListener === "function") {
 			pinMq.addListener(() => {
 				servicesMobilePinInitialized = false;
-				syncServicesPin();
-				syncServicesPinnedState();
+				scheduleServicesPinSync();
 			});
 		}
 		if (typeof fitMq.addEventListener === "function") {
 			fitMq.addEventListener("change", () => {
 				servicesMobilePinInitialized = false;
-				syncServicesPin();
-				syncServicesPinnedState();
+				scheduleServicesPinSync();
 			});
 		} else if (typeof fitMq.addListener === "function") {
 			fitMq.addListener(() => {
 				servicesMobilePinInitialized = false;
-				syncServicesPin();
-				syncServicesPinnedState();
+				scheduleServicesPinSync();
 			});
 		}
-		window.requestAnimationFrame(() => {
-			syncServicesPin();
-			syncServicesPinnedState();
-		});
-		window.addEventListener("load", () => {
-			if (!servicesMobilePinInitialized) {
-				syncServicesPin();
-			}
-			syncServicesPinnedState();
-		});
-		window.addEventListener("excel-ent:header-state-change", () => {
-			if (isServicesMobile() && servicesMobilePinInitialized) {
-				syncServicesPinnedState();
-				return;
-			}
-			syncServicesPin();
-			syncServicesPinnedState();
-		});
+		if (typeof servicesFillMq.addEventListener === "function") {
+			servicesFillMq.addEventListener("change", scheduleServicesPinSync);
+		} else if (typeof servicesFillMq.addListener === "function") {
+			servicesFillMq.addListener(scheduleServicesPinSync);
+		}
+		scheduleServicesPinSync();
+		window.addEventListener("load", scheduleServicesPinSync);
+		window.addEventListener("excel-ent:header-state-change", scheduleServicesPinSync);
+		document.addEventListener("excel-ent:ready", scheduleServicesPinSync);
 		if (window.visualViewport) {
 			window.visualViewport.addEventListener("resize", () => {
 				if (isServicesMobile() && servicesMobilePinInitialized) {
 					syncServicesPinnedState();
 					return;
 				}
-				syncServicesPin();
-				syncServicesPinnedState();
+				scheduleServicesPinSync();
 			});
 		}
 		if (document.fonts?.ready) {
-			document.fonts.ready.then(() => {
-				if (!servicesMobilePinInitialized) {
-					syncServicesPin();
-				}
-				syncServicesPinnedState();
-			});
+			document.fonts.ready.then(scheduleServicesPinSync);
 		}
-		window.setTimeout(() => {
-			if (!servicesMobilePinInitialized) {
-				syncServicesPin();
-			}
-			syncServicesPinnedState();
-		}, 250);
+		window.setTimeout(scheduleServicesPinSync, 250);
 	}
 })();
 
