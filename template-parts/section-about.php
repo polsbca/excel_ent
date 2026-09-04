@@ -199,7 +199,8 @@ $excel_ent_google_reviews = 'https://www.google.com/search?q=Excel+Entertainment
 							width="851"
 							height="692"
 							decoding="async"
-							loading="lazy"
+							loading="eager"
+							fetchpriority="high"
 						>
 					</div>
 					<div class="about-value__copy reveal" data-reveal>
