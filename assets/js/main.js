@@ -2530,12 +2530,22 @@
 		const pinMq = window.matchMedia("(min-width: 320px)");
 		/* Desktop sticky sections should always occupy the remaining viewport. */
 		const excelWayFillMq = window.matchMedia("(min-width: 768px)");
+		const excelWayMobileMq = window.matchMedia("(max-width: 767px)");
 		let excelWayWasPinned = false;
 		let lastExcelWayFillStickyTop = -1;
 		let excelWayPinSyncQueued = false;
+		let excelWayMobileFitLocked = false;
+		let excelWayMobileFitWidth = window.innerWidth;
+		let excelWayMobileStickyTop = 0;
+		let excelWayMobileStickyWidth = -1;
 
 		const isExcelWayFrontDesktop = () =>
 			excelWayFillMq.matches &&
+			(document.body.classList.contains("home") ||
+				document.body.classList.contains("front-page"));
+
+		const isExcelWayFrontMobile = () =>
+			excelWayMobileMq.matches &&
 			(document.body.classList.contains("home") ||
 				document.body.classList.contains("front-page"));
 
@@ -2571,8 +2581,43 @@
 			return Math.max(Math.ceil((bar?.getBoundingClientRect().height || 0) + padY), 1);
 		};
 
-		const getExcelWayFillStickyTop = () =>
-			isExcelWayFrontDesktop() ? getExcelWayCompactStickyTop() : getExcelWayStickyTop();
+		const getExcelWayMobileFrozenStickyTop = () => {
+			const width = window.innerWidth;
+			if (excelWayMobileStickyTop > 0 && width === excelWayMobileStickyWidth) {
+				return excelWayMobileStickyTop;
+			}
+			excelWayMobileStickyWidth = width;
+			excelWayMobileStickyTop = getExcelWayCompactStickyTop();
+			excelWay.style.setProperty(
+				"--ee-excel-way-sticky-top",
+				`${excelWayMobileStickyTop}px`
+			);
+			if (excelWayPin) {
+				excelWayPin.style.setProperty(
+					"--ee-excel-way-sticky-top",
+					`${excelWayMobileStickyTop}px`
+				);
+			}
+			return excelWayMobileStickyTop;
+		};
+
+		const getExcelWayFillStickyTop = () => {
+			if (isExcelWayFrontMobile()) {
+				return getExcelWayMobileFrozenStickyTop();
+			}
+			return isExcelWayFrontDesktop()
+				? getExcelWayCompactStickyTop()
+				: getExcelWayStickyTop();
+		};
+
+		const getExcelWayViewportHeight = () => {
+			const inner = window.innerHeight;
+			if (!excelWayMobileMq.matches) {
+				return window.visualViewport?.height || inner;
+			}
+			const visual = window.visualViewport?.height;
+			return visual ? Math.round(Math.min(visual, inner)) : inner;
+		};
 
 		const measureExcelWayNaturalHeight = () => {
 			const inner = excelWay.querySelector(".excel-way__inner");
@@ -2580,18 +2625,70 @@
 			const padTop = parseFloat(styles.paddingTop) || 0;
 			const padBottom = parseFloat(styles.paddingBottom) || 0;
 			const innerH = inner
-				? Math.ceil(inner.getBoundingClientRect().height)
+				? Math.ceil(inner.scrollHeight || inner.getBoundingClientRect().height)
 				: Math.ceil(excelWay.scrollHeight);
-			return innerH + padTop + padBottom;
+			return {
+				sectionH: innerH + Math.ceil(padTop) + Math.ceil(padBottom),
+				padTop,
+				padBottom,
+			};
 		};
 
 		const clearExcelWayViewportFit = () => {
 			excelWay.classList.remove("is-viewport-fitted", "is-viewport-filled");
 			excelWay.style.removeProperty("height");
+			excelWay.style.removeProperty("visibility");
 			excelWay.style.removeProperty("--ee-excel-way-viewport-height");
 			excelWay.style.removeProperty("--ee-excel-way-fit-scale");
 			excelWay.style.removeProperty("--ee-excel-way-fit-pad-top");
 			excelWay.style.removeProperty("--ee-excel-way-fit-pad-bottom");
+		};
+
+		const resetExcelWayMobilePin = () => {
+			excelWayMobileFitLocked = false;
+			excelWayMobileFitWidth = window.innerWidth;
+			excelWayMobileStickyTop = 0;
+			excelWayMobileStickyWidth = -1;
+		};
+
+		const applyExcelWayViewportFit = ({
+			availableH,
+			fitScale,
+			padTop,
+			padBottom,
+			useFit,
+			useFill,
+			padH,
+			holdPx,
+			naturalH,
+		}) => {
+			clearExcelWayViewportFit();
+			excelWay.style.setProperty("--ee-excel-way-fit-scale", String(fitScale || 1));
+
+			if (useFit || useFill) {
+				excelWay.style.setProperty("--ee-excel-way-viewport-height", `${availableH}px`);
+				excelWay.style.setProperty(
+					"--ee-excel-way-fit-pad-top",
+					`${padTop * fitScale}px`
+				);
+				excelWay.style.setProperty(
+					"--ee-excel-way-fit-pad-bottom",
+					`${padBottom * fitScale}px`
+				);
+				excelWay.classList.add("is-viewport-fitted");
+				if (useFill) {
+					excelWay.classList.add("is-viewport-filled");
+				}
+				excelWay
+					.querySelectorAll(".reveal:not(.is-visible), [data-reveal]:not(.is-visible)")
+					.forEach((el) => {
+						el.classList.add("is-visible", "in");
+					});
+			}
+
+			const displayH = useFit || useFill ? availableH : Math.ceil(naturalH || availableH);
+			excelWayPin.style.height = `${padH + displayH + holdPx}px`;
+			lastExcelWayFillStickyTop = getExcelWayFillStickyTop();
 		};
 
 		const syncExcelWayPin = () => {
@@ -2602,63 +2699,110 @@
 				excelWayPin.style.height = "";
 				excelWay.classList.remove("is-pinned");
 				clearExcelWayViewportFit();
+				resetExcelWayMobilePin();
 				return;
 			}
+
+			const isMobile = excelWayMobileMq.matches;
+			const viewportWidth = window.innerWidth;
+			if (
+				isMobile &&
+				excelWayMobileFitLocked &&
+				Math.abs(viewportWidth - excelWayMobileFitWidth) > 80
+			) {
+				resetExcelWayMobilePin();
+			}
+
+			/*
+			 * Mobile: keep pin height locked after first measure so URL-bar /
+			 * visualViewport height flicker cannot reflow and jerk the sticky unit.
+			 * Tab changes still remeasure fonts against the frozen available height.
+			 */
+			const stickyTop = getExcelWayFillStickyTop();
+			const viewportH = getExcelWayViewportHeight();
+			const availableH = Math.max(viewportH - stickyTop, 0);
+			const holdPx = Math.round(viewportH);
+			const pad = excelWayPin.querySelector(".excel-way__scroll-pad");
+			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
+
 			const preservePinLayout =
+				isMobile &&
+				excelWayMobileFitLocked &&
 				excelWay.classList.contains("is-viewport-fitted") &&
 				excelWayPin.style.height &&
 				excelWayPin.style.height !== "auto";
+
 			if (!preservePinLayout) {
 				excelWayPin.style.height = "auto";
 			}
 			if (preservePinLayout) {
-				/*
-				 * Measure the newly selected panel without allowing its natural
-				 * height to change the document flow. On a real mobile device,
-				 * that change can trigger scroll anchoring and visibly jerk the
-				 * sticky section.
-				 */
 				excelWay.style.visibility = "hidden";
 			}
-			clearExcelWayViewportFit();
-			void excelWay.offsetHeight;
-			const pad = excelWayPin.querySelector(".excel-way__scroll-pad");
-			const padH = pad ? Math.ceil(pad.getBoundingClientRect().height) : 0;
-			const sectionH = measureExcelWayNaturalHeight();
-			const stickyTop = getExcelWayFillStickyTop();
-			const viewportH = window.visualViewport?.height ?? window.innerHeight;
-			const availableH = Math.max(viewportH - stickyTop, 0);
-			const fitScale = Math.min(1, availableH / Math.max(sectionH, 1));
-			const styles = getComputedStyle(excelWay);
-			const padTop = parseFloat(styles.paddingTop) || 0;
-			const padBottom = parseFloat(styles.paddingBottom) || 0;
-			let displayH = sectionH * fitScale;
 
-			if (availableH > 0 && fitScale < 0.999) {
-				/* Content taller than viewport — scale down to fit. */
-				excelWay.style.setProperty("--ee-excel-way-viewport-height", `${availableH}px`);
-				excelWay.style.setProperty("--ee-excel-way-fit-scale", String(fitScale));
-				excelWay.style.setProperty("--ee-excel-way-fit-pad-top", `${padTop * fitScale}px`);
-				excelWay.style.setProperty("--ee-excel-way-fit-pad-bottom", `${padBottom * fitScale}px`);
-				excelWay.classList.add("is-viewport-fitted");
-				displayH = availableH;
-			} else if (excelWayFillMq.matches && availableH > sectionH + 1) {
-				/*
-				 * Content shorter than the remaining viewport — expand the sticky
-				 * frame so desktop doesn't leave a dead black band under the CTA.
-				 */
-				excelWay.style.setProperty("--ee-excel-way-viewport-height", `${availableH}px`);
-				excelWay.style.setProperty("--ee-excel-way-fit-scale", "1");
-				excelWay.style.setProperty("--ee-excel-way-fit-pad-top", `${padTop}px`);
-				excelWay.style.setProperty("--ee-excel-way-fit-pad-bottom", `${padBottom}px`);
-				excelWay.classList.add("is-viewport-fitted", "is-viewport-filled");
-				displayH = availableH;
+			clearExcelWayViewportFit();
+			excelWay.style.setProperty("--ee-excel-way-fit-scale", "1");
+			void excelWay.offsetHeight;
+
+			const { sectionH, padTop, padBottom } = measureExcelWayNaturalHeight();
+			/*
+			 * Scale fonts/spacing to the available viewport (down or up, capped).
+			 * Scale > 1 fills short content on tall phones; scale < 1 prevents clip.
+			 */
+			const rawScale = (availableH - 2) / Math.max(sectionH, 1);
+			let fitScale = Math.min(1.18, Math.max(0.55, rawScale));
+			if (Math.abs(fitScale - 1) < 0.01) {
+				fitScale = 1;
+			}
+			const useFit = availableH > 0 && fitScale < 0.999;
+			const useFill =
+				availableH > 0 &&
+				fitScale >= 0.999 &&
+				(isMobile || excelWayFillMq.matches) &&
+				availableH > sectionH + 1;
+			const useScaleUp =
+				isMobile && availableH > 0 && fitScale > 1.01 && availableH > sectionH + 1;
+
+			let next = {
+				availableH,
+				fitScale: useFit || useScaleUp ? fitScale : 1,
+				padTop,
+				padBottom,
+				useFit: useFit || useScaleUp || useFill,
+				useFill: useFill || useScaleUp,
+				padH,
+				holdPx,
+				naturalH: sectionH,
+			};
+			applyExcelWayViewportFit(next);
+
+			/* Refine after font calc() reflow if still overflowing. */
+			if ((useFit || useScaleUp) && isMobile) {
+				void excelWay.offsetHeight;
+				const h2 = measureExcelWayNaturalHeight().sectionH;
+				if (h2 > availableH + 2) {
+					const refined = Math.max(
+						0.55,
+						next.fitScale * ((availableH - 2) / h2)
+					);
+					next = {
+						...next,
+						fitScale: refined,
+						useFit: true,
+						useFill: false,
+					};
+					applyExcelWayViewportFit(next);
+				}
 			}
 
-			const holdPx = Math.round(viewportH * 1);
-			excelWayPin.style.height = `${padH + displayH + holdPx}px`;
 			if (preservePinLayout) {
 				excelWay.style.visibility = "";
+				/* Keep pin at the already-locked height to avoid scroll jerk. */
+				excelWayPin.style.height = `${padH + availableH + holdPx}px`;
+			}
+
+			if (isMobile && !excelWayMobileFitLocked) {
+				excelWayMobileFitLocked = true;
+				excelWayMobileFitWidth = viewportWidth;
 			}
 			lastExcelWayFillStickyTop = stickyTop;
 		};
@@ -2683,20 +2827,21 @@
 				excelWay.classList.remove("is-pinned");
 				return false;
 			}
-			const stickyTop =
-				parseFloat(getComputedStyle(excelWay).getPropertyValue("--ee-excel-way-sticky-top")) || 0;
+			const stickyTop = getExcelWayFillStickyTop();
 			const rect = excelWay.getBoundingClientRect();
 			const pinRect = excelWayPin.getBoundingClientRect();
+			const viewportH = getExcelWayViewportHeight();
 			const pinned =
 				rect.top <= stickyTop + 1.5 &&
-				pinRect.bottom > stickyTop + Math.min(rect.height, window.innerHeight - stickyTop) + 4;
+				pinRect.bottom >
+					stickyTop + Math.min(rect.height, viewportH - stickyTop) + 4;
 			excelWay.classList.toggle("is-pinned", pinned);
 			return pinned;
 		};
 
 		const onExcelWayScroll = () => {
 			const pinned = syncExcelWayPinnedState();
-			if (!excelWayFillMq.matches) {
+			if (excelWayMobileMq.matches) {
 				return;
 			}
 			const fillStickyTop = getExcelWayFillStickyTop();
@@ -2843,23 +2988,68 @@
 			);
 			revealObserver.observe(item);
 		});
-		window.addEventListener("resize", scheduleExcelWayPinSync);
+		window.addEventListener("resize", () => {
+			if (
+				excelWayMobileMq.matches &&
+				excelWayMobileFitLocked &&
+				window.innerWidth === excelWayMobileFitWidth
+			) {
+				syncExcelWayPinnedState();
+				return;
+			}
+			if (
+				excelWayMobileMq.matches &&
+				excelWayMobileFitLocked &&
+				Math.abs(window.innerWidth - excelWayMobileFitWidth) > 80
+			) {
+				resetExcelWayMobilePin();
+			}
+			scheduleExcelWayPinSync();
+		});
 		if (typeof pinMq.addEventListener === "function") {
-			pinMq.addEventListener("change", scheduleExcelWayPinSync);
+			pinMq.addEventListener("change", () => {
+				resetExcelWayMobilePin();
+				scheduleExcelWayPinSync();
+			});
 		} else if (typeof pinMq.addListener === "function") {
-			pinMq.addListener(scheduleExcelWayPinSync);
+			pinMq.addListener(() => {
+				resetExcelWayMobilePin();
+				scheduleExcelWayPinSync();
+			});
 		}
 		if (typeof excelWayFillMq.addEventListener === "function") {
-			excelWayFillMq.addEventListener("change", scheduleExcelWayPinSync);
+			excelWayFillMq.addEventListener("change", () => {
+				resetExcelWayMobilePin();
+				scheduleExcelWayPinSync();
+			});
 		} else if (typeof excelWayFillMq.addListener === "function") {
-			excelWayFillMq.addListener(scheduleExcelWayPinSync);
+			excelWayFillMq.addListener(() => {
+				resetExcelWayMobilePin();
+				scheduleExcelWayPinSync();
+			});
 		}
 		scheduleExcelWayPinSync();
 		window.addEventListener("load", scheduleExcelWayPinSync);
-		window.addEventListener("excel-ent:header-state-change", scheduleExcelWayPinSync);
+		window.addEventListener("excel-ent:header-state-change", () => {
+			if (excelWayMobileMq.matches && excelWayMobileFitLocked) {
+				syncExcelWayPinnedState();
+				return;
+			}
+			scheduleExcelWayPinSync();
+		});
 		document.addEventListener("excel-ent:ready", scheduleExcelWayPinSync);
 		if (window.visualViewport) {
-			window.visualViewport.addEventListener("resize", scheduleExcelWayPinSync);
+			window.visualViewport.addEventListener("resize", () => {
+				/* Ignore mobile URL-bar height flicker — only relayout on real width changes. */
+				if (excelWayMobileMq.matches) {
+					if (Math.abs(window.innerWidth - excelWayMobileFitWidth) > 80) {
+						resetExcelWayMobilePin();
+						scheduleExcelWayPinSync();
+					}
+					return;
+				}
+				scheduleExcelWayPinSync();
+			});
 		}
 		if (document.fonts?.ready) {
 			document.fonts.ready.then(scheduleExcelWayPinSync);

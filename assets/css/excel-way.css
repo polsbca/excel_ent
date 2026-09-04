@@ -1707,13 +1707,14 @@
 		top: var(--ee-excel-way-sticky-top, 0px);
 		z-index: 4;
 		min-height: 0;
-		padding: 40px 0;
+		padding: calc(40px * var(--ee-excel-way-fit-scale, 1)) 0;
 		box-sizing: border-box;
 	}
 
 	.excel-way.is-viewport-fitted {
 		height: var(--ee-excel-way-viewport-height);
-		min-height: 0;
+		min-height: var(--ee-excel-way-viewport-height);
+		max-height: var(--ee-excel-way-viewport-height);
 		padding-top: var(--ee-excel-way-fit-pad-top);
 		padding-bottom: var(--ee-excel-way-fit-pad-bottom);
 		overflow-x: clip;
@@ -1721,13 +1722,42 @@
 	}
 
 	.excel-way.is-viewport-fitted .excel-way__inner {
-		width: calc(100% / var(--ee-excel-way-fit-scale));
-		transform: scale(var(--ee-excel-way-fit-scale));
-		transform-origin: top left;
+		width: 100%;
+		max-width: 100%;
+		transform: none;
+		height: auto;
+	}
+
+	.excel-way.is-viewport-filled .excel-way__inner {
+		height: 100%;
+		min-height: 100%;
+		justify-content: space-between;
+	}
+
+	.excel-way.is-viewport-filled .excel-way__accordion {
+		flex: 1 1 auto;
+		min-height: 0;
+		justify-content: flex-start;
+	}
+
+	.excel-way.is-viewport-filled .excel-way-accordion__item.is-open .excel-way-accordion__body {
+		flex: 1 1 auto;
+	}
+
+	.excel-way.is-viewport-filled .excel-way__panel:not(.is-hidden):not([hidden]) {
+		flex: 1 1 auto;
+		min-height: 0;
+		justify-content: space-between;
+	}
+
+	.excel-way.is-viewport-filled .excel-way__stack--how {
+		flex: 1 1 auto;
+		min-height: 0;
+		justify-content: space-between;
 	}
 
 	.excel-way__inner {
-		gap: 20px;
+		gap: calc(20px * var(--ee-excel-way-fit-scale, 1));
 		padding: 0;
 		align-items: stretch;
 	}
@@ -1741,8 +1771,8 @@
 
 	.excel-way__title {
 		max-width: none;
-		font-size: 32px;
-		line-height: 30px;
+		font-size: calc(32px * var(--ee-excel-way-fit-scale, 1));
+		line-height: calc(30px * var(--ee-excel-way-fit-scale, 1));
 		white-space: nowrap;
 	}
 
@@ -1775,18 +1805,18 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 10px;
+		gap: calc(10px * var(--ee-excel-way-fit-scale, 1));
 		width: 100%;
-		height: 51px;
-		min-height: 51px;
-		padding: 20px 14px;
+		height: calc(51px * var(--ee-excel-way-fit-scale, 1));
+		min-height: calc(51px * var(--ee-excel-way-fit-scale, 1));
+		padding: calc(20px * var(--ee-excel-way-fit-scale, 1)) calc(14px * var(--ee-excel-way-fit-scale, 1));
 		box-sizing: border-box;
 		border: 0;
 		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 		background: #000;
 		backdrop-filter: blur(40px);
 		-webkit-backdrop-filter: blur(40px);
-		font-size: 16px;
+		font-size: calc(16px * var(--ee-excel-way-fit-scale, 1));
 		font-weight: 800;
 		text-transform: uppercase;
 		color: #fff;
@@ -1829,19 +1859,19 @@
 
 	#excel-way-panel-cancellation {
 		gap: 0;
-		padding-bottom: 32px;
+		padding-bottom: calc(32px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	#excel-way-panel-cancellation .excel-way__steps--cancel {
-		margin-top: 24px;
+		margin-top: calc(24px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	#excel-way-panel-cancellation .excel-way__mobile-pagination {
-		margin-top: 14px;
+		margin-top: calc(14px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	#excel-way-panel-who-we-are {
-		padding-bottom: 32px;
+		padding-bottom: calc(32px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	#excel-way-panel-who-we-are .excel-way-notice--who {
@@ -1854,29 +1884,29 @@
 	}
 
 	#excel-way-panel-who-we-are .excel-way-about__intro {
-		margin-bottom: 24px;
+		margin-bottom: calc(24px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	#excel-way-panel-who-we-are .excel-way__mobile-pagination {
-		margin-top: 14px;
+		margin-top: calc(14px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way__stack--how {
 		display: flex;
 		flex-direction: column;
-		gap: 24px;
-		padding-bottom: 32px;
+		gap: calc(24px * var(--ee-excel-way-fit-scale, 1));
+		padding-bottom: calc(32px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way__stack--how > .excel-way__intro {
 		order: 0;
-		gap: 15px;
+		gap: calc(15px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way__stack--how > .excel-way__process {
 		display: flex;
 		flex-direction: column;
-		gap: 14px;
+		gap: calc(14px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way__stack--how .excel-way__lede {
@@ -1890,26 +1920,26 @@
 
 	.excel-way__intro,
 	.excel-way__intro--cancel {
-		gap: 15px;
+		gap: calc(15px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way__subtitle,
 	.excel-way__subtitle--cancel {
-		font-size: 24px;
+		font-size: calc(24px * var(--ee-excel-way-fit-scale, 1));
 		line-height: normal;
 		letter-spacing: 1px;
 	}
 
 	.excel-way__lede,
 	.excel-way__lede--cancel {
-		font-size: 14px;
+		font-size: calc(14px * var(--ee-excel-way-fit-scale, 1));
 		line-height: 1.5;
 		font-weight: 400;
 		letter-spacing: 0;
 	}
 
 	.excel-way__process {
-		gap: 14px;
+		gap: calc(14px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way__steps--mobile,
@@ -1919,8 +1949,8 @@
 		flex-direction: row;
 		flex-wrap: nowrap;
 		width: 100%;
-		height: 196px;
-		min-height: 196px;
+		height: calc(196px * var(--ee-excel-way-fit-scale, 1));
+		min-height: calc(196px * var(--ee-excel-way-fit-scale, 1));
 		overflow-x: auto;
 		overflow-y: hidden;
 		scrollbar-width: none;
@@ -1937,10 +1967,10 @@
 	.excel-way__steps--mobile .excel-way-step,
 	.excel-way__steps--cancel .excel-way-step,
 	.excel-way-about__list--mobile .excel-way-about__item {
-		flex: 0 0 240px;
-		width: 240px;
-		height: 196px;
-		min-height: 196px;
+		flex: 0 0 calc(240px * var(--ee-excel-way-fit-scale, 1));
+		width: calc(240px * var(--ee-excel-way-fit-scale, 1));
+		height: calc(196px * var(--ee-excel-way-fit-scale, 1));
+		min-height: calc(196px * var(--ee-excel-way-fit-scale, 1));
 		box-sizing: border-box;
 	}
 
@@ -1949,8 +1979,8 @@
 		align-items: flex-start;
 		justify-content: flex-start;
 		height: 100%;
-		gap: 20px;
-		padding: 15px 14px;
+		gap: calc(20px * var(--ee-excel-way-fit-scale, 1));
+		padding: calc(15px * var(--ee-excel-way-fit-scale, 1)) calc(14px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way__steps--cancel .excel-way-step__inner {
@@ -1958,8 +1988,8 @@
 		align-items: flex-start;
 		justify-content: flex-start;
 		height: 100%;
-		gap: 20px;
-		padding: 15px 14px;
+		gap: calc(20px * var(--ee-excel-way-fit-scale, 1));
+		padding: calc(15px * var(--ee-excel-way-fit-scale, 1)) calc(14px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way__steps--mobile .excel-way-step:nth-child(-n + 2) .excel-way-step__num {
@@ -1967,7 +1997,7 @@
 	}
 
 	.excel-way__steps--mobile .excel-way-step:nth-child(n + 3) .excel-way-step__inner {
-		gap: 14px;
+		gap: calc(14px * var(--ee-excel-way-fit-scale, 1));
 		justify-content: center;
 	}
 
@@ -1981,23 +2011,23 @@
 
 	.excel-way-step__inner,
 	.excel-way__steps--cancel .excel-way-step__inner {
-		gap: 18px;
-		padding: 15px 14px;
+		gap: calc(18px * var(--ee-excel-way-fit-scale, 1));
+		padding: calc(15px * var(--ee-excel-way-fit-scale, 1)) calc(14px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way-step__num {
 		width: auto;
 		height: auto;
 		min-width: 0;
-		padding: 6px;
+		padding: calc(6px * var(--ee-excel-way-fit-scale, 1));
 		border-radius: 0;
-		font-size: 10px;
+		font-size: calc(10px * var(--ee-excel-way-fit-scale, 1));
 		font-weight: 600;
 		letter-spacing: 1px;
 	}
 
 	.excel-way-step__copy {
-		gap: 20px;
+		gap: calc(20px * var(--ee-excel-way-fit-scale, 1));
 		flex: 1 1 auto;
 		min-height: 0;
 	}
@@ -2010,7 +2040,7 @@
 	.excel-way__steps--how .excel-way-step:last-child .excel-way-step__title,
 	.excel-way__steps--cancel .excel-way-step__title,
 	.excel-way-about__list--mobile .excel-way-about__item-title {
-		font-size: 18px;
+		font-size: calc(18px * var(--ee-excel-way-fit-scale, 1));
 		line-height: normal;
 		letter-spacing: 0;
 	}
@@ -2018,7 +2048,7 @@
 	.excel-way-step__text,
 	.excel-way__steps--cancel .excel-way-step__text,
 	.excel-way-about__list--mobile .excel-way-about__item-text {
-		font-size: 14px;
+		font-size: calc(14px * var(--ee-excel-way-fit-scale, 1));
 		line-height: 1.5;
 		opacity: 0.7;
 		letter-spacing: 0;
@@ -2027,13 +2057,13 @@
 	.excel-way__mobile-pagination {
 		display: flex;
 		align-items: flex-end;
-		gap: 10px;
+		gap: calc(10px * var(--ee-excel-way-fit-scale, 1));
 		width: 100%;
 	}
 
 	.excel-way__mobile-pagination-track {
 		flex: 1 1 auto;
-		height: 4px;
+		height: calc(4px * var(--ee-excel-way-fit-scale, 1));
 		background: rgba(234, 234, 234, 0.2);
 		overflow: hidden;
 	}
@@ -2041,7 +2071,7 @@
 	.excel-way__mobile-pagination-fill {
 		display: block;
 		width: 33.333%;
-		height: 4px;
+		height: calc(4px * var(--ee-excel-way-fit-scale, 1));
 		background: #fff;
 	}
 
@@ -2050,7 +2080,7 @@
 		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
 		font-variation-settings: "wdth" 75;
 		font-weight: 600;
-		font-size: 14px;
+		font-size: calc(14px * var(--ee-excel-way-fit-scale, 1));
 		line-height: normal;
 		letter-spacing: 1px;
 		color: #fff;
@@ -2065,7 +2095,7 @@
 		display: flex;
 		width: 100%;
 		min-height: 0;
-		padding: 14px 18px;
+		padding: calc(14px * var(--ee-excel-way-fit-scale, 1)) calc(18px * var(--ee-excel-way-fit-scale, 1));
 		border: 0;
 		border-radius: 8px;
 		background: linear-gradient(
@@ -2076,7 +2106,7 @@
 		backdrop-filter: blur(50px);
 		-webkit-backdrop-filter: blur(50px);
 		font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
-		font-size: 15.5px;
+		font-size: calc(15.5px * var(--ee-excel-way-fit-scale, 1));
 		line-height: normal;
 		white-space: normal;
 	}
@@ -2101,23 +2131,23 @@
 	}
 
 	.excel-way-about__intro {
-		gap: 20px;
-		padding: 24px 14px;
+		gap: calc(20px * var(--ee-excel-way-fit-scale, 1));
+		padding: calc(24px * var(--ee-excel-way-fit-scale, 1)) calc(14px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way-about__list--mobile {
-		height: 196px;
-		min-height: 196px;
+		height: calc(196px * var(--ee-excel-way-fit-scale, 1));
+		min-height: calc(196px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way-about__list--mobile .excel-way-about__item {
 		flex-direction: column;
-		gap: 18px;
-		padding: 15px 14px;
+		gap: calc(18px * var(--ee-excel-way-fit-scale, 1));
+		padding: calc(15px * var(--ee-excel-way-fit-scale, 1)) calc(14px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way-about__list--mobile .excel-way-about__copy {
-		gap: 11px;
+		gap: calc(11px * var(--ee-excel-way-fit-scale, 1));
 	}
 
 	.excel-way__footer--how,
@@ -2129,9 +2159,9 @@
 	.excel-way__cta {
 		width: 100%;
 		max-width: 354px;
-		height: 51px;
-		min-height: 51px;
+		height: calc(51px * var(--ee-excel-way-fit-scale, 1));
+		min-height: calc(51px * var(--ee-excel-way-fit-scale, 1));
 		margin: 0 auto;
-		font-size: 16px;
+		font-size: calc(16px * var(--ee-excel-way-fit-scale, 1));
 	}
 }
