@@ -5303,6 +5303,101 @@
 			window.location.assign(next);
 		};
 
+		let explorePageRequest = 0;
+
+		const getExploreMount = () => exploreSection?.querySelector("[data-explore-results-mount]");
+
+		const scrollExploreResultsIntoView = () => {
+			const target = exploreSection?.querySelector(".explore-artists__results") || exploreSection;
+			if (!target) {
+				return;
+			}
+			if (window.excelEntLenis) {
+				window.excelEntLenis.scrollTo(target, {
+					offset: -120,
+					duration: 0.9,
+				});
+				return;
+			}
+			target.scrollIntoView({ behavior: "smooth", block: "start" });
+		};
+
+		const loadExplorePage = async (page, options = {}) => {
+			const push = options.push !== false;
+			const mount = getExploreMount();
+			const ajaxUrl = window.excelEnt?.ajaxUrl;
+			const nonce = window.excelEnt?.exploreArtists?.nonce;
+			if (!mount || !ajaxUrl || !nonce || !exploreSection) {
+				return;
+			}
+
+			const nextPage = Math.max(1, Number(page) || 1);
+			const params = buildExploreSearchParams();
+			params.set("action", "excel_ent_explore_artists");
+			params.set("nonce", nonce);
+			params.set("pg", String(nextPage));
+
+			const requestId = ++explorePageRequest;
+			mount.classList.add("is-loading");
+			mount.setAttribute("aria-busy", "true");
+
+			try {
+				const response = await fetch(ajaxUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+					},
+					body: params.toString(),
+					credentials: "same-origin",
+				});
+				const payload = await response.json();
+				if (requestId !== explorePageRequest) {
+					return;
+				}
+				if (!payload?.success || typeof payload?.data?.html !== "string") {
+					throw new Error(payload?.data?.message || "explore_ajax_failed");
+				}
+
+				mount.innerHTML = payload.data.html;
+				exploreSection.setAttribute("data-explore-page", String(payload.data.pagination?.page || nextPage));
+
+				mount.querySelectorAll(".reveal, [data-reveal]").forEach((el) => {
+					el.classList.add("is-visible", "in");
+				});
+
+				const countEl = exploreSection.querySelector("[data-explore-count]");
+				if (countEl && payload.data.countLabel) {
+					countEl.textContent = payload.data.countLabel;
+				}
+
+				if (push) {
+					const urlParams = buildExploreSearchParams();
+					const resolvedPage = Math.max(1, Number(payload.data.pagination?.page) || nextPage);
+					if (resolvedPage > 1) {
+						urlParams.set("pg", String(resolvedPage));
+					}
+					const qs = urlParams.toString();
+					const nextUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+					window.history.pushState({ explorePage: resolvedPage }, "", nextUrl);
+				}
+
+				scrollExploreResultsIntoView();
+			} catch (error) {
+				if (requestId !== explorePageRequest) {
+					return;
+				}
+				const message =
+					window.excelEnt?.exploreArtists?.errorLabel ||
+					"Could not load artists. Please try again.";
+				mount.innerHTML = `<div class="explore-artists__empty"><p class="explore-artists__empty-title">${message}</p></div>`;
+			} finally {
+				if (requestId === explorePageRequest) {
+					mount.classList.remove("is-loading");
+					mount.removeAttribute("aria-busy");
+				}
+			}
+		};
+
 		const syncAllActive = () => {
 			const hasCat = filterWraps.some((wrap) => {
 				if (wrap.getAttribute("data-explore-filter") === "sort") return false;
@@ -5704,37 +5799,63 @@
 		applyExploreCategoriesFromUrl();
 		exploreFiltersReady = true;
 
-		document.querySelectorAll("[data-explore-fav]").forEach((btn) => {
-			btn.addEventListener("click", () => {
-				const card = btn.closest(".explore-artist-card");
+		exploreSection?.addEventListener("click", (e) => {
+			const pageLink = e.target.closest("[data-explore-page]");
+			if (pageLink && exploreSection.contains(pageLink)) {
+				e.preventDefault();
+				const page = Number(pageLink.getAttribute("data-explore-page") || "1");
+				if (!Number.isFinite(page) || page < 1) {
+					return;
+				}
+				loadExplorePage(page);
+				return;
+			}
+
+			const favBtn = e.target.closest("[data-explore-fav]");
+			if (favBtn && exploreSection.contains(favBtn)) {
+				e.preventDefault();
+				e.stopPropagation();
+				const card = favBtn.closest(".explore-artist-card");
 				const on = !(card?.classList.contains("is-favorited"));
 				card?.classList.toggle("is-favorited", on);
-				btn.setAttribute("aria-pressed", on ? "true" : "false");
-			});
-		});
+				favBtn.setAttribute("aria-pressed", on ? "true" : "false");
+				return;
+			}
 
-		document.querySelectorAll("[data-explore-artist-card]").forEach((card) => {
-			const openProfile = () => {
+			const card = e.target.closest("[data-explore-artist-card]");
+			if (card && exploreSection.contains(card)) {
+				if (e.target.closest("a, button")) {
+					return;
+				}
 				const profileUrl = card.getAttribute("data-profile-url");
 				if (profileUrl) {
 					window.location.href = profileUrl;
 				}
-			};
+			}
+		});
 
-			card.addEventListener("click", (event) => {
-				if (event.target.closest("a, button")) {
-					return;
-				}
-				openProfile();
-			});
+		exploreSection?.addEventListener("keydown", (e) => {
+			if (e.key !== "Enter" && e.key !== " ") {
+				return;
+			}
+			const card = e.target.closest("[data-explore-artist-card]");
+			if (!card || !exploreSection.contains(card)) {
+				return;
+			}
+			e.preventDefault();
+			const profileUrl = card.getAttribute("data-profile-url");
+			if (profileUrl) {
+				window.location.href = profileUrl;
+			}
+		});
 
-			card.addEventListener("keydown", (event) => {
-				if (event.key !== "Enter" && event.key !== " ") {
-					return;
-				}
-				event.preventDefault();
-				openProfile();
-			});
+		window.addEventListener("popstate", () => {
+			if (!exploreSection) {
+				return;
+			}
+			const params = new URLSearchParams(window.location.search);
+			const page = Math.max(1, parseInt(params.get("pg") || "1", 10) || 1);
+			loadExplorePage(page, { push: false });
 		});
 
 		document.querySelectorAll("[data-explore-header-search]").forEach((btn) => {

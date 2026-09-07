@@ -198,26 +198,45 @@ function excel_ent_artist_budget_to_fee_range( $budget ) {
 }
 
 /**
+ * Resolve artist list page number from the request.
+ *
+ * Uses `pg` (not WordPress-reserved `page`) so Explore Artists pagination
+ * does not 404 on static pages.
+ *
+ * @return int
+ */
+function excel_ent_get_artist_request_page() {
+	if ( isset( $_GET['pg'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return max( 1, (int) $_GET['pg'] );
+	}
+
+	// Legacy / search-safe fallback — avoid WP Page content pagination conflict.
+	if ( isset( $_GET['page'] ) && ! is_singular( 'page' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return max( 1, (int) $_GET['page'] );
+	}
+
+	$paged = (int) get_query_var( 'paged' );
+	if ( $paged > 0 ) {
+		return max( 1, $paged );
+	}
+
+	return 1;
+}
+
+/**
  * Build API query args from current request.
  *
  * @param array $overrides Optional overrides.
  * @return array
  */
 function excel_ent_get_artist_search_args_from_request( $overrides = array() ) {
-	$page = 1;
-	if ( isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$page = max( 1, (int) $_GET['page'] );
-	} elseif ( get_query_var( 'paged' ) ) {
-		$page = max( 1, (int) get_query_var( 'paged' ) );
-	}
-
 	$args = array(
 		'q'            => excel_ent_get_artist_search_query(),
 		'category'     => isset( $_GET['category'] ) ? sanitize_key( wp_unslash( $_GET['category'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		'sub_category' => isset( $_GET['sub_category'] ) ? sanitize_text_field( wp_unslash( $_GET['sub_category'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		'location'     => isset( $_GET['location'] ) ? sanitize_text_field( wp_unslash( $_GET['location'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		'budget'       => isset( $_GET['budget'] ) ? sanitize_text_field( wp_unslash( $_GET['budget'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		'page'         => $page,
+		'page'         => excel_ent_get_artist_request_page(),
 		'per_page'     => 15,
 		'sort'         => 'updated',
 	);
@@ -430,6 +449,41 @@ function excel_ent_artist_api_empty_result( $per_page = 12 ) {
 }
 
 /**
+ * Build a query string that encodes array values as `key[]=`.
+ *
+ * @param array $query Query args.
+ * @return string
+ */
+function excel_ent_artist_api_query_string( $query ) {
+	$parts = array();
+
+	foreach ( (array) $query as $key => $value ) {
+		$key = (string) $key;
+		if ( '' === $key ) {
+			continue;
+		}
+
+		if ( is_array( $value ) ) {
+			foreach ( $value as $item ) {
+				if ( is_array( $item ) ) {
+					continue;
+				}
+				$parts[] = rawurlencode( $key . '[]' ) . '=' . rawurlencode( (string) $item );
+			}
+			continue;
+		}
+
+		if ( null === $value ) {
+			continue;
+		}
+
+		$parts[] = rawurlencode( $key ) . '=' . rawurlencode( (string) $value );
+	}
+
+	return implode( '&', $parts );
+}
+
+/**
  * Perform authenticated GET against a Smartflows artist endpoint.
  *
  * @param string $endpoint Absolute endpoint URL.
@@ -446,12 +500,31 @@ function excel_ent_artist_api_request( $endpoint, $query, $per_page = 12 ) {
 		return $result;
 	}
 
-	$url = add_query_arg( $query, $endpoint );
+	$qs  = excel_ent_artist_api_query_string( $query );
+	$url = $endpoint;
+	if ( $qs ) {
+		$url .= ( false === strpos( $endpoint, '?' ) ? '?' : '&' ) . $qs;
+	}
+
+	/**
+	 * Prefer WordPress add_query_arg for scalar-only queries (matches prior working list calls).
+	 * Keep custom encoding when arrays are present (category[] / location[]).
+	 */
+	$has_array = false;
+	foreach ( (array) $query as $value ) {
+		if ( is_array( $value ) ) {
+			$has_array = true;
+			break;
+		}
+	}
+	if ( ! $has_array ) {
+		$url = add_query_arg( $query, $endpoint );
+	}
 
 	$response = wp_remote_get(
 		$url,
 		array(
-			'timeout' => 20,
+			'timeout' => 30,
 			'headers' => array(
 				'Accept'    => 'application/json',
 				'X-API-Key' => $key,
@@ -473,6 +546,11 @@ function excel_ent_artist_api_request( $endpoint, $query, $per_page = 12 ) {
 		return $result;
 	}
 
+	if ( $code < 200 || $code >= 300 ) {
+		$result['error'] = 'http_' . $code;
+		return $result;
+	}
+
 	if ( ! is_array( $data ) || empty( $data['ok'] ) ) {
 		$result['error'] = 'invalid_response';
 		return $result;
@@ -482,13 +560,22 @@ function excel_ent_artist_api_request( $endpoint, $query, $per_page = 12 ) {
 	$artists     = array_map( 'excel_ent_normalize_api_artist', $raw_artists );
 
 	$pagination  = isset( $data['pagination'] ) && is_array( $data['pagination'] ) ? $data['pagination'] : array();
-	$page        = max( 1, (int) ( $pagination['page'] ?? 1 ) );
-	$per_page_r  = max( 1, (int) ( $pagination['per_page'] ?? count( $artists ) ) );
+	if ( ! $pagination && isset( $data['meta'] ) && is_array( $data['meta'] ) ) {
+		$pagination = $data['meta'];
+	}
+
+	$page        = max( 1, (int) ( $pagination['page'] ?? ( $query['page'] ?? 1 ) ) );
+	$per_page_r  = max( 1, (int) ( $pagination['per_page'] ?? ( $query['per_page'] ?? count( $artists ) ) ) );
 	$total       = max( 0, (int) ( $pagination['total'] ?? count( $artists ) ) );
 	$total_pages = max( 0, (int) ( $pagination['total_pages'] ?? 0 ) );
 
 	if ( ! $total_pages && $total && $per_page_r ) {
 		$total_pages = (int) ceil( $total / $per_page_r );
+	}
+
+	// Prefer the requested page when the API omits / resets it.
+	if ( ! empty( $query['page'] ) ) {
+		$page = max( 1, (int) $query['page'] );
 	}
 
 	return array(
@@ -571,18 +658,11 @@ function excel_ent_get_explore_list_tax_from_request() {
  * @return array
  */
 function excel_ent_get_artist_list_args_from_request( $overrides = array() ) {
-	$page = 1;
-	if ( isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$page = max( 1, (int) $_GET['page'] );
-	} elseif ( get_query_var( 'paged' ) ) {
-		$page = max( 1, (int) get_query_var( 'paged' ) );
-	}
-
 	$tax = excel_ent_get_explore_list_tax_from_request();
 
-	$sort = isset( $_GET['sort'] ) ? sanitize_key( wp_unslash( $_GET['sort'] ) ) : 'name'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ! $sort ) {
-		$sort = 'name';
+	$sort = isset( $_GET['sort'] ) ? sanitize_key( wp_unslash( $_GET['sort'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( 'recommended' === $sort ) {
+		$sort = '';
 	}
 
 	$args = array(
@@ -591,12 +671,43 @@ function excel_ent_get_artist_list_args_from_request( $overrides = array() ) {
 		'sub_category' => $tax['sub_category'],
 		'location'     => isset( $_GET['location'] ) ? sanitize_text_field( wp_unslash( $_GET['location'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		'status'       => isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash( $_GET['status'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		'page'         => $page,
+		'page'         => excel_ent_get_artist_request_page(),
 		'per_page'     => 25,
-		'sort'         => $sort,
+		'sort'         => $sort ? $sort : 'name',
 	);
 
 	return wp_parse_args( $overrides, $args );
+}
+
+/**
+ * Map Explore UI sort values to Smartflows sort keys.
+ *
+ * @param string $sort UI / request sort.
+ * @return string
+ */
+function excel_ent_artist_api_map_list_sort( $sort ) {
+	$sort = sanitize_key( (string) $sort );
+	if ( ! $sort || 'recommended' === $sort ) {
+		return '';
+	}
+
+	$map = array(
+		'name'             => 'name',
+		'updated'          => 'updated',
+		'newest'           => 'newest',
+		'most-popular'     => 'most_booked',
+		'most_booked'      => 'most_booked',
+		'highest-rated'    => 'highest_rated',
+		'highest_rated'    => 'highest_rated',
+		'price-low-high'   => 'price_asc',
+		'price_asc'        => 'price_asc',
+		'price-high-low'   => 'price_desc',
+		'price_desc'       => 'price_desc',
+		'available-now'    => 'available_now',
+		'available_now'    => 'available_now',
+	);
+
+	return isset( $map[ $sort ] ) ? $map[ $sort ] : $sort;
 }
 
 /**
@@ -606,11 +717,19 @@ function excel_ent_get_artist_list_args_from_request( $overrides = array() ) {
  * @return array
  */
 function excel_ent_artist_api_build_list_query( $args ) {
+	$page     = max( 1, (int) ( $args['page'] ?? 1 ) );
+	$per_page = max( 1, min( 50, (int) ( $args['per_page'] ?? 25 ) ) );
+
 	$query = array(
-		'page'     => max( 1, (int) ( $args['page'] ?? 1 ) ),
-		'per_page' => max( 1, min( 50, (int) ( $args['per_page'] ?? 25 ) ) ),
-		'sort'     => sanitize_key( (string) ( $args['sort'] ?? 'name' ) ),
+		'page'     => $page,
+		'per_page' => $per_page,
 	);
+
+	$sort = excel_ent_artist_api_map_list_sort( $args['sort'] ?? '' );
+	if ( ! $sort ) {
+		$sort = 'name';
+	}
+	$query['sort'] = $sort;
 
 	$q = trim( (string) ( $args['q'] ?? '' ) );
 	if ( $q ) {
@@ -680,28 +799,136 @@ function excel_ent_list_artists( $args = array() ) {
 /**
  * Pagination link preserving current filters.
  *
+ * Uses `pg` instead of WordPress-reserved `page` so static pages do not 404.
+ * Search links stay on the current search URL shape (`/?s=` or `/search/…/`).
+ *
  * @param int $page Target page.
  * @return string
  */
 function excel_ent_artist_search_page_url( $page ) {
 	$page = max( 1, (int) $page );
-	$args = array( 'page' => $page );
+	$args = array();
 
-	$keys = array( 's', 'category', 'sub_category', 'categories', 'tags', 'location', 'event_date', 'budget', 'status', 'sort' );
+	if ( $page > 1 ) {
+		$args['pg'] = $page;
+	}
+
+	$keys = array( 's', 'category', 'sub_category', 'categories', 'tags', 'location', 'event_date', 'budget', 'status', 'sort', 'occasion' );
 	foreach ( $keys as $key ) {
 		if ( isset( $_GET[ $key ] ) && '' !== (string) wp_unslash( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$args[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
 		}
 	}
 
+	$strip = array( 'page', 'paged', 'pg' );
+
 	if ( is_search() ) {
-		unset( $args['s'] );
-		return add_query_arg( $args, get_search_link( excel_ent_get_artist_search_query() ) );
+		/*
+		 * Keep the active search URL (header form posts to /?s=…), instead of
+		 * forcing get_search_link() pretty permalinks which feel like a wrong page.
+		 */
+		$base = remove_query_arg( $strip );
+		if ( ! $base ) {
+			$base = get_search_link( excel_ent_get_artist_search_query() );
+			unset( $args['s'] );
+		}
+		return add_query_arg( $args, $base );
 	}
 
 	if ( excel_ent_is_explore_artists_page() ) {
-		return add_query_arg( $args, excel_ent_get_explore_artists_url() );
+		unset( $args['s'] );
+		return add_query_arg( $args, remove_query_arg( $strip, excel_ent_get_explore_artists_url() ) );
 	}
 
-	return add_query_arg( $args, remove_query_arg( array( 'page', 'paged' ) ) );
+	return add_query_arg( $args, remove_query_arg( $strip ) );
 }
+
+/**
+ * Render Explore / search artist results markup (grid + pagination or empty).
+ *
+ * @param array  $result  excel_ent_list_artists() / search result.
+ * @param string $context search|explore.
+ * @return string
+ */
+function excel_ent_render_artist_results_html( $result, $context = 'explore' ) {
+	$artists    = isset( $result['artists'] ) && is_array( $result['artists'] ) ? $result['artists'] : array();
+	$pagination = isset( $result['pagination'] ) && is_array( $result['pagination'] ) ? $result['pagination'] : array();
+	$error      = isset( $result['error'] ) ? (string) $result['error'] : '';
+
+	ob_start();
+
+	if ( ! empty( $artists ) ) {
+		get_template_part(
+			'template-parts/artist-results-grid',
+			null,
+			array(
+				'artists'    => $artists,
+				'pagination' => $pagination,
+				'context'    => $context,
+			)
+		);
+	} else {
+		?>
+		<div class="explore-artists__empty">
+			<p class="explore-artists__empty-title"><?php esc_html_e( "Sorry, We Couldn't Find Any Matching Artists", 'excel-ent' ); ?></p>
+			<p class="explore-artists__empty-lede">
+				<?php
+				if ( 'missing_api_key' === $error ) {
+					esc_html_e( 'Artist search is not configured yet. Please add the API key in wp-config.php.', 'excel-ent' );
+				} elseif ( $error ) {
+					esc_html_e( 'We couldn’t load artists right now. Please try again.', 'excel-ent' );
+				} else {
+					esc_html_e( 'Try adjusting your search or filters.', 'excel-ent' );
+				}
+				?>
+			</p>
+		</div>
+		<?php
+	}
+
+	return (string) ob_get_clean();
+}
+
+/**
+ * Hydrate $_GET from an Explore Artists AJAX request.
+ */
+function excel_ent_hydrate_explore_request_from_ajax() {
+	$keys = array( 's', 'category', 'sub_category', 'categories', 'tags', 'location', 'event_date', 'budget', 'status', 'sort', 'pg' );
+
+	foreach ( $keys as $key ) {
+		if ( ! isset( $_REQUEST[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			continue;
+		}
+		$_GET[ $key ] = sanitize_text_field( wp_unslash( $_REQUEST[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	}
+}
+
+/**
+ * AJAX: Explore Artists list page (no full reload).
+ */
+function excel_ent_ajax_explore_artists() {
+	check_ajax_referer( 'excel_ent_explore_artists', 'nonce' );
+
+	excel_ent_hydrate_explore_request_from_ajax();
+
+	$result = excel_ent_list_artists( excel_ent_get_artist_list_args_from_request() );
+	$total  = (int) ( $result['pagination']['total'] ?? count( $result['artists'] ?? array() ) );
+
+	$count_label = sprintf(
+		/* translators: %d: number of artists */
+		_n( '%d Artist', '%d Artists', $total, 'excel-ent' ),
+		$total
+	);
+
+	wp_send_json_success(
+		array(
+			'html'        => excel_ent_render_artist_results_html( $result, 'explore' ),
+			'pagination'  => $result['pagination'],
+			'countLabel'  => $count_label,
+			'ok'          => ! empty( $result['ok'] ),
+			'error'       => isset( $result['error'] ) ? (string) $result['error'] : '',
+		)
+	);
+}
+add_action( 'wp_ajax_excel_ent_explore_artists', 'excel_ent_ajax_explore_artists' );
+add_action( 'wp_ajax_nopriv_excel_ent_explore_artists', 'excel_ent_ajax_explore_artists' );

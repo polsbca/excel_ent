@@ -240,6 +240,11 @@ function excel_ent_enqueue_assets() {
 		'excelEnt',
 		array(
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+			'exploreArtists' => array(
+				'nonce'        => wp_create_nonce( 'excel_ent_explore_artists' ),
+				'loadingLabel' => __( 'Loading artists…', 'excel-ent' ),
+				'errorLabel'   => __( 'Could not load artists. Please try again.', 'excel-ent' ),
+			),
 			'newsletter' => array(
 				'nonce'           => wp_create_nonce( 'excel_ent_newsletter' ),
 				'empty'           => __( 'Please enter your email address.', 'excel-ent' ),

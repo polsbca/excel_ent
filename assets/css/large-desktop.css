@@ -3243,7 +3243,7 @@
 	.explore-artists__grid {
 		column-gap: 2.08vw;
 		row-gap: 2.08vw;
-		padding: 0 4.17vw 8.33vw;
+		padding: 0 4.17vw;
 	}
 
 	.explore-artists__results {
@@ -3261,7 +3261,29 @@
 		grid-template-columns: repeat(5, minmax(0, 1fr));
 		column-gap: 1.25vw;
 		row-gap: 1.25vw;
-		padding: 0 8.33vw 8.33vw;
+		padding: 0 8.33vw;
+	}
+
+	.explore-artists__results-section {
+		padding-bottom: 4.17vw;
+	}
+
+	.explore-artists__pagination {
+		margin-top: 2.08vw;
+		padding: 0 8.33vw;
+		gap: 1.04vw 1.25vw;
+	}
+
+	.explore-artists__pagination .search-page__page-link {
+		min-height: 2.71vw;
+		min-width: 6.88vw;
+		padding: 0.73vw 1.46vw;
+		font-size: 0.94vw;
+		border-radius: 1.56vw;
+	}
+
+	.explore-artists__pagination .search-page__page-status {
+		font-size: 0.94vw;
 	}
 
 	.explore-artist-card {

@@ -176,6 +176,12 @@
 	color: #eb2055;
 }
 
+.search-page__page-link--disabled {
+	opacity: 0.35;
+	pointer-events: none;
+	cursor: default;
+}
+
 .search-page__page-status {
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
 	font-size: 16px;

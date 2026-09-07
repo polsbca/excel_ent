@@ -12,12 +12,14 @@ $excel_ent_artists       = $excel_ent_search_result['artists'];
 $excel_ent_pagination    = $excel_ent_search_result['pagination'];
 $excel_ent_total         = (int) ( $excel_ent_pagination['total'] ?? 0 );
 $excel_ent_catalog_total = $excel_ent_total;
+$excel_ent_page          = max( 1, (int) ( $excel_ent_pagination['page'] ?? 1 ) );
 ?>
 <section
 	class="explore-artists"
 	id="explore-artists"
 	aria-label="<?php esc_attr_e( 'Explore artists', 'excel-ent' ); ?>"
 	data-explore-artists
+	data-explore-page="<?php echo esc_attr( (string) $excel_ent_page ); ?>"
 >
 	<div class="explore-artists__filters">
 		<header class="explore-artists__intro reveal" data-reveal>
@@ -71,30 +73,7 @@ $excel_ent_catalog_total = $excel_ent_total;
 		</div>
 	</div>
 
-	<?php if ( ! empty( $excel_ent_artists ) ) : ?>
-		<?php
-		get_template_part(
-			'template-parts/artist-results-grid',
-			null,
-			array(
-				'artists'    => $excel_ent_artists,
-				'pagination' => $excel_ent_pagination,
-				'context'    => 'explore',
-			)
-		);
-		?>
-	<?php else : ?>
-		<div class="explore-artists__empty">
-			<p class="explore-artists__empty-title"><?php esc_html_e( "Sorry, We Couldn't Find Any Matching Artists", 'excel-ent' ); ?></p>
-			<p class="explore-artists__empty-lede">
-				<?php
-				if ( 'missing_api_key' === $excel_ent_search_result['error'] ) {
-					esc_html_e( 'Artist search is not configured yet. Please add the API key in wp-config.php.', 'excel-ent' );
-				} else {
-					esc_html_e( 'Try adjusting your search or filters.', 'excel-ent' );
-				}
-				?>
-			</p>
-		</div>
-	<?php endif; ?>
+	<div class="explore-artists__results-mount" data-explore-results-mount>
+		<?php echo excel_ent_render_artist_results_html( $excel_ent_search_result, 'explore' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped template parts. ?>
+	</div>
 </section>

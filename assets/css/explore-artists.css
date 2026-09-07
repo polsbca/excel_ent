@@ -792,7 +792,7 @@
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	column-gap: 40px;
 	row-gap: 40px;
-	padding: 0 80px 160px;
+	padding: 0 80px;
 	align-items: stretch;
 	box-sizing: border-box;
 }
@@ -1412,7 +1412,7 @@
 	.explore-artists__grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 28px;
-		padding-bottom: 100px;
+		padding-bottom: 0;
 	}
 
 	.explore-artists__chips-bar {
@@ -1583,7 +1583,7 @@
 	.explore-artists__grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 24px;
-		padding: 0 40px 52px;
+		padding: 0 40px;
 		width: 100%;
 		max-width: 100%;
 		box-sizing: border-box;
@@ -2277,7 +2277,7 @@
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		column-gap: 12px;
 		row-gap: 20px;
-		padding: 10px 24px 60px;
+		padding: 10px 24px 0;
 		width: 100%;
 		max-width: 100%;
 		box-sizing: border-box;
@@ -3130,8 +3130,111 @@
 	}
 }
 
+.explore-artists__results-mount {
+	width: 100%;
+	position: relative;
+	min-height: 120px;
+}
+
+/* Results grid must stay visible — scroll-reveal observer does not rebind after AJAX. */
+.explore-artists__results-mount .reveal,
+.explore-artists__results-mount [data-reveal] {
+	opacity: 1;
+	transform: none;
+}
+
+.explore-artists__results-mount.is-loading {
+	pointer-events: none;
+}
+
+.explore-artists__results-mount.is-loading::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	background: rgba(255, 255, 255, 0.55);
+}
+
 .explore-artists__results-section {
 	width: 100%;
+	padding-bottom: 80px;
+	box-sizing: border-box;
+}
+
+.explore-artists__pagination {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 20px 24px;
+	width: 100%;
+	margin: 40px 0 0;
+	padding: 0 80px;
+	box-sizing: border-box;
+}
+
+.explore-artists__pagination .search-page__page-status {
+	min-width: 7.5em;
+	text-align: center;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-weight: 600;
+	font-size: 18px;
+	letter-spacing: 0.5px;
+	color: rgba(0, 0, 0, 0.72);
+}
+
+.explore-artists__pagination .search-page__page-link {
+	min-width: 132px;
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+	.explore-artists__results-section {
+		padding-bottom: 64px;
+	}
+
+	.explore-artists__pagination {
+		margin-top: 32px;
+		padding: 0 40px;
+		gap: 16px 20px;
+	}
+
+	.explore-artists__pagination .search-page__page-link {
+		min-height: 48px;
+		min-width: 120px;
+		padding: 12px 24px;
+		font-size: 16px;
+	}
+
+	.explore-artists__pagination .search-page__page-status {
+		font-size: 16px;
+	}
+}
+
+@media (max-width: 767px) {
+	.explore-artists__results-section {
+		padding-bottom: 48px;
+	}
+
+	.explore-artists__pagination {
+		margin-top: 28px;
+		padding: 0 24px;
+		gap: 12px 16px;
+	}
+
+	.explore-artists__pagination .search-page__page-link {
+		min-height: 44px;
+		min-width: 108px;
+		padding: 10px 20px;
+		font-size: 15px;
+	}
+
+	.explore-artists__pagination .search-page__page-status {
+		width: 100%;
+		order: -1;
+		font-size: 14px;
+	}
 }
 
 .explore-artists__empty {

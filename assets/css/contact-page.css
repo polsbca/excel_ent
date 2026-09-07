@@ -602,6 +602,11 @@
 	min-width: 0;
 }
 
+/* Figma 2225:7502 — empty dropdown value reads as placeholder (#909090), not filled black text */
+.contact-dd__trigger--muted .contact-dd__value {
+	color: #909090;
+}
+
 .contact-dd__trigger--chips {
 	align-items: flex-start;
 }
