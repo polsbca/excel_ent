@@ -245,6 +245,10 @@ function excel_ent_enqueue_assets() {
 				'loadingLabel' => __( 'Loading artists…', 'excel-ent' ),
 				'errorLabel'   => __( 'Could not load artists. Please try again.', 'excel-ent' ),
 			),
+			'artistSuggest' => array(
+				'nonce'      => wp_create_nonce( 'excel_ent_artist_suggest' ),
+				'errorLabel' => __( 'Could not load artists. Please try again.', 'excel-ent' ),
+			),
 			'newsletter' => array(
 				'nonce'           => wp_create_nonce( 'excel_ent_newsletter' ),
 				'empty'           => __( 'Please enter your email address.', 'excel-ent' ),

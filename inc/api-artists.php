@@ -932,3 +932,55 @@ function excel_ent_ajax_explore_artists() {
 }
 add_action( 'wp_ajax_excel_ent_explore_artists', 'excel_ent_ajax_explore_artists' );
 add_action( 'wp_ajax_nopriv_excel_ent_explore_artists', 'excel_ent_ajax_explore_artists' );
+
+/**
+ * AJAX: header Search Artist autocomplete (Smartflows search.php).
+ */
+function excel_ent_ajax_artist_suggest() {
+	check_ajax_referer( 'excel_ent_artist_suggest', 'nonce' );
+
+	$q = isset( $_REQUEST['q'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['q'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$q = trim( $q );
+
+	if ( strlen( $q ) < 1 ) {
+		wp_send_json_success(
+			array(
+				'suggestions' => array(),
+				'ok'          => true,
+			)
+		);
+	}
+
+	$result = excel_ent_search_artists(
+		array(
+			'q'        => $q,
+			'page'     => 1,
+			'per_page' => 8,
+			'sort'     => 'updated',
+		)
+	);
+
+	$suggestions = array();
+	foreach ( (array) ( $result['artists'] ?? array() ) as $artist ) {
+		$label = trim( (string) ( $artist['name'] ?? '' ) );
+		if ( '' === $label ) {
+			continue;
+		}
+		$suggestions[] = array(
+			'id'          => (string) ( $artist['id'] ?? '' ),
+			'label'       => $label,
+			'avatar'      => (string) ( $artist['image'] ?? excel_ent_get_artist_placeholder_image_url() ),
+			'profile_url' => (string) ( $artist['profile_url'] ?? '' ),
+		);
+	}
+
+	wp_send_json_success(
+		array(
+			'suggestions' => $suggestions,
+			'ok'          => ! empty( $result['ok'] ),
+			'error'       => isset( $result['error'] ) ? (string) $result['error'] : '',
+		)
+	);
+}
+add_action( 'wp_ajax_excel_ent_artist_suggest', 'excel_ent_ajax_artist_suggest' );
+add_action( 'wp_ajax_nopriv_excel_ent_artist_suggest', 'excel_ent_ajax_artist_suggest' );

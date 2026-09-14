@@ -165,35 +165,8 @@ if ( ! empty( $excel_ent_category_labels_selected ) ) {
 
 $excel_ent_artist_query = get_search_query();
 $excel_ent_artist_value = $excel_ent_artist_query;
-
-$excel_ent_artist_avatar = EXCEL_ENT_URI . '/assets/images/icons/artist-search-avatar.jpg';
-$excel_ent_artist_results = array(
-	array(
-		'id'     => 'andy-elton',
-		'label'  => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
-		'avatar' => $excel_ent_artist_avatar,
-	),
-	array(
-		'id'     => 'darin-day',
-		'label'  => __( 'Darin Day Live Band', 'excel-ent' ),
-		'avatar' => $excel_ent_artist_avatar,
-	),
-	array(
-		'id'     => 'soulful',
-		'label'  => __( 'Soulful Nights Duo', 'excel-ent' ),
-		'avatar' => $excel_ent_artist_avatar,
-	),
-	array(
-		'id'     => 'midnight-dj',
-		'label'  => __( 'Midnight Groove DJ', 'excel-ent' ),
-		'avatar' => $excel_ent_artist_avatar,
-	),
-	array(
-		'id'     => 'wedding-coll',
-		'label'  => __( 'The Wedding Collective', 'excel-ent' ),
-		'avatar' => $excel_ent_artist_avatar,
-	),
-);
+$excel_ent_artist_avatar = excel_ent_get_artist_placeholder_image_url();
+$excel_ent_artist_chevron = EXCEL_ENT_URI . '/assets/images/icons/chevron-right-sm.svg';
 
 $excel_ent_date_value = '';
 if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_event_date ) ) {
@@ -204,7 +177,12 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 }
 ?>
 <form class="header-search" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-	<div class="header-search__field header-search__field--artist<?php echo $excel_ent_artist_value ? ' is-filled' : ''; ?>" data-header-artist>
+	<div
+		class="header-search__field header-search__field--artist<?php echo $excel_ent_artist_value ? ' is-filled' : ''; ?>"
+		data-header-artist
+		data-artist-avatar="<?php echo esc_url( $excel_ent_artist_avatar ); ?>"
+		data-artist-chevron="<?php echo esc_url( $excel_ent_artist_chevron ); ?>"
+	>
 		<button
 			type="button"
 			class="header-search__artist-trigger"
@@ -262,43 +240,19 @@ if ( $excel_ent_event_date && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $excel_ent_ev
 					data-header-artist-search
 					autocomplete="off"
 				>
+				<span
+					class="header-artist__spinner"
+					data-header-artist-spinner
+					hidden
+					aria-hidden="true"
+				></span>
 			</label>
-			<ul class="header-artist__list" role="listbox" aria-label="<?php esc_attr_e( 'Artist results', 'excel-ent' ); ?>">
-				<?php foreach ( $excel_ent_artist_results as $excel_ent_artist ) : ?>
-					<li class="header-artist__item" role="none" data-header-artist-item>
-						<button
-							type="button"
-							class="header-artist__option"
-							role="option"
-							data-header-artist-option
-							data-value="<?php echo esc_attr( $excel_ent_artist['label'] ); ?>"
-							data-search="<?php echo esc_attr( strtolower( $excel_ent_artist['label'] ) ); ?>"
-						>
-							<span class="header-artist__left">
-								<img
-									class="header-artist__avatar"
-									src="<?php echo esc_url( $excel_ent_artist['avatar'] ); ?>"
-									alt=""
-									width="56"
-									height="56"
-									decoding="async"
-								>
-								<span class="header-artist__name"><?php echo esc_html( $excel_ent_artist['label'] ); ?></span>
-							</span>
-							<img
-								class="header-artist__chevron"
-								src="<?php echo esc_url( EXCEL_ENT_URI . '/assets/images/icons/chevron-right-sm.svg' ); ?>"
-								alt=""
-								width="20"
-								height="20"
-								decoding="async"
-							>
-						</button>
-					</li>
-				<?php endforeach; ?>
-			</ul>
+			<ul class="header-artist__list" role="listbox" aria-label="<?php esc_attr_e( 'Artist results', 'excel-ent' ); ?>" data-header-artist-list></ul>
 			<p class="header-artist__empty" data-header-artist-empty hidden>
 				<?php esc_html_e( 'No artists found', 'excel-ent' ); ?>
+			</p>
+			<p class="header-artist__hint" data-header-artist-hint>
+				<?php esc_html_e( 'Start typing to search artists', 'excel-ent' ); ?>
 			</p>
 		</div>
 	</div>

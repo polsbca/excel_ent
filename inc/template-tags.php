@@ -415,7 +415,7 @@ function excel_ent_fallback_menu() {
 			'key'   => 'packages',
 		),
 		array(
-			'url'   => home_url( '/contact/' ),
+			'url'   => excel_ent_get_contact_url(),
 			'label' => __( 'Contact Us', 'excel-ent' ),
 			'key'   => 'contact',
 		),

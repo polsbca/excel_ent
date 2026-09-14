@@ -12078,34 +12078,196 @@
 		syncTrigger();
 	});
 
-	/* Header search — Search Artist (Figma 1084:5103) */
+	/* Header search — Search Artist autocomplete (Figma 1084:5103) */
 	document.querySelectorAll("[data-header-artist]").forEach((wrap) => {
 		const trigger = wrap.querySelector("[data-header-artist-trigger]");
 		const panel = wrap.querySelector("[data-header-artist-panel]");
 		const input = wrap.querySelector("[data-header-artist-input]");
 		const meta = wrap.querySelector("[data-header-artist-meta]");
 		const search = wrap.querySelector("[data-header-artist-search]");
+		const spinner = wrap.querySelector("[data-header-artist-spinner]");
+		const list = wrap.querySelector("[data-header-artist-list]");
 		const empty = wrap.querySelector("[data-header-artist-empty]");
-		const items = Array.from(wrap.querySelectorAll("[data-header-artist-item]"));
-		const options = Array.from(wrap.querySelectorAll("[data-header-artist-option]"));
-		if (!trigger || !panel || !input) return;
+		const hint = wrap.querySelector("[data-header-artist-hint]");
+		if (!trigger || !panel || !input || !list) return;
 
 		const defaultMeta = meta?.getAttribute("data-default-meta") || "";
+		const defaultEmpty = empty?.textContent?.trim() || "No artists found";
+		const placeholderAvatar = wrap.getAttribute("data-artist-avatar") || "";
+		const chevronSrc = wrap.getAttribute("data-artist-chevron") || "";
+		const ajaxUrl = window.excelEnt?.ajaxUrl || "";
+		const suggestCfg = window.excelEnt?.artistSuggest || {};
+		let debounceTimer = 0;
+		let requestId = 0;
 
-		const filterResults = () => {
-			const q = (search?.value || "").trim().toLowerCase();
-			let visible = 0;
-			items.forEach((item) => {
-				const opt = item.querySelector("[data-header-artist-option]");
-				const hay = opt?.getAttribute("data-search") || "";
-				const show = !q || hay.includes(q);
-				item.hidden = !show;
-				if (show) visible += 1;
+		const setLoading = (on) => {
+			if (spinner) spinner.hidden = !on;
+			list.classList.toggle("is-loading", on);
+		};
+
+		const setHint = (visible) => {
+			if (hint) hint.hidden = !visible;
+		};
+
+		const setEmpty = (visible, message) => {
+			if (!empty) return;
+			empty.textContent = message || defaultEmpty;
+			empty.hidden = !visible;
+		};
+
+		const clearList = () => {
+			list.innerHTML = "";
+		};
+
+		const syncFilled = (value) => {
+			input.value = value;
+			if (meta) meta.textContent = value || defaultMeta;
+			wrap.classList.toggle("is-filled", Boolean(value));
+		};
+
+		const renderSuggestions = (suggestions) => {
+			clearList();
+			const rows = Array.isArray(suggestions) ? suggestions : [];
+			rows.forEach((item) => {
+				const label = String(item?.label || "").trim();
+				if (!label) return;
+				const li = document.createElement("li");
+				li.className = "header-artist__item";
+				li.setAttribute("role", "none");
+				li.setAttribute("data-header-artist-item", "");
+
+				const btn = document.createElement("button");
+				btn.type = "button";
+				btn.className = "header-artist__option";
+				btn.setAttribute("role", "option");
+				btn.setAttribute("data-header-artist-option", "");
+				btn.setAttribute("data-value", label);
+				if (item?.id) btn.setAttribute("data-id", String(item.id));
+				if (item?.profile_url) btn.setAttribute("data-profile-url", String(item.profile_url));
+
+				const left = document.createElement("span");
+				left.className = "header-artist__left";
+
+				const avatar = document.createElement("img");
+				avatar.className = "header-artist__avatar";
+				avatar.src = item?.avatar || placeholderAvatar;
+				avatar.alt = "";
+				avatar.width = 56;
+				avatar.height = 56;
+				avatar.decoding = "async";
+				avatar.loading = "lazy";
+				avatar.addEventListener("error", () => {
+					if (placeholderAvatar && avatar.src !== placeholderAvatar) {
+						avatar.src = placeholderAvatar;
+					}
+				});
+
+				const name = document.createElement("span");
+				name.className = "header-artist__name";
+				name.textContent = label;
+
+				left.append(avatar, name);
+
+				const chevron = document.createElement("img");
+				chevron.className = "header-artist__chevron";
+				chevron.src = chevronSrc;
+				chevron.alt = "";
+				chevron.width = 20;
+				chevron.height = 20;
+				chevron.decoding = "async";
+
+				btn.append(left, chevron);
+				btn.addEventListener("click", (e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					syncFilled(label);
+					if (search) search.value = label;
+					close();
+				});
+
+				li.append(btn);
+				list.append(li);
 			});
-			if (empty) empty.hidden = visible > 0;
+
+			const hasRows = list.children.length > 0;
+			setEmpty(!hasRows);
+			setHint(false);
+			list.hidden = !hasRows;
+		};
+
+		const fetchSuggestions = async (q) => {
+			const query = (q || "").trim();
+			if (!ajaxUrl || !suggestCfg.nonce) {
+				setLoading(false);
+				clearList();
+				setEmpty(false);
+				setHint(true);
+				list.hidden = true;
+				return;
+			}
+			if (query.length < 1) {
+				setLoading(false);
+				clearList();
+				setEmpty(false);
+				setHint(true);
+				list.hidden = true;
+				return;
+			}
+
+			const id = ++requestId;
+			setLoading(true);
+			setHint(false);
+			setEmpty(false);
+
+			try {
+				const body = new URLSearchParams({
+					action: "excel_ent_artist_suggest",
+					nonce: suggestCfg.nonce,
+					q: query,
+				});
+				const response = await fetch(ajaxUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+					},
+					body: body.toString(),
+					credentials: "same-origin",
+				});
+				const payload = await response.json();
+				if (id !== requestId) return;
+				if (!payload?.success) {
+					throw new Error("suggest_failed");
+				}
+				renderSuggestions(payload.data?.suggestions || []);
+			} catch (error) {
+				if (id !== requestId) return;
+				clearList();
+				list.hidden = true;
+				setHint(false);
+				setEmpty(true, suggestCfg.errorLabel || "Could not load artists. Please try again.");
+			} finally {
+				if (id === requestId) {
+					setLoading(false);
+				}
+			}
+		};
+
+		const scheduleFetch = (q) => {
+			window.clearTimeout(debounceTimer);
+			const query = (q || "").trim();
+			if (query.length < 1) {
+				setLoading(false);
+			} else {
+				setLoading(true);
+			}
+			debounceTimer = window.setTimeout(() => {
+				fetchSuggestions(q);
+			}, 280);
 		};
 
 		const close = () => {
+			window.clearTimeout(debounceTimer);
+			setLoading(false);
 			panel.hidden = true;
 			wrap.classList.remove("is-open");
 			trigger.setAttribute("aria-expanded", "false");
@@ -12115,11 +12277,20 @@
 		const open = () => {
 			closeHeaderPanels(wrap);
 			if (search) search.value = input.value || "";
-			filterResults();
 			panel.hidden = false;
 			wrap.classList.add("is-open");
 			trigger.setAttribute("aria-expanded", "true");
 			header?.classList.add("is-panel-open");
+			const q = (search?.value || "").trim();
+			if (q) {
+				fetchSuggestions(q);
+			} else {
+				setLoading(false);
+				clearList();
+				list.hidden = true;
+				setEmpty(false);
+				setHint(true);
+			}
 			window.setTimeout(() => {
 				search?.focus();
 				search?.select?.();
@@ -12134,11 +12305,9 @@
 		});
 
 		search?.addEventListener("input", () => {
-			filterResults();
 			const q = (search.value || "").trim();
-			input.value = q;
-			if (meta) meta.textContent = q || defaultMeta;
-			wrap.classList.toggle("is-filled", Boolean(q));
+			syncFilled(q);
+			scheduleFetch(q);
 		});
 
 		search?.addEventListener("click", (e) => e.stopPropagation());
@@ -12146,22 +12315,13 @@
 			e.stopPropagation();
 			if (e.key === "Enter") {
 				e.preventDefault();
-				const first = options.find((opt) => !opt.closest("[data-header-artist-item]")?.hidden);
-				if (first) first.click();
-			}
-		});
-
-		options.forEach((btn) => {
-			btn.addEventListener("click", (e) => {
-				e.preventDefault();
-				e.stopPropagation();
-				const value = btn.getAttribute("data-value") || "";
-				input.value = value;
-				if (search) search.value = value;
-				if (meta) meta.textContent = value || defaultMeta;
-				wrap.classList.toggle("is-filled", Boolean(value));
+				const first = list.querySelector("[data-header-artist-option]");
+				if (first) {
+					first.click();
+					return;
+				}
 				close();
-			});
+			}
 		});
 
 		panel.addEventListener("click", (e) => e.stopPropagation());

@@ -142,24 +142,6 @@
 		order: 2;
 	}
 
-	body.page-template-page-contactus .main-navigation .menu > li.current-menu-item > a,
-	body.page-template-page-contactus .main-navigation .menu > li.current_page_item > a,
-	body.page-template-page-contactus .main-navigation .menu > li.current-menu-ancestor > a {
-		padding: 0.52vw 0;
-		border-color: transparent;
-		background-image: none;
-		font-weight: 400;
-		box-shadow: none;
-	}
-
-	body.page-template-page-contactus .main-navigation .menu > li:has(> a[href*="explore-artists"]) > a {
-		padding: 1.04vw 2.08vw;
-		border-color: rgba(255, 255, 255, 0.8);
-		background-image: var(--ee-quote-gradient);
-		font-weight: 800;
-		box-shadow: 0 0.21vw 0.1vw rgba(155, 77, 255, 0.5);
-	}
-
 	/* Contact Us quote tab — Figma 2225:9034 */
 	body.page-template-page-contactus .contact-intro {
 		padding: 3.125vw 0 0;
