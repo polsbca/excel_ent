@@ -2614,6 +2614,7 @@ body.front-page .site-header::before {
 }
 
 .header-search-mobile__artist-field {
+	position: relative;
 	display: block;
 	width: 100%;
 }
@@ -2621,7 +2622,7 @@ body.front-page .site-header::before {
 .header-search-mobile__artist-input {
 	width: 100%;
 	margin: 0;
-	padding: 0 0 12px;
+	padding: 0 28px 12px 0;
 	border: 0;
 	border-bottom: 1px solid #cdcdcd;
 	background: transparent;
@@ -2639,6 +2640,24 @@ body.front-page .site-header::before {
 	color: #6b7280;
 }
 
+.header-search-mobile__artist-spinner {
+	position: absolute;
+	top: 3px;
+	right: 2px;
+	width: 16px;
+	height: 16px;
+	border: 2px solid rgba(68, 68, 68, 0.18);
+	border-top-color: #eb2055;
+	border-radius: 50%;
+	box-sizing: border-box;
+	pointer-events: none;
+	animation: header-artist-spin 0.65s linear infinite;
+}
+
+.header-search-mobile__artist-spinner[hidden] {
+	display: none;
+}
+
 .header-search-mobile__results {
 	display: flex;
 	flex-direction: column;
@@ -2647,6 +2666,30 @@ body.front-page .site-header::before {
 	margin: 0;
 	padding: 0;
 	list-style: none;
+}
+
+.header-search-mobile__results.is-loading {
+	opacity: 0.55;
+	pointer-events: none;
+}
+
+.header-search-mobile__results[hidden] {
+	display: none;
+}
+
+.header-search-mobile__artist-hint {
+	margin: 0;
+	font-family: var(--ee-font-condensed, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 75;
+	font-weight: 600;
+	font-size: 14px;
+	line-height: 1.4;
+	letter-spacing: 0.5px;
+	color: rgba(0, 0, 0, 0.45);
+}
+
+.header-search-mobile__artist-hint[hidden] {
+	display: none;
 }
 
 .header-search-mobile__result[hidden] {

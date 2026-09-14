@@ -629,6 +629,37 @@ function excel_ent_default_services_links() {
 }
 
 /**
+ * Absolute URL for the artist Terms & Conditions PDF.
+ *
+ * @return string
+ */
+function excel_ent_get_terms_pdf_url() {
+	return content_url( 'uploads/2026/09/Excel-Terms-and-conditions-for-artists.pdf' );
+}
+
+/**
+ * Whether a footer/company link should open the PDF modal.
+ *
+ * @param string $label Link label.
+ * @param string $url   Link URL.
+ * @return bool
+ */
+function excel_ent_is_terms_pdf_link( $label, $url = '' ) {
+	$label = trim( wp_strip_all_tags( (string) $label ) );
+	if ( $label && false !== stripos( $label, 'Terms' ) ) {
+		return true;
+	}
+
+	$path = (string) wp_parse_url( (string) $url, PHP_URL_PATH );
+	if ( $path && false !== stripos( $path, 'terms' ) ) {
+		return true;
+	}
+
+	$pdf = excel_ent_get_terms_pdf_url();
+	return $pdf && untrailingslashit( (string) $url ) === untrailingslashit( $pdf );
+}
+
+/**
  * Default Company footer links.
  *
  * @return array<string, string>
@@ -638,7 +669,7 @@ function excel_ent_default_company_links() {
 		__( 'About Us', 'excel-ent' )           => home_url( '/about-us/' ),
 		__( 'Contact Us', 'excel-ent' )         => excel_ent_get_contact_url(),
 		__( 'Ideas & Advice', 'excel-ent' )     => home_url( '/#blog' ),
-		__( 'Terms & Conditions', 'excel-ent' ) => home_url( '/terms-conditions/' ),
+		__( 'Terms & Conditions', 'excel-ent' ) => excel_ent_get_terms_pdf_url(),
 		__( 'Privacy Policy', 'excel-ent' )     => home_url( '/privacy-policy/' ),
 		__( 'Celebrity Acts', 'excel-ent' )     => excel_ent_get_explore_artists_url(
 			array(
@@ -721,10 +752,16 @@ function excel_ent_footer_column( $location, $title, $fallback = array(), $args 
 				foreach ( $fallback as $label => $url ) {
 					$link_path  = untrailingslashit( (string) wp_parse_url( $url, PHP_URL_PATH ) );
 					$is_current = ( $link_path && $current_path && $link_path === $current_path );
+					$attrs      = '';
+					if ( excel_ent_is_terms_pdf_link( $label, $url ) ) {
+						$url   = excel_ent_get_terms_pdf_url();
+						$attrs = ' data-pdf-modal-open target="_blank" rel="noopener noreferrer"';
+					}
 					printf(
-						'<li%1$s><a href="%2$s">%3$s</a></li>',
+						'<li%1$s><a href="%2$s"%3$s>%4$s</a></li>',
 						$is_current ? ' class="is-active current-menu-item"' : '',
 						esc_url( $url ),
+						$attrs, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static attribute string.
 						esc_html( $label )
 					);
 				}
@@ -735,3 +772,32 @@ function excel_ent_footer_column( $location, $title, $fallback = array(), $args 
 	</div>
 	<?php
 }
+
+/**
+ * Open Terms & Conditions footer links in the PDF modal (assigned menus).
+ *
+ * @param array    $atts  HTML attributes.
+ * @param WP_Post  $item  Menu item.
+ * @param stdClass $args  Menu args.
+ * @return array
+ */
+function excel_ent_footer_terms_pdf_link_attrs( $atts, $item, $args ) {
+	$location = isset( $args->theme_location ) ? (string) $args->theme_location : '';
+	if ( 'footer-company' !== $location ) {
+		return $atts;
+	}
+
+	$title = isset( $item->title ) ? (string) $item->title : '';
+	$url   = isset( $atts['href'] ) ? (string) $atts['href'] : '';
+	if ( ! excel_ent_is_terms_pdf_link( $title, $url ) ) {
+		return $atts;
+	}
+
+	$atts['href']               = excel_ent_get_terms_pdf_url();
+	$atts['data-pdf-modal-open'] = 'true';
+	$atts['target']             = '_blank';
+	$atts['rel']                = 'noopener noreferrer';
+
+	return $atts;
+}
+add_filter( 'nav_menu_link_attributes', 'excel_ent_footer_terms_pdf_link_attrs', 10, 3 );

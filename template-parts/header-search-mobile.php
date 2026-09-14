@@ -79,25 +79,8 @@ $excel_ent_category_group   = $excel_ent_category ? $excel_ent_category : 'artis
 $excel_ent_sub_category     = $excel_ent_category_state['sub_category'];
 $excel_ent_selected_subcats = $excel_ent_category_state['sub_values'];
 
-$excel_ent_artist_avatar  = $excel_ent_legacy_icons . '/artist-search-avatar.jpg';
-$excel_ent_artist_results = array(
-	array(
-		'label'  => __( 'Andy Crosbie as Elton John', 'excel-ent' ),
-		'avatar' => $excel_ent_artist_avatar,
-	),
-	array(
-		'label'  => __( 'Darin Day Live Band', 'excel-ent' ),
-		'avatar' => $excel_ent_artist_avatar,
-	),
-	array(
-		'label'  => __( 'Soulful Nights Duo', 'excel-ent' ),
-		'avatar' => $excel_ent_artist_avatar,
-	),
-	array(
-		'label'  => __( 'Midnight Groove DJ', 'excel-ent' ),
-		'avatar' => $excel_ent_artist_avatar,
-	),
-);
+$excel_ent_artist_avatar  = excel_ent_get_artist_placeholder_image_url();
+$excel_ent_artist_chevron = $excel_ent_icons . '/chevron-right.svg';
 
 $excel_ent_tag_labels = array();
 foreach ( $excel_ent_category_groups as $excel_ent_group ) {
@@ -344,7 +327,12 @@ $excel_ent_chip_active = array(
 								<img src="<?php echo esc_url( $excel_ent_icons . '/search-eye-line-sm.svg' ); ?>" alt="" width="20" height="20" decoding="async">
 								<span><?php esc_html_e( 'Search Artist', 'excel-ent' ); ?></span>
 							</button>
-							<div class="header-search-mobile__artist-box" data-msm-artist>
+							<div
+								class="header-search-mobile__artist-box"
+								data-msm-artist
+								data-artist-avatar="<?php echo esc_url( $excel_ent_artist_avatar ); ?>"
+								data-artist-chevron="<?php echo esc_url( $excel_ent_artist_chevron ); ?>"
+							>
 								<label class="header-search-mobile__artist-field">
 									<span class="screen-reader-text"><?php esc_html_e( 'Search Artist', 'excel-ent' ); ?></span>
 									<input
@@ -356,29 +344,25 @@ $excel_ent_chip_active = array(
 										data-msm-artist-search
 										autocomplete="off"
 									>
+									<span
+										class="header-search-mobile__artist-spinner"
+										data-msm-artist-spinner
+										hidden
+										aria-hidden="true"
+									></span>
 								</label>
-								<ul class="header-search-mobile__results" role="listbox" aria-label="<?php esc_attr_e( 'Artist results', 'excel-ent' ); ?>">
-									<?php foreach ( $excel_ent_artist_results as $excel_ent_artist ) : ?>
-										<li class="header-search-mobile__result" role="none" data-msm-artist-item>
-											<button
-												type="button"
-												class="header-search-mobile__result-btn"
-												role="option"
-												data-msm-artist-option
-												data-value="<?php echo esc_attr( $excel_ent_artist['label'] ); ?>"
-												data-search="<?php echo esc_attr( strtolower( $excel_ent_artist['label'] ) ); ?>"
-											>
-												<span class="header-search-mobile__result-left">
-													<img class="header-search-mobile__avatar" src="<?php echo esc_url( $excel_ent_artist['avatar'] ); ?>" alt="" width="40" height="40" decoding="async">
-													<span class="header-search-mobile__result-name"><?php echo esc_html( $excel_ent_artist['label'] ); ?></span>
-												</span>
-												<img class="header-search-mobile__chevron" src="<?php echo esc_url( $excel_ent_icons . '/chevron-right.svg' ); ?>" alt="" width="20" height="20" decoding="async">
-											</button>
-										</li>
-									<?php endforeach; ?>
-								</ul>
+								<ul
+									class="header-search-mobile__results"
+									role="listbox"
+									aria-label="<?php esc_attr_e( 'Artist results', 'excel-ent' ); ?>"
+									data-msm-artist-list
+									hidden
+								></ul>
 								<p class="header-search-mobile__empty" data-msm-artist-empty hidden>
 									<?php esc_html_e( 'No artists found', 'excel-ent' ); ?>
+								</p>
+								<p class="header-search-mobile__artist-hint" data-msm-artist-hint>
+									<?php esc_html_e( 'Start typing to search artists', 'excel-ent' ); ?>
 								</p>
 							</div>
 						</div>

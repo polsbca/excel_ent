@@ -42,9 +42,16 @@ function excel_ent_enqueue_assets() {
 	);
 
 	wp_enqueue_style(
+		'excel-ent-pdf-modal',
+		EXCEL_ENT_URI . '/assets/css/pdf-modal.css',
+		array( 'excel-ent-header-footer' ),
+		EXCEL_ENT_VERSION
+	);
+
+	wp_enqueue_style(
 		'excel-ent-animations',
 		EXCEL_ENT_URI . '/assets/css/animations.css',
-		array( 'excel-ent-header-footer' ),
+		array( 'excel-ent-pdf-modal' ),
 		EXCEL_ENT_VERSION
 	);
 

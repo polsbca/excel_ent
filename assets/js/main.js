@@ -18,6 +18,7 @@
 				document.body.classList.contains("nav-open") ||
 				document.body.classList.contains("mobile-search-open") ||
 				document.body.classList.contains("blog-modal-open") ||
+				document.body.classList.contains("pdf-modal-open") ||
 				document.body.classList.contains("package-compare-open") ||
 				document.body.classList.contains("package-enquiry-open") ||
 				document.body.classList.contains("package-card-expanded-open") ||
@@ -10733,6 +10734,74 @@
 		dialog?.addEventListener("click", (e) => e.stopPropagation());
 	}
 
+	/* ---------- PDF viewer modal (footer Terms & Conditions) ---------- */
+	const pdfModal = document.querySelector("[data-pdf-modal]");
+	if (pdfModal) {
+		const dialog = pdfModal.querySelector("[data-pdf-modal-dialog]");
+		const frame = pdfModal.querySelector("[data-pdf-modal-frame]");
+		const titleEl = pdfModal.querySelector("[data-pdf-modal-title]");
+		const downloadEl = pdfModal.querySelector("[data-pdf-modal-download]");
+		let lastFocus = null;
+
+		const open = (trigger) => {
+			const src =
+				trigger?.getAttribute("data-pdf-src") ||
+				trigger?.getAttribute("href") ||
+				downloadEl?.getAttribute("href") ||
+				"";
+			const title =
+				trigger?.getAttribute("data-pdf-title") ||
+				trigger?.textContent?.trim() ||
+				titleEl?.textContent?.trim() ||
+				"PDF";
+
+			if (!src) return;
+
+			lastFocus = document.activeElement;
+			if (titleEl) titleEl.textContent = title;
+			if (downloadEl) {
+				downloadEl.href = src;
+			}
+			if (frame) {
+				frame.src = src;
+				frame.title = title;
+			}
+
+			pdfModal.hidden = false;
+			document.body.classList.add("pdf-modal-open");
+			window.setTimeout(() => dialog?.focus(), 40);
+		};
+
+		const close = () => {
+			pdfModal.hidden = true;
+			document.body.classList.remove("pdf-modal-open");
+			if (frame) frame.src = "about:blank";
+			if (lastFocus && typeof lastFocus.focus === "function") {
+				lastFocus.focus();
+			}
+		};
+
+		document.addEventListener("click", (e) => {
+			const trigger = e.target.closest("[data-pdf-modal-open]");
+			if (!trigger) return;
+			e.preventDefault();
+			e.stopPropagation();
+			open(trigger);
+		});
+
+		pdfModal.querySelectorAll("[data-pdf-modal-close]").forEach((el) => {
+			el.addEventListener("click", close);
+		});
+
+		window.addEventListener("keydown", (e) => {
+			if (e.key === "Escape" && !pdfModal.hidden) {
+				close();
+			}
+		});
+
+		dialog?.addEventListener("click", (e) => e.stopPropagation());
+	}
+
 	/* ---------- Contact tabs + accordion ---------- */
 	const contactTabsRoot = document.querySelector("[data-contact-tabs]");
 	if (contactTabsRoot) {
@@ -12370,7 +12439,10 @@
 		const cards = Array.from(root.querySelectorAll("[data-msm-card]"));
 		const artistSearch = root.querySelector("[data-msm-artist-search]");
 		const artistEmpty = root.querySelector("[data-msm-artist-empty]");
-		const artistItems = Array.from(root.querySelectorAll("[data-msm-artist-item]"));
+		const artistHint = root.querySelector("[data-msm-artist-hint]");
+		const artistList = root.querySelector("[data-msm-artist-list]");
+		const artistSpinner = root.querySelector("[data-msm-artist-spinner]");
+		const artistBox = root.querySelector("[data-msm-artist]");
 		const artistCard = root.querySelector('[data-msm-card="artist"]');
 		const categoriesCard = root.querySelector('[data-msm-card="categories"]');
 		const locationCard = root.querySelector('[data-msm-card="location"]');
@@ -12392,6 +12464,13 @@
 		const homeChips = Array.from(root.querySelectorAll("[data-msm-home-chip]"));
 		const homeSearchBtn = root.querySelector("[data-msm-home-search]");
 		const homeInlineMq = window.matchMedia("(max-width: 767px)");
+		const ajaxUrl = window.excelEnt?.ajaxUrl || "";
+		const suggestCfg = window.excelEnt?.artistSuggest || {};
+		const placeholderAvatar = artistBox?.getAttribute("data-artist-avatar") || "";
+		const chevronSrc = artistBox?.getAttribute("data-artist-chevron") || "";
+		const defaultArtistEmpty = artistEmpty?.textContent?.trim() || "No artists found";
+		let artistDebounceTimer = 0;
+		let artistRequestId = 0;
 		if (!openBtn || !panel) return;
 
 		const isHomeInline = () =>
@@ -12524,7 +12603,7 @@
 		const clearHomeFilter = (key) => {
 			if (key === "artist") {
 				if (artistSearch) artistSearch.value = "";
-				filterArtists();
+				resetArtistResults();
 				syncArtistSummary();
 			} else if (key === "categories") {
 				subCategoryChecks.forEach((btn) => {
@@ -12576,17 +12655,176 @@
 			syncHomeChips();
 		};
 
-		const filterArtists = () => {
-			const q = (artistSearch?.value || "").trim().toLowerCase();
-			let visible = 0;
-			artistItems.forEach((item) => {
-				const opt = item.querySelector("[data-msm-artist-option]");
-				const hay = opt?.getAttribute("data-search") || "";
-				const show = !q || hay.includes(q);
-				item.hidden = !show;
-				if (show) visible += 1;
+		const setArtistLoading = (on) => {
+			if (artistSpinner) artistSpinner.hidden = !on;
+			artistList?.classList.toggle("is-loading", on);
+		};
+
+		const setArtistHint = (visible) => {
+			if (artistHint) artistHint.hidden = !visible;
+		};
+
+		const setArtistEmpty = (visible, message) => {
+			if (!artistEmpty) return;
+			artistEmpty.textContent = message || defaultArtistEmpty;
+			artistEmpty.hidden = !visible;
+		};
+
+		const clearArtistList = () => {
+			if (artistList) artistList.innerHTML = "";
+		};
+
+		const resetArtistResults = () => {
+			window.clearTimeout(artistDebounceTimer);
+			artistRequestId += 1;
+			setArtistLoading(false);
+			clearArtistList();
+			if (artistList) artistList.hidden = true;
+			setArtistEmpty(false);
+			setArtistHint(true);
+		};
+
+		const renderArtistSuggestions = (suggestions) => {
+			clearArtistList();
+			if (!artistList) return;
+
+			const rows = Array.isArray(suggestions) ? suggestions : [];
+			rows.forEach((item) => {
+				const label = String(item?.label || "").trim();
+				if (!label) return;
+
+				const li = document.createElement("li");
+				li.className = "header-search-mobile__result";
+				li.setAttribute("role", "none");
+				li.setAttribute("data-msm-artist-item", "");
+
+				const btn = document.createElement("button");
+				btn.type = "button";
+				btn.className = "header-search-mobile__result-btn";
+				btn.setAttribute("role", "option");
+				btn.setAttribute("data-msm-artist-option", "");
+				btn.setAttribute("data-value", label);
+				if (item?.id) btn.setAttribute("data-id", String(item.id));
+
+				const left = document.createElement("span");
+				left.className = "header-search-mobile__result-left";
+
+				const avatar = document.createElement("img");
+				avatar.className = "header-search-mobile__avatar";
+				avatar.src = item?.avatar || placeholderAvatar;
+				avatar.alt = "";
+				avatar.width = 40;
+				avatar.height = 40;
+				avatar.decoding = "async";
+				avatar.loading = "lazy";
+				avatar.addEventListener("error", () => {
+					if (placeholderAvatar && avatar.src !== placeholderAvatar) {
+						avatar.src = placeholderAvatar;
+					}
+				});
+
+				const name = document.createElement("span");
+				name.className = "header-search-mobile__result-name";
+				name.textContent = label;
+
+				left.append(avatar, name);
+
+				const chevron = document.createElement("img");
+				chevron.className = "header-search-mobile__chevron";
+				chevron.src = chevronSrc;
+				chevron.alt = "";
+				chevron.width = 20;
+				chevron.height = 20;
+				chevron.decoding = "async";
+
+				btn.append(left, chevron);
+				btn.addEventListener("click", (e) => {
+					e.preventDefault();
+					if (artistSearch) artistSearch.value = label;
+					syncArtistSummary();
+					collapsePanels();
+				});
+
+				li.append(btn);
+				artistList.append(li);
 			});
-			if (artistEmpty) artistEmpty.hidden = visible > 0;
+
+			const hasRows = artistList.children.length > 0;
+			setArtistEmpty(!hasRows);
+			setArtistHint(false);
+			artistList.hidden = !hasRows;
+		};
+
+		const fetchArtistSuggestions = async (q) => {
+			const query = (q || "").trim();
+			if (!ajaxUrl || !suggestCfg.nonce) {
+				resetArtistResults();
+				return;
+			}
+			if (query.length < 1) {
+				resetArtistResults();
+				return;
+			}
+
+			const id = ++artistRequestId;
+			setArtistLoading(true);
+			setArtistHint(false);
+			setArtistEmpty(false);
+
+			try {
+				const body = new URLSearchParams({
+					action: "excel_ent_artist_suggest",
+					nonce: suggestCfg.nonce,
+					q: query,
+				});
+				const response = await fetch(ajaxUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+					},
+					body: body.toString(),
+					credentials: "same-origin",
+				});
+				const payload = await response.json();
+				if (id !== artistRequestId) return;
+				if (!payload?.success) {
+					throw new Error("suggest_failed");
+				}
+				renderArtistSuggestions(payload.data?.suggestions || []);
+			} catch (error) {
+				if (id !== artistRequestId) return;
+				clearArtistList();
+				if (artistList) artistList.hidden = true;
+				setArtistHint(false);
+				setArtistEmpty(true, suggestCfg.errorLabel || "Could not load artists. Please try again.");
+			} finally {
+				if (id === artistRequestId) {
+					setArtistLoading(false);
+				}
+			}
+		};
+
+		const scheduleArtistFetch = (q) => {
+			window.clearTimeout(artistDebounceTimer);
+			const query = (q || "").trim();
+			if (query.length < 1) {
+				resetArtistResults();
+				return;
+			}
+			setArtistLoading(true);
+			setArtistHint(false);
+			artistDebounceTimer = window.setTimeout(() => {
+				fetchArtistSuggestions(q);
+			}, 280);
+		};
+
+		const refreshArtistPanel = () => {
+			const q = (artistSearch?.value || "").trim();
+			if (q) {
+				fetchArtistSuggestions(q);
+			} else {
+				resetArtistResults();
+			}
 		};
 
 		const syncArtistSummary = () => {
@@ -12686,7 +12924,7 @@
 
 			window.setTimeout(() => {
 				if (key === "artist") {
-					filterArtists();
+					refreshArtistPanel();
 					artistSearch?.focus();
 				} else if (key === "location") {
 					locationInput?.focus();
@@ -12790,7 +13028,7 @@
 			const key = card.getAttribute("data-msm-card");
 			window.setTimeout(() => {
 				if (key === "artist") {
-					filterArtists();
+					refreshArtistPanel();
 					artistSearch?.focus();
 				} else if (key === "location") {
 					locationInput?.focus();
@@ -12812,7 +13050,7 @@
 			openBtn.setAttribute("aria-expanded", "true");
 			document.body.classList.add("mobile-search-open");
 			collapseCards();
-			filterArtists();
+			refreshArtistPanel();
 		};
 
 		const close = () => {
@@ -12911,19 +13149,19 @@
 		});
 
 		artistSearch?.addEventListener("input", () => {
-			filterArtists();
+			scheduleArtistFetch(artistSearch.value || "");
 			syncArtistSummary();
 		});
 
-		root.querySelectorAll("[data-msm-artist-option]").forEach((btn) => {
-			btn.addEventListener("click", (e) => {
-				e.preventDefault();
-				const value = btn.getAttribute("data-value") || "";
-				if (artistSearch) artistSearch.value = value;
-				filterArtists();
-				syncArtistSummary();
-				collapsePanels();
-			});
+		artistSearch?.addEventListener("keydown", (e) => {
+			if (e.key !== "Enter") return;
+			e.preventDefault();
+			const first = artistList?.querySelector("[data-msm-artist-option]");
+			if (first) {
+				first.click();
+				return;
+			}
+			collapsePanels();
 		});
 
 		catTabs.forEach((tab) => {
@@ -13025,7 +13263,7 @@
 		clearBtn?.addEventListener("click", (e) => {
 			e.preventDefault();
 			if (artistSearch) artistSearch.value = "";
-			filterArtists();
+			resetArtistResults();
 			syncArtistSummary();
 
 			subCategoryChecks.forEach((btn) => {
