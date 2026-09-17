@@ -11105,7 +11105,215 @@
 			});
 
 			const searchInput = dd.querySelector("[data-contact-dd-search]");
-			if (searchInput) {
+			const isArtistSuggest = dd.hasAttribute("data-contact-dd-artist-suggest");
+			if (searchInput && isArtistSuggest) {
+				const resultsList = dd.querySelector("[data-contact-dd-results]");
+				const spinner = dd.querySelector("[data-contact-dd-spinner]");
+				const emptyEl = dd.querySelector("[data-contact-dd-empty]");
+				const hintEl = dd.querySelector("[data-contact-dd-hint]");
+				const placeholderAvatar = dd.getAttribute("data-artist-avatar") || "";
+				const ajaxUrl = window.excelEnt?.ajaxUrl || "";
+				const suggestCfg = window.excelEnt?.artistSuggest || {};
+				const defaultEmpty = emptyEl?.textContent?.trim() || "No artists found";
+				let debounceTimer = 0;
+				let requestId = 0;
+
+				const setLoading = (on) => {
+					if (spinner) spinner.hidden = !on;
+					resultsList?.classList.toggle("is-loading", on);
+				};
+
+				const setHint = (visible) => {
+					if (hintEl) hintEl.hidden = !visible;
+				};
+
+				const setEmpty = (visible, message) => {
+					if (!emptyEl) return;
+					emptyEl.textContent = message || defaultEmpty;
+					emptyEl.hidden = !visible;
+				};
+
+				const selectedPrefIds = () => {
+					const root = dd.closest("[data-artist-prefs]");
+					if (!root) return new Set();
+					return new Set(
+						Array.from(root.querySelectorAll("[data-artist-prefs-select]"))
+							.map((el) => (el.value || "").trim())
+							.filter(Boolean)
+							.filter((id) => id !== (input?.value || "").trim())
+					);
+				};
+
+				const bindOption = (opt) => {
+					opt.addEventListener("click", (e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						const value = opt.getAttribute("data-value") || "";
+						const label = opt.getAttribute("data-label") || value;
+						clearOptions();
+						opt.classList.add("is-selected");
+						opt.setAttribute("aria-selected", "true");
+						applyValue(value, label, { clearCustom: true });
+						const nameInput = dd.querySelector("[data-artist-prefs-name]");
+						if (nameInput) nameInput.value = label;
+						if (searchInput) searchInput.value = "";
+					});
+				};
+
+				const renderSuggestions = (suggestions) => {
+					if (!resultsList) return;
+					resultsList.innerHTML = "";
+					const taken = selectedPrefIds();
+					const rows = Array.isArray(suggestions) ? suggestions : [];
+					rows.forEach((item) => {
+						const label = String(item?.label || "").trim();
+						if (!label) return;
+						const id = String(item?.id || "").trim();
+						const value = id || label;
+						if (taken.has(value)) return;
+
+						const li = document.createElement("li");
+						li.className = "contact-dd__item";
+						li.setAttribute("role", "none");
+						li.setAttribute("data-contact-dd-item", "");
+						li.setAttribute("data-label", label.toLowerCase());
+
+						const btn = document.createElement("button");
+						btn.type = "button";
+						btn.className = "contact-dd__option contact-dd__option--artist";
+						btn.setAttribute("role", "option");
+						btn.setAttribute("aria-selected", "false");
+						btn.setAttribute("data-contact-dd-option", "");
+						btn.setAttribute("data-value", value);
+						btn.setAttribute("data-label", label);
+						if (id) btn.setAttribute("data-id", id);
+
+						const avatar = document.createElement("img");
+						avatar.className = "contact-dd__avatar";
+						avatar.src = item?.avatar || placeholderAvatar;
+						avatar.alt = "";
+						avatar.width = 30;
+						avatar.height = 30;
+						avatar.decoding = "async";
+						avatar.loading = "lazy";
+						avatar.addEventListener("error", () => {
+							if (placeholderAvatar && avatar.src !== placeholderAvatar) {
+								avatar.src = placeholderAvatar;
+							}
+						});
+
+						const name = document.createElement("span");
+						name.className = "contact-dd__option-label";
+						name.textContent = label;
+
+						btn.append(avatar, name);
+						bindOption(btn);
+						li.append(btn);
+						resultsList.append(li);
+					});
+
+					const hasRows = resultsList.children.length > 0;
+					resultsList.hidden = !hasRows;
+					setEmpty(!hasRows);
+					setHint(false);
+				};
+
+				const fetchSuggestions = async (q) => {
+					const query = (q || "").trim();
+					if (!ajaxUrl || !suggestCfg.nonce) {
+						setLoading(false);
+						if (resultsList) {
+							resultsList.innerHTML = "";
+							resultsList.hidden = true;
+						}
+						setEmpty(false);
+						setHint(true);
+						return;
+					}
+					if (query.length < 1) {
+						setLoading(false);
+						if (resultsList) {
+							resultsList.innerHTML = "";
+							resultsList.hidden = true;
+						}
+						setEmpty(false);
+						setHint(true);
+						return;
+					}
+
+					const id = ++requestId;
+					setLoading(true);
+					setHint(false);
+					setEmpty(false);
+
+					try {
+						const body = new URLSearchParams({
+							action: "excel_ent_artist_suggest",
+							nonce: suggestCfg.nonce,
+							q: query,
+						});
+						const response = await fetch(ajaxUrl, {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+							},
+							body: body.toString(),
+							credentials: "same-origin",
+						});
+						const payload = await response.json();
+						if (id !== requestId) return;
+						if (!payload?.success) {
+							throw new Error("suggest_failed");
+						}
+						renderSuggestions(payload.data?.suggestions || []);
+					} catch (error) {
+						if (id !== requestId) return;
+						if (resultsList) {
+							resultsList.innerHTML = "";
+							resultsList.hidden = true;
+						}
+						setHint(false);
+						setEmpty(true, suggestCfg.errorLabel || "Could not load artists. Please try again.");
+					} finally {
+						if (id === requestId) {
+							setLoading(false);
+						}
+					}
+				};
+
+				const scheduleFetch = (q) => {
+					window.clearTimeout(debounceTimer);
+					const query = (q || "").trim();
+					if (query.length < 1) {
+						setLoading(false);
+					} else {
+						setLoading(true);
+					}
+					debounceTimer = window.setTimeout(() => {
+						fetchSuggestions(q);
+					}, 280);
+				};
+
+				searchInput.addEventListener("click", (e) => e.stopPropagation());
+				searchInput.addEventListener("keydown", (e) => e.stopPropagation());
+				searchInput.addEventListener("input", () => {
+					scheduleFetch(searchInput.value);
+				});
+
+				trigger?.addEventListener("click", () => {
+					window.setTimeout(() => {
+						if (!field?.classList.contains("is-open")) return;
+						searchInput.value = "";
+						if (resultsList) {
+							resultsList.innerHTML = "";
+							resultsList.hidden = true;
+						}
+						setLoading(false);
+						setEmpty(false);
+						setHint(true);
+					}, 0);
+				});
+			} else if (searchInput) {
 				searchInput.addEventListener("click", (e) => e.stopPropagation());
 				searchInput.addEventListener("keydown", (e) => e.stopPropagation());
 				searchInput.addEventListener("input", () => {
@@ -11590,6 +11798,322 @@
 			updateRows();
 		});
 	}
+
+	/* ---------- Contact — Get a Quote (email admin + customer) ---------- */
+	document.querySelectorAll('[data-contact-form="booking"]').forEach((form) => {
+		const statusEl = form.querySelector("[data-contact-quote-status]");
+		const submitBtn = form.querySelector("[data-contact-quote-submit]");
+		const submitLabel = form.querySelector("[data-contact-quote-submit-label]");
+		const cfg = window.excelEnt?.quoteEnquiry || {};
+		const ajaxUrl = window.excelEnt?.ajaxUrl || "";
+		const defaultLabel = submitLabel?.textContent?.trim() || cfg.submitLabel || "Get A Quote";
+
+		const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+
+		const setStatus = (message, type) => {
+			if (!statusEl) return;
+			statusEl.hidden = !message;
+			statusEl.textContent = message || "";
+			statusEl.classList.toggle("is-success", type === "success");
+			statusEl.classList.toggle("is-error", type === "error");
+		};
+
+		const setBusy = (busy) => {
+			form.classList.toggle("is-loading", busy);
+			if (submitBtn) submitBtn.disabled = busy;
+			if (submitLabel) {
+				submitLabel.textContent = busy ? cfg.sending || "Sending…" : defaultLabel;
+			}
+		};
+
+		const openAccordionFor = (el) => {
+			const section = el?.closest?.("[data-contact-acc]");
+			if (!section || section.classList.contains("is-open")) return;
+			const toggle = section.querySelector("[data-contact-acc-toggle]");
+			const body = section.querySelector("[data-contact-acc-body]");
+			section.classList.add("is-open");
+			if (body) body.hidden = false;
+			toggle?.setAttribute("aria-expanded", "true");
+		};
+
+		const markField = (selectorOrEl, on) => {
+			const el =
+				typeof selectorOrEl === "string" ? form.querySelector(selectorOrEl) : selectorOrEl;
+			if (!el) return;
+			const target =
+				el.closest(".contact-field--dd") ||
+				el.closest(".contact-field--date") ||
+				el.closest(".contact-field--time") ||
+				el.closest(".contact-yesno__row") ||
+				el.closest(".contact-prefs") ||
+				el.closest(".contact-pref") ||
+				el.closest(".contact-notes") ||
+				el.closest(".contact-agree") ||
+				el.closest(".contact-field") ||
+				el;
+			target.classList.toggle("is-invalid", on);
+			if (on) {
+				openAccordionFor(el);
+				if (typeof el.focus === "function") {
+					try {
+						el.focus({ preventScroll: true });
+					} catch (err) {
+						el.focus();
+					}
+				}
+				target.scrollIntoView({ block: "center", behavior: "smooth" });
+			}
+		};
+
+		const clearInvalid = () => {
+			form.querySelectorAll(".is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+		};
+
+		const fail = (selectorOrEl, message) => {
+			setStatus(message, "error");
+			markField(selectorOrEl, true);
+			return false;
+		};
+
+		const valueOf = (name) => (form.querySelector(`[name="${name}"]`)?.value || "").trim();
+		const radioValue = (name) =>
+			(form.querySelector(`[name="${name}"]:checked`)?.value || "").trim();
+		const hasArtistPref = () =>
+			Array.from(form.querySelectorAll("[data-artist-prefs-select]")).some((el) =>
+				Boolean((el.value || "").trim())
+			);
+
+		const validate = () => {
+			clearInvalid();
+			setStatus("", "");
+
+			const fullName = valueOf("excel_ent_full_name");
+			const phone = valueOf("excel_ent_phone");
+			const email = valueOf("excel_ent_email");
+			const payment = valueOf("excel_ent_payment");
+			const categories = valueOf("excel_ent_ent_type");
+			const budget = valueOf("excel_ent_budget");
+			const packageVal = valueOf("excel_ent_package");
+			const regular = radioValue("excel_ent_regular");
+			const regularDetails = valueOf("excel_ent_regular_details");
+			const eventDate = valueOf("excel_ent_event_date");
+			const startTime = valueOf("excel_ent_start_time");
+			const guests = valueOf("excel_ent_guests");
+			const setLength = valueOf("excel_ent_set_length");
+			const venue = valueOf("excel_ent_venue");
+			const venueAddress = valueOf("excel_ent_venue_address");
+			const paLighting = radioValue("excel_ent_pa_lighting");
+			const parking = radioValue("excel_ent_parking");
+			const stairs = radioValue("excel_ent_stairs");
+			const notes = valueOf("excel_ent_notes");
+			const contactPref = radioValue("excel_ent_contact_pref");
+			const contactDetails = valueOf("excel_ent_contact_details");
+			const agree = form.querySelector('[name="excel_ent_agree"]')?.checked;
+
+			if (!fullName) {
+				return fail('[name="excel_ent_full_name"]', cfg.nameRequired || "Please enter your full name.");
+			}
+			if (!phone) {
+				return fail('[name="excel_ent_phone"]', cfg.phoneRequired || "Please enter your phone number.");
+			}
+			if (!email) {
+				return fail('[name="excel_ent_email"]', cfg.emailRequired || "Please enter your email address.");
+			}
+			if (!isValidEmail(email)) {
+				return fail('[name="excel_ent_email"]', cfg.emailInvalid || "Please enter a valid email address.");
+			}
+			if (!payment) {
+				return fail('[name="excel_ent_payment"]', cfg.paymentRequired || "Please select a payment method.");
+			}
+			if (!hasArtistPref()) {
+				return fail(
+					'input[name="excel_ent_artist_pref[]"]',
+					cfg.artistsRequired || "Please select at least one preferred artist."
+				);
+			}
+			if (!categories) {
+				return fail(
+					'[name="excel_ent_ent_type"]',
+					cfg.categoriesRequired || "Please select at least one performance category."
+				);
+			}
+			if (!budget) {
+				return fail('[name="excel_ent_budget"]', cfg.budgetRequired || "Please enter your event budget.");
+			}
+			if (!packageVal) {
+				return fail('[name="excel_ent_package"]', cfg.packageRequired || "Please select a package.");
+			}
+			if (!regular) {
+				return fail(
+					'[name="excel_ent_regular"]',
+					cfg.regularRequired || "Please confirm whether you need regular entertainment."
+				);
+			}
+			if (!regularDetails) {
+				return fail(
+					'[name="excel_ent_regular_details"]',
+					cfg.regularDetailsRequired || "Please add details for regular entertainment."
+				);
+			}
+			if (!eventDate) {
+				return fail('[name="excel_ent_event_date"]', cfg.eventDateRequired || "Please select an event date.");
+			}
+			if (!startTime) {
+				return fail('[name="excel_ent_start_time"]', cfg.startTimeRequired || "Please select a start time.");
+			}
+			if (!guests) {
+				return fail('[name="excel_ent_guests"]', cfg.guestsRequired || "Please enter the guest count.");
+			}
+			if (!setLength) {
+				return fail(
+					'[name="excel_ent_set_length"]',
+					cfg.setLengthRequired || "Please select a performance set length."
+				);
+			}
+			if (!venue) {
+				return fail('[name="excel_ent_venue"]', cfg.venueRequired || "Please enter the venue name.");
+			}
+			if (!venueAddress) {
+				return fail(
+					'[name="excel_ent_venue_address"]',
+					cfg.venueAddressRequired || "Please enter the venue address."
+				);
+			}
+			if (!paLighting) {
+				return fail(
+					'[name="excel_ent_pa_lighting"]',
+					cfg.paLightingRequired || "Please confirm whether PA and lighting are required."
+				);
+			}
+			if (!parking) {
+				return fail(
+					'[name="excel_ent_parking"]',
+					cfg.parkingRequired || "Please confirm whether there is parking."
+				);
+			}
+			if (!stairs) {
+				return fail(
+					'[name="excel_ent_stairs"]',
+					cfg.stairsRequired || "Please confirm whether there are stairs involved."
+				);
+			}
+			if (!notes) {
+				return fail('[name="excel_ent_notes"]', cfg.notesRequired || "Please tell us about your event.");
+			}
+			if (!contactPref) {
+				return fail(
+					'[name="excel_ent_contact_pref"]',
+					cfg.contactPrefRequired || "Please choose how we should contact you."
+				);
+			}
+			if (!contactDetails) {
+				return fail(
+					'[name="excel_ent_contact_details"]',
+					cfg.contactDetailsRequired || "Please add contact preference details."
+				);
+			}
+			if (!agree) {
+				return fail('[name="excel_ent_agree"]', cfg.consentRequired || "Please agree to the Privacy Policy to continue.");
+			}
+			return true;
+		};
+
+		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			if (!validate()) return;
+			if (!ajaxUrl || !cfg.nonce) {
+				setStatus(cfg.genericError || "Something went wrong. Please try again.", "error");
+				return;
+			}
+
+			setBusy(true);
+			try {
+				const body = new FormData(form);
+				body.set("action", "excel_ent_quote_enquiry");
+				body.set("nonce", cfg.nonce);
+
+				const response = await fetch(ajaxUrl, {
+					method: "POST",
+					credentials: "same-origin",
+					body,
+				});
+				const payload = await response.json().catch(() => null);
+				const ok = Boolean(payload?.success);
+				const message =
+					payload?.data?.message ||
+					(ok
+						? cfg.successMessage ||
+						  "Thanks — we’ve received your quote request. Our team will confirm availability and pricing shortly."
+						: cfg.genericError || "Something went wrong. Please try again.");
+
+				if (ok) {
+					form.classList.add("is-success");
+					setStatus(message, "success");
+					form.reset();
+					form.querySelectorAll(".contact-field__input").forEach((el) => {
+						el.classList.remove("has-value", "is-invalid");
+					});
+					form.querySelectorAll("[data-contact-dd-label]").forEach((label) => {
+						const placeholder = label.getAttribute("data-placeholder") || label.textContent;
+						label.textContent = placeholder;
+					});
+					form.querySelectorAll("[data-contact-dd-input]").forEach((input) => {
+						input.value = "";
+					});
+					form.querySelectorAll("[data-artist-prefs-name]").forEach((input) => {
+						input.value = "";
+					});
+					form.querySelectorAll("[data-contact-dd-option].is-selected").forEach((opt) => {
+						opt.classList.remove("is-selected");
+						opt.setAttribute("aria-selected", "false");
+					});
+					form.querySelectorAll("[data-header-date-label], [data-contact-time-label]").forEach((label) => {
+						const placeholder = label.getAttribute("data-placeholder");
+						if (placeholder) label.textContent = placeholder;
+					});
+					form.querySelectorAll(".contact-dd__trigger").forEach((trigger) => {
+						trigger.classList.add("contact-dd__trigger--muted");
+					});
+					statusEl?.scrollIntoView({ block: "center", behavior: "smooth" });
+				} else {
+					const field = payload?.data?.field;
+					const fieldMap = {
+						full_name: '[name="excel_ent_full_name"]',
+						phone: '[name="excel_ent_phone"]',
+						email: '[name="excel_ent_email"]',
+						payment: '[name="excel_ent_payment"]',
+						artists: 'input[name="excel_ent_artist_pref[]"]',
+						categories: '[name="excel_ent_ent_type"]',
+						budget: '[name="excel_ent_budget"]',
+						package: '[name="excel_ent_package"]',
+						regular: '[name="excel_ent_regular"]',
+						regular_details: '[name="excel_ent_regular_details"]',
+						event_date: '[name="excel_ent_event_date"]',
+						start_time: '[name="excel_ent_start_time"]',
+						guests: '[name="excel_ent_guests"]',
+						set_length: '[name="excel_ent_set_length"]',
+						venue: '[name="excel_ent_venue"]',
+						venue_address: '[name="excel_ent_venue_address"]',
+						pa_lighting: '[name="excel_ent_pa_lighting"]',
+						parking: '[name="excel_ent_parking"]',
+						stairs: '[name="excel_ent_stairs"]',
+						notes: '[name="excel_ent_notes"]',
+						contact_pref: '[name="excel_ent_contact_pref"]',
+						contact_details: '[name="excel_ent_contact_details"]',
+						consent: '[name="excel_ent_agree"]',
+					};
+					if (field && fieldMap[field]) {
+						markField(fieldMap[field], true);
+					}
+					setStatus(message, "error");
+				}
+			} catch (err) {
+				setStatus(cfg.genericError || "Something went wrong. Please try again.", "error");
+			} finally {
+				setBusy(false);
+			}
+		});
+	});
 
 	/* ---------- Contact — Register as Artist (Smartflows applications API) ---------- */
 	document.querySelectorAll('[data-contact-form="talent"]').forEach((form) => {

@@ -814,6 +814,7 @@
 }
 
 .contact-dd__search {
+	position: relative;
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -857,6 +858,50 @@
 
 .contact-dd__search-input:focus {
 	outline: none;
+}
+
+.contact-dd__spinner {
+	flex: 0 0 16px;
+	width: 16px;
+	height: 16px;
+	border: 2px solid rgba(255, 255, 255, 0.2);
+	border-top-color: #eb2055;
+	border-radius: 50%;
+	box-sizing: border-box;
+	pointer-events: none;
+	animation: contact-dd-spin 0.65s linear infinite;
+}
+
+.contact-dd__spinner[hidden] {
+	display: none;
+}
+
+@keyframes contact-dd-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.contact-dd__list.is-loading {
+	opacity: 0.55;
+	pointer-events: none;
+}
+
+.contact-dd__empty,
+.contact-dd__hint {
+	margin: 8px 4px 0;
+	padding: 0;
+	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
+	font-variation-settings: "wdth" 100;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 1.4;
+	color: rgba(255, 255, 255, 0.62);
+}
+
+.contact-dd__empty[hidden],
+.contact-dd__hint[hidden] {
+	display: none;
 }
 
 .contact-dd__tabs {

@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'EXCEL_ENT_VERSION', '1.9.678' );
+define( 'EXCEL_ENT_VERSION', '1.9.681' );
 define( 'EXCEL_ENT_DIR', get_template_directory() );
 define( 'EXCEL_ENT_URI', get_template_directory_uri() );
 
@@ -19,5 +19,6 @@ require_once EXCEL_ENT_DIR . '/inc/setup.php';
 require_once EXCEL_ENT_DIR . '/inc/post-types.php';
 require_once EXCEL_ENT_DIR . '/inc/newsletter.php';
 require_once EXCEL_ENT_DIR . '/inc/package-enquiry.php';
+require_once EXCEL_ENT_DIR . '/inc/quote-enquiry.php';
 require_once EXCEL_ENT_DIR . '/inc/enqueue.php';
 require_once EXCEL_ENT_DIR . '/inc/template-tags.php';

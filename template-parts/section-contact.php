@@ -8,39 +8,9 @@
 $excel_ent_uri   = EXCEL_ENT_URI . '/assets/images/contact-page';
 $excel_ent_phone = excel_ent_get_phone_number();
 $excel_ent_email = 'info@excelentertainment.co.uk';
-
-$excel_ent_wishlist = array(
-	'andy-elton'   => array(
-		'label'  => __( 'Andy Crosbie', 'excel-ent' ),
-		'meta'   => __( 'SOLO SINGER', 'excel-ent' ),
-		'avatar' => $excel_ent_uri . '/avatar-artist.jpg',
-	),
-	'darin-day'    => array(
-		'label'  => __( 'Darin Day', 'excel-ent' ),
-		'meta'   => __( 'LIVE BAND', 'excel-ent' ),
-		'avatar' => $excel_ent_uri . '/avatar-artist.jpg',
-	),
-	'soulful'      => array(
-		'label'  => __( 'Soulful Nights', 'excel-ent' ),
-		'meta'   => __( 'DUO', 'excel-ent' ),
-		'avatar' => $excel_ent_uri . '/avatar-artist.jpg',
-	),
-	'midnight-dj'  => array(
-		'label'  => __( 'Midnight Groove', 'excel-ent' ),
-		'meta'   => __( 'DJ', 'excel-ent' ),
-		'avatar' => $excel_ent_uri . '/avatar-artist.jpg',
-	),
-	'wedding-coll' => array(
-		'label'  => __( 'The Wedding Collective', 'excel-ent' ),
-		'meta'   => __( 'LIVE BAND', 'excel-ent' ),
-		'avatar' => $excel_ent_uri . '/avatar-artist.jpg',
-	),
-	'corporate'    => array(
-		'label'  => __( 'Corporate Classics', 'excel-ent' ),
-		'meta'   => __( 'LIVE BAND', 'excel-ent' ),
-		'avatar' => $excel_ent_uri . '/avatar-artist.jpg',
-	),
-);
+$excel_ent_artist_avatar = function_exists( 'excel_ent_get_artist_placeholder_image_url' )
+	? excel_ent_get_artist_placeholder_image_url()
+	: ( EXCEL_ENT_URI . '/assets/images/explore-artists/artist-1.jpg' );
 
 $excel_ent_packages = array(
 	'bronze'   => __( 'Bronze', 'excel-ent' ),
@@ -227,7 +197,7 @@ $excel_ent_package_groups = array(
  *
  * @param array $args Dropdown args.
  */
-$excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
+$excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri, $excel_ent_artist_avatar ) {
 	$name     = isset( $args['name'] ) ? $args['name'] : '';
 	$label    = isset( $args['label'] ) ? $args['label'] : '';
 	$title    = isset( $args['title'] ) ? $args['title'] : $label;
@@ -243,9 +213,10 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 	$search_ph    = isset( $args['search_placeholder'] ) ? $args['search_placeholder'] : __( 'Search', 'excel-ent' );
 	$extra_attrs  = isset( $args['extra_attrs'] ) ? $args['extra_attrs'] : '';
 	$is_artist_pref = ! empty( $args['artist_pref'] );
+	$artist_suggest = ! empty( $args['artist_suggest'] ) || $is_artist_pref;
 	$variant      = isset( $args['variant'] ) ? $args['variant'] : '';
 	$is_multi     = ! empty( $args['multi'] );
-	$scrollable   = ! empty( $args['scrollable'] ) || $searchable || $groups;
+	$scrollable   = ! empty( $args['scrollable'] ) || $searchable || $groups || $artist_suggest;
 
 	$opt_label = static function ( $opt ) {
 		if ( is_array( $opt ) ) {
@@ -344,6 +315,10 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 	if ( $searchable ) {
 		$dd_attrs .= ' data-contact-dd-searchable';
 	}
+	if ( $artist_suggest ) {
+		$dd_attrs .= ' data-contact-dd-artist-suggest';
+		$dd_attrs .= ' data-artist-avatar="' . esc_attr( $excel_ent_artist_avatar ) . '"';
+	}
 	if ( $groups ) {
 		$dd_attrs .= ' data-contact-dd-grouped';
 	}
@@ -366,7 +341,7 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 				aria-expanded="false"
 				aria-haspopup="listbox"
 			>
-				<span class="contact-dd__value" data-contact-dd-label><?php echo esc_html( $selected_label ); ?></span>
+				<span class="contact-dd__value" data-contact-dd-label data-placeholder="<?php echo esc_attr( $placeholder ); ?>"><?php echo esc_html( $selected_label ); ?></span>
 				<img class="contact-dd__chevron" src="<?php echo esc_url( $excel_ent_uri . '/icon-arrow-down.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 			</button>
 			<input
@@ -377,6 +352,9 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 				<?php echo $is_artist_pref ? 'data-artist-prefs-select' : ''; ?>
 				<?php echo $required ? 'required' : ''; ?>
 			>
+			<?php if ( $is_artist_pref ) : ?>
+				<input type="hidden" name="excel_ent_artist_pref_name[]" value="" data-artist-prefs-name>
+			<?php endif; ?>
 			<div class="contact-dd__panel<?php echo $scrollable ? ' contact-dd__panel--scroll' : ''; ?>" data-contact-dd-panel hidden>
 				<p class="contact-dd__title"><?php echo esc_html( $title ); ?></p>
 
@@ -407,6 +385,9 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 							data-contact-dd-search
 							autocomplete="off"
 						>
+						<?php if ( $artist_suggest ) : ?>
+							<span class="contact-dd__spinner" data-contact-dd-spinner hidden aria-hidden="true"></span>
+						<?php endif; ?>
 					</label>
 				<?php endif; ?>
 
@@ -424,7 +405,20 @@ $excel_ent_render_dd = static function ( $args ) use ( $excel_ent_uri ) {
 						</label>
 					<?php endif; ?>
 
-					<?php if ( $groups ) : ?>
+					<?php if ( $artist_suggest ) : ?>
+						<ul
+							class="contact-dd__list"
+							role="listbox"
+							aria-label="<?php echo esc_attr( $title ); ?>"
+							data-contact-dd-results
+						></ul>
+						<p class="contact-dd__empty" data-contact-dd-empty hidden>
+							<?php esc_html_e( 'No artists found', 'excel-ent' ); ?>
+						</p>
+						<p class="contact-dd__hint" data-contact-dd-hint>
+							<?php esc_html_e( 'Start typing to search artists', 'excel-ent' ); ?>
+						</p>
+					<?php elseif ( $groups ) : ?>
 						<?php foreach ( $groups as $gkey => $group ) : ?>
 							<ul
 								class="contact-dd__list"
@@ -667,6 +661,11 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 	>
 		<form class="contact-form" method="post" action="<?php echo esc_url( home_url( '/' ) ); ?>" data-contact-form="booking" novalidate>
 			<input type="hidden" name="excel_ent_contact_type" value="booking">
+			<p class="screen-reader-text" aria-hidden="true">
+				<label><?php esc_html_e( 'Website', 'excel-ent' ); ?>
+					<input type="text" name="excel_ent_website" value="" tabindex="-1" autocomplete="off">
+				</label>
+			</p>
 
 			<div class="contact-accordion" data-contact-accordion data-contact-accordion-multi>
 				<!-- Your Details -->
@@ -736,12 +735,14 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 											'name'         => 'excel_ent_artist_pref[]',
 											'title'        => __( 'Browse your wish-list', 'excel-ent' ),
 											'placeholder'  => __( 'Browse your wish-list', 'excel-ent' ),
-											'options'      => $excel_ent_wishlist,
+											'options'      => array(),
 											'selected'     => '',
 											'searchable'   => true,
-											'search_placeholder' => __( 'Search', 'excel-ent' ),
+											'search_placeholder' => __( 'Search artists…', 'excel-ent' ),
 											'mod'          => 'contact-prefs__select',
 											'artist_pref'  => true,
+											'artist_suggest' => true,
+											'required'     => true,
 										)
 									);
 									?>
@@ -764,12 +765,13 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 											'name'         => 'excel_ent_artist_pref[]',
 											'title'        => __( 'Browse your wish-list', 'excel-ent' ),
 											'placeholder'  => __( 'Browse your wish-list', 'excel-ent' ),
-											'options'      => $excel_ent_wishlist,
+											'options'      => array(),
 											'selected'     => '',
 											'searchable'   => true,
-											'search_placeholder' => __( 'Search', 'excel-ent' ),
+											'search_placeholder' => __( 'Search artists…', 'excel-ent' ),
 											'mod'          => 'contact-prefs__select',
 											'artist_pref'  => true,
+											'artist_suggest' => true,
 										)
 									);
 									?>
@@ -781,11 +783,11 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<script type="application/json" data-artist-prefs-ranks><?php echo wp_json_encode( array_values( $excel_ent_rank_labels ) ); ?></script>
 						</div>
 
-						<?php $excel_ent_render_ent_type_dd( array() ); ?>
+						<?php $excel_ent_render_ent_type_dd( array( 'required' => true ) ); ?>
 						<div class="contact-fields contact-fields--prefs">
 							<label class="contact-field">
 								<span class="contact-field__label contact-field__label--strong"><?php esc_html_e( 'Event Budget', 'excel-ent' ); ?></span>
-								<input class="contact-field__input contact-field__input--muted" type="text" name="excel_ent_budget" placeholder="<?php esc_attr_e( '£500 – £2,000', 'excel-ent' ); ?>">
+								<input class="contact-field__input contact-field__input--muted" type="text" name="excel_ent_budget" placeholder="<?php esc_attr_e( '£500 – £2,000', 'excel-ent' ); ?>" required>
 							</label>
 							<?php
 							$excel_ent_render_dd(
@@ -793,10 +795,11 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 									'name'         => 'excel_ent_package',
 									'label'        => __( 'Select Package', 'excel-ent' ),
 									'title'        => __( 'Select Package', 'excel-ent' ),
-									'placeholder'  => __( 'Select a package or leave blank.', 'excel-ent' ),
+									'placeholder'  => __( 'Select a package', 'excel-ent' ),
 									'groups'       => $excel_ent_package_groups,
 									'selected'     => '',
 									'label_strong' => true,
+									'required'     => true,
 								)
 							);
 							?>
@@ -806,7 +809,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<div class="contact-radio-inline">
 								<div class="contact-radios">
 									<label class="contact-radio">
-										<input class="contact-radio__input" type="radio" name="excel_ent_regular" value="yes">
+										<input class="contact-radio__input" type="radio" name="excel_ent_regular" value="yes" required>
 										<span class="contact-radio__mark" aria-hidden="true"></span>
 										<span class="contact-radio__text"><?php esc_html_e( 'Yes', 'excel-ent' ); ?></span>
 									</label>
@@ -818,7 +821,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 								</div>
 								<label class="contact-radio-inline__detail">
 									<span class="screen-reader-text"><?php esc_html_e( 'Recurring booking details', 'excel-ent' ); ?></span>
-									<input class="contact-field__input contact-field__input--muted contact-field__input--light" type="text" name="excel_ent_regular_details" placeholder="<?php esc_attr_e( 'Add details for recurring bookings.', 'excel-ent' ); ?>">
+									<input class="contact-field__input contact-field__input--muted contact-field__input--light" type="text" name="excel_ent_regular_details" placeholder="<?php esc_attr_e( 'Add details for recurring bookings.', 'excel-ent' ); ?>" required>
 								</label>
 							</div>
 						</fieldset>
@@ -857,6 +860,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 										name="excel_ent_event_date"
 										value=""
 										data-header-date-input
+										required
 									>
 									<img class="contact-field__chevron" src="<?php echo esc_url( $excel_ent_uri . '/icon-calendar-fill.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 									<div
@@ -939,6 +943,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 										name="excel_ent_start_time"
 										value=""
 										data-contact-time-input
+										required
 									>
 									<img class="contact-field__chevron" src="<?php echo esc_url( $excel_ent_uri . '/icon-time.svg' ); ?>" alt="" width="24" height="24" decoding="async">
 									<div
@@ -977,7 +982,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							</div>
 							<label class="contact-field">
 								<span class="contact-field__label contact-field__label--strong"><?php esc_html_e( 'Guest Count', 'excel-ent' ); ?></span>
-								<input class="contact-field__input contact-field__input--muted" type="text" name="excel_ent_guests" placeholder="<?php esc_attr_e( 'e.g. 100-80 People', 'excel-ent' ); ?>">
+								<input class="contact-field__input contact-field__input--muted" type="text" name="excel_ent_guests" placeholder="<?php esc_attr_e( 'e.g. 100-80 People', 'excel-ent' ); ?>" required>
 							</label>
 							<?php
 							$excel_ent_render_dd(
@@ -992,6 +997,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 									'allow_custom'       => true,
 									'custom_placeholder' => __( 'Add your own', 'excel-ent' ),
 									'variant'            => 'set-length',
+									'required'           => true,
 								)
 							);
 							?>
@@ -1014,11 +1020,11 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 						<div class="contact-fields">
 							<label class="contact-field">
 								<span class="contact-field__label contact-field__label--strong"><?php esc_html_e( 'Venue Name', 'excel-ent' ); ?></span>
-								<input class="contact-field__input contact-field__input--muted contact-field__input--light" type="text" name="excel_ent_venue" placeholder="<?php esc_attr_e( 'e.g. The Grand Ballroom', 'excel-ent' ); ?>">
+								<input class="contact-field__input contact-field__input--muted contact-field__input--light" type="text" name="excel_ent_venue" placeholder="<?php esc_attr_e( 'e.g. The Grand Ballroom', 'excel-ent' ); ?>" required>
 							</label>
 							<label class="contact-field">
 								<span class="contact-field__label contact-field__label--strong"><?php esc_html_e( 'Venue Address', 'excel-ent' ); ?></span>
-								<input class="contact-field__input contact-field__input--muted contact-field__input--light" type="text" name="excel_ent_venue_address" placeholder="<?php esc_attr_e( 'Full address with postcode', 'excel-ent' ); ?>" autocomplete="street-address">
+								<input class="contact-field__input contact-field__input--muted contact-field__input--light" type="text" name="excel_ent_venue_address" placeholder="<?php esc_attr_e( 'Full address with postcode', 'excel-ent' ); ?>" autocomplete="street-address" required>
 							</label>
 						</div>
 						<div class="contact-yesno">
@@ -1026,7 +1032,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 								<legend class="contact-yesno__label"><?php esc_html_e( 'Is PA and Lighting required?', 'excel-ent' ); ?></legend>
 								<div class="contact-radios">
 									<label class="contact-radio">
-										<input class="contact-radio__input" type="radio" name="excel_ent_pa_lighting" value="yes">
+										<input class="contact-radio__input" type="radio" name="excel_ent_pa_lighting" value="yes" required>
 										<span class="contact-radio__mark" aria-hidden="true"></span>
 										<span class="contact-radio__text"><?php esc_html_e( 'Yes', 'excel-ent' ); ?></span>
 									</label>
@@ -1041,7 +1047,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 								<legend class="contact-yesno__label"><?php esc_html_e( 'Is there parking?', 'excel-ent' ); ?></legend>
 								<div class="contact-radios">
 									<label class="contact-radio">
-										<input class="contact-radio__input" type="radio" name="excel_ent_parking" value="yes">
+										<input class="contact-radio__input" type="radio" name="excel_ent_parking" value="yes" required>
 										<span class="contact-radio__mark" aria-hidden="true"></span>
 										<span class="contact-radio__text"><?php esc_html_e( 'Yes', 'excel-ent' ); ?></span>
 									</label>
@@ -1056,7 +1062,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 								<legend class="contact-yesno__label"><?php esc_html_e( 'Are there stairs involved?', 'excel-ent' ); ?></legend>
 								<div class="contact-radios">
 									<label class="contact-radio">
-										<input class="contact-radio__input" type="radio" name="excel_ent_stairs" value="yes">
+										<input class="contact-radio__input" type="radio" name="excel_ent_stairs" value="yes" required>
 										<span class="contact-radio__mark" aria-hidden="true"></span>
 										<span class="contact-radio__text"><?php esc_html_e( 'Yes', 'excel-ent' ); ?></span>
 									</label>
@@ -1085,7 +1091,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 					<div class="contact-acc__body contact-acc__body--notes" data-contact-acc-body hidden>
 						<label class="contact-notes">
 							<span class="contact-notes__label"><?php esc_html_e( 'Tell us about your event', 'excel-ent' ); ?></span>
-							<textarea class="contact-notes__input" name="excel_ent_notes" rows="4" placeholder="<?php esc_attr_e( 'Guest count, anything else we should know.', 'excel-ent' ); ?>"></textarea>
+							<textarea class="contact-notes__input" name="excel_ent_notes" rows="4" placeholder="<?php esc_attr_e( 'Guest count, anything else we should know.', 'excel-ent' ); ?>" required></textarea>
 						</label>
 					</div>
 				</section>
@@ -1107,7 +1113,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 							<div class="contact-pref__row">
 								<div class="contact-radios contact-radios--pref">
 									<label class="contact-radio contact-radio--pref">
-										<input class="contact-radio__input" type="radio" name="excel_ent_contact_pref" value="email" checked>
+										<input class="contact-radio__input" type="radio" name="excel_ent_contact_pref" value="email" checked required>
 										<span class="contact-radio__mark contact-radio__mark--filled" aria-hidden="true"></span>
 										<span class="contact-radio__text contact-radio__text--pref"><?php esc_html_e( 'Email', 'excel-ent' ); ?></span>
 									</label>
@@ -1124,7 +1130,7 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 								</div>
 								<label class="contact-pref__detail">
 									<span class="screen-reader-text"><?php esc_html_e( 'Contact details', 'excel-ent' ); ?></span>
-									<input class="contact-field__input contact-field__input--muted contact-field__input--light" type="text" name="excel_ent_contact_details" placeholder="<?php esc_attr_e( 'Add details,  e.g. best time to reach you', 'excel-ent' ); ?>">
+									<input class="contact-field__input contact-field__input--muted contact-field__input--light" type="text" name="excel_ent_contact_details" placeholder="<?php esc_attr_e( 'Add details,  e.g. best time to reach you', 'excel-ent' ); ?>" required>
 								</label>
 							</div>
 						</fieldset>
@@ -1154,9 +1160,16 @@ $excel_ent_render_repeat = static function ( $args ) use ( $excel_ent_uri, $exce
 					</span>
 				</label>
 
-				<button class="contact-form__submit magnetic" type="submit">
-					<?php esc_html_e( 'Get A Quote', 'excel-ent' ); ?>
+				<button class="contact-form__submit magnetic" type="submit" data-contact-quote-submit>
+					<span data-contact-quote-submit-label><?php esc_html_e( 'Get A Quote', 'excel-ent' ); ?></span>
 				</button>
+				<p
+					class="contact-form__status"
+					data-contact-quote-status
+					role="status"
+					aria-live="polite"
+					hidden
+				></p>
 				<p class="contact-form__note">
 					<?php esc_html_e( "Enquiry-based booking — a member of our team will confirm availability and pricing directly, this isn't an instant checkout.", 'excel-ent' ); ?>
 				</p>
