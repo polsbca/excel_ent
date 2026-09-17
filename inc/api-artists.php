@@ -30,7 +30,7 @@ function excel_ent_artist_api_search_url() {
 		return EXCEL_ENT_ARTIST_API_URL;
 	}
 
-	return 'https://smartflows.co.uk/excel/api/artists/search.php';
+	return 'https://syms.io/excel/api/artists/search.php';
 }
 
 /**
@@ -43,7 +43,7 @@ function excel_ent_artist_api_list_url() {
 		return EXCEL_ENT_ARTIST_LIST_API_URL;
 	}
 
-	return 'https://smartflows.co.uk/excel/api/artists/list.php';
+	return 'https://syms.io/excel/api/artists/list.php';
 }
 
 /**

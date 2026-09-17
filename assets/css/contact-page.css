@@ -2092,6 +2092,47 @@
 	outline: none;
 }
 
+.contact-form.is-loading .contact-form__submit {
+	opacity: 0.72;
+	pointer-events: none;
+	cursor: wait;
+}
+
+.contact-form__status {
+	margin: 0;
+	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 1.4;
+	letter-spacing: 0.02em;
+	text-align: center;
+}
+
+.contact-form__status[hidden] {
+	display: none;
+}
+
+.contact-form__status.is-success {
+	color: #0f7a3f;
+}
+
+.contact-form__status.is-error {
+	color: #c81e3a;
+}
+
+.contact-form .is-invalid {
+	outline: 2px solid #eb2055;
+	outline-offset: 2px;
+}
+
+.contact-form .contact-field--dd.is-invalid .contact-dd__trigger,
+.contact-form .contact-file.is-invalid,
+.contact-form .contact-prefs.is-invalid,
+.contact-form .contact-yesno__row.is-invalid {
+	outline: 2px solid #eb2055;
+	outline-offset: 2px;
+}
+
 .contact-form__note {
 	margin: 0;
 	font-family: var(--ee-font-body-os, "Open Sans", sans-serif);

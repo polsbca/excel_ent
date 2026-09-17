@@ -7,6 +7,8 @@
 
 This document defines the REST APIs required to power all artist-related UI in the Excel Entertainment website. Today the theme uses hardcoded demo data. The vendor API must supply the same (or richer) data so the site can replace static arrays with live responses.
 
+**Related:** Postcode + travel radius distance search is specified separately in [`API-POSTCODE-RADIUS-SEARCH.md`](./API-POSTCODE-RADIUS-SEARCH.md).
+
 ---
 
 ## 1. Goals

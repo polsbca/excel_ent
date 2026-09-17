@@ -11591,6 +11591,268 @@
 		});
 	}
 
+	/* ---------- Contact — Register as Artist (Smartflows applications API) ---------- */
+	document.querySelectorAll('[data-contact-form="talent"]').forEach((form) => {
+		const statusEl = form.querySelector("[data-contact-talent-status]");
+		const submitBtn = form.querySelector("[data-contact-talent-submit]");
+		const submitLabel = form.querySelector("[data-contact-talent-submit-label]");
+		const cfg = window.excelEnt?.artistRegistration || {};
+		const ajaxUrl = window.excelEnt?.ajaxUrl || "";
+		const defaultLabel = submitLabel?.textContent?.trim() || cfg.submitLabel || "Register as Artist";
+
+		const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+		const isValidUrl = (value) => {
+			try {
+				const parsed = new URL(String(value || "").trim());
+				return Boolean(parsed.protocol === "http:" || parsed.protocol === "https:");
+			} catch (err) {
+				return false;
+			}
+		};
+
+		const setStatus = (message, type) => {
+			if (!statusEl) return;
+			statusEl.hidden = !message;
+			statusEl.textContent = message || "";
+			statusEl.classList.toggle("is-success", type === "success");
+			statusEl.classList.toggle("is-error", type === "error");
+		};
+
+		const setBusy = (busy) => {
+			form.classList.toggle("is-loading", busy);
+			if (submitBtn) submitBtn.disabled = busy;
+			if (submitLabel) {
+				submitLabel.textContent = busy ? cfg.sending || "Submitting…" : defaultLabel;
+			}
+		};
+
+		const openAccordionFor = (el) => {
+			const section = el?.closest?.("[data-contact-acc]");
+			if (!section || section.classList.contains("is-open")) return;
+			const toggle = section.querySelector("[data-contact-acc-toggle]");
+			const body = section.querySelector("[data-contact-acc-body]");
+			section.classList.add("is-open");
+			if (body) body.hidden = false;
+			toggle?.setAttribute("aria-expanded", "true");
+		};
+
+		const markField = (selectorOrEl, on) => {
+			const el =
+				typeof selectorOrEl === "string" ? form.querySelector(selectorOrEl) : selectorOrEl;
+			if (!el) return;
+			const target =
+				el.closest(".contact-field--dd") ||
+				el.closest(".contact-file") ||
+				el.closest(".contact-yesno__row") ||
+				el.closest(".contact-prefs") ||
+				el;
+			target.classList.toggle("is-invalid", on);
+			if (on) {
+				openAccordionFor(el);
+				if (typeof el.focus === "function") {
+					try {
+						el.focus({ preventScroll: true });
+					} catch (err) {
+						el.focus();
+					}
+				}
+				target.scrollIntoView({ block: "center", behavior: "smooth" });
+			}
+		};
+
+		const clearInvalid = () => {
+			form.querySelectorAll(".is-invalid").forEach((el) => el.classList.remove("is-invalid"));
+		};
+
+		const fail = (selectorOrEl, message) => {
+			setStatus(message, "error");
+			markField(selectorOrEl, true);
+			return false;
+		};
+
+		const valueOf = (name) => (form.querySelector(`[name="${name}"]`)?.value || "").trim();
+
+		const hasFilledFiles = (name) =>
+			Array.from(form.querySelectorAll(`input[type="file"][name="${name}"]`)).some(
+				(input) => (input.files?.length || 0) > 0
+			);
+
+		const filledUrls = (name) =>
+			Array.from(form.querySelectorAll(`[name="${name}"]`))
+				.map((input) => (input.value || "").trim())
+				.filter(Boolean);
+
+		const makeIdempotencyKey = () => {
+			if (window.crypto?.randomUUID) {
+				return window.crypto.randomUUID();
+			}
+			return `ee-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+		};
+
+		form.addEventListener("submit", async (e) => {
+			e.preventDefault();
+			clearInvalid();
+			setStatus("", "");
+
+			const fullName = valueOf("excel_ent_full_name");
+			const stageName = valueOf("excel_ent_stage_name");
+			const email = valueOf("excel_ent_email");
+			const phone = valueOf("excel_ent_phone");
+			const address = valueOf("excel_ent_address");
+			const years = valueOf("excel_ent_years");
+			const baseLocation = valueOf("excel_ent_base_location");
+			const setLength = valueOf("excel_ent_set_length");
+			const rate = valueOf("excel_ent_rate");
+			const categories = valueOf("excel_ent_perf_category");
+			const video = valueOf("excel_ent_video_links");
+			const reviews = valueOf("excel_ent_reviews");
+			const travel = valueOf("excel_ent_travel");
+			const tech = valueOf("excel_ent_tech");
+			const pli = form.querySelector('[name="excel_ent_pli"]:checked')?.value || "";
+			const pat = form.querySelector('[name="excel_ent_pat"]:checked')?.value || "";
+			const bio = valueOf("excel_ent_bio");
+			const contactPref =
+				form.querySelector('[name="excel_ent_talent_contact_pref"]:checked')?.value || "";
+			const contactDetails = valueOf("excel_ent_talent_contact_details");
+			const agree = Boolean(form.querySelector('[name="excel_ent_agree"]')?.checked);
+			const playlists = filledUrls("excel_ent_playlist[]");
+			const socials = filledUrls("excel_ent_social[]");
+
+			if (!fullName) return fail('[name="excel_ent_full_name"]', cfg.nameRequired || "Please enter your full name.");
+			if (!stageName) return fail('[name="excel_ent_stage_name"]', cfg.stageRequired || "Please enter your stage name.");
+			if (!email) return fail('[name="excel_ent_email"]', cfg.emailRequired || "Please enter your email address.");
+			if (!isValidEmail(email)) return fail('[name="excel_ent_email"]', cfg.emailInvalid || "Please enter a valid email address.");
+			if (!phone) return fail('[name="excel_ent_phone"]', cfg.phoneRequired || "Please enter your phone number.");
+			if (!address) return fail('[name="excel_ent_address"]', cfg.addressRequired || "Please enter your registered address.");
+			if (!years) return fail('[name="excel_ent_years"]', cfg.yearsRequired || "Please select years performing.");
+			if (!baseLocation) return fail('[name="excel_ent_base_location"]', cfg.baseLocationRequired || "Please enter your base location.");
+			if (!setLength) return fail('[name="excel_ent_set_length"]', cfg.setLengthRequired || "Please select at least one performance set length.");
+			if (!rate) return fail('[name="excel_ent_rate"]', cfg.rateRequired || "Please enter your rate / price range.");
+			if (!categories) return fail('[name="excel_ent_perf_category"]', cfg.categoriesRequired || "Please select at least one performance category.");
+			if (!hasFilledFiles("excel_ent_headshot[]")) {
+				return fail('input[name="excel_ent_headshot[]"]', cfg.headshotRequired || "Please upload at least one headshot.");
+			}
+			if (!hasFilledFiles("excel_ent_photos[]")) {
+				return fail('input[name="excel_ent_photos[]"]', cfg.photosRequired || "Please upload at least one performance photo.");
+			}
+			if (!playlists.length) {
+				return fail('input[name="excel_ent_playlist[]"]', cfg.playlistRequired || "Please add at least one playlist link.");
+			}
+			if (playlists.some((url) => !isValidUrl(url))) {
+				return fail('input[name="excel_ent_playlist[]"]', cfg.urlInvalid || "Please enter a valid playlist URL.");
+			}
+			if (!socials.length) {
+				return fail('input[name="excel_ent_social[]"]', cfg.socialRequired || "Please add at least one social media link.");
+			}
+			if (socials.some((url) => !isValidUrl(url))) {
+				return fail('input[name="excel_ent_social[]"]', cfg.urlInvalid || "Please enter a valid social media URL.");
+			}
+			if (!video) return fail('[name="excel_ent_video_links"]', cfg.videoRequired || "Please add a performance video link.");
+			if (!isValidUrl(video)) return fail('[name="excel_ent_video_links"]', cfg.urlInvalid || "Please enter a valid video URL.");
+			if (!reviews) return fail('[name="excel_ent_reviews"]', cfg.reviewsRequired || "Please add a customer reviews link.");
+			if (!isValidUrl(reviews)) return fail('[name="excel_ent_reviews"]', cfg.urlInvalid || "Please enter a valid reviews URL.");
+			if (!travel) return fail('[name="excel_ent_travel"]', cfg.travelRequired || "Please select your travel radius.");
+			if (!tech) return fail('[name="excel_ent_tech"]', cfg.techRequired || "Please enter your technical requirements.");
+			if (!pli) return fail('[name="excel_ent_pli"]', cfg.pliRequired || "Please confirm whether you have public liability insurance.");
+			if (!pat) return fail('[name="excel_ent_pat"]', cfg.patRequired || "Please confirm whether all equipment is P.A.T. tested.");
+			if (!bio) return fail('[name="excel_ent_bio"]', cfg.bioRequired || "Please tell us about yourself.");
+			if (!contactPref) {
+				return fail('[name="excel_ent_talent_contact_pref"]', cfg.contactPrefRequired || "Please choose how we should contact you.");
+			}
+			if (!contactDetails) {
+				return fail('[name="excel_ent_talent_contact_details"]', cfg.contactDetailsRequired || "Please add contact preference details.");
+			}
+			if (!agree) return fail('[name="excel_ent_agree"]', cfg.consentRequired || "Please agree for your content to be shared on the Excel website.");
+			if (!ajaxUrl || !cfg.nonce) {
+				setStatus(cfg.genericError || "Something went wrong. Please try again.", "error");
+				return;
+			}
+
+			setBusy(true);
+
+			try {
+				const body = new FormData(form);
+				body.set("action", "excel_ent_artist_registration");
+				body.set("nonce", cfg.nonce);
+				body.set("idempotency_key", makeIdempotencyKey());
+
+				const response = await fetch(ajaxUrl, {
+					method: "POST",
+					credentials: "same-origin",
+					body,
+				});
+				const payload = await response.json().catch(() => null);
+				const ok = Boolean(payload?.success);
+				const message =
+					payload?.data?.message ||
+					(ok
+						? cfg.successMessage || "Our team will get back to you within 24 hours."
+						: cfg.genericError || "Something went wrong. Please try again.");
+
+				if (ok) {
+					form.classList.add("is-success");
+					setStatus(message, "success");
+					form.reset();
+					form.querySelectorAll(".contact-field__input").forEach((el) => {
+						el.classList.remove("has-value", "is-invalid");
+					});
+					form.querySelectorAll("[data-contact-dd-label]").forEach((label) => {
+						const placeholder = label.getAttribute("data-placeholder") || label.textContent;
+						label.textContent = placeholder;
+					});
+					form.querySelectorAll("[data-contact-dd-input]").forEach((input) => {
+						input.value = "";
+					});
+					form.querySelectorAll("[data-contact-dd-option].is-selected").forEach((opt) => {
+						opt.classList.remove("is-selected");
+						opt.setAttribute("aria-selected", "false");
+					});
+					form.querySelectorAll("[data-contact-file-label]").forEach((label) => {
+						const placeholder = label.getAttribute("data-placeholder") || label.textContent;
+						label.textContent = placeholder;
+					});
+					statusEl?.scrollIntoView({ block: "center", behavior: "smooth" });
+				} else {
+					const field = payload?.data?.field;
+					const fieldMap = {
+						full_name: '[name="excel_ent_full_name"]',
+						stage_name: '[name="excel_ent_stage_name"]',
+						email: '[name="excel_ent_email"]',
+						phone: '[name="excel_ent_phone"]',
+						address: '[name="excel_ent_address"]',
+						years: '[name="excel_ent_years"]',
+						base_location: '[name="excel_ent_base_location"]',
+						set_length: '[name="excel_ent_set_length"]',
+						rate: '[name="excel_ent_rate"]',
+						categories: '[name="excel_ent_perf_category"]',
+						headshots: 'input[name="excel_ent_headshot[]"]',
+						photos: 'input[name="excel_ent_photos[]"]',
+						playlist: 'input[name="excel_ent_playlist[]"]',
+						social: 'input[name="excel_ent_social[]"]',
+						video: '[name="excel_ent_video_links"]',
+						reviews: '[name="excel_ent_reviews"]',
+						travel: '[name="excel_ent_travel"]',
+						tech: '[name="excel_ent_tech"]',
+						pli: '[name="excel_ent_pli"]',
+						pat: '[name="excel_ent_pat"]',
+						bio: '[name="excel_ent_bio"]',
+						contact_pref: '[name="excel_ent_talent_contact_pref"]',
+						contact_details: '[name="excel_ent_talent_contact_details"]',
+						consent: '[name="excel_ent_agree"]',
+					};
+					if (field && fieldMap[field]) {
+						markField(fieldMap[field], true);
+					}
+					setStatus(message, "error");
+				}
+			} catch (err) {
+				setStatus(cfg.genericError || "Something went wrong. Please try again.", "error");
+			} finally {
+				setBusy(false);
+			}
+		});
+	});
+
 	/* Header search dropdowns — close helpers */
 	const closeHeaderPanels = (except) => {
 		document

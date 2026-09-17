@@ -6,7 +6,7 @@
 **Source template:** `page-contactus.php` → `template-parts/section-contact.php` (panel `data-contact-panel="talent"`, form `data-contact-form="talent"`)  
 **Last updated:** 2026-09-01
 
-This document is the **authoritative specification** for the Register as Artist submission flow. The broader artist catalogue API is in [`API-ARTISTS.md`](./API-ARTISTS.md).
+This document is the **authoritative specification** for the Register as Artist submission flow. The broader artist catalogue API is in [`API-ARTISTS.md`](./API-ARTISTS.md). How registered **base postcode** + **travel radius** power event postcode search is in [`API-POSTCODE-RADIUS-SEARCH.md`](./API-POSTCODE-RADIUS-SEARCH.md).
 
 ---
 
